@@ -1,0 +1,108 @@
+'use client';
+
+import { clearSession, getSessionId } from '@/lib/auth-client';
+import { sanitizeReturnTo } from '@/lib/auth-redirect';
+import { ApiError } from './error';
+
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+
+interface FetchOptions extends Omit<RequestInit, 'body'> {
+  body?: unknown;
+}
+
+function getSessionToken() {
+  return getSessionId();
+}
+
+/** Client-only fetch wrapper that includes the session token in Authorization header. */
+export async function api<T = unknown>(path: string, opts: FetchOptions = {}): Promise<T> {
+  const token = getSessionToken();
+  const headers = new Headers(opts.headers);
+  if (!headers.has('content-type') && opts.body !== undefined) {
+    headers.set('content-type', 'application/json');
+  }
+  if (token) headers.set('authorization', `Bearer ${token}`);
+
+  const res = await fetch(`${BASE}${path}`, {
+    method: opts.method ?? (opts.body ? 'POST' : 'GET'),
+    headers,
+    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+  });
+
+  if (!res.ok) {
+    // A 401 with a token present means the session was invalidated
+    // server-side (expired row, revoked, DB reset) while the client
+    // still holds it. Backend authz failures are 403, so this can't
+    // misfire on permission errors. Bounce through login carrying the
+    // current URL so the user returns to the same page after re-auth.
+    if (res.status === 401 && token && typeof window !== 'undefined') {
+      if (!window.location.pathname.startsWith('/login')) {
+        clearSession();
+        const returnTo = sanitizeReturnTo(
+          window.location.pathname + window.location.search,
+        );
+        window.location.assign(
+          `/login?reason=session-expired${
+            returnTo ? `&callbackUrl=${encodeURIComponent(returnTo)}` : ''
+          }`,
+        );
+      }
+    }
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    throw new ApiError(res.status, body);
+  }
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
+}
+
+/**
+ * Fire-and-forget PATCH/POST that survives a page-close. Built on
+ * `fetch({ keepalive: true })` — the browser keeps the connection
+ * open after the document is torn down. Used by the SaveCoordinator
+ * to flush in-flight debounced saves on `visibilitychange === hidden`
+ * and `beforeunload`. The 64KB body cap is per the keepalive spec;
+ * for larger payloads (very busy whiteboard scenes) the caller should
+ * fall back to a normal `api()` PATCH and accept the in-flight risk.
+ */
+export function apiBeacon(path: string, body: unknown, method: 'PATCH' | 'POST' = 'PATCH'): void {
+  const token = getSessionToken();
+  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  if (token) headers.authorization = `Bearer ${token}`;
+  try {
+    void fetch(`${BASE}${path}`, {
+      method,
+      headers,
+      body: JSON.stringify(body),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    // Bodies > ~64KB throw synchronously in some browsers. Best-effort.
+  }
+}
+
+/**
+ * Direct PUT — used for S3 presigned uploads (no auth, raw body).
+ * `contentType` overrides the header sent on the wire; it must match the
+ * content-type the URL was signed with, otherwise S3 rejects the signature.
+ * Defaults to the file's own type to preserve existing callers.
+ */
+export async function uploadToPresigned(
+  uploadUrl: string,
+  file: File,
+  onProgress?: (pct: number) => void,
+  contentType?: string,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', uploadUrl);
+    xhr.setRequestHeader('content-type', contentType ?? file.type);
+    if (onProgress) {
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) onProgress((e.loaded / e.total) * 100);
+      });
+    }
+    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`)));
+    xhr.onerror = () => reject(new Error('Upload network error'));
+    xhr.send(file);
+  });
+}
