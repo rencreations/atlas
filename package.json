@@ -1,0 +1,31 @@
+{
+  "name": "rement",
+  "version": "0.1.1",
+  "private": true,
+  "description": "MGM Atlas — monorepo for the lab's project HQ: Next.js web app (apps/frontend) and NestJS API (apps/backend).",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:frontend": "pnpm --filter @atlas/frontend dev",
+    "dev:backend": "pnpm --filter @atlas/backend dev",
+    "build": "pnpm -r build",
+    "build:frontend": "pnpm --filter @atlas/frontend build",
+    "build:backend": "pnpm --filter @atlas/backend build",
+    "start:backend": "pnpm --filter @atlas/backend start:prod",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm --filter @atlas/frontend typecheck",
+    "format": "pnpm -r format",
+    "test": "pnpm --filter @atlas/backend test",
+    "test:e2e": "pnpm --filter @atlas/backend test:e2e",
+    "db:generate": "pnpm --filter @atlas/backend prisma:generate",
+    "db:migrate": "pnpm --filter @atlas/backend prisma:migrate:deploy",
+    "db:migrate:dev": "pnpm --filter @atlas/backend prisma:migrate:dev",
+    "db:seed": "pnpm --filter @atlas/backend prisma:seed",
+    "db:studio": "pnpm --filter @atlas/backend prisma:studio"
+  }
+}

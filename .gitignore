@@ -1,0 +1,52 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+.pnp.*
+
+# testing
+coverage/
+
+# next.js (apps/frontend)
+.next/
+out/
+
+# nestjs (apps/backend)
+dist/
+build/
+tmp/
+
+# production
+.temp
+.tmp
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# local env files — .env.example is committed, never .env
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# playwright (apps/frontend)
+tests/.auth/
+test-results/
+playwright-report/

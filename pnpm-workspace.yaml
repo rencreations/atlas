@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+
+# Build scripts that must run at install time. Everything else stays blocked
+# (pnpm 10 default) — the backend runs `prisma generate` explicitly in `build`.
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - prisma
+  - '@prisma/engines'
+  - esbuild
+  - sharp
