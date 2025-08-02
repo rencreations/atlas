@@ -1,0 +1,333 @@
+name: production-frontend
+
+on:
+  push:
+    branches: ["main"]
+    # Docs-only merges must not rebuild (and auto-redeploy) production.
+    # Use "Run workflow" if you ever need to force a build.
+    paths:
+      - "apps/frontend/**"
+      - ".github/workflows/production-frontend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy-frontend
+  cancel-in-progress: true
+
+jobs:
+  # 1) Build + push IMMUTABLE tags only. NEXT_PUBLIC_* are baked here, so the
+  #    build must run un-gated — all build-time vars are repo/org level (the
+  #    PMO flag was promoted out of the protected `production` environment).
+  #    Inert until Docker Hub vars are configured for this repo.
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ vars.DOCKERHUB_USERNAME != '' }}
+    permissions:
+      contents: read
+    outputs:
+      sha7: ${{ steps.meta.outputs.sha }}
+      ts: ${{ steps.meta.outputs.ts }}
+      image: ${{ steps.img.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Compute image tag
+        id: meta
+        working-directory: apps/frontend
+        run: |
+          echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "ts=$(date -u +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
+          echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          echo "app_version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve image name
+        id: img
+        run: echo "image=${{ vars.DOCKERHUB_USERNAME }}/${{ vars.IMAGE_NAME }}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Build and push immutable tags
+        id: build
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: apps/frontend/Dockerfile
+          push: true
+          platforms: linux/amd64
+          provenance: false
+          build-args: |
+            NEXT_PUBLIC_APP_URL=${{ vars.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_KEYCLOAK_ISSUER=${{ vars.NEXT_PUBLIC_KEYCLOAK_ISSUER }}
+            NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=${{ vars.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
+            NEXT_PUBLIC_KEYCLOAK_ACCOUNT_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_ACCOUNT_URL }}
+            NEXT_PUBLIC_PMO_ENABLED=${{ vars.NEXT_PUBLIC_PMO_ENABLED }}
+            NEXT_PUBLIC_YJS_WS_URL=${{ vars.NEXT_PUBLIC_YJS_WS_URL }}
+            NEXT_PUBLIC_VOICE_ENABLED=${{ vars.NEXT_PUBLIC_VOICE_ENABLED }}
+            NEXT_PUBLIC_LIVEKIT_URL=${{ vars.NEXT_PUBLIC_LIVEKIT_URL }}
+            GIT_SHA=${{ steps.meta.outputs.sha }}
+            BUILD_TIME=${{ steps.meta.outputs.built_at }}
+            APP_VERSION=${{ steps.meta.outputs.app_version }}
+          tags: |
+            ${{ steps.img.outputs.image }}:latest-${{ steps.meta.outputs.ts }}
+            ${{ steps.img.outputs.image }}:latest-${{ steps.meta.outputs.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # 1b) Scan the freshly-built image. Report-only (SARIF → Security tab) until
+  #     the backlog is triaged, then flip exit-code to 1 to gate.
+  scan-image:
+    needs: build
+    if: ${{ always() && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+          format: sarif
+          output: trivy-image.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+      - name: Upload SARIF
+        if: ${{ always() && hashFiles('trivy-image.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357 # v3
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image
+
+  # 1c) Supply chain: SBOM (SPDX + CycloneDX), keyless Cosign signature + SBOM
+  #     attestation, and SLSA build provenance — all on the immutable digest.
+  sbom-sign:
+    needs: build
+    if: ${{ always() && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    env:
+      IMAGE_DIGEST: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate SBOM (SPDX)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0
+        with:
+          image: ${{ env.IMAGE_DIGEST }}
+          output-file: sbom.spdx.json
+          format: spdx-json
+
+      - name: Generate SBOM (CycloneDX)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0
+        with:
+          image: ${{ env.IMAGE_DIGEST }}
+          output-file: sbom.cdx.json
+          format: cyclonedx-json
+
+      - name: Upload SBOM artifacts (audit, 90d)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom-${{ needs.build.outputs.sha7 }}
+          path: |
+            sbom.spdx.json
+            sbom.cdx.json
+          retention-days: 90
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+      - name: Sign image (keyless) + attest SBOM
+        run: |
+          set -euo pipefail
+          cosign sign --yes "${IMAGE_DIGEST}"
+          cosign attest --yes --type spdxjson --predicate sbom.spdx.json "${IMAGE_DIGEST}"
+
+      - name: Attest SLSA build provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-name: ${{ needs.build.outputs.image }}
+          subject-digest: ${{ needs.build.outputs.digest }}
+          push-to-registry: false
+
+  # 2) APPROVAL GATE: verify the signature, then move the floating `latest`
+  #    tag (what Watchtower pulls) to the built+signed digest.
+  release-production:
+    needs: [build, scan-image, sbom-sign]
+    if: ${{ always() && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+      - name: Verify the image signature came from this repo's CI
+        run: |
+          set -euo pipefail
+          cosign verify "${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}" \
+            --certificate-identity-regexp "^https://github.com/shirasakaren/rement/\.github/workflows/.+@refs/heads/main$" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" > /dev/null
+          echo "Signature verified."
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Promote digest to :latest
+        run: |
+          IMAGE='${{ needs.build.outputs.image }}'
+          DIGEST='${{ needs.build.outputs.digest }}'
+          echo "Promoting ${IMAGE}@${DIGEST} -> ${IMAGE}:latest"
+          docker buildx imagetools create -t "${IMAGE}:latest" "${IMAGE}@${DIGEST}"
+
+  # 2b) Deterministic converge: after the gated retag, recreate the container
+  #     on the host via compose so we don't depend on Watchtower's non-atomic
+  #     update. Joins the tailnet ephemerally, then SSHes in. Inert until
+  #     DEPLOY_CONVERGE_ENABLED is set — see docs/deploy-converge-setup.md.
+  converge:
+    needs: [build, release-production]
+    runs-on: ubuntu-latest
+    if: ${{ vars.DEPLOY_CONVERGE_ENABLED == 'true' }}
+    permissions:
+      contents: read
+    steps:
+      - name: Connect to tailnet (ephemeral node)
+        uses: tailscale/github-action@6cae46e2d796f265265cfcf628b72a32b4d7cade # v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Recreate frontend on the production host
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+          COMPOSE_DIR: /home/user/docker/rement
+          SERVICE: atlas-frontend
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$RUNNER_TEMP/deploy_key"
+          chmod 600 "$RUNNER_TEMP/deploy_key"
+          ssh -i "$RUNNER_TEMP/deploy_key" -o StrictHostKeyChecking=accept-new \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "cd '${COMPOSE_DIR}' && docker compose pull '${SERVICE}' && docker compose up -d '${SERVICE}'"
+
+  # 3) Confirm the new SHA is serving (covers converge and the Watchtower
+  #    fallback), then smoke. Runs whether converge ran or was skipped.
+  verify-deploy:
+    needs: [build, release-production, converge]
+    if: ${{ always() && needs.release-production.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Wait for production to report the new commit
+        run: |
+          set -euo pipefail
+          want='${{ needs.build.outputs.sha7 }}'
+          url='https://atlas.labmgm.org/api/version'
+          echo "Waiting for $url to report sha=$want (up to 20 min)…"
+          for i in $(seq 1 40); do
+            got="$(curl -fsS --max-time 10 -A 'atlas-ci-verify' "$url" | sed -n 's/.*"sha":"\([^"]*\)".*/\1/p' || true)"
+            echo "[$i] reported sha=${got:-<none>}"
+            if [ "$got" = "$want" ]; then echo "Converged."; exit 0; fi
+            sleep 30
+          done
+          echo "::error::Frontend did not converge on sha=$want within 20 minutes"
+          exit 1
+
+      - name: Smoke test (key routes)
+        run: |
+          set -euo pipefail
+          for path in / /login; do
+            code="$(curl -fsS -o /dev/null -w '%{http_code}' --max-time 10 -A 'atlas-ci-smoke' "https://atlas.labmgm.org${path}")"
+            echo "GET ${path} -> ${code}"
+            [ "$code" = "200" ] || { echo "::error::${path} returned ${code}"; exit 1; }
+          done
+          echo "Smoke OK."
+
+  # 4) Assemble the compliance evidence bundle for this deploy: artifact (90d)
+  #    + durable copy to the S3 evidence bucket via GitHub OIDC (no AWS keys).
+  #    Additive and `always()`-guarded — never affects the deploy outcome.
+  evidence:
+    needs: [build, scan-image, sbom-sign, release-production, verify-deploy]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+      checks: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Build evidence bundle
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          SHA: ${{ github.sha }}
+          IMAGE: ${{ needs.build.outputs.image }}
+          DIGEST: ${{ needs.build.outputs.digest }}
+          RUN_CONCLUSIONS: >-
+            {"scan-image":"${{ needs.scan-image.result }}","sbom-sign":"${{ needs.sbom-sign.result }}","release-production":"${{ needs.release-production.result }}","verify-deploy":"${{ needs.verify-deploy.result }}"}
+        run: node .github/scripts/build-evidence.mjs
+
+      - name: Upload evidence artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: evidence-${{ needs.build.outputs.sha7 }}
+          path: |
+            evidence.json
+            evidence.md
+          retention-days: 90
+
+      - name: Configure AWS (OIDC)
+        if: ${{ vars.AWS_EVIDENCE_ROLE_ARN != '' }}
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
+        with:
+          role-to-assume: ${{ vars.AWS_EVIDENCE_ROLE_ARN }}
+          aws-region: ap-southeast-3
+
+      - name: Copy evidence to S3
+        if: ${{ vars.AWS_EVIDENCE_ROLE_ARN != '' }}
+        run: |
+          set -euo pipefail
+          prefix="s3://mgm-atlas-074416822787-ap-southeast-3-evidence/${GITHUB_REPOSITORY##*/}/$(date -u +%Y-%m-%d)-${{ needs.build.outputs.sha7 }}"
+          aws s3 cp evidence.json "${prefix}/evidence.json"
+          aws s3 cp evidence.md "${prefix}/evidence.md"
+          echo "Evidence stored at ${prefix}"

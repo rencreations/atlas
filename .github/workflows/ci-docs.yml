@@ -1,0 +1,48 @@
+name: ci-docs
+
+# Lightweight lint for docs-only and scripts-only PRs. No dependency install —
+# these checks must stay fast because docs PRs are frequent.
+
+on:
+  pull_request:
+    branches: ["*"]
+    paths:
+      - "docs/**"
+      - "scripts/**"
+      - "**.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdown-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Markdown sanity check
+        # Reads the file list from `git ls-files` (never from PR-controlled
+        # template input) so no shell interpolation happens on untrusted data.
+        run: |
+          set -euo pipefail
+          failed=0
+          while IFS= read -r f; do
+            [ -s "$f" ] || continue
+            if [ "$(tail -c 1 "$f" | wc -l)" -eq 0 ]; then
+              echo "::error file=$f::missing final newline"
+              failed=1
+            fi
+            if grep -nE '[[:blank:]]+$' "$f" | head -5; then
+              echo "::error file=$f::trailing whitespace"
+              failed=1
+            fi
+            if grep -nP '\t' "$f" | head -5; then
+              echo "::error file=$f::tabs in markdown"
+              failed=1
+            fi
+          done < <(git ls-files '*.md')
+          exit $failed

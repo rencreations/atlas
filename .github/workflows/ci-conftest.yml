@@ -1,0 +1,56 @@
+name: ci-conftest
+
+# Policy-as-code gate (OPA/conftest). Policies vendored from mgm-atlas-ops
+# in .github/policy/. Deny rules (no :latest base, HEALTHCHECK required, no
+# privileged) fail the job; non-root etc. are advisory warns for now.
+
+on:
+  pull_request:
+    branches: ["*"]
+    paths:
+      - "**/Dockerfile"
+      - "docker-compose.yml"
+      - ".github/policy/**"
+      - ".github/workflows/**"
+  push:
+    branches: ["main"]
+    paths:
+      - "**/Dockerfile"
+      - "docker-compose.yml"
+      - ".github/policy/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conftest-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conftest:
+    runs-on: ubuntu-latest
+    env:
+      CONFTEST_VERSION: "0.68.2"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install conftest
+        run: |
+          set -euo pipefail
+          curl -sSL "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" \
+            | tar -xz -C /usr/local/bin conftest
+          conftest --version
+
+      - name: Dockerfile policy
+        run: |
+          conftest test --parser dockerfile --namespace dockerfile -p .github/policy \
+            apps/frontend/Dockerfile \
+            apps/backend/Dockerfile \
+            apps/backend/services/y-websocket/Dockerfile
+
+      - name: Compose policy
+        run: conftest test --parser yaml --namespace compose -p .github/policy docker-compose.yml
+
+      - name: Workflows policy
+        run: conftest test --parser yaml --namespace workflows -p .github/policy .github/workflows/*.yml
