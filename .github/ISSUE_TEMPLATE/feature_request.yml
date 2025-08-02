@@ -1,0 +1,50 @@
+name: Feature request
+description: Propose an improvement to the Atlas app or API
+title: "[feat]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! Please check the
+        [existing issues](../../issues) first to avoid duplicates.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: Describe the pain point, not the solution — "As a contributor, I can't…"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How do you imagine it working? Sketches and flows welcome.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of Atlas does this touch?
+      options:
+        - Dashboard / Discovery
+        - Projects
+        - Chat
+        - PMO — tasks / boards / timeline
+        - PMO — notes / whiteboards / files
+        - Voice
+        - Notifications
+        - Auth / sessions
+        - API / backend
+        - UI / design
+        - Operations / CI / infrastructure
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Links to mockups, prior art, or related discussions.
+    validations:
+      required: false

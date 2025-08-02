@@ -1,0 +1,64 @@
+name: Bug report
+description: Something in the Atlas app or API isn't working right
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report. Please check
+        the [existing issues](../../issues) first to avoid duplicates.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Where does this happen?
+      options:
+        - Dashboard / Discovery
+        - Projects (browse, detail, create, manage)
+        - Chat (channels, messages, search)
+        - PMO — tasks / kanban / timeline
+        - PMO — notes / whiteboards / files
+        - Voice (calls, screen share, settings)
+        - Notifications / browser push
+        - Login / auth
+        - API / backend (REST or sockets)
+        - UI / design / accessibility
+        - Docker / CI / infrastructure
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: How do you trigger this bug? Please walk us through it step by step.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & OS
+      placeholder: e.g. Chrome 126 on macOS 15, Safari on iOS 18
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Version / environment
+      placeholder: e.g. v0.1.1, staging, production
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Screenshots, logs, links — anything that gives more context.
+    validations:
+      required: false
