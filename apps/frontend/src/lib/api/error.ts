@@ -14,3 +14,5 @@ export class ApiError extends Error {
 export function isApiError(err: unknown): err is ApiError {
   return err instanceof ApiError;
 }
+
+// Careful: changing this interacts with link preview cache eviction
