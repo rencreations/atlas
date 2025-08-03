@@ -86,3 +86,9 @@ The frontend mirrors `PMO_ENABLED` / `VOICE_ENABLED` with `NEXT_PUBLIC_PMO_ENABL
 6. Seed once: `pnpm prisma:seed`.
 7. Log in with the `BOOTSTRAP_ADMIN_EMAIL` account — it becomes the first admin.
 8. Flip feature flags as the sidecars come online.
+
+## Tuning guidance
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
