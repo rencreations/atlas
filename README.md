@@ -432,3 +432,7 @@ Standing on excellent shoulders: [Next.js](https://nextjs.org), [NestJS](https:/
     © 2026 Estella Solusi Digital · Built with care by <a href="https://mgm.ub.ac.id">MGM Laboratory</a>, Universitas Brawijaya
   </sub>
 </div>
+
+## Capacity notes
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
