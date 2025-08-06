@@ -90,3 +90,7 @@ One event, three deliveries, all best-effort independent:
 1. **Database row** (`Notification`) — the source of truth the inbox paginates.
 2. **Socket** — emitted to the `/notifications` namespace, room `user:{userId}` (multi-tab safe).
 3. **Web push** — sent to every registered `PushSubscription` if VAPID keys are configured; per-user `NotificationPreference` (master switch + per-type toggles) is honored before any delivery.
+
+## Backward compatibility
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
