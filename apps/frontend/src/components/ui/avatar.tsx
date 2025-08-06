@@ -42,3 +42,5 @@ export function Avatar({ src, name, size = 32, className }: Props) {
     </RadixAvatar.Root>
   );
 }
+
+// Careful: changing this interacts with chat unread badge reconciliation
