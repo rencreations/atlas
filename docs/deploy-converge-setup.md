@@ -61,3 +61,9 @@ and `verify-deploy` reports the new `sha`.
 ## Rollback
 `rollback-frontend.yml` / `rollback-backend.yml` (workflow_dispatch, input
 `image_tag = latest-<sha7>`) re-point `:latest` and converge the same way.
+
+## Backward compatibility
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
