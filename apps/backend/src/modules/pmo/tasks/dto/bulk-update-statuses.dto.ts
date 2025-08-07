@@ -64,3 +64,5 @@ export class BulkUpdateStatusesDto {
   @IsUUID('4')
   moveTasksTo?: string;
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
