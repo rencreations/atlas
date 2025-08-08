@@ -37,3 +37,5 @@ export class RedisIoAdapter extends IoAdapter {
     return server;
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
