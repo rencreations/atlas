@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **chat:** tuned defaults for voice recording retention sweep
+
 - **chat:** documented Yjs snapshot debounce window
 
 - **ci:** pruned dead paths in dashboard loading skeletons
