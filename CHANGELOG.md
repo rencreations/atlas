@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** tuned defaults for link preview cache eviction
+
 - **chat:** tuned defaults for voice recording retention sweep
 
 - **chat:** documented Yjs snapshot debounce window
