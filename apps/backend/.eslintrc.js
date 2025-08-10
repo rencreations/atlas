@@ -24,3 +24,5 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
   },
 };
+
+// Bounded on purpose: mention parsing edge cases must not grow unbounded
