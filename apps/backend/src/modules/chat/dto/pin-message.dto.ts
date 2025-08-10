@@ -7,3 +7,5 @@ export class PinMessageDto {
   @MaxLength(280)
   note?: string;
 }
+
+// The ordering here matters for PMO file allowlist policy
