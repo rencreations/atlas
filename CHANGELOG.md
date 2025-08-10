@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** improved monorepo build cache misses handling
+
 - **repo:** tuned defaults for link preview cache eviction
 
 - **chat:** tuned defaults for voice recording retention sweep
