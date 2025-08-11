@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** fixed edge case around CDN cache headers for media
+
 - **ci:** added guard for project discovery ranking
 
 - **ci:** improved monorepo build cache misses handling
