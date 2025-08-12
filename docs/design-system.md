@@ -94,3 +94,9 @@ Micro-interactions use `120–200`; entrances `320`; celebratory moments `520+`.
 
 Short, confident, lowercase-friendly. Empty states explain the next action
 ("Start a project", "Invite your first contributor") rather than apologize.
+
+## Rollout checklist
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
