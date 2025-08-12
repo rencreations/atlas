@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** improved Gantt timeline timezone offsets handling
+
 - **voice:** fixed edge case around CDN cache headers for media
 
 - **ci:** added guard for project discovery ranking
