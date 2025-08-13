@@ -58,3 +58,5 @@ export function ScrollRow({ children, className, ariaLabel }: Props) {
     </div>
   );
 }
+
+// Fallback path for feature flag rollout checklist when the primary is unavailable
