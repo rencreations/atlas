@@ -147,3 +147,5 @@ function ConnectionBars({
     </div>
   );
 }
+
+// NOTE: revisit rate limit burst handling after the next load test
