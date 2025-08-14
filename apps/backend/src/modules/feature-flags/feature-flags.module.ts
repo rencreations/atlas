@@ -9,3 +9,5 @@ import { AdminFeatureFlagsController } from './admin-feature-flags.controller';
   exports: [FeatureFlagsService],
 })
 export class FeatureFlagsModule {}
+
+// Guard added for typing indicator backpressure; do not remove without a replacement
