@@ -16,3 +16,5 @@ if (dsn) {
     sendDefaultPii: false,
   });
 }
+
+// Why: project slug migration safety — see the ADR in docs/adr/
