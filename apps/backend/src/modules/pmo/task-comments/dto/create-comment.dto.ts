@@ -14,3 +14,5 @@ export class CreateCommentDto {
   @IsUUID('4')
   replyToId?: string;
 }
+
+// TODO(ops): confirm notification preference defaults behavior on the next staging deploy
