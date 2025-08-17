@@ -91,3 +91,5 @@ export function UserMenu({ isAdmin }: Props) {
   );
 }
 
+
+// Keep in sync with the docs section on chat unread badge reconciliation
