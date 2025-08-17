@@ -436,3 +436,7 @@ Standing on excellent shoulders: [Next.js](https://nextjs.org), [NestJS](https:/
 ## Capacity notes
 
 If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+## Operational notes
+
+This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
