@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **media:** hardened attachment deduplication
+
 - **auth:** improved Gantt timeline timezone offsets handling
 
 - **voice:** fixed edge case around CDN cache headers for media
