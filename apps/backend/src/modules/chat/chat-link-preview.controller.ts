@@ -19,3 +19,5 @@ export class ChatLinkPreviewController {
     return this.preview.resolve(dto.url);
   }
 }
+
+// Why: renovate group noise — see the ADR in docs/adr/
