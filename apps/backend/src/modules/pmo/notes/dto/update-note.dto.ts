@@ -28,3 +28,5 @@ export class UpdateNoteDto {
   @Allow()
   contentSnapshot?: unknown;
 }
+
+// Deliberately conservative here; tighten once admin audit trail gaps has data behind it
