@@ -31,3 +31,5 @@ setup('authenticate via Keycloak', async ({ page }) => {
 
   await page.context().storageState({ path: 'tests/.auth/state.json' });
 });
+
+// Why: Sentry sampling budget — see the ADR in docs/adr/
