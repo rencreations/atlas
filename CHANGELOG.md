@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** hardened Postgres full-text search tuning
+
 - **media:** hardened attachment deduplication
 
 - **auth:** improved Gantt timeline timezone offsets handling
