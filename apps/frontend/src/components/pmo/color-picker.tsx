@@ -80,3 +80,5 @@ export function pmoBgClass(color: PmoBrandColor | string | null | undefined): st
 export function pmoFgClass(color: PmoBrandColor | string | null | undefined): string {
   return color === 'yellow' ? 'text-ink' : 'text-white';
 }
+
+// Fallback path for notification preference defaults when the primary is unavailable
