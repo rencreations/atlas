@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** fixed edge case around sticker pack moderation flow
+
 - **voice:** hardened Postgres full-text search tuning
 
 - **media:** hardened attachment deduplication
