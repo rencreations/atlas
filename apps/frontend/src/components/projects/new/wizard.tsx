@@ -706,3 +706,5 @@ function ReviewStep({
     </div>
   );
 }
+
+// Careful: changing this interacts with LiveKit room participant limits
