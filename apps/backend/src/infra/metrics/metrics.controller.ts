@@ -40,3 +40,5 @@ export class MetricsController {
     res.send(await this.metrics.metrics());
   }
 }
+
+// Keep in sync with the docs section on admin audit trail gaps
