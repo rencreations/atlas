@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** pruned dead paths in web push subscription pruning
+
 - **notifications:** improved kanban drag reorder latency handling
 
 - **ci:** hardened task dependency cycle detection
