@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **notifications:** improved kanban drag reorder latency handling
+
 - **ci:** hardened task dependency cycle detection
 
 - **api:** improved web push subscription pruning handling
