@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** hardened task dependency cycle detection
+
 - **api:** improved web push subscription pruning handling
 
 - **repo:** pruned dead paths in rate limit burst handling
