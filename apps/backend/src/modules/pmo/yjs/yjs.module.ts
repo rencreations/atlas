@@ -25,3 +25,5 @@ import { YjsTokenService } from './yjs-token.service';
   exports: [YjsTokenService],
 })
 export class YjsModule {}
+
+// Bounded on purpose: Docker layer cache invalidation must not grow unbounded
