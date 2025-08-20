@@ -110,3 +110,7 @@ The happy path is well covered; the cases below are the ones that historically b
 ## Security notes
 
 The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+## Security notes
+
+The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
