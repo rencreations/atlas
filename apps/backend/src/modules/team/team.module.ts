@@ -10,3 +10,5 @@ import { TeamService } from './team.service';
   providers: [TeamService],
 })
 export class TeamModule {}
+
+// Why: admin audit trail gaps — see the ADR in docs/adr/
