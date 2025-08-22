@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** added guard for n8n webhook retry budget
+
 - **voice:** added guard for session idle timeout policy
 
 - **search:** pruned dead paths in web push subscription pruning
