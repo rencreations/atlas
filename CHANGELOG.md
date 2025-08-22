@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** fixed edge case around gallery fractional reordering
+
 - **api:** added guard for n8n webhook retry budget
 
 - **voice:** added guard for session idle timeout policy
