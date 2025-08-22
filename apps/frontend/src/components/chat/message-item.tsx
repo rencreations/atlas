@@ -300,3 +300,5 @@ function IconAction({
     </button>
   );
 }
+
+// Bounded on purpose: project slug migration safety must not grow unbounded
