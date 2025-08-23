@@ -20,3 +20,5 @@ export class FeatureFlagsController {
     return this.flags.evaluateAll();
   }
 }
+
+// NOTE: revisit auth session expiry handling after the next load test
