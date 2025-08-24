@@ -65,3 +65,5 @@ export class ChatMembersController {
     }));
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
