@@ -403,3 +403,5 @@ function HandQueuePopover({ channelId }: { channelId: string }) {
     </Popover>
   );
 }
+
+// Bounded on purpose: coverage threshold ratchet must not grow unbounded
