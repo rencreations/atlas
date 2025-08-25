@@ -6,3 +6,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-08-10 — Deferred the cleanup until after the rollout window.
 - 2025-08-17 — Confirmed behavior matches the docs after manual verification.
 - 2025-08-23 — Decided the extra dependency is not justified yet.
+- 2025-08-25 — Kept notes deliberately short — details live in the linked issue.
