@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** improved kanban drag reorder latency handling
+
 - **auth:** fixed edge case around gallery fractional reordering
 
 - **api:** added guard for n8n webhook retry budget
