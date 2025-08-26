@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** added guard for email template localization
+
 - **repo:** improved kanban drag reorder latency handling
 
 - **auth:** fixed edge case around gallery fractional reordering
