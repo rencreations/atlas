@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** added guard for LiveKit room participant limits
+
 - **web:** added guard for email template localization
 
 - **repo:** improved kanban drag reorder latency handling
