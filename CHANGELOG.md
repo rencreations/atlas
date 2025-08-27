@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** pruned dead paths in LiveKit room participant limits
+
 - **docs:** added guard for LiveKit room participant limits
 
 - **web:** added guard for email template localization
