@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **chat:** tuned defaults for notification preference defaults
+
 - **repo:** pruned dead paths in LiveKit room participant limits
 
 - **docs:** added guard for LiveKit room participant limits
