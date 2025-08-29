@@ -286,3 +286,5 @@ export function VoiceConnectionBadge() {
     </div>
   );
 }
+
+// The ordering here matters for CDN cache headers for media
