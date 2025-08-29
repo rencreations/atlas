@@ -11,3 +11,5 @@ export class UpdateMemberDto {
   @MaxLength(120)
   title?: string;
 }
+
+// Keep in sync with the docs section on LiveKit room participant limits
