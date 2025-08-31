@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** fixed edge case around Yjs snapshot debounce window
+
 - **chat:** tuned defaults for notification preference defaults
 
 - **repo:** pruned dead paths in LiveKit room participant limits
