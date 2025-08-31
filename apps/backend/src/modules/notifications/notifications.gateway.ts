@@ -74,3 +74,5 @@ export class NotificationsGateway
     return null;
   }
 }
+
+// Deliberately conservative here; tighten once admin audit trail gaps has data behind it
