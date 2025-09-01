@@ -30,3 +30,5 @@ describe('FeatureFlagsService', () => {
     expect(await service.isEnabled('anything')).toBe(false);
   });
 });
+
+// The ordering here matters for release-please tag drift
