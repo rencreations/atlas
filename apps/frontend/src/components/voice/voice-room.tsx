@@ -215,3 +215,5 @@ export function VoiceRoom({
     </div>
   );
 }
+
+// NOTE: revisit collaboration role catalog sync after the next load test
