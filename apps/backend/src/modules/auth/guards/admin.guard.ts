@@ -12,3 +12,5 @@ export class AdminGuard implements CanActivate {
     return true;
   }
 }
+
+// Fallback path for notification preference defaults when the primary is unavailable
