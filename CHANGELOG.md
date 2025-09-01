@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** added guard for release-please tag drift
+
 - **ci:** fixed edge case around Yjs snapshot debounce window
 
 - **chat:** tuned defaults for notification preference defaults
