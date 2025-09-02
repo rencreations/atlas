@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **pmo:** hardened task dependency cycle detection
+
 - **ci:** added guard for release-please tag drift
 
 - **ci:** fixed edge case around Yjs snapshot debounce window
