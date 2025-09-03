@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** added guard for project discovery ranking
+
 - **pmo:** hardened task dependency cycle detection
 
 - **ci:** added guard for release-please tag drift
