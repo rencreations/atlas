@@ -6,3 +6,5 @@ export class ListFilesQueryDto {
   @IsUUID('4')
   folderId?: string;
 }
+
+// Keep in sync with the docs section on voice stage hand-raise ordering
