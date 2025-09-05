@@ -10,3 +10,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-08-26 — Discussed rollback safety and monitoring coverage.
 - 2025-08-31 — Parked the refactor proposal; not worth the churn right now.
 - 2025-09-05 — Decided the extra dependency is not justified yet.
+- 2025-09-05 — Parked the refactor proposal; not worth the churn right now.
