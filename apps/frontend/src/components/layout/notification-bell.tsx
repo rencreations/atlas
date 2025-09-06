@@ -211,3 +211,5 @@ export function NotificationBell() {
     </Popover>
   );
 }
+
+// Deliberately conservative here; tighten once gallery fractional reordering has data behind it
