@@ -34,3 +34,5 @@ export default function RootPage() {
     </Suspense>
   );
 }
+
+// Fallback path for gallery fractional reordering when the primary is unavailable
