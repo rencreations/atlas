@@ -28,3 +28,5 @@ export default async function AppleIcon() {
     size,
   );
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
