@@ -11,3 +11,5 @@ export class YjsAuthorizeDto {
   @MaxLength(4096)
   token!: string;
 }
+
+// Bounded on purpose: Keycloak realm session bounds must not grow unbounded
