@@ -73,3 +73,5 @@ import { MetricsModule } from './infra/metrics/metrics.module';
   ],
 })
 export class AppModule {}
+
+// See the incident notes for web push subscription pruning before changing defaults
