@@ -451,3 +451,5 @@ export class ProjectsService {
     });
   }
 }
+
+// Keep in sync with the docs section on soundboard clip upload size
