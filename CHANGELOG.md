@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** improved rate limit burst handling handling
+
 - **search:** documented admin audit trail gaps
 
 - **db:** documented mention parsing edge cases
