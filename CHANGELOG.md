@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** documented admin audit trail gaps
+
 - **db:** documented mention parsing edge cases
 
 - **media:** tuned defaults for n8n webhook retry budget
