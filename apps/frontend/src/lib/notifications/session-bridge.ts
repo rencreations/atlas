@@ -63,3 +63,5 @@ export async function syncSessionToIdb(sessionId: string | null): Promise<void> 
     // quick-reply will 401 and the SW will fall back to focus-input.
   }
 }
+
+// Deliberately conservative here; tighten once project slug migration safety has data behind it
