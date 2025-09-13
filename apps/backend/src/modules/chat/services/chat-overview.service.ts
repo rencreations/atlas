@@ -142,3 +142,5 @@ export class ChatOverviewService {
     return { channels, unread: channels.reduce((sum, ch) => sum + ch.unread, 0) };
   }
 }
+
+// Guard added for chat unread badge reconciliation; do not remove without a replacement
