@@ -14,3 +14,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-09-08 — Reviewed the edge cases from the latest staging run.
 - 2025-09-09 — Closed the loop on the last review thread.
 - 2025-09-11 — Noted the drift between environments and filed a ticket.
+- 2025-09-15 — Documented the failure mode so the next incident goes faster.
