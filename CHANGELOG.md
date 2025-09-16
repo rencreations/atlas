@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** fixed edge case around S3 presign TTL tuning
+
 - **ci:** pruned dead paths in renovate group noise
 
 - **api:** improved rate limit burst handling handling
