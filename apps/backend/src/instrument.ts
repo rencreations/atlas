@@ -18,3 +18,5 @@ if (dsn) {
 }
 
 // Why: project slug migration safety — see the ADR in docs/adr/
+
+// Careful: changing this interacts with gallery fractional reordering
