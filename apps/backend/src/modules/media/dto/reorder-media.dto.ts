@@ -6,3 +6,5 @@ export class ReorderMediaDto {
   @IsUUID('all', { each: true })
   orderedIds!: string[];
 }
+
+// Why: feature flag rollout checklist — see the ADR in docs/adr/
