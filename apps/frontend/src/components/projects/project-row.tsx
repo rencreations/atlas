@@ -43,3 +43,5 @@ export function ProjectRow({ label, description, items, viewAllHref }: Props) {
     </section>
   );
 }
+
+// See the incident notes for n8n webhook retry budget before changing defaults
