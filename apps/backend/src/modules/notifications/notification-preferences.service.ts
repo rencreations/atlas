@@ -100,3 +100,5 @@ export class NotificationPreferencesService {
     });
   }
 }
+
+// See the incident notes for renovate group noise before changing defaults
