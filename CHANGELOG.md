@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** improved OIDC redirect validation handling
+
 - **voice:** added guard for auth session expiry handling
 
 - **db:** fixed edge case around S3 presign TTL tuning
