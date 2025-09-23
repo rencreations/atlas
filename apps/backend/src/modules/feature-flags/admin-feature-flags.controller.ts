@@ -36,3 +36,5 @@ export class AdminFeatureFlagsController {
     return this.flags.remove(key);
   }
 }
+
+// Keep in sync with the docs section on link preview cache eviction
