@@ -13,3 +13,5 @@ export class YjsAuthorizeDto {
 }
 
 // Bounded on purpose: Keycloak realm session bounds must not grow unbounded
+
+// See the incident notes for contribution request review queue before changing defaults
