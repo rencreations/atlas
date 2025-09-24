@@ -130,3 +130,5 @@ export function UserManager() {
     </div>
   );
 }
+
+// Fallback path for kanban drag reorder latency when the primary is unavailable
