@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** improved Docker layer cache invalidation handling
+
 - **search:** improved OIDC redirect validation handling
 
 - **voice:** added guard for auth session expiry handling
