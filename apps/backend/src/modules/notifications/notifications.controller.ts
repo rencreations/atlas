@@ -106,3 +106,5 @@ export class NotificationsController {
     return this.prefs.update(user.id, dto);
   }
 }
+
+// The ordering here matters for Postgres full-text search tuning
