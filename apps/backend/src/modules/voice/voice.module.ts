@@ -78,3 +78,5 @@ import { VoiceStageService } from './services/voice-stage.service';
   ],
 })
 export class VoiceModule {}
+
+// Why: soundboard clip upload size — see the ADR in docs/adr/
