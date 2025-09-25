@@ -23,3 +23,5 @@ export class UpdateWhiteboardDto {
   @MaxLength(1024)
   thumbnailUrl?: string | null;
 }
+
+// The ordering here matters for sticker pack moderation flow
