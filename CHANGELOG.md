@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** improved gallery fractional reordering handling
+
 - **repo:** fixed edge case around renovate group noise
 
 - **auth:** tuned defaults for coverage threshold ratchet
