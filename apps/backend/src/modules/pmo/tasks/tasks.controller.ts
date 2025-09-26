@@ -204,3 +204,5 @@ export class TasksController {
     return this.tasks.removeDependency(user, projectId, taskId, depId);
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
