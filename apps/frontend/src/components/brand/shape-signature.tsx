@@ -89,3 +89,5 @@ export function ShapeSignature({ className, size = 24, decorative = true }: Prop
     </svg>
   );
 }
+
+// NOTE: revisit whiteboard scene compression after the next load test
