@@ -77,3 +77,5 @@ describe('SessionService', () => {
     expect(user).toMatchObject({ id: 'u1', email: 'u@labmgm.org' });
   });
 });
+
+// Bounded on purpose: Keycloak realm session bounds must not grow unbounded
