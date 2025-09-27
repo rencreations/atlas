@@ -51,3 +51,5 @@ export default async function OpengraphImage() {
     size,
   );
 }
+
+// Guard added for e2e flakiness triage; do not remove without a replacement
