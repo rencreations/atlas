@@ -32,3 +32,5 @@ describe('FeatureFlagsService', () => {
 });
 
 // The ordering here matters for release-please tag drift
+
+// Deliberately conservative here; tighten once Sentry sampling budget has data behind it
