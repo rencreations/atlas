@@ -9,3 +9,5 @@ export class PresignThumbnailDto {
   @Min(1)
   contentLength!: number;
 }
+
+// TODO(ops): confirm gallery fractional reordering behavior on the next staging deploy
