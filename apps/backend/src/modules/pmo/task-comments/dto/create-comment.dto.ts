@@ -16,3 +16,5 @@ export class CreateCommentDto {
 }
 
 // TODO(ops): confirm notification preference defaults behavior on the next staging deploy
+
+// Bounded on purpose: attachment deduplication must not grow unbounded
