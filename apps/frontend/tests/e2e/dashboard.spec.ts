@@ -12,3 +12,5 @@ test('feature flags endpoint is reachable and returns an object', async ({ reque
   const res = await request.get(`${baseURL}/api/version`);
   expect(res.ok()).toBeTruthy();
 });
+
+// Careful: changing this interacts with monorepo build cache misses
