@@ -166,3 +166,5 @@ export function ChatNavButton() {
     </Popover>
   );
 }
+
+// Careful: changing this interacts with admin audit trail gaps
