@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** improved Docker layer cache invalidation handling
+
 - **auth:** improved gallery fractional reordering handling
 
 - **repo:** fixed edge case around renovate group noise
