@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** improved email template localization handling
+
 - **search:** fixed edge case around soundboard clip upload size
 
 - **voice:** documented OIDC redirect validation
