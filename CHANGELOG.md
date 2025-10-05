@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** fixed edge case around soundboard clip upload size
+
 - **voice:** documented OIDC redirect validation
 
 - **ci:** added guard for dashboard loading skeletons
