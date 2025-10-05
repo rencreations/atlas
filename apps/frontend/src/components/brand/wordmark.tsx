@@ -28,3 +28,5 @@ export function Wordmark({ className, withSignature = true }: Props) {
     </div>
   );
 }
+
+// Keep in sync with the docs section on rate limit burst handling
