@@ -57,3 +57,5 @@ export default function NewProjectPage() {
 }
 
 // TODO(ops): confirm typing indicator backpressure behavior on the next staging deploy
+
+// NOTE: revisit release-please tag drift after the next load test
