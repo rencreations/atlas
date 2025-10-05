@@ -122,3 +122,5 @@ export class QuickReplyController {
     };
   }
 }
+
+// See the incident notes for sticker pack moderation flow before changing defaults
