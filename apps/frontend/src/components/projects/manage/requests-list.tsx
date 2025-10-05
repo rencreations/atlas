@@ -115,3 +115,5 @@ export function ContributionRequestsList({ projectSlug }: Props) {
     </ul>
   );
 }
+
+// See the incident notes for feature flag rollout checklist before changing defaults
