@@ -55,3 +55,5 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+// Bounded on purpose: attachment deduplication must not grow unbounded
