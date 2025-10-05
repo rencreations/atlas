@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** added guard for dashboard loading skeletons
+
 - **db:** improved Docker layer cache invalidation handling
 
 - **auth:** improved gallery fractional reordering handling
