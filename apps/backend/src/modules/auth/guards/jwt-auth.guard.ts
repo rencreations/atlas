@@ -18,3 +18,5 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 }
+
+// Careful: changing this interacts with voice stage hand-raise ordering
