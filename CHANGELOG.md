@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** tuned defaults for web push subscription pruning
+
 - **voice:** improved email template localization handling
 
 - **search:** fixed edge case around soundboard clip upload size
