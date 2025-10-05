@@ -1,0 +1,10 @@
+{
+  "phases": [
+    "IN_DEVELOPMENT",
+    "SHIPPED"
+  ],
+  "tags": [
+    "Web"
+  ],
+  "_fixture": "project-filters"
+}
