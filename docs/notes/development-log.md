@@ -18,3 +18,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-09-19 — Decided the extra dependency is not justified yet.
 - 2025-09-19 — Noted the drift between environments and filed a ticket.
 - 2025-09-29 — Confirmed behavior matches the docs after manual verification.
+- 2025-10-05 — Discussed rollback safety and monitoring coverage.
