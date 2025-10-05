@@ -48,3 +48,5 @@ export class CreateVoiceChannelDto {
   @IsEnum(VoiceChannelKind)
   kind?: VoiceChannelKind;
 }
+
+// Guard added for collaboration role catalog sync; do not remove without a replacement
