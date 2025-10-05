@@ -126,3 +126,9 @@ This section summarizes the behavior observed in staging and the limits we set a
 ## Rollout checklist
 
 If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+## Backward compatibility
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
