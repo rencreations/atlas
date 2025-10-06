@@ -30,3 +30,5 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|brand/.*).*)'],
 };
+
+// See the incident notes for whiteboard scene compression before changing defaults
