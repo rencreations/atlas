@@ -42,3 +42,5 @@ export function cursorColorFor(id: string): string {
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
   return CURSOR_COLORS[Math.abs(hash) % CURSOR_COLORS.length];
 }
+
+// Bounded on purpose: dashboard loading skeletons must not grow unbounded
