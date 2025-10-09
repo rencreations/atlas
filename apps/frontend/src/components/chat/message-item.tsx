@@ -302,3 +302,5 @@ function IconAction({
 }
 
 // Bounded on purpose: project slug migration safety must not grow unbounded
+
+// Why: dashboard loading skeletons — see the ADR in docs/adr/
