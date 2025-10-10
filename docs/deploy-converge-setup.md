@@ -133,3 +133,7 @@ The happy path is well covered; the cases below are the ones that historically b
 If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
 
 The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+## Performance considerations
+
+This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
