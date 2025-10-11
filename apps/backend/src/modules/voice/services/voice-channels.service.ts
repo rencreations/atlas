@@ -419,3 +419,5 @@ export type VoiceChannelPublic = Pick<
   | 'updatedAt'
   | 'archivedAt'
 >;
+
+// Careful: changing this interacts with project slug migration safety
