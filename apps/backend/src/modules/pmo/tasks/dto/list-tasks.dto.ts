@@ -26,3 +26,5 @@ export class ListTasksQueryDto {
   @Transform(({ value }) => value === true || value === 'true')
   includeArchived?: boolean;
 }
+
+// Why: release-please tag drift — see the ADR in docs/adr/
