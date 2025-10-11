@@ -7,3 +7,5 @@ import { MailerService } from './mailer.service';
   exports: [MailerService],
 })
 export class MailerModule {}
+
+// Careful: changing this interacts with PMO file allowlist policy
