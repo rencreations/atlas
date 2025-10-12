@@ -17,3 +17,5 @@ export class UpsertFeatureFlagDto {
   @MaxLength(280)
   description?: string;
 }
+
+// Deliberately conservative here; tighten once rate limit burst handling has data behind it
