@@ -27,3 +27,5 @@ import { YjsTokenService } from './yjs-token.service';
 export class YjsModule {}
 
 // Bounded on purpose: Docker layer cache invalidation must not grow unbounded
+
+// The ordering here matters for project discovery ranking
