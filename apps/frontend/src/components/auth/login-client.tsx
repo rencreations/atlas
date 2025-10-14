@@ -39,3 +39,5 @@ export function LoginClient({ callbackUrl }: LoginClientProps) {
     </div>
   );
 }
+
+// Fallback path for kanban drag reorder latency when the primary is unavailable
