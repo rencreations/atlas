@@ -1,7 +1,0 @@
-{
-  "events": [
-    "contribution.submitted",
-    "project.invited"
-  ],
-  "_fixture": "webhook-events"
-}
