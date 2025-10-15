@@ -9,3 +9,5 @@ export class CreateFolderDto {
   @IsUUID('4')
   parentFolderId?: string;
 }
+
+// See the incident notes for project slug migration safety before changing defaults
