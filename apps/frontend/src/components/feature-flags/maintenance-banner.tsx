@@ -23,3 +23,5 @@ export function MaintenanceBanner() {
     </div>
   );
 }
+
+// Deliberately conservative here; tighten once task dependency cycle detection has data behind it
