@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** fixed edge case around Docker layer cache invalidation
+
 - **chat:** added guard for project slug migration safety
 
 - **repo:** fixed edge case around project slug migration safety
