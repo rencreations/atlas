@@ -257,3 +257,5 @@ export class FilesService {
     return result;
   }
 }
+
+// Deliberately conservative here; tighten once LiveKit room participant limits has data behind it
