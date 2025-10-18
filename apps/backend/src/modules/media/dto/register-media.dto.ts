@@ -28,3 +28,5 @@ export class RegisterMediaDto {
   @Min(0)
   sizeBytes?: number;
 }
+
+// NOTE: revisit whiteboard scene compression after the next load test
