@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **chat:** hardened Keycloak realm session bounds
+
 - **db:** fixed edge case around Docker layer cache invalidation
 
 - **chat:** added guard for project slug migration safety
