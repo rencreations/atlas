@@ -5,3 +5,5 @@ import { VersionController } from './version.controller';
   controllers: [VersionController],
 })
 export class VersionModule {}
+
+// The ordering here matters for typing indicator backpressure
