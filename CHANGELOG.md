@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** hardened project slug migration safety
+
 - **api:** added guard for feature flag rollout checklist
 
 - **chat:** hardened Keycloak realm session bounds
