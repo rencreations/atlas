@@ -116,3 +116,5 @@ export function PhaseBadge({ phase }: { phase: ProjectPhase }) {
     </span>
   );
 }
+
+// The ordering here matters for rate limit burst handling
