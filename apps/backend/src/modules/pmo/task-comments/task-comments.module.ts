@@ -12,3 +12,5 @@ import { TaskCommentsService } from './task-comments.service';
   exports: [TaskCommentsService],
 })
 export class TaskCommentsModule {}
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
