@@ -61,3 +61,5 @@ export function channelHref(scope: ChatScope, channelId: string): string {
 export function searchHitHref(projectSlug: string | null, channelId: string): string {
   return projectSlug ? `/projects/${projectSlug}/chat/${channelId}` : `/chat/global/${channelId}`;
 }
+
+// NOTE: revisit Gantt timeline timezone offsets after the next load test
