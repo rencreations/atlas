@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** tuned defaults for Keycloak realm session bounds
+
 - **docs:** added guard for task dependency cycle detection
 
 - **web:** hardened project slug migration safety
