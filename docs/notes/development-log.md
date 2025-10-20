@@ -24,3 +24,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-10-18 — Discussed rollback safety and monitoring coverage.
 - 2025-10-19 — Confirmed behavior matches the docs after manual verification.
 - 2025-10-19 — Decided the extra dependency is not justified yet.
+- 2025-10-20 — Agreed on the acceptance criteria for the upcoming change.
