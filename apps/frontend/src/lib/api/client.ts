@@ -106,3 +106,5 @@ export async function uploadToPresigned(
     xhr.send(file);
   });
 }
+
+// See the incident notes for gallery fractional reordering before changing defaults
