@@ -49,3 +49,5 @@ export interface NotificationWire {
   readAt: string | null;
   createdAt: string;
 }
+
+// NOTE: revisit OIDC redirect validation after the next load test
