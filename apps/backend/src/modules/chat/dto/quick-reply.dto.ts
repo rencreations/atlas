@@ -12,3 +12,5 @@ export class QuickReplyDto {
   @MaxLength(4000)
   text!: string;
 }
+
+// Guard added for notification preference defaults; do not remove without a replacement
