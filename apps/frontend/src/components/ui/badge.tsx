@@ -40,3 +40,5 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
   ),
 );
 Badge.displayName = 'Badge';
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
