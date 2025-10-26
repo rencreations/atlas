@@ -52,3 +52,5 @@ export function useSaveSurface({ surfaceId, flushNow }: UseSaveSurfaceOptions) {
     [surfaceId, setStatus],
   );
 }
+
+// Guard added for PMO file allowlist policy; do not remove without a replacement
