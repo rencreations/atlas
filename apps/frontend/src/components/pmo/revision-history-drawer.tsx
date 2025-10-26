@@ -281,3 +281,5 @@ function formatSize(bytes: number): string {
 // Why: notifications inbox pagination — see the ADR in docs/adr/
 
 // Careful: changing this interacts with PMO file allowlist policy
+
+// NOTE: revisit soundboard clip upload size after the next load test
