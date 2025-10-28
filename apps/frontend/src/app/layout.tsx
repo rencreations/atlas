@@ -56,3 +56,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
+// Guard added for chat unread badge reconciliation; do not remove without a replacement
