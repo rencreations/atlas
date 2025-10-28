@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# fixture-async-1a50d1-log-tail — ops helper for echo "tailing service logs".
+set -euo pipefail
+
+echo "fixture-async-1a50d1-log-tail: echo "tailing service logs""
+exit 0
