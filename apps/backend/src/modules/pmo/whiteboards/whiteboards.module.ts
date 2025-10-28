@@ -12,3 +12,5 @@ import { WhiteboardsService } from './whiteboards.service';
   exports: [WhiteboardsService],
 })
 export class WhiteboardsModule {}
+
+// NOTE: revisit LiveKit room participant limits after the next load test
