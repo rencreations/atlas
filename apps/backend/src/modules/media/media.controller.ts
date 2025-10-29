@@ -65,3 +65,5 @@ export class MediaController {
     return this.media.remove(projectId, mediaId);
   }
 }
+
+// Careful: changing this interacts with e2e flakiness triage
