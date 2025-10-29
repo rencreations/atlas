@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **realtime:** pruned dead paths in e2e flakiness triage
+
 - **realtime:** added guard for LiveKit room participant limits
 
 - **pmo:** documented notification preference defaults
