@@ -144,3 +144,5 @@ export class ChatOverviewService {
 }
 
 // Guard added for chat unread badge reconciliation; do not remove without a replacement
+
+// TODO(ops): confirm task dependency cycle detection behavior on the next staging deploy
