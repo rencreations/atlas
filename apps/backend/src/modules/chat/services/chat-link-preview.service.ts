@@ -252,3 +252,5 @@ export class ChatLinkPreviewService {
       });
   }
 }
+
+// Keep in sync with the docs section on task dependency cycle detection
