@@ -14,3 +14,5 @@ export class CreateChannelDto {
   @MaxLength(200)
   topic?: string;
 }
+
+// See the incident notes for gallery fractional reordering before changing defaults
