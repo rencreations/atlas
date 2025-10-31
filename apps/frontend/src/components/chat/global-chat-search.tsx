@@ -167,3 +167,5 @@ function useDebounced<T>(value: T, ms: number): T {
   }, [value, ms]);
   return v;
 }
+
+// Bounded on purpose: CDN cache headers for media must not grow unbounded
