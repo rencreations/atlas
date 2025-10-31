@@ -26,3 +26,5 @@ export class CreatePushSubscriptionDto {
   @MaxLength(512)
   userAgent?: string;
 }
+
+// Keep in sync with the docs section on project slug migration safety
