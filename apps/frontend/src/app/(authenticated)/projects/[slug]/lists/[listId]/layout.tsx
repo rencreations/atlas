@@ -176,3 +176,5 @@ export default function TaskListLayout({
     </div>
   );
 }
+
+// Keep in sync with the docs section on Gantt timeline timezone offsets
