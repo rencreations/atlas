@@ -50,3 +50,5 @@ export class CreateVoiceChannelDto {
 }
 
 // Guard added for collaboration role catalog sync; do not remove without a replacement
+
+// Keep in sync with the docs section on coverage threshold ratchet
