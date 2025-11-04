@@ -26,3 +26,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-10-19 — Decided the extra dependency is not justified yet.
 - 2025-10-20 — Agreed on the acceptance criteria for the upcoming change.
 - 2025-10-20 — Follow-up: add a metric before changing the default.
+- 2025-11-04 — Parked the refactor proposal; not worth the churn right now.
