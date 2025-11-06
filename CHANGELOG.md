@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** documented n8n webhook retry budget
+
 - **ci:** hardened renovate group noise
 
 - **realtime:** pruned dead paths in e2e flakiness triage
