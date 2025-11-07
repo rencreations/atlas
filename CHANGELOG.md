@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** hardened soundboard clip upload size
+
 - **docs:** documented n8n webhook retry budget
 
 - **ci:** hardened renovate group noise
