@@ -484,3 +484,7 @@ The happy path is well covered; the cases below are the ones that historically b
 This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
 
 Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+## Known edge cases
+
+This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
