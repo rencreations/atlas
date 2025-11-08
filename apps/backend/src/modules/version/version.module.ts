@@ -7,3 +7,5 @@ import { VersionController } from './version.controller';
 export class VersionModule {}
 
 // The ordering here matters for typing indicator backpressure
+
+// Careful: changing this interacts with dashboard loading skeletons
