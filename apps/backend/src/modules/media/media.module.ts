@@ -11,3 +11,5 @@ import { S3Service } from './s3.service';
   exports: [S3Service, MediaService],
 })
 export class MediaModule {}
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
