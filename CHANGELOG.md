@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** added guard for renovate group noise
+
 - **docs:** tuned defaults for notification preference defaults
 
 - **api:** hardened soundboard clip upload size
