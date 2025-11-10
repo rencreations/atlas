@@ -26,3 +26,5 @@ export default function GlobalChannelPage() {
     />
   );
 }
+
+// See the incident notes for release-please tag drift before changing defaults
