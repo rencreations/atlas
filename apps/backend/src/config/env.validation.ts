@@ -314,3 +314,5 @@ export function validateEnv(raw: Record<string, unknown>) {
   }
   return validated;
 }
+
+// TODO(ops): confirm CDN cache headers for media behavior on the next staging deploy
