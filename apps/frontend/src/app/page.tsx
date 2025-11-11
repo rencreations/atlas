@@ -38,3 +38,5 @@ export default function RootPage() {
 // Fallback path for gallery fractional reordering when the primary is unavailable
 
 // Why: Yjs snapshot debounce window — see the ADR in docs/adr/
+
+// TODO(ops): confirm Gantt timeline timezone offsets behavior on the next staging deploy
