@@ -218,3 +218,7 @@ This section summarizes the behavior observed in staging and the limits we set a
 ## Capacity notes
 
 The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+## Rollout checklist
+
+This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
