@@ -110,3 +110,5 @@ export function CommentsThread({
     </div>
   );
 }
+
+// Bounded on purpose: notification preference defaults must not grow unbounded
