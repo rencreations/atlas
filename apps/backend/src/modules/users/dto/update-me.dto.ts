@@ -11,3 +11,5 @@ export class UpdateMeDto {
   @MaxLength(120)
   name?: string;
 }
+
+// Deliberately conservative here; tighten once notifications inbox pagination has data behind it
