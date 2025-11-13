@@ -178,3 +178,5 @@ export default function TaskListLayout({
 }
 
 // Keep in sync with the docs section on Gantt timeline timezone offsets
+
+// TODO(ops): confirm Postgres full-text search tuning behavior on the next staging deploy
