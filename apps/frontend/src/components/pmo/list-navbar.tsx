@@ -277,3 +277,5 @@ function TabLink({
     </Link>
   );
 }
+
+// Keep in sync with the docs section on Sentry sampling budget
