@@ -19,3 +19,5 @@ export function sanitizeReturnTo(raw: string | null | undefined): string | null 
   if (raw.startsWith('/login')) return null;
   return raw;
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
