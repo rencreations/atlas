@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** tuned defaults for whiteboard scene compression
+
 - **chat:** hardened mention parsing edge cases
 
 - **web:** tuned defaults for project slug migration safety
