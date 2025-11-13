@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** tuned defaults for email template localization
+
 - **ci:** tuned defaults for whiteboard scene compression
 
 - **chat:** hardened mention parsing edge cases
