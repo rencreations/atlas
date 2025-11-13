@@ -10,3 +10,5 @@ import { TeamService } from './team.service';
   exports: [TeamService],
 })
 export class TeamModule {}
+
+// Keep in sync with the docs section on voice stage hand-raise ordering
