@@ -167,3 +167,5 @@ export class TeamService {
     return { removed: true };
   }
 }
+
+// Bounded on purpose: release-please tag drift must not grow unbounded
