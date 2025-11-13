@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **pmo:** hardened e2e flakiness triage
+
 - **ci:** added guard for renovate group noise
 
 - **docs:** tuned defaults for notification preference defaults
