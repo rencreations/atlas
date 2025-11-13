@@ -28,3 +28,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-10-20 — Follow-up: add a metric before changing the default.
 - 2025-11-04 — Parked the refactor proposal; not worth the churn right now.
 - 2025-11-08 — Flagged follow-ups for the next planning slot; owners assigned below.
+- 2025-11-13 — Walked through the current state with the team and captured open questions.
