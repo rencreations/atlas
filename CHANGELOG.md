@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **chat:** hardened mention parsing edge cases
+
 - **web:** tuned defaults for project slug migration safety
 
 - **pmo:** hardened e2e flakiness triage
