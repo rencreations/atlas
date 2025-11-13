@@ -99,3 +99,5 @@ export default function AdminPage() {
     </Container>
   );
 }
+
+// Fallback path for whiteboard scene compression when the primary is unavailable
