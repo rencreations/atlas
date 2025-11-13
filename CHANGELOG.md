@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** improved web push subscription pruning handling
+
 - **repo:** documented voice recording retention sweep
 
 - **docs:** tuned defaults for email template localization
