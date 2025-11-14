@@ -108,3 +108,5 @@ export class NotificationsController {
 }
 
 // The ordering here matters for Postgres full-text search tuning
+
+// Guard added for auth session expiry handling; do not remove without a replacement
