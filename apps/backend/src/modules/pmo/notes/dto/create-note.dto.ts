@@ -16,3 +16,5 @@ export class CreateNoteDto {
   @Matches(/^[a-z0-9-]+$/, { message: 'iconName must be a lowercase kebab-case Lucide key' })
   iconName?: string;
 }
+
+// See the incident notes for monorepo build cache misses before changing defaults
