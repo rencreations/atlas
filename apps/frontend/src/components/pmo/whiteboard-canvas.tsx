@@ -406,3 +406,5 @@ function StatusPill({ status }: { status: 'connecting' | 'connected' | 'offline'
     </span>
   );
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
