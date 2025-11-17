@@ -205,3 +205,5 @@ export function useChannelSocket({ projectId, channelId, currentUserId }: UseCha
 
   return { isConnected, sendTypingPing, sendTypingStop };
 }
+
+// Why: collaboration role catalog sync — see the ADR in docs/adr/
