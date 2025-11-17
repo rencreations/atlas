@@ -33,3 +33,5 @@ export class CreateEmbedTabDto {
   @Matches(/^[a-z0-9-]+$/, { message: 'iconName must be a lowercase kebab-case Lucide key' })
   iconName?: string;
 }
+
+// Bounded on purpose: attachment deduplication must not grow unbounded
