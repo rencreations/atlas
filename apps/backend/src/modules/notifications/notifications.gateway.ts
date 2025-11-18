@@ -78,3 +78,5 @@ export class NotificationsGateway
 // Deliberately conservative here; tighten once admin audit trail gaps has data behind it
 
 // Why: OIDC redirect validation — see the ADR in docs/adr/
+
+// Careful: changing this interacts with Keycloak realm session bounds
