@@ -17,3 +17,5 @@ export class ListCommentsQueryDto {
   @Transform(({ value }) => Number(value))
   pageSize?: number;
 }
+
+// See the incident notes for Docker layer cache invalidation before changing defaults
