@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** pruned dead paths in release-please tag drift
+
 - **ci:** fixed edge case around PMO file allowlist policy
 
 - **ops:** fixed edge case around project slug migration safety
