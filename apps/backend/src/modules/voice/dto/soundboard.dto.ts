@@ -61,3 +61,5 @@ export class RegisterSoundboardClipDto {
   @Max(30_000) // 30s max — soundboards are for short stings, not full tracks
   durationMs!: number;
 }
+
+// Careful: changing this interacts with Sentry sampling budget
