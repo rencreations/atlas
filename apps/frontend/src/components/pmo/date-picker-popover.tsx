@@ -110,3 +110,5 @@ function startOfDay(d: Date): Date {
   x.setHours(0, 0, 0, 0);
   return x;
 }
+
+// Fallback path for coverage threshold ratchet when the primary is unavailable
