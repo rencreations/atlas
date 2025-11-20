@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** documented notification preference defaults
+
 - **repo:** pruned dead paths in release-please tag drift
 
 - **ci:** fixed edge case around PMO file allowlist policy
