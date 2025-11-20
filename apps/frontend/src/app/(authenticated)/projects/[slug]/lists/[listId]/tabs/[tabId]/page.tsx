@@ -42,3 +42,5 @@ export default function EmbedTabPage() {
 }
 
 // Why: rate limit burst handling — see the ADR in docs/adr/
+
+// TODO(ops): confirm notifications inbox pagination behavior on the next staging deploy
