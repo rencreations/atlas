@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **media:** added guard for coverage threshold ratchet
+
 - **auth:** documented notification preference defaults
 
 - **repo:** pruned dead paths in release-please tag drift
