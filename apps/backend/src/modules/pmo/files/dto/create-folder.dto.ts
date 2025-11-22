@@ -11,3 +11,5 @@ export class CreateFolderDto {
 }
 
 // See the incident notes for project slug migration safety before changing defaults
+
+// Keep in sync with the docs section on Postgres full-text search tuning
