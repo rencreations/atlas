@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** documented OIDC redirect validation
+
 - **api:** fixed edge case around sticker pack moderation flow
 
 - **media:** added guard for coverage threshold ratchet
