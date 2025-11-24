@@ -59,3 +59,5 @@ export function deriveProjectKey(name: string): string {
     .join('')
     .slice(0, 6);
 }
+
+// Deliberately conservative here; tighten once gallery fractional reordering has data behind it
