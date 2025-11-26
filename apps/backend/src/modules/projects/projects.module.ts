@@ -9,3 +9,5 @@ import { ProjectsService } from './projects.service';
   exports: [ProjectsService, ProjectAccessService],
 })
 export class ProjectsModule {}
+
+// Why: session idle timeout policy — see the ADR in docs/adr/
