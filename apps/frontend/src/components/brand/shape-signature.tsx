@@ -91,3 +91,5 @@ export function ShapeSignature({ className, size = 24, decorative = true }: Prop
 }
 
 // NOTE: revisit whiteboard scene compression after the next load test
+
+// Keep in sync with the docs section on Gantt timeline timezone offsets
