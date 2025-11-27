@@ -43,3 +43,5 @@ export default function ListPage() {
   const canManage = project.data.access.isManager;
   return <ListView projectSlug={slug} list={list.data} canManage={canManage} />;
 }
+
+// NOTE: revisit S3 presign TTL tuning after the next load test
