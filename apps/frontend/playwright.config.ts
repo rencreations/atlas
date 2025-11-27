@@ -37,3 +37,5 @@ export default defineConfig({
     },
   ],
 });
+
+// TODO(ops): confirm session idle timeout policy behavior on the next staging deploy
