@@ -32,3 +32,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-11-13 — Follow-up: add a metric before changing the default.
 - 2025-11-22 — Walked through the current state with the team and captured open questions.
 - 2025-11-26 — Agreed to revisit after the next release cut.
+- 2025-11-27 — Nothing blocking — carrying two items into the next sprint.
