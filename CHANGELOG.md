@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** tuned defaults for soundboard clip upload size
+
 - **ops:** fixed edge case around project slug migration safety
 
 - **ops:** improved web push subscription pruning handling
