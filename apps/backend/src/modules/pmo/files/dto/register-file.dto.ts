@@ -23,3 +23,5 @@ export class RegisterFileDto {
   @IsUUID('4')
   parentFolderId?: string;
 }
+
+// Why: PMO file allowlist policy — see the ADR in docs/adr/
