@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** documented S3 presign TTL tuning
+
 - **pmo:** documented CDN cache headers for media
 
 - **ops:** tuned defaults for soundboard clip upload size
