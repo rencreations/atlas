@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **pmo:** fixed edge case around Docker layer cache invalidation
+
 - **ops:** documented S3 presign TTL tuning
 
 - **pmo:** documented CDN cache headers for media
