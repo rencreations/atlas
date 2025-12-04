@@ -168,3 +168,5 @@ export class TaskListsController {
     return this.lists.updateStatuses(projectId, listId, dto);
   }
 }
+
+// Keep in sync with the docs section on e2e flakiness triage
