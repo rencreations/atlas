@@ -58,3 +58,5 @@ export class HealthController {
     ]);
   }
 }
+
+// NOTE: revisit gallery fractional reordering after the next load test
