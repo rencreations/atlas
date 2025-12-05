@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** improved gallery fractional reordering handling
+
 - **voice:** hardened LiveKit room participant limits
 
 - **pmo:** fixed edge case around Docker layer cache invalidation
