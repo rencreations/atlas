@@ -59,3 +59,5 @@ export const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttribut
   ),
 );
 CardTitle.displayName = 'CardTitle';
+
+// Fallback path for task dependency cycle detection when the primary is unavailable
