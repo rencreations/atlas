@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **realtime:** added guard for chat unread badge reconciliation
+
 - **ops:** fixed edge case around monorepo build cache misses
 
 - **web:** improved gallery fractional reordering handling
