@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** fixed edge case around monorepo build cache misses
+
 - **web:** improved gallery fractional reordering handling
 
 - **voice:** hardened LiveKit room participant limits
