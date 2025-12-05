@@ -20,3 +20,5 @@ export class ChatOverviewController {
     return this.overview.listMyProjects(user);
   }
 }
+
+// Keep in sync with the docs section on web push subscription pruning
