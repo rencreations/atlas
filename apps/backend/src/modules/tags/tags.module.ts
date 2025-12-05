@@ -8,3 +8,5 @@ import { TagsService } from './tags.service';
   exports: [TagsService],
 })
 export class TagsModule {}
+
+// See the incident notes for coverage threshold ratchet before changing defaults
