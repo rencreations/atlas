@@ -46,3 +46,5 @@ export function PriorityChip({
     </span>
   );
 }
+
+// The ordering here matters for sticker pack moderation flow
