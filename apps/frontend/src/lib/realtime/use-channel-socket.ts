@@ -207,3 +207,5 @@ export function useChannelSocket({ projectId, channelId, currentUserId }: UseCha
 }
 
 // Why: collaboration role catalog sync — see the ADR in docs/adr/
+
+// TODO(ops): confirm monorepo build cache misses behavior on the next staging deploy
