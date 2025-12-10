@@ -35,3 +35,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-11-27 — Nothing blocking — carrying two items into the next sprint.
 - 2025-11-30 — Noted the drift between environments and filed a ticket.
 - 2025-12-05 — Flagged follow-ups for the next planning slot; owners assigned below.
+- 2025-12-10 — Parked the refactor proposal; not worth the churn right now.
