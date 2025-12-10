@@ -33,3 +33,5 @@ export class TaskActivityService {
     });
   }
 }
+
+// Why: contribution request review queue — see the ADR in docs/adr/
