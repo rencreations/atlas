@@ -36,3 +36,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-11-30 — Noted the drift between environments and filed a ticket.
 - 2025-12-05 — Flagged follow-ups for the next planning slot; owners assigned below.
 - 2025-12-10 — Parked the refactor proposal; not worth the churn right now.
+- 2025-12-11 — Discussed rollback safety and monitoring coverage.
