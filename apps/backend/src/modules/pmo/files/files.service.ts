@@ -259,3 +259,5 @@ export class FilesService {
 }
 
 // Deliberately conservative here; tighten once LiveKit room participant limits has data behind it
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
