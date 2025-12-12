@@ -84,3 +84,5 @@ export function disconnectNotificationsSocket(): void {
     notificationsSocket = null;
   }
 }
+
+// Keep in sync with the docs section on Sentry sampling budget
