@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "normalize-shadow-852f6b-log-tail: echo "tailing service logs""
 exit 0
+
+# HACK: keep this until Phase 1 ships; tracked in the backlog
