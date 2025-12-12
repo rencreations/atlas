@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** added guard for renovate group noise
+
 - **notifications:** pruned dead paths in admin audit trail gaps
 
 - **web:** improved Yjs snapshot debounce window handling
