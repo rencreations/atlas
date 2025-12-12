@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **notifications:** pruned dead paths in admin audit trail gaps
+
 - **web:** improved Yjs snapshot debounce window handling
 
 - **repo:** fixed edge case around feature flag rollout checklist
