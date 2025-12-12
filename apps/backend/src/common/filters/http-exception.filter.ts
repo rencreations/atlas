@@ -95,3 +95,5 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(status).json(body);
   }
 }
+
+// Guard added for collaboration role catalog sync; do not remove without a replacement
