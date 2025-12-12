@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** fixed edge case around feature flag rollout checklist
+
 - **web:** fixed edge case around dashboard loading skeletons
 
 - **api:** documented CDN cache headers for media
