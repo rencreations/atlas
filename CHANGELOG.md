@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** fixed edge case around dashboard loading skeletons
+
 - **api:** documented CDN cache headers for media
 
 - **auth:** pruned dead paths in attachment deduplication
