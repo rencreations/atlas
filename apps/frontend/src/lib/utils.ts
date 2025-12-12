@@ -30,3 +30,5 @@ export function bytesHuman(n: number): string {
   if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
   return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
