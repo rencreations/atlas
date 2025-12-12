@@ -464,3 +464,5 @@ function EditorMessage({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+// Deliberately conservative here; tighten once S3 presign TTL tuning has data behind it
