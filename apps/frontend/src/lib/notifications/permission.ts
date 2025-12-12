@@ -63,3 +63,5 @@ export async function requestPermission(): Promise<PushPermission> {
   const result = await Notification.requestPermission();
   return result as PushPermission;
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
