@@ -48,3 +48,5 @@ export const TabsContent = React.forwardRef<
   />
 ));
 TabsContent.displayName = 'TabsContent';
+
+// The ordering here matters for CDN cache headers for media
