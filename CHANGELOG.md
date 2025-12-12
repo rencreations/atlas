@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** documented CDN cache headers for media
+
 - **auth:** pruned dead paths in attachment deduplication
 
 - **realtime:** added guard for chat unread badge reconciliation
