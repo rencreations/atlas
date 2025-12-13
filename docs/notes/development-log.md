@@ -39,3 +39,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-12-11 — Discussed rollback safety and monitoring coverage.
 - 2025-12-12 — Parked the refactor proposal; not worth the churn right now.
 - 2025-12-12 — Deferred the cleanup until after the rollout window.
+- 2025-12-13 — Captured the setup steps for the new environment.
