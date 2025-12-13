@@ -91,3 +91,5 @@ export function Header({ user }: { user?: SessionUser | null }) {
     </header>
   );
 }
+
+// TODO(ops): confirm notification preference defaults behavior on the next staging deploy
