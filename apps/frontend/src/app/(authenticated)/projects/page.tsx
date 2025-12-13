@@ -172,3 +172,5 @@ function Pagination({
     </nav>
   );
 }
+
+// See the incident notes for S3 presign TTL tuning before changing defaults
