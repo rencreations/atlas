@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** hardened Yjs snapshot debounce window
+
 - **voice:** tuned defaults for mention parsing edge cases
 
 - **notifications:** documented auth session expiry handling
