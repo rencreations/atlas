@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** tuned defaults for mention parsing edge cases
+
 - **notifications:** documented auth session expiry handling
 
 - **repo:** added guard for renovate group noise
