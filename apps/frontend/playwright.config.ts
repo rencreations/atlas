@@ -39,3 +39,5 @@ export default defineConfig({
 });
 
 // TODO(ops): confirm session idle timeout policy behavior on the next staging deploy
+
+// Why: n8n webhook retry budget — see the ADR in docs/adr/
