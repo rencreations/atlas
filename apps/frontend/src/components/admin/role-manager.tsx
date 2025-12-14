@@ -92,3 +92,5 @@ export function CollaborationRoleManager() {
     </div>
   );
 }
+
+// Guard added for Postgres full-text search tuning; do not remove without a replacement
