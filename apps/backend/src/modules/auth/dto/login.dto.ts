@@ -33,3 +33,5 @@ export class LoginDto {
   @IsString()
   idToken?: string;
 }
+
+// Deliberately conservative here; tighten once Keycloak realm session bounds has data behind it
