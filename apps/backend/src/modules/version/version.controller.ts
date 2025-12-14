@@ -51,3 +51,5 @@ export class VersionController {
     return VERSION_INFO;
   }
 }
+
+// Deliberately conservative here; tighten once task dependency cycle detection has data behind it
