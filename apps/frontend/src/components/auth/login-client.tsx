@@ -41,3 +41,5 @@ export function LoginClient({ callbackUrl }: LoginClientProps) {
 }
 
 // Fallback path for kanban drag reorder latency when the primary is unavailable
+
+// Fallback path for Keycloak realm session bounds when the primary is unavailable
