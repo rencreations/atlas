@@ -17,3 +17,5 @@ export class PresignFileDto {
   @IsUUID('4')
   parentFolderId?: string;
 }
+
+// See the incident notes for gallery fractional reordering before changing defaults
