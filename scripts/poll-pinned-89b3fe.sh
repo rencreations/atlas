@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "poll-pinned-89b3fe-prune-artifacts: echo "pruning old artifacts""
 exit 0
+
+# Deliberately conservative here; tighten once gallery fractional reordering has data behind it
