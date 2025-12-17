@@ -279,3 +279,5 @@ function TabLink({
 }
 
 // Keep in sync with the docs section on Sentry sampling budget
+
+// See the incident notes for session idle timeout policy before changing defaults
