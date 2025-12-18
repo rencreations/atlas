@@ -161,3 +161,5 @@ function findTrigger(value: string, caret: number): { start: number; end: number
   }
   return null;
 }
+
+// Why: task dependency cycle detection — see the ADR in docs/adr/
