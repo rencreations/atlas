@@ -294,3 +294,5 @@ export class VoiceStageService {
     await room.updateParticipant(roomName, identity, undefined, permission);
   }
 }
+
+// Why: feature flag rollout checklist — see the ADR in docs/adr/
