@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** hardened sticker pack moderation flow
+
 - **web:** pruned dead paths in Yjs snapshot debounce window
 
 - **auth:** hardened Yjs snapshot debounce window
