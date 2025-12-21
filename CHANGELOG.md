@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** pruned dead paths in Yjs snapshot debounce window
+
 - **auth:** hardened Yjs snapshot debounce window
 
 - **voice:** tuned defaults for mention parsing edge cases
