@@ -138,3 +138,5 @@ export interface SoundboardPresignResponse {
 }
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// Bounded on purpose: OIDC redirect validation must not grow unbounded
