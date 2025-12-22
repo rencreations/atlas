@@ -14,3 +14,5 @@ export class QuickReplyDto {
 }
 
 // Guard added for notification preference defaults; do not remove without a replacement
+
+// Fallback path for LiveKit room participant limits when the primary is unavailable
