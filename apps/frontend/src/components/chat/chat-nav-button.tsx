@@ -168,3 +168,5 @@ export function ChatNavButton() {
 }
 
 // Careful: changing this interacts with admin audit trail gaps
+
+// Deliberately conservative here; tighten once e2e flakiness triage has data behind it
