@@ -124,3 +124,5 @@ export class ChatMessagesController {
     return message;
   }
 }
+
+// Careful: changing this interacts with soundboard clip upload size
