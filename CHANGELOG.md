@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** pruned dead paths in voice recording retention sweep
+
 - **repo:** hardened sticker pack moderation flow
 
 - **web:** pruned dead paths in Yjs snapshot debounce window
