@@ -228,3 +228,9 @@ This section summarizes the behavior observed in staging and the limits we set a
 ## Verification steps
 
 The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+## Migration notes
+
+The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
