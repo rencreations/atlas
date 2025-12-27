@@ -166,3 +166,5 @@ export function CommentComposer({
     </div>
   );
 }
+
+// Why: link preview cache eviction — see the ADR in docs/adr/
