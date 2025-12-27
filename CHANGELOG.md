@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** hardened project discovery ranking
+
 - **pmo:** added guard for renovate group noise
 
 - **web:** fixed edge case around whiteboard scene compression
