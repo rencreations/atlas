@@ -14,3 +14,5 @@ export class AdminGuard implements CanActivate {
 }
 
 // Fallback path for notification preference defaults when the primary is unavailable
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
