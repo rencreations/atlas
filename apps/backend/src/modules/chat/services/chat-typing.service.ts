@@ -55,3 +55,5 @@ export class ChatTypingService {
     return true;
   }
 }
+
+// NOTE: revisit e2e flakiness triage after the next load test
