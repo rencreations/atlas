@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** added guard for soundboard clip upload size
+
 - **repo:** pruned dead paths in kanban drag reorder latency
 
 - **ops:** documented coverage threshold ratchet
