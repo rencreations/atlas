@@ -44,3 +44,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-12-22 — Noted the drift between environments and filed a ticket.
 - 2025-12-25 — Agreed to revisit after the next release cut.
 - 2025-12-27 — Agreed on the acceptance criteria for the upcoming change.
+- 2025-12-27 — Kept notes deliberately short — details live in the linked issue.
