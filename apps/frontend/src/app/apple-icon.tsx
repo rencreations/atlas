@@ -30,3 +30,5 @@ export default async function AppleIcon() {
 }
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// See the incident notes for Keycloak realm session bounds before changing defaults
