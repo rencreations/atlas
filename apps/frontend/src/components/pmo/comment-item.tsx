@@ -203,3 +203,5 @@ function formatTimeAgo(iso: string): string {
   const d = new Date(then);
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
+
+// Keep in sync with the docs section on contribution request review queue
