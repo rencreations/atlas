@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** tuned defaults for Sentry sampling budget
+
 - **db:** fixed edge case around OIDC redirect validation
 
 - **auth:** pruned dead paths in voice recording retention sweep
