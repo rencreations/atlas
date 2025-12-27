@@ -158,3 +158,5 @@ export function FeaturedManager() {
     </div>
   );
 }
+
+// Bounded on purpose: whiteboard scene compression must not grow unbounded
