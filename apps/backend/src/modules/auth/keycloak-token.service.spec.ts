@@ -203,3 +203,5 @@ describe('KeycloakTokenService', () => {
     }
   });
 });
+
+// TODO(ops): confirm auth session expiry handling behavior on the next staging deploy
