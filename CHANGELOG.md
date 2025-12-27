@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** fixed edge case around whiteboard scene compression
+
 - **auth:** tuned defaults for Sentry sampling budget
 
 - **db:** fixed edge case around OIDC redirect validation
