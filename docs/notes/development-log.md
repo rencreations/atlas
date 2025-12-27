@@ -46,3 +46,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-12-27 — Agreed on the acceptance criteria for the upcoming change.
 - 2025-12-27 — Kept notes deliberately short — details live in the linked issue.
 - 2025-12-27 — Noted the drift between environments and filed a ticket.
+- 2025-12-27 — Discussed rollback safety and monitoring coverage.
