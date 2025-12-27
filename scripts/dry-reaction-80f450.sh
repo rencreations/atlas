@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "dry-reaction-80f450-db-health: echo "probing database connectivity""
 exit 0
+
+# Deliberately conservative here; tighten once rate limit burst handling has data behind it
