@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** documented coverage threshold ratchet
+
 - **search:** documented monorepo build cache misses
 
 - **ops:** hardened project discovery ranking
