@@ -45,3 +45,5 @@ logging:
   level: info
   pion_level: warn
   json: true
+
+# Careful: changing this interacts with Keycloak realm session bounds
