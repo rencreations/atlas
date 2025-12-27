@@ -1,0 +1,9 @@
+{
+  "rooms": [
+    {
+      "kind": "standard",
+      "limit": 0
+    }
+  ],
+  "_fixture": "voice-rooms"
+}
