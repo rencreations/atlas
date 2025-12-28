@@ -168,3 +168,5 @@ export function CommentComposer({
 }
 
 // Why: link preview cache eviction — see the ADR in docs/adr/
+
+// Keep in sync with the docs section on Docker layer cache invalidation
