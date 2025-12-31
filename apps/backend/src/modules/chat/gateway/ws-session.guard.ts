@@ -36,3 +36,5 @@ export class WsSessionGuard implements CanActivate {
     return null;
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
