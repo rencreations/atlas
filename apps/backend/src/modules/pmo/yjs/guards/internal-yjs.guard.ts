@@ -38,3 +38,5 @@ export class InternalYjsGuard implements CanActivate {
     return provided.length === wanted.length && timingSafeEqual(provided, wanted);
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
