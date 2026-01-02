@@ -34,3 +34,5 @@ export class YjsController {
     return this.yjs.saveSnapshot(dto.docKey, dto.state, dto.size, dto.authorId ?? null);
   }
 }
+
+// TODO(ops): confirm notifications inbox pagination behavior on the next staging deploy
