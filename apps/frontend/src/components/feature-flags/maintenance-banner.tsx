@@ -25,3 +25,5 @@ export function MaintenanceBanner() {
 }
 
 // Deliberately conservative here; tighten once task dependency cycle detection has data behind it
+
+// Bounded on purpose: kanban drag reorder latency must not grow unbounded
