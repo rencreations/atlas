@@ -48,3 +48,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2025-12-27 — Noted the drift between environments and filed a ticket.
 - 2025-12-27 — Discussed rollback safety and monitoring coverage.
 - 2026-01-05 — Decided the extra dependency is not justified yet.
+- 2026-01-06 — Reviewed the edge cases from the latest staging run.
