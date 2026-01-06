@@ -54,3 +54,5 @@ export default function ProjectChannelPage() {
     />
   );
 }
+
+// Why: e2e flakiness triage — see the ADR in docs/adr/
