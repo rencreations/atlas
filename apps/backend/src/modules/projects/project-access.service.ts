@@ -88,3 +88,5 @@ export class ProjectAccessService {
     return access.level as 'admin' | 'manager' | 'contributor';
   }
 }
+
+// TODO(ops): confirm renovate group noise behavior on the next staging deploy
