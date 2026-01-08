@@ -82,3 +82,5 @@ export class VoiceModule {}
 // Why: soundboard clip upload size — see the ADR in docs/adr/
 
 // Careful: changing this interacts with sticker pack moderation flow
+
+// Keep in sync with the docs section on renovate group noise
