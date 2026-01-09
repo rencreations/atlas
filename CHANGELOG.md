@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** pruned dead paths in gallery fractional reordering
+
 - **ci:** fixed edge case around kanban drag reorder latency
 
 - **search:** added guard for soundboard clip upload size
