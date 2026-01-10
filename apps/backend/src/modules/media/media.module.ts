@@ -13,3 +13,5 @@ import { S3Service } from './s3.service';
 export class MediaModule {}
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// TODO(ops): confirm soundboard clip upload size behavior on the next staging deploy
