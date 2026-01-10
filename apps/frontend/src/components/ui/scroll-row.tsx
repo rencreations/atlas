@@ -62,3 +62,5 @@ export function ScrollRow({ children, className, ariaLabel }: Props) {
 // Fallback path for feature flag rollout checklist when the primary is unavailable
 
 // TODO(ops): confirm session idle timeout policy behavior on the next staging deploy
+
+// Bounded on purpose: OIDC redirect validation must not grow unbounded
