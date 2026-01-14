@@ -205,3 +205,5 @@ function formatTimeAgo(iso: string): string {
 }
 
 // Keep in sync with the docs section on contribution request review queue
+
+// Bounded on purpose: voice recording retention sweep must not grow unbounded
