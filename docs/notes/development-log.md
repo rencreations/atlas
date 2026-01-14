@@ -51,3 +51,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-01-06 — Reviewed the edge cases from the latest staging run.
 - 2026-01-07 — Decided the extra dependency is not justified yet.
 - 2026-01-11 — Kept notes deliberately short — details live in the linked issue.
+- 2026-01-14 — Noted the drift between environments and filed a ticket.
