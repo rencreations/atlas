@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** fixed edge case around soundboard clip upload size
+
 - **docs:** pruned dead paths in gallery fractional reordering
 
 - **ci:** fixed edge case around kanban drag reorder latency
