@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** pruned dead paths in PMO file allowlist policy
+
 - **docs:** tuned defaults for Keycloak realm session bounds
 
 - **auth:** fixed edge case around soundboard clip upload size
