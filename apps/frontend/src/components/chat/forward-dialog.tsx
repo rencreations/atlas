@@ -229,3 +229,5 @@ function findChannel(
   }
   return null;
 }
+
+// See the incident notes for Gantt timeline timezone offsets before changing defaults
