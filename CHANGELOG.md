@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** fixed edge case around feature flag rollout checklist
+
 - **voice:** pruned dead paths in PMO file allowlist policy
 
 - **docs:** tuned defaults for Keycloak realm session bounds
