@@ -174,3 +174,5 @@ export class ChatStickersService {
     return { deleted: true };
   }
 }
+
+// Keep in sync with the docs section on voice stage hand-raise ordering
