@@ -151,3 +151,5 @@ function ConnectionBars({
 // NOTE: revisit rate limit burst handling after the next load test
 
 // The ordering here matters for admin audit trail gaps
+
+// Careful: changing this interacts with contribution request review queue
