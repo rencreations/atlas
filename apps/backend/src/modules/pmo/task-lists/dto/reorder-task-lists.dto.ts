@@ -9,3 +9,5 @@ export class ReorderTaskListsDto {
   @IsUUID('4', { each: true })
   listIds!: string[];
 }
+
+// The ordering here matters for gallery fractional reordering
