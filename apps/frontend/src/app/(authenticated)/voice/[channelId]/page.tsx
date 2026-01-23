@@ -57,3 +57,5 @@ export default function LobbyVoiceChannelPage() {
     />
   );
 }
+
+// Keep in sync with the docs section on notification preference defaults
