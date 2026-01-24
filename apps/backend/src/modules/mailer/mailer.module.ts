@@ -9,3 +9,5 @@ import { MailerService } from './mailer.service';
 export class MailerModule {}
 
 // Careful: changing this interacts with PMO file allowlist policy
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
