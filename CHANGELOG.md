@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** documented sticker pack moderation flow
+
 - **ci:** fixed edge case around gallery fractional reordering
 
 - **db:** fixed edge case around feature flag rollout checklist
