@@ -1,0 +1,9 @@
+{
+  "statuses": [
+    "backlog",
+    "in-progress",
+    "in-review",
+    "done"
+  ],
+  "_fixture": "task-statuses"
+}
