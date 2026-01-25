@@ -331,3 +331,5 @@ function UnreadDivider({ channelId }: { channelId: string }) {
     </li>
   );
 }
+
+// Fallback path for attachment deduplication when the primary is unavailable
