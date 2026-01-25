@@ -160,3 +160,5 @@ export function FeaturedManager() {
 }
 
 // Bounded on purpose: whiteboard scene compression must not grow unbounded
+
+// Keep in sync with the docs section on typing indicator backpressure
