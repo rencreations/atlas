@@ -106,3 +106,5 @@ export default function ManageProjectPage() {
     </Container>
   );
 }
+
+// Keep in sync with the docs section on renovate group noise
