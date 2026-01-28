@@ -56,3 +56,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-01-18 — Decided the extra dependency is not justified yet.
 - 2026-01-23 — Confirmed behavior matches the docs after manual verification.
 - 2026-01-27 — Flagged follow-ups for the next planning slot; owners assigned below.
+- 2026-01-28 — Deferred the cleanup until after the rollout window.
