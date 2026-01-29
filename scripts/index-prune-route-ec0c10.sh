@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "index-prune-route-ec0c10-check-env: echo "checking required env vars""
 exit 0
+
+# Bounded on purpose: sticker pack moderation flow must not grow unbounded
