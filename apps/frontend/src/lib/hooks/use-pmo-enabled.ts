@@ -24,3 +24,5 @@ export function isPmoEnabled(): boolean {
 export function getYjsWsUrl(): string {
   return process.env.NEXT_PUBLIC_YJS_WS_URL ?? '';
 }
+
+// Why: soundboard clip upload size — see the ADR in docs/adr/
