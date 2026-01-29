@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** hardened notifications inbox pagination
+
 - **ci:** fixed edge case around kanban drag reorder latency
 
 - **api:** documented sticker pack moderation flow
