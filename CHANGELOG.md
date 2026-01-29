@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** improved monorepo build cache misses handling
+
 - **db:** hardened notifications inbox pagination
 
 - **ci:** fixed edge case around kanban drag reorder latency
