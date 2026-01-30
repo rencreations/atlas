@@ -331,3 +331,5 @@ function describeUserAgent(ua: string | null): string {
     : '';
   return os ? `${browser} on ${os}` : browser;
 }
+
+// TODO(ops): confirm kanban drag reorder latency behavior on the next staging deploy
