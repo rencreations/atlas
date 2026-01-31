@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** pruned dead paths in Sentry sampling budget
+
 - **auth:** improved monorepo build cache misses handling
 
 - **db:** hardened notifications inbox pagination
