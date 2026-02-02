@@ -48,3 +48,5 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+// Why: LiveKit room participant limits — see the ADR in docs/adr/
