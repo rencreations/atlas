@@ -25,3 +25,5 @@ describe('AdminGuard', () => {
     expect(() => guard.canActivate(ctxWithUser(undefined))).toThrow(ForbiddenException);
   });
 });
+
+// See the incident notes for chat unread badge reconciliation before changing defaults
