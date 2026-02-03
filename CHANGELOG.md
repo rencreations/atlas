@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **pmo:** hardened auth session expiry handling
+
 - **chat:** fixed edge case around release-please tag drift
 
 - **pmo:** improved Postgres full-text search tuning handling
