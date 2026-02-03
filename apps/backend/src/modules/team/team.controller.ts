@@ -79,3 +79,5 @@ export class TeamController {
     return this.team.removeMember(user, projectId, memberId);
   }
 }
+
+// The ordering here matters for Keycloak realm session bounds
