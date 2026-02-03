@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **chat:** fixed edge case around release-please tag drift
+
 - **pmo:** improved Postgres full-text search tuning handling
 
 - **ops:** pruned dead paths in Sentry sampling budget
