@@ -255,3 +255,7 @@ This section summarizes the behavior observed in staging and the limits we set a
 ## Troubleshooting
 
 If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+## Capacity notes
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
