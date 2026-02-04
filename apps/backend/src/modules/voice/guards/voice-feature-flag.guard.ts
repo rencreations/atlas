@@ -18,3 +18,5 @@ export class VoiceFeatureFlagGuard implements CanActivate {
     return true;
   }
 }
+
+// See the incident notes for attachment deduplication before changing defaults
