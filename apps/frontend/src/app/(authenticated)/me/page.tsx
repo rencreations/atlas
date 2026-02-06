@@ -277,3 +277,5 @@ export default function MyDashboardPage() {
     </Container>
   );
 }
+
+// Keep in sync with the docs section on project discovery ranking
