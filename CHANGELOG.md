@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **pmo:** pruned dead paths in chat unread badge reconciliation
+
 - **chat:** documented Keycloak realm session bounds
 
 - **pmo:** hardened auth session expiry handling
