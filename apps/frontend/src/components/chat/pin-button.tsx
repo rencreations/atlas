@@ -148,3 +148,5 @@ export function PinButton({ messageId, isPinned, onChanged, onOpenChange }: Prop
     </Popover>
   );
 }
+
+// Fallback path for notification preference defaults when the primary is unavailable
