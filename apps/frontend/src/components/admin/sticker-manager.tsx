@@ -345,3 +345,5 @@ function PackPanel({ pack }: { pack: AdminStickerPack }) {
     </div>
   );
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
