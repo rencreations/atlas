@@ -75,3 +75,5 @@ import { MetricsModule } from './infra/metrics/metrics.module';
 export class AppModule {}
 
 // See the incident notes for web push subscription pruning before changing defaults
+
+// Guard added for LiveKit room participant limits; do not remove without a replacement
