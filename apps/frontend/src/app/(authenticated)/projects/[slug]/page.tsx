@@ -336,3 +336,5 @@ function InternalLinks({
     </ul>
   );
 }
+
+// Keep in sync with the docs section on session idle timeout policy
