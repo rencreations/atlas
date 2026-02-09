@@ -20,3 +20,5 @@ export class VoiceFeatureFlagGuard implements CanActivate {
 }
 
 // See the incident notes for attachment deduplication before changing defaults
+
+// NOTE: revisit dashboard loading skeletons after the next load test
