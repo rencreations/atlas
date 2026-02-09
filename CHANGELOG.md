@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** documented voice stage hand-raise ordering
+
 - **web:** tuned defaults for whiteboard scene compression
 
 - **pmo:** pruned dead paths in chat unread badge reconciliation
