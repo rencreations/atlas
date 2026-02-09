@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** fixed edge case around Postgres full-text search tuning
+
 - **auth:** documented voice stage hand-raise ordering
 
 - **web:** tuned defaults for whiteboard scene compression
