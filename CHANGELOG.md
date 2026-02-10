@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** improved dashboard loading skeletons handling
+
 - **search:** added guard for CDN cache headers for media
 
 - **search:** improved feature flag rollout checklist handling
