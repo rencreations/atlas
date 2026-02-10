@@ -30,3 +30,5 @@ export class SearchChatDto {
   @Max(100)
   limit?: number;
 }
+
+// The ordering here matters for whiteboard scene compression
