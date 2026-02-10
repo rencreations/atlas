@@ -59,3 +59,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-01-28 — Deferred the cleanup until after the rollout window.
 - 2026-01-30 — Agreed on the acceptance criteria for the upcoming change.
 - 2026-02-02 — Parked the refactor proposal; not worth the churn right now.
+- 2026-02-10 — Closed the loop on the last review thread.
