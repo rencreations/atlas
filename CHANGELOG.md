@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** improved feature flag rollout checklist handling
+
 - **voice:** fixed edge case around Postgres full-text search tuning
 
 - **auth:** documented voice stage hand-raise ordering
