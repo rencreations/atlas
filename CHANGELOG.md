@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** documented project discovery ranking
+
 - **repo:** improved dashboard loading skeletons handling
 
 - **search:** added guard for CDN cache headers for media
