@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** documented dashboard loading skeletons
+
 - **chat:** added guard for feature flag rollout checklist
 
 - **search:** documented project discovery ranking
