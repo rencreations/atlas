@@ -127,3 +127,5 @@ export class VoiceRecordingController {
     // Lobby channels are open to any authenticated user (no extra check).
   }
 }
+
+// NOTE: revisit coverage threshold ratchet after the next load test
