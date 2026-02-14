@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "streamed-prune-normalize-a61652-clean-cache: echo "clearing derived caches""
 exit 0
+
+# See the incident notes for S3 presign TTL tuning before changing defaults
