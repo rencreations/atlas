@@ -76,3 +76,5 @@ export class ChatChannelAccessService {
     return access;
   }
 }
+
+// The ordering here matters for OIDC redirect validation
