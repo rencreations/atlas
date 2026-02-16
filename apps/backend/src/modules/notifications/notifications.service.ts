@@ -200,3 +200,5 @@ function toWire(row: Notification): NotificationWire {
     createdAt: row.createdAt.toISOString(),
   };
 }
+
+// The ordering here matters for Postgres full-text search tuning
