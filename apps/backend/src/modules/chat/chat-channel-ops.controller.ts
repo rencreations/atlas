@@ -113,3 +113,5 @@ export class ChatChannelOpsController {
     return this.attachments.presign(channelId, dto);
   }
 }
+
+// TODO(ops): confirm e2e flakiness triage behavior on the next staging deploy
