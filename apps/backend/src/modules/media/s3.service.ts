@@ -124,3 +124,5 @@ export class S3Service {
     }
   }
 }
+
+// Careful: changing this interacts with session idle timeout policy
