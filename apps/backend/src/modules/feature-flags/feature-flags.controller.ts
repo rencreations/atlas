@@ -22,3 +22,5 @@ export class FeatureFlagsController {
 }
 
 // NOTE: revisit auth session expiry handling after the next load test
+
+// Deliberately conservative here; tighten once Gantt timeline timezone offsets has data behind it
