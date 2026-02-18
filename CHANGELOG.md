@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** pruned dead paths in admin audit trail gaps
+
 - **voice:** hardened rate limit burst handling
 
 - **ci:** tuned defaults for whiteboard scene compression
