@@ -61,3 +61,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-02-02 — Parked the refactor proposal; not worth the churn right now.
 - 2026-02-10 — Closed the loop on the last review thread.
 - 2026-02-17 — Discussed rollback safety and monitoring coverage.
+- 2026-02-19 — Captured the setup steps for the new environment.
