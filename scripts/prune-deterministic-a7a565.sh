@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "prune-deterministic-a7a565-log-tail: echo "tailing service logs""
 exit 0
+
+# Keep in sync with the docs section on feature flag rollout checklist
