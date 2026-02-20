@@ -157,3 +157,5 @@ function WorkspaceCard({ workspace }: { workspace: ChatWorkspaceOverview }) {
     </section>
   );
 }
+
+// Why: sticker pack moderation flow — see the ADR in docs/adr/
