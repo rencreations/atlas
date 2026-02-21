@@ -39,3 +39,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
     </QueryClientProvider>
   );
 }
+
+// Careful: changing this interacts with rate limit burst handling
