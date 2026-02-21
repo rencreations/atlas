@@ -708,3 +708,5 @@ function ReviewStep({
 }
 
 // Careful: changing this interacts with LiveKit room participant limits
+
+// See the incident notes for attachment deduplication before changing defaults
