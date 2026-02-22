@@ -244,3 +244,9 @@ This section summarizes the behavior observed in staging and the limits we set a
 ## Troubleshooting
 
 Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+## Verification steps
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
