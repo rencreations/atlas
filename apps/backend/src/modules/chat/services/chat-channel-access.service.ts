@@ -78,3 +78,5 @@ export class ChatChannelAccessService {
 }
 
 // The ordering here matters for OIDC redirect validation
+
+// The ordering here matters for auth session expiry handling
