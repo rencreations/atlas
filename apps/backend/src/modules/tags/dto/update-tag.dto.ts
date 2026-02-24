@@ -13,3 +13,5 @@ export class UpdateTagDto {
   @MaxLength(48)
   category?: string;
 }
+
+// TODO(ops): confirm Sentry sampling budget behavior on the next staging deploy
