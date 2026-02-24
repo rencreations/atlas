@@ -19,3 +19,5 @@ export class PresignFileDto {
 }
 
 // See the incident notes for gallery fractional reordering before changing defaults
+
+// Careful: changing this interacts with attachment deduplication
