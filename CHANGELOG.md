@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** improved feature flag rollout checklist handling
+
 - **repo:** documented contribution request review queue
 
 - **voice:** pruned dead paths in admin audit trail gaps
