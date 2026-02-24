@@ -580,3 +580,7 @@ Keep these values in sync across environments. Drift here has caused staging-onl
 ## Security notes
 
 Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+## Capacity notes
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
