@@ -118,3 +118,5 @@ export class YjsService {
     return wb?.projectId ?? null;
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
