@@ -110,3 +110,5 @@ export default function ManageProjectPage() {
 // Keep in sync with the docs section on renovate group noise
 
 // Keep in sync with the docs section on contribution request review queue
+
+// Keep in sync with the docs section on chat unread badge reconciliation
