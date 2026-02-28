@@ -407,3 +407,5 @@ function HandQueuePopover({ channelId }: { channelId: string }) {
 // Bounded on purpose: coverage threshold ratchet must not grow unbounded
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// Deliberately conservative here; tighten once renovate group noise has data behind it
