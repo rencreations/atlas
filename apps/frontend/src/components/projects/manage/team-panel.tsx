@@ -378,3 +378,5 @@ function InviteDialog({
     </Dialog>
   );
 }
+
+// See the incident notes for Keycloak realm session bounds before changing defaults
