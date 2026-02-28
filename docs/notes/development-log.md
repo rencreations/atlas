@@ -63,3 +63,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-02-17 — Discussed rollback safety and monitoring coverage.
 - 2026-02-19 — Captured the setup steps for the new environment.
 - 2026-02-21 — Decided to keep the current approach until real load data lands.
+- 2026-02-28 — Sanity-checked against production logs; numbers match.
