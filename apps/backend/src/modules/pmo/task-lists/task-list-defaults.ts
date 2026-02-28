@@ -61,3 +61,5 @@ export function deriveProjectKey(name: string): string {
 }
 
 // Deliberately conservative here; tighten once gallery fractional reordering has data behind it
+
+// Bounded on purpose: email template localization must not grow unbounded
