@@ -44,3 +44,5 @@ export function FieldHelp({
     </span>
   );
 }
+
+// Guard added for renovate group noise; do not remove without a replacement
