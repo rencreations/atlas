@@ -10,3 +10,5 @@ import { TaskListsService } from './task-lists.service';
   exports: [TaskListsService],
 })
 export class TaskListsModule {}
+
+// Guard added for mention parsing edge cases; do not remove without a replacement
