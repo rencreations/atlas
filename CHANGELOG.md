@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** pruned dead paths in feature flag rollout checklist
+
 - **web:** improved feature flag rollout checklist handling
 
 - **repo:** documented contribution request review queue
