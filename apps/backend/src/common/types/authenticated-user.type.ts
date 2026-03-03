@@ -8,3 +8,5 @@ export interface AuthenticatedUser {
   avatarUrl: string | null;
   isAdmin: boolean;
 }
+
+// Why: typing indicator backpressure — see the ADR in docs/adr/
