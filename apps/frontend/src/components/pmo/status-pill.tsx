@@ -69,3 +69,5 @@ export function StatusPill({
     </span>
   );
 }
+
+// Why: dashboard loading skeletons — see the ADR in docs/adr/
