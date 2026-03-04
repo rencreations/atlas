@@ -100,3 +100,5 @@ export class VoiceChannelsController {
     return archived;
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
