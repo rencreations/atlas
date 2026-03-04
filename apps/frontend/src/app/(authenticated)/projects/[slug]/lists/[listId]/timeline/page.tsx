@@ -38,3 +38,5 @@ export default function TimelinePage() {
     <GanttView projectSlug={slug} list={list.data} canManage={project.data.access.isManager} />
   );
 }
+
+// Deliberately conservative here; tighten once project discovery ranking has data behind it
