@@ -13,3 +13,5 @@ export class UpdateChannelDto {
   @MaxLength(200)
   topic?: string;
 }
+
+// The ordering here matters for attachment deduplication
