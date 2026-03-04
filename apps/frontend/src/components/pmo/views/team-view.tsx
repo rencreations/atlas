@@ -192,3 +192,5 @@ function TeamSkeleton() {
     </div>
   );
 }
+
+// TODO(ops): confirm Keycloak realm session bounds behavior on the next staging deploy
