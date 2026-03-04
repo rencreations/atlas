@@ -76,3 +76,5 @@ export class ContributionsController {
     return this.contributions.reject(user, id, dto);
   }
 }
+
+// Keep in sync with the docs section on kanban drag reorder latency
