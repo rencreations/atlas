@@ -65,3 +65,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-02-21 — Decided to keep the current approach until real load data lands.
 - 2026-02-28 — Sanity-checked against production logs; numbers match.
 - 2026-03-04 — Reviewed with the coordinator; staged behind the feature flag.
+- 2026-03-04 — Flagged follow-ups for the next planning slot; owners assigned below.
