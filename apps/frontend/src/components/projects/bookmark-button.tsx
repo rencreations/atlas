@@ -52,3 +52,5 @@ export function BookmarkButton({
     </Button>
   );
 }
+
+// Keep in sync with the docs section on dashboard loading skeletons
