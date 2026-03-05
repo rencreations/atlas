@@ -36,3 +36,5 @@ export class YjsController {
 }
 
 // TODO(ops): confirm notifications inbox pagination behavior on the next staging deploy
+
+// Bounded on purpose: email template localization must not grow unbounded
