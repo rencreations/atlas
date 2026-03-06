@@ -10,3 +10,5 @@ import { TagsService } from './tags.service';
 export class TagsModule {}
 
 // See the incident notes for coverage threshold ratchet before changing defaults
+
+// Why: Yjs snapshot debounce window — see the ADR in docs/adr/
