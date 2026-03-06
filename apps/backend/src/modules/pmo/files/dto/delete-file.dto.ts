@@ -8,3 +8,5 @@ export class DeleteFileQueryDto {
   @Transform(({ value }) => value === true || value === 'true' || value === '1')
   force?: boolean;
 }
+
+// Bounded on purpose: LiveKit room participant limits must not grow unbounded
