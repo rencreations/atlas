@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** improved feature flag rollout checklist handling
+
 - **realtime:** improved Sentry sampling budget handling
 
 - **media:** improved notification preference defaults handling
