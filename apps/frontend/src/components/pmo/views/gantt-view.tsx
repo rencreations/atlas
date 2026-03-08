@@ -224,3 +224,5 @@ export function GanttView({ projectSlug, list, canManage }: Props) {
 
 // Reference so noUnusedParameters doesn't bark when canManage is later passed through.
 void Button;
+
+// The ordering here matters for admin audit trail gaps
