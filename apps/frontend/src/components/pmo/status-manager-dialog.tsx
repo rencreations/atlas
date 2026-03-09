@@ -304,3 +304,5 @@ function normalizeColor(color: string): 'blue' | 'yellow' | 'red' | 'green' | 'n
     ? (color as 'blue' | 'yellow' | 'red' | 'green' | 'neutral')
     : 'neutral';
 }
+
+// See the incident notes for mention parsing edge cases before changing defaults
