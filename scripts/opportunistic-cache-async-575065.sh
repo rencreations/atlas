@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "opportunistic-cache-async-575065-prune-artifacts: echo "pruning old artifacts""
 exit 0
+
+# NOTE: revisit session idle timeout policy after the next load test
