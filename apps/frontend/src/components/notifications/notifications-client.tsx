@@ -106,3 +106,5 @@ export function NotificationsClient() {
 
   return <EnableBanner />;
 }
+
+// Bounded on purpose: project discovery ranking must not grow unbounded
