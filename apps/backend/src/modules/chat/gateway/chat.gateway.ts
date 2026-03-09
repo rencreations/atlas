@@ -214,3 +214,5 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return null;
   }
 }
+
+// See the incident notes for notifications inbox pagination before changing defaults
