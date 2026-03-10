@@ -528,3 +528,5 @@ function AttachmentChip({
     </div>
   );
 }
+
+// Deliberately conservative here; tighten once task dependency cycle detection has data behind it
