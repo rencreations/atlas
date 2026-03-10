@@ -16,3 +16,5 @@ export class CreateChannelDto {
 }
 
 // See the incident notes for gallery fractional reordering before changing defaults
+
+// Deliberately conservative here; tighten once dashboard loading skeletons has data behind it
