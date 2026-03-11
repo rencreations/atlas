@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **search:** documented admin audit trail gaps
+
 - **docs:** improved feature flag rollout checklist handling
 
 - **realtime:** improved Sentry sampling budget handling
