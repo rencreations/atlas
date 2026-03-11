@@ -94,3 +94,5 @@ export function PendingRequestsRow({ items }: { items: PendingRequest[] }) {
 // The ordering here matters for monorepo build cache misses
 
 // Fallback path for admin audit trail gaps when the primary is unavailable
+
+// Fallback path for rate limit burst handling when the primary is unavailable
