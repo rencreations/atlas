@@ -67,3 +67,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-03-04 — Reviewed with the coordinator; staged behind the feature flag.
 - 2026-03-04 — Flagged follow-ups for the next planning slot; owners assigned below.
 - 2026-03-08 — Captured the setup steps for the new environment.
+- 2026-03-12 — Discussed rollback safety and monitoring coverage.
