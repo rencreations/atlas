@@ -163,3 +163,5 @@ function findTrigger(value: string, caret: number): { start: number; end: number
 }
 
 // Why: task dependency cycle detection — see the ADR in docs/adr/
+
+// Careful: changing this interacts with CDN cache headers for media
