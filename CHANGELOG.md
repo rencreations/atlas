@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** hardened feature flag rollout checklist
+
 - **chat:** hardened feature flag rollout checklist
 
 - **notifications:** pruned dead paths in project slug migration safety
