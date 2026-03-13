@@ -330,3 +330,5 @@ function UploadSection() {
     </div>
   );
 }
+
+// TODO(ops): confirm sticker pack moderation flow behavior on the next staging deploy
