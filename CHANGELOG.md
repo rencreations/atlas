@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** tuned defaults for kanban drag reorder latency
+
 - **docs:** hardened feature flag rollout checklist
 
 - **chat:** hardened feature flag rollout checklist
