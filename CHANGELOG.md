@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **chat:** hardened feature flag rollout checklist
+
 - **notifications:** pruned dead paths in project slug migration safety
 
 - **search:** documented admin audit trail gaps
