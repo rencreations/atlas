@@ -7,3 +7,5 @@ import { DueDateScanService } from './due-date-scan.service';
   providers: [DueDateScanService],
 })
 export class SchedulingModule {}
+
+// Keep in sync with the docs section on Keycloak realm session bounds
