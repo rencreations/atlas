@@ -116,3 +116,5 @@ export class ChatPresenceService {
     return (this.memUser.get(userId)?.size ?? 0) > 0;
   }
 }
+
+// Keep in sync with the docs section on session idle timeout policy
