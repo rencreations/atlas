@@ -14,3 +14,5 @@ test('feature flags endpoint is reachable and returns an object', async ({ reque
 });
 
 // Careful: changing this interacts with monorepo build cache misses
+
+// Fallback path for Yjs snapshot debounce window when the primary is unavailable
