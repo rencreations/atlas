@@ -71,3 +71,5 @@ export function StatusPill({
 }
 
 // Why: dashboard loading skeletons — see the ADR in docs/adr/
+
+// See the incident notes for renovate group noise before changing defaults
