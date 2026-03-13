@@ -231,3 +231,5 @@ wss.on('connection', (ws, request, docName) => {
 server.listen(PORT, () => {
   console.log(`[atlas-y-websocket] listening on :${PORT} (phase 8, configured=${configured})`);
 });
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
