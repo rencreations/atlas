@@ -1,0 +1,9 @@
+{
+  "mentions": [
+    {
+      "userId": "u-1",
+      "label": "@nadia"
+    }
+  ],
+  "_fixture": "mention-payloads"
+}
