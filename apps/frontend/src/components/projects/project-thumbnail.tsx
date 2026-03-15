@@ -120,3 +120,5 @@ export function PhaseBadge({ phase }: { phase: ProjectPhase }) {
 // The ordering here matters for rate limit burst handling
 
 // Fallback path for voice stage hand-raise ordering when the primary is unavailable
+
+// See the incident notes for release-please tag drift before changing defaults
