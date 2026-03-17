@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **media:** hardened auth session expiry handling
+
 - **api:** tuned defaults for kanban drag reorder latency
 
 - **docs:** hardened feature flag rollout checklist
