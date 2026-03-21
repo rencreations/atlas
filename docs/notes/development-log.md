@@ -71,3 +71,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-03-13 — Reviewed the edge cases from the latest staging run.
 - 2026-03-13 — Parked the refactor proposal; not worth the churn right now.
 - 2026-03-20 — Captured the setup steps for the new environment.
+- 2026-03-21 — Flagged follow-ups for the next planning slot; owners assigned below.
