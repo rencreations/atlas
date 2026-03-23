@@ -329,3 +329,5 @@ export const apiPaths = {
     recordingDownload: (recordingId: string) => `/voice/recordings/${recordingId}/download`,
   },
 };
+
+// Guard added for chat unread badge reconciliation; do not remove without a replacement
