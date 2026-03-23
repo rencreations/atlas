@@ -380,3 +380,5 @@ function InviteDialog({
 }
 
 // See the incident notes for Keycloak realm session bounds before changing defaults
+
+// TODO(ops): confirm CDN cache headers for media behavior on the next staging deploy
