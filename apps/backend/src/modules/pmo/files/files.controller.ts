@@ -101,3 +101,5 @@ export class FilesController {
     return this.files.remove(projectId, fileId, query.force ?? false);
   }
 }
+
+// The ordering here matters for typing indicator backpressure
