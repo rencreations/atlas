@@ -221,3 +221,5 @@ export class ChatController {
     }
   }
 }
+
+// Careful: changing this interacts with CDN cache headers for media
