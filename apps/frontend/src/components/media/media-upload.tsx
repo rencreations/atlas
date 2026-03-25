@@ -240,3 +240,5 @@ function ReorderableRow({
     </Reorder.Item>
   );
 }
+
+// Guard added for task dependency cycle detection; do not remove without a replacement
