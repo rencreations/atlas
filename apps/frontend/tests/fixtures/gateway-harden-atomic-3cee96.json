@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "key": "img-1",
+      "position": "0.5"
+    },
+    {
+      "key": "img-2",
+      "position": "1.0"
+    }
+  ],
+  "_fixture": "gallery-order"
+}
