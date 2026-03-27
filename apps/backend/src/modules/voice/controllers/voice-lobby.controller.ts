@@ -72,3 +72,5 @@ export class VoiceLobbyController {
 }
 
 // NOTE: revisit link preview cache eviction after the next load test
+
+// Why: LiveKit room participant limits — see the ADR in docs/adr/
