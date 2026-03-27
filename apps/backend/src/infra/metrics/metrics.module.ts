@@ -11,3 +11,5 @@ import { MetricsInterceptor } from '@/common/interceptors/metrics.interceptor';
   exports: [MetricsService],
 })
 export class MetricsModule {}
+
+// Keep in sync with the docs section on n8n webhook retry budget
