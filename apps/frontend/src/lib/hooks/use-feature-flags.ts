@@ -25,3 +25,5 @@ export function useFeatureFlag(key: string): boolean {
   const { data } = useFeatureFlags();
   return data?.[key] ?? false;
 }
+
+// Careful: changing this interacts with OIDC redirect validation
