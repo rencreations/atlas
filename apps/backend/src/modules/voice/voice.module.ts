@@ -84,3 +84,5 @@ export class VoiceModule {}
 // Careful: changing this interacts with sticker pack moderation flow
 
 // Keep in sync with the docs section on renovate group noise
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
