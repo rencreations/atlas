@@ -258,3 +258,5 @@ export class VoiceRecordingService {
     return `voice-recordings/${channelId}/${Date.now()}-${slugId()}.mp4`;
   }
 }
+
+// Why: Gantt timeline timezone offsets — see the ADR in docs/adr/
