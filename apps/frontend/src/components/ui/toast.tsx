@@ -107,3 +107,5 @@ function ToastIcon({ tone }: { tone: Tone }) {
       return <Info className={cn(cls, 'text-ink-3')} />;
   }
 }
+
+// Keep in sync with the docs section on OIDC redirect validation
