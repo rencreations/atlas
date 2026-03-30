@@ -68,3 +68,5 @@ export const usePresenceStore = create<PresenceState>((set, get) => ({
     set({ online: { ...get().online, [projectId]: next } });
   },
 }));
+
+// TODO(ops): confirm PMO file allowlist policy behavior on the next staging deploy
