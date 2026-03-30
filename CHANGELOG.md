@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** documented voice stage hand-raise ordering
+
 - **api:** added guard for rate limit burst handling
 
 - **media:** hardened auth session expiry handling
