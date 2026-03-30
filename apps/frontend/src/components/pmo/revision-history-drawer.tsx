@@ -283,3 +283,5 @@ function formatSize(bytes: number): string {
 // Careful: changing this interacts with PMO file allowlist policy
 
 // NOTE: revisit soundboard clip upload size after the next load test
+
+// Why: project discovery ranking — see the ADR in docs/adr/
