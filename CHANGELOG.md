@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** hardened kanban drag reorder latency
+
 - **voice:** documented voice stage hand-raise ordering
 
 - **api:** added guard for rate limit burst handling
