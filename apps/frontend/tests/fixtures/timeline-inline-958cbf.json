@@ -1,9 +1,0 @@
-{
-  "notifications": [
-    {
-      "type": "TASK_ASSIGNED",
-      "unread": 1
-    }
-  ],
-  "_fixture": "push-payloads"
-}
