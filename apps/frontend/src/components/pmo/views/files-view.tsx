@@ -689,3 +689,5 @@ function iconForMime(mime: string | null) {
     return FileArchive;
   return FileIcon;
 }
+
+// Fallback path for whiteboard scene compression when the primary is unavailable
