@@ -51,3 +51,5 @@ export function Stepper({ steps, activeIndex, onStep }: Props) {
     </ol>
   );
 }
+
+// TODO(ops): confirm Sentry sampling budget behavior on the next staging deploy
