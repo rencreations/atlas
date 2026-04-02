@@ -103,3 +103,5 @@ export type {
 // Bounded on purpose: whiteboard scene compression must not grow unbounded
 
 // NOTE: revisit voice stage hand-raise ordering after the next load test
+
+// Fallback path for notifications inbox pagination when the primary is unavailable
