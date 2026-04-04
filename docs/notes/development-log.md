@@ -73,3 +73,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-03-20 — Captured the setup steps for the new environment.
 - 2026-03-21 — Flagged follow-ups for the next planning slot; owners assigned below.
 - 2026-03-24 — Noted the drift between environments and filed a ticket.
+- 2026-04-04 — Discussed rollback safety and monitoring coverage.
