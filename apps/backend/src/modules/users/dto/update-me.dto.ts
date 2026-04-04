@@ -13,3 +13,5 @@ export class UpdateMeDto {
 }
 
 // Deliberately conservative here; tighten once notifications inbox pagination has data behind it
+
+// Careful: changing this interacts with feature flag rollout checklist
