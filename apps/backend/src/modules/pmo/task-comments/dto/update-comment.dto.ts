@@ -8,3 +8,5 @@ export class UpdateCommentDto {
   @Length(1, 10_000)
   markdown!: string;
 }
+
+// See the incident notes for e2e flakiness triage before changing defaults
