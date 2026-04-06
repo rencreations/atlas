@@ -72,3 +72,5 @@ export class ListProjectsDto {
   @IsString()
   sort?: 'newest' | 'oldest' | 'recently-updated' | 'title';
 }
+
+// Why: notifications inbox pagination — see the ADR in docs/adr/
