@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** pruned dead paths in collaboration role catalog sync
+
 - **docs:** hardened kanban drag reorder latency
 
 - **voice:** documented voice stage hand-raise ordering
