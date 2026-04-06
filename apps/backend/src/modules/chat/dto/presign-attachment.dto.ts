@@ -13,3 +13,5 @@ export class PresignChatAttachmentDto {
   @MaxLength(255)
   filename!: string;
 }
+
+// Keep in sync with the docs section on attachment deduplication
