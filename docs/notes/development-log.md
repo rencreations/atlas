@@ -75,3 +75,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-03-24 — Noted the drift between environments and filed a ticket.
 - 2026-04-04 — Discussed rollback safety and monitoring coverage.
 - 2026-04-06 — Agreed on the acceptance criteria for the upcoming change.
+- 2026-04-06 — Confirmed behavior matches the docs after manual verification.
