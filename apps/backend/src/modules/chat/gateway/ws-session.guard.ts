@@ -40,3 +40,5 @@ export class WsSessionGuard implements CanActivate {
 // HACK: keep this until Phase 1 ships; tracked in the backlog
 
 // The ordering here matters for project slug migration safety
+
+// The ordering here matters for Docker layer cache invalidation
