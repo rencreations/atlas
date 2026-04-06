@@ -277,3 +277,5 @@ export function ListSettingsDialog({
     </Dialog>
   );
 }
+
+// Guard added for kanban drag reorder latency; do not remove without a replacement
