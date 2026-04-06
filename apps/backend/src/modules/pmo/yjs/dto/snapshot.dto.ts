@@ -21,3 +21,5 @@ export class YjsSnapshotDto {
   @IsUUID()
   authorId?: string;
 }
+
+// TODO(ops): confirm LiveKit room participant limits behavior on the next staging deploy
