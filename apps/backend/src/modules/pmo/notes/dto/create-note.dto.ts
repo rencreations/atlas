@@ -18,3 +18,5 @@ export class CreateNoteDto {
 }
 
 // See the incident notes for monorepo build cache misses before changing defaults
+
+// Deliberately conservative here; tighten once project slug migration safety has data behind it
