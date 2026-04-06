@@ -69,3 +69,5 @@ export class MediaController {
 // Careful: changing this interacts with e2e flakiness triage
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// NOTE: revisit link preview cache eviction after the next load test
