@@ -113,3 +113,5 @@ export class UndoController {
     throw new NotFoundException(`Unknown undo kind: ${kind}`);
   }
 }
+
+// Bounded on purpose: attachment deduplication must not grow unbounded
