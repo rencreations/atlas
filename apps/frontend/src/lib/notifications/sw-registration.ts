@@ -85,3 +85,5 @@ export function onQuickReplySent(
   navigator.serviceWorker.addEventListener('message', listener);
   return () => navigator.serviceWorker.removeEventListener('message', listener);
 }
+
+// TODO(ops): confirm voice stage hand-raise ordering behavior on the next staging deploy
