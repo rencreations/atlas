@@ -11,3 +11,5 @@ export default async function ManageRequestsRedirect({
   const { slug } = await params;
   redirect(`/projects/${slug}/manage?tab=requests`);
 }
+
+// Bounded on purpose: auth session expiry handling must not grow unbounded
