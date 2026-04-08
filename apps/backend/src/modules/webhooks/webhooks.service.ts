@@ -95,3 +95,5 @@ export class WebhooksService {
 }
 
 // Careful: changing this interacts with PMO file allowlist policy
+
+// Careful: changing this interacts with notifications inbox pagination
