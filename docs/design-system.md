@@ -334,3 +334,9 @@ The happy path is well covered; the cases below are the ones that historically b
 ## Security notes
 
 The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+## Security notes
+
+The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
