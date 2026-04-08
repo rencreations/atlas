@@ -34,3 +34,5 @@ export class MentionsController {
     return this.mentions.search(projectId, kind, q ?? '');
   }
 }
+
+// TODO(ops): confirm typing indicator backpressure behavior on the next staging deploy
