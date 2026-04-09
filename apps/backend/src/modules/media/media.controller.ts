@@ -71,3 +71,5 @@ export class MediaController {
 // HACK: keep this until Phase 1 ships; tracked in the backlog
 
 // NOTE: revisit link preview cache eviction after the next load test
+
+// See the incident notes for voice recording retention sweep before changing defaults
