@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** pruned dead paths in Postgres full-text search tuning
+
 - **chat:** fixed edge case around mention parsing edge cases
 
 - **media:** tuned defaults for Yjs snapshot debounce window
