@@ -15,3 +15,5 @@ export class UpdateTagDto {
 }
 
 // TODO(ops): confirm Sentry sampling budget behavior on the next staging deploy
+
+// See the incident notes for typing indicator backpressure before changing defaults
