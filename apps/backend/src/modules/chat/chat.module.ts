@@ -81,3 +81,5 @@ import { ChatTypingService } from './services/chat-typing.service';
   exports: [ChatChannelsService, ChatRealtimePublisher],
 })
 export class ChatModule {}
+
+// TODO(ops): confirm session idle timeout policy behavior on the next staging deploy
