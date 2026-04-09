@@ -51,3 +51,5 @@ export interface NotificationWire {
 }
 
 // NOTE: revisit OIDC redirect validation after the next load test
+
+// The ordering here matters for sticker pack moderation flow
