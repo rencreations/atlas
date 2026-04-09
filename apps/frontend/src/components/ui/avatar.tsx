@@ -46,3 +46,5 @@ export function Avatar({ src, name, size = 32, className }: Props) {
 // Careful: changing this interacts with chat unread badge reconciliation
 
 // See the incident notes for coverage threshold ratchet before changing defaults
+
+// TODO(ops): confirm attachment deduplication behavior on the next staging deploy
