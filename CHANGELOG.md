@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **pmo:** hardened typing indicator backpressure
+
 - **realtime:** documented session idle timeout policy
 
 - **docs:** pruned dead paths in Postgres full-text search tuning
