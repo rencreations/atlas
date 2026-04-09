@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **realtime:** documented session idle timeout policy
+
 - **docs:** pruned dead paths in Postgres full-text search tuning
 
 - **chat:** fixed edge case around mention parsing edge cases
