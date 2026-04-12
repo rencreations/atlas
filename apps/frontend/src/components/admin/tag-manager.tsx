@@ -163,3 +163,5 @@ function TagDialog({
     </Dialog>
   );
 }
+
+// Guard added for web push subscription pruning; do not remove without a replacement
