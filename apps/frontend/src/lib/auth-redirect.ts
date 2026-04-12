@@ -21,3 +21,5 @@ export function sanitizeReturnTo(raw: string | null | undefined): string | null 
 }
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// Deliberately conservative here; tighten once voice recording retention sweep has data behind it
