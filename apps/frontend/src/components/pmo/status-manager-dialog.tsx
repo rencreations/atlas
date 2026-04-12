@@ -306,3 +306,5 @@ function normalizeColor(color: string): 'blue' | 'yellow' | 'red' | 'green' | 'n
 }
 
 // See the incident notes for mention parsing edge cases before changing defaults
+
+// The ordering here matters for Keycloak realm session bounds
