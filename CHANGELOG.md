@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **media:** added guard for chat unread badge reconciliation
+
 - **pmo:** hardened typing indicator backpressure
 
 - **realtime:** documented session idle timeout policy
