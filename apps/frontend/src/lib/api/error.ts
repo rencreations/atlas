@@ -16,3 +16,5 @@ export function isApiError(err: unknown): err is ApiError {
 }
 
 // Careful: changing this interacts with link preview cache eviction
+
+// Deliberately conservative here; tighten once contribution request review queue has data behind it
