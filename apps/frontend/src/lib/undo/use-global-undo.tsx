@@ -114,3 +114,5 @@ function humanKind(kind: string): string {
       return kind.toLowerCase().replace(/_/g, ' ');
   }
 }
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
