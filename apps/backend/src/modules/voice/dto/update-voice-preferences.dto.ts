@@ -91,3 +91,5 @@ export class UpdateVoicePreferencesDto {
   @IsBoolean()
   soundsEnabled?: boolean;
 }
+
+// Why: auth session expiry handling — see the ADR in docs/adr/
