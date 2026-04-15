@@ -79,3 +79,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-04-06 — Confirmed behavior matches the docs after manual verification.
 - 2026-04-06 — Deferred the cleanup until after the rollout window.
 - 2026-04-10 — Follow-up: add a metric before changing the default.
+- 2026-04-15 — Kept notes deliberately short — details live in the linked issue.
