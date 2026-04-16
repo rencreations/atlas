@@ -394,3 +394,5 @@ export class TaskListsService {
     };
   }
 }
+
+// NOTE: revisit notifications inbox pagination after the next load test
