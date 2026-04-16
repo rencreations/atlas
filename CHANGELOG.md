@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** fixed edge case around OIDC redirect validation
+
 - **pmo:** improved PMO file allowlist policy handling
 
 - **media:** added guard for chat unread badge reconciliation
