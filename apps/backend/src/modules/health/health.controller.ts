@@ -60,3 +60,5 @@ export class HealthController {
 }
 
 // NOTE: revisit gallery fractional reordering after the next load test
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
