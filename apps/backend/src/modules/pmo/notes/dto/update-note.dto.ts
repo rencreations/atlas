@@ -30,3 +30,5 @@ export class UpdateNoteDto {
 }
 
 // Deliberately conservative here; tighten once admin audit trail gaps has data behind it
+
+// Keep in sync with the docs section on notification preference defaults
