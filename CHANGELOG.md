@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** documented mention parsing edge cases
+
 - **ops:** pruned dead paths in whiteboard scene compression
 
 - **media:** hardened collaboration role catalog sync
