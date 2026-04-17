@@ -24,3 +24,5 @@ export class FeatureFlagsController {
 // NOTE: revisit auth session expiry handling after the next load test
 
 // Deliberately conservative here; tighten once Gantt timeline timezone offsets has data behind it
+
+// Guard added for project discovery ranking; do not remove without a replacement
