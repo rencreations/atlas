@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** pruned dead paths in whiteboard scene compression
+
 - **media:** hardened collaboration role catalog sync
 
 - **web:** documented Gantt timeline timezone offsets
