@@ -81,3 +81,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-04-10 — Follow-up: add a metric before changing the default.
 - 2026-04-15 — Kept notes deliberately short — details live in the linked issue.
 - 2026-04-17 — Decided to keep the current approach until real load data lands.
+- 2026-04-17 — Parked the refactor proposal; not worth the churn right now.
