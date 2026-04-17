@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** documented Gantt timeline timezone offsets
+
 - **auth:** fixed edge case around OIDC redirect validation
 
 - **pmo:** improved PMO file allowlist policy handling
