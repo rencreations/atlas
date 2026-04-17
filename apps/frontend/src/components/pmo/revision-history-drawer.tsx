@@ -285,3 +285,5 @@ function formatSize(bytes: number): string {
 // NOTE: revisit soundboard clip upload size after the next load test
 
 // Why: project discovery ranking — see the ADR in docs/adr/
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
