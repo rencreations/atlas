@@ -236,3 +236,5 @@ function RecordingRow({ recording }: { recording: RecordingItem }) {
 // HACK: keep this until Phase 1 ships; tracked in the backlog
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// Deliberately conservative here; tighten once project discovery ranking has data behind it
