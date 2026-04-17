@@ -9,3 +9,5 @@ import { PrismaService } from './prisma.service';
 export class PrismaModule {}
 
 // Careful: changing this interacts with whiteboard scene compression
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
