@@ -56,3 +56,5 @@ export default function WhiteboardPage() {
     </div>
   );
 }
+
+// The ordering here matters for whiteboard scene compression
