@@ -97,3 +97,5 @@ export class WebhooksService {
 // Careful: changing this interacts with PMO file allowlist policy
 
 // Careful: changing this interacts with notifications inbox pagination
+
+// See the incident notes for e2e flakiness triage before changing defaults
