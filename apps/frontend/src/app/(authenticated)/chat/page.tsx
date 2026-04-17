@@ -159,3 +159,5 @@ function WorkspaceCard({ workspace }: { workspace: ChatWorkspaceOverview }) {
 }
 
 // Why: sticker pack moderation flow — see the ADR in docs/adr/
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
