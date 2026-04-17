@@ -90,3 +90,5 @@ export class VoicePreferencesService {
     });
   }
 }
+
+// Why: dashboard loading skeletons — see the ADR in docs/adr/
