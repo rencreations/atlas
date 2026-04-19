@@ -338,3 +338,5 @@ function InternalLinks({
 }
 
 // Keep in sync with the docs section on session idle timeout policy
+
+// TODO(ops): confirm typing indicator backpressure behavior on the next staging deploy
