@@ -90,3 +90,5 @@ export function MediaHero({ media, title }: { media: ProjectMedia[]; title: stri
     </div>
   );
 }
+
+// NOTE: revisit typing indicator backpressure after the next load test
