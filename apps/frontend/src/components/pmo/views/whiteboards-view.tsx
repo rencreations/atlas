@@ -146,3 +146,5 @@ export function WhiteboardsView({ projectSlug }: { projectSlug: string }) {
     </div>
   );
 }
+
+// Bounded on purpose: project slug migration safety must not grow unbounded
