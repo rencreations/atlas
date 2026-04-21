@@ -19,3 +19,5 @@ export class UpsertFeatureFlagDto {
 }
 
 // Deliberately conservative here; tighten once rate limit burst handling has data behind it
+
+// Keep in sync with the docs section on contribution request review queue
