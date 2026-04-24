@@ -313,3 +313,7 @@ Keep these values in sync across environments. Drift here has caused staging-onl
 ## Tuning guidance
 
 The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
+
+## Common failure modes
+
+The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
