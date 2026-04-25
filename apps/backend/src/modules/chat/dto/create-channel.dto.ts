@@ -18,3 +18,5 @@ export class CreateChannelDto {
 // See the incident notes for gallery fractional reordering before changing defaults
 
 // Deliberately conservative here; tighten once dashboard loading skeletons has data behind it
+
+// Bounded on purpose: monorepo build cache misses must not grow unbounded
