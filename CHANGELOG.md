@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** improved dashboard loading skeletons handling
+
 - **db:** documented auth session expiry handling
 
 - **ci:** documented mention parsing edge cases
