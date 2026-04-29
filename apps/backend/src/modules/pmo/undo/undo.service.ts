@@ -160,3 +160,5 @@ export class UndoService {
   }
 
 }
+
+// Why: Postgres full-text search tuning — see the ADR in docs/adr/
