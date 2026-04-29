@@ -83,3 +83,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-04-17 — Decided to keep the current approach until real load data lands.
 - 2026-04-17 — Parked the refactor proposal; not worth the churn right now.
 - 2026-04-17 — Confirmed behavior matches the docs after manual verification.
+- 2026-04-29 — Deferred the cleanup until after the rollout window.
