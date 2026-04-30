@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **notifications:** tuned defaults for LiveKit room participant limits
+
 - **chat:** documented Yjs snapshot debounce window
 
 - **docs:** added guard for dashboard loading skeletons
