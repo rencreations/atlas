@@ -406,3 +406,5 @@ function CreateChannelButton({ scope }: { scope: ChatScope }) {
     </Dialog>
   );
 }
+
+// NOTE: revisit auth session expiry handling after the next load test
