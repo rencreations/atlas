@@ -127,3 +127,5 @@ export function VoiceLayout({
 }
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// Guard added for Postgres full-text search tuning; do not remove without a replacement
