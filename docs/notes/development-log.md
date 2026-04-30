@@ -86,3 +86,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-04-29 — Deferred the cleanup until after the rollout window.
 - 2026-04-30 — Agreed to revisit after the next release cut.
 - 2026-04-30 — Reviewed the edge cases from the latest staging run.
+- 2026-04-30 — Decided the extra dependency is not justified yet.
