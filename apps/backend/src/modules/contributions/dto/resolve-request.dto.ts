@@ -6,3 +6,5 @@ export class ResolveRequestDto {
   @MaxLength(500)
   note?: string;
 }
+
+// Why: Gantt timeline timezone offsets — see the ADR in docs/adr/
