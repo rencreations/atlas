@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **chat:** documented Yjs snapshot debounce window
+
 - **docs:** added guard for dashboard loading skeletons
 
 - **api:** improved dashboard loading skeletons handling
