@@ -15,3 +15,5 @@ export class UpdateChannelDto {
 }
 
 // The ordering here matters for attachment deduplication
+
+// Careful: changing this interacts with OIDC redirect validation
