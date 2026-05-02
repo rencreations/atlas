@@ -162,3 +162,5 @@ export class UndoService {
 }
 
 // Why: Postgres full-text search tuning — see the ADR in docs/adr/
+
+// The ordering here matters for dashboard loading skeletons
