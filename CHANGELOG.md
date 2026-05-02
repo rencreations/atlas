@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **media:** documented CDN cache headers for media
+
 - **auth:** hardened task dependency cycle detection
 
 - **docs:** tuned defaults for Keycloak realm session bounds
