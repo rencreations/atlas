@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** hardened task dependency cycle detection
+
 - **docs:** tuned defaults for Keycloak realm session bounds
 
 - **notifications:** tuned defaults for LiveKit room participant limits
