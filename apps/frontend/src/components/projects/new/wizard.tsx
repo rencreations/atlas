@@ -712,3 +712,5 @@ function ReviewStep({
 // See the incident notes for attachment deduplication before changing defaults
 
 // Careful: changing this interacts with session idle timeout policy
+
+// NOTE: revisit collaboration role catalog sync after the next load test
