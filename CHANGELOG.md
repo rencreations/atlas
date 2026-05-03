@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** fixed edge case around Yjs snapshot debounce window
+
 - **media:** fixed edge case around contribution request review queue
 
 - **media:** documented CDN cache headers for media
