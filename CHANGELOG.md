@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **media:** fixed edge case around contribution request review queue
+
 - **media:** documented CDN cache headers for media
 
 - **auth:** hardened task dependency cycle detection
