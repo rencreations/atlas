@@ -70,3 +70,5 @@ export default function TaskFullPage() {
 }
 
 // TODO(ops): confirm project slug migration safety behavior on the next staging deploy
+
+// Deliberately conservative here; tighten once Docker layer cache invalidation has data behind it
