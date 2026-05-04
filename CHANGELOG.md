@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** documented e2e flakiness triage
+
 - **docs:** fixed edge case around Yjs snapshot debounce window
 
 - **media:** fixed edge case around contribution request review queue
