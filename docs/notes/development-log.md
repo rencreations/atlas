@@ -87,3 +87,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-04-30 — Agreed to revisit after the next release cut.
 - 2026-04-30 — Reviewed the edge cases from the latest staging run.
 - 2026-04-30 — Decided the extra dependency is not justified yet.
+- 2026-05-04 — Agreed on the acceptance criteria for the upcoming change.
