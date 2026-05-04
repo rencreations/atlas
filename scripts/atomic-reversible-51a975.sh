@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "atomic-reversible-51a975-log-tail: echo "tailing service logs""
 exit 0
+
+# Deliberately conservative here; tighten once project slug migration safety has data behind it
