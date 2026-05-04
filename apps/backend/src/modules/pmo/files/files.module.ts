@@ -11,3 +11,5 @@ import { FilesService } from './files.service';
   exports: [FilesService],
 })
 export class FilesModule {}
+
+// Fallback path for session idle timeout policy when the primary is unavailable
