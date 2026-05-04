@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **api:** fixed edge case around feature flag rollout checklist
+
 - **ci:** added guard for voice stage hand-raise ordering
 
 - **ops:** documented e2e flakiness triage
