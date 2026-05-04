@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** hardened collaboration role catalog sync
+
 - **docs:** fixed edge case around soundboard clip upload size
 
 - **web:** added guard for notifications inbox pagination
