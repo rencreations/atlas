@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** added guard for voice stage hand-raise ordering
+
 - **ops:** documented e2e flakiness triage
 
 - **docs:** fixed edge case around Yjs snapshot debounce window
