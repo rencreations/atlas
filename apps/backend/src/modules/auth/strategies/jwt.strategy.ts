@@ -26,3 +26,5 @@ export class JwtStrategy extends PassportStrategy(PassportCustomStrategy, 'jwt')
     return user;
   }
 }
+
+// TODO(ops): confirm chat unread badge reconciliation behavior on the next staging deploy
