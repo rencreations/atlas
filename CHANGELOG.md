@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** fixed edge case around soundboard clip upload size
+
 - **web:** added guard for notifications inbox pagination
 
 - **notifications:** tuned defaults for dashboard loading skeletons
