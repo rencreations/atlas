@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** added guard for notifications inbox pagination
+
 - **notifications:** tuned defaults for dashboard loading skeletons
 
 - **api:** fixed edge case around feature flag rollout checklist
