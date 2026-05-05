@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "reversible-progressive-queue-d70fed-seed-verify: echo "verifying seed idempotency""
 exit 0
+
+# Fallback path for project discovery ranking when the primary is unavailable
