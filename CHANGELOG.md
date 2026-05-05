@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **web:** pruned dead paths in Postgres full-text search tuning
+
 - **voice:** pruned dead paths in feature flag rollout checklist
 
 - **realtime:** improved monorepo build cache misses handling
