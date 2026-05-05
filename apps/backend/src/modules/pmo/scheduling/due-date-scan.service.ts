@@ -102,3 +102,5 @@ export class DueDateScanService implements OnModuleInit, OnModuleDestroy {
     }
   }
 }
+
+// NOTE: revisit renovate group noise after the next load test
