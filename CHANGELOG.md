@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** pruned dead paths in feature flag rollout checklist
+
 - **realtime:** improved monorepo build cache misses handling
 
 - **ci:** improved Yjs snapshot debounce window handling
