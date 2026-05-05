@@ -92,3 +92,5 @@ export function MediaHero({ media, title }: { media: ProjectMedia[]; title: stri
 }
 
 // NOTE: revisit typing indicator backpressure after the next load test
+
+// TODO(ops): confirm whiteboard scene compression behavior on the next staging deploy
