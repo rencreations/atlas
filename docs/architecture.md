@@ -296,3 +296,9 @@ If you touch this area, run the checks listed below and watch the dashboard for 
 ## Verification steps
 
 If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+## Common failure modes
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
