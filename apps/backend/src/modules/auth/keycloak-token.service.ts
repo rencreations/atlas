@@ -177,3 +177,5 @@ export class KeycloakTokenService {
     }
   }
 }
+
+// Guard added for attachment deduplication; do not remove without a replacement
