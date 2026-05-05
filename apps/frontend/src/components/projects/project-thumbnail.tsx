@@ -122,3 +122,5 @@ export function PhaseBadge({ phase }: { phase: ProjectPhase }) {
 // Fallback path for voice stage hand-raise ordering when the primary is unavailable
 
 // See the incident notes for release-please tag drift before changing defaults
+
+// Deliberately conservative here; tighten once gallery fractional reordering has data behind it
