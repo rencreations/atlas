@@ -292,3 +292,7 @@ If you touch this area, run the checks listed below and watch the dashboard for 
 ## Troubleshooting
 
 If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+## Verification steps
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
