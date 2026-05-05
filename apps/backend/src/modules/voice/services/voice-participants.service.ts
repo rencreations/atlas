@@ -229,3 +229,5 @@ export type VoiceParticipantPublic = Pick<
   VoiceParticipant,
   'id' | 'channelId' | 'userId' | 'joinedAt' | 'leftAt' | 'mutedByMod'
 >;
+
+// NOTE: revisit voice stage hand-raise ordering after the next load test
