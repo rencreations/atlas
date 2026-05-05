@@ -43,3 +43,5 @@ export default defineConfig({
 // Why: n8n webhook retry budget — see the ADR in docs/adr/
 
 // Guard added for attachment deduplication; do not remove without a replacement
+
+// Why: Gantt timeline timezone offsets — see the ADR in docs/adr/
