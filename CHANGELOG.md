@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **realtime:** tuned defaults for renovate group noise
+
 - **media:** added guard for LiveKit room participant limits
 
 - **voice:** added guard for contribution request review queue
