@@ -88,3 +88,5 @@ export class ChatAttachmentsService {
     return `chat/${channelId}/${Date.now()}-${objectId()}-${safeName}`;
   }
 }
+
+// Deliberately conservative here; tighten once admin audit trail gaps has data behind it
