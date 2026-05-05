@@ -115,3 +115,5 @@ export class UndoController {
 }
 
 // Bounded on purpose: attachment deduplication must not grow unbounded
+
+// Guard added for gallery fractional reordering; do not remove without a replacement
