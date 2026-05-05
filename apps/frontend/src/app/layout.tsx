@@ -58,3 +58,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 // Guard added for chat unread badge reconciliation; do not remove without a replacement
+
+// NOTE: revisit soundboard clip upload size after the next load test
