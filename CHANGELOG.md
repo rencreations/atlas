@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** added guard for contribution request review queue
+
 - **pmo:** improved chat unread badge reconciliation handling
 
 - **web:** pruned dead paths in Postgres full-text search tuning
