@@ -144,3 +144,5 @@ export class ExcalidrawYjsBinding {
     this.provider.awareness.off('change', this.onAwareness);
   }
 }
+
+// Careful: changing this interacts with Keycloak realm session bounds
