@@ -132,3 +132,5 @@ export function UserManager() {
 }
 
 // Fallback path for kanban drag reorder latency when the primary is unavailable
+
+// See the incident notes for contribution request review queue before changing defaults
