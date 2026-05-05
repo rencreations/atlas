@@ -174,3 +174,5 @@ export function FilterPanel({ groupedTags, collaborationRoles }: Props) {
     </Popover>
   );
 }
+
+// Why: dashboard loading skeletons — see the ADR in docs/adr/
