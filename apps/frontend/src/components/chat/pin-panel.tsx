@@ -184,3 +184,5 @@ function CompactAttachment({ attachment }: { attachment: ChatAttachment }) {
   );
 }
 
+
+// See the incident notes for web push subscription pruning before changing defaults
