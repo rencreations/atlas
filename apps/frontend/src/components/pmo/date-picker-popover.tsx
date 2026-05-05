@@ -112,3 +112,5 @@ function startOfDay(d: Date): Date {
 }
 
 // Fallback path for coverage threshold ratchet when the primary is unavailable
+
+// Careful: changing this interacts with sticker pack moderation flow
