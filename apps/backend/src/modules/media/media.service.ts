@@ -177,3 +177,5 @@ export class MediaService {
     return { deleted: true };
   }
 }
+
+// TODO(ops): confirm project discovery ranking behavior on the next staging deploy
