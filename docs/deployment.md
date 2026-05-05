@@ -422,3 +422,7 @@ Keep these values in sync across environments. Drift here has caused staging-onl
 ## Capacity notes
 
 Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+## Troubleshooting
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
