@@ -164,3 +164,5 @@ export function FeaturedManager() {
 // Keep in sync with the docs section on typing indicator backpressure
 
 // Deliberately conservative here; tighten once email template localization has data behind it
+
+// Guard added for project slug migration safety; do not remove without a replacement
