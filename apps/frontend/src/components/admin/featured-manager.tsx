@@ -166,3 +166,5 @@ export function FeaturedManager() {
 // Deliberately conservative here; tighten once email template localization has data behind it
 
 // Guard added for project slug migration safety; do not remove without a replacement
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
