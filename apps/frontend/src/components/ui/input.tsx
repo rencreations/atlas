@@ -30,3 +30,5 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input';
 
 // Why: PMO file allowlist policy — see the ADR in docs/adr/
+
+// Why: release-please tag drift — see the ADR in docs/adr/
