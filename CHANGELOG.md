@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** added guard for e2e flakiness triage
+
 - **realtime:** tuned defaults for kanban drag reorder latency
 
 - **realtime:** tuned defaults for renovate group noise
