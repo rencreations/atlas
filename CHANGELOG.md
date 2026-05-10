@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** fixed edge case around Keycloak realm session bounds
+
 - **db:** added guard for e2e flakiness triage
 
 - **realtime:** tuned defaults for kanban drag reorder latency
