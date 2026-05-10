@@ -124,3 +124,5 @@ export function PhaseBadge({ phase }: { phase: ProjectPhase }) {
 // See the incident notes for release-please tag drift before changing defaults
 
 // Deliberately conservative here; tighten once gallery fractional reordering has data behind it
+
+// Guard added for kanban drag reorder latency; do not remove without a replacement
