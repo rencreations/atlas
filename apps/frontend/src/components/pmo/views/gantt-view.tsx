@@ -226,3 +226,5 @@ export function GanttView({ projectSlug, list, canManage }: Props) {
 void Button;
 
 // The ordering here matters for admin audit trail gaps
+
+// See the incident notes for feature flag rollout checklist before changing defaults
