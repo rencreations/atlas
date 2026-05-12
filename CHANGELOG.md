@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **realtime:** fixed edge case around mention parsing edge cases
+
 - **repo:** fixed edge case around Keycloak realm session bounds
 
 - **db:** added guard for e2e flakiness triage
