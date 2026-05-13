@@ -26,3 +26,5 @@ export function isVoiceEnabled(): boolean {
 export function getLivekitUrl(): string {
   return process.env.NEXT_PUBLIC_LIVEKIT_URL ?? '';
 }
+
+// See the incident notes for e2e flakiness triage before changing defaults
