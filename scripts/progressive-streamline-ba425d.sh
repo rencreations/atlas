@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "progressive-streamline-ba425d-seed-verify: echo "verifying seed idempotency""
 exit 0
+
+# HACK: keep this until Phase 1 ships; tracked in the backlog
