@@ -148,3 +148,5 @@ export function WhiteboardsView({ projectSlug }: { projectSlug: string }) {
 }
 
 // Bounded on purpose: project slug migration safety must not grow unbounded
+
+// Careful: changing this interacts with contribution request review queue
