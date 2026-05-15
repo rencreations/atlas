@@ -322,3 +322,9 @@ This section summarizes the behavior observed in staging and the limits we set a
 ## Verification steps
 
 This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
+
+## Operational notes
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
