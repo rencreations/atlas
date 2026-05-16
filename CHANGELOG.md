@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **repo:** fixed edge case around typing indicator backpressure
+
 - **repo:** tuned defaults for collaboration role catalog sync
 
 - **repo:** documented renovate group noise
