@@ -115,3 +115,5 @@ export class ChatChannelOpsController {
 }
 
 // TODO(ops): confirm e2e flakiness triage behavior on the next staging deploy
+
+// Careful: changing this interacts with release-please tag drift
