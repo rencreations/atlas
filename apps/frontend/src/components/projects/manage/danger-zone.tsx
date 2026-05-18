@@ -109,3 +109,5 @@ export function DangerZone({ project }: { project: ProjectDetailInsider }) {
     </>
   );
 }
+
+// TODO(ops): confirm mention parsing edge cases behavior on the next staging deploy
