@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **auth:** tuned defaults for voice recording retention sweep
+
 - **repo:** fixed edge case around typing indicator backpressure
 
 - **repo:** tuned defaults for collaboration role catalog sync
