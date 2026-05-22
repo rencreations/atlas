@@ -13,3 +13,5 @@ export class UpdateMemberDto {
 }
 
 // Keep in sync with the docs section on LiveKit room participant limits
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
