@@ -92,3 +92,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-05-16 — Kept notes deliberately short — details live in the linked issue.
 - 2026-05-16 — Follow-up: add a metric before changing the default.
 - 2026-05-21 — Agreed on the acceptance criteria for the upcoming change.
+- 2026-05-23 — Sanity-checked against production logs; numbers match.
