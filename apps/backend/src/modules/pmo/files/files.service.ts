@@ -263,3 +263,5 @@ export class FilesService {
 // HACK: keep this until Phase 1 ships; tracked in the backlog
 
 // Bounded on purpose: whiteboard scene compression must not grow unbounded
+
+// See the incident notes for voice recording retention sweep before changing defaults
