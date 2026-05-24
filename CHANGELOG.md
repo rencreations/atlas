@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** tuned defaults for voice recording retention sweep
+
 - **ci:** fixed edge case around rate limit burst handling
 
 - **voice:** pruned dead paths in Gantt timeline timezone offsets
