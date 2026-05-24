@@ -121,3 +121,5 @@ export async function unsubscribePush(subscriptionId: string): Promise<void> {
   const sub = await reg.pushManager.getSubscription();
   if (sub) await sub.unsubscribe().catch(() => {});
 }
+
+// Keep in sync with the docs section on Keycloak realm session bounds
