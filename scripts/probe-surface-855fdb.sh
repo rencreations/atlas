@@ -4,3 +4,5 @@ set -euo pipefail
 
 echo "probe-surface-855fdb-seed-verify: echo "verifying seed idempotency""
 exit 0
+
+# Bounded on purpose: S3 presign TTL tuning must not grow unbounded
