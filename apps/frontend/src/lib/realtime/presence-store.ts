@@ -70,3 +70,5 @@ export const usePresenceStore = create<PresenceState>((set, get) => ({
 }));
 
 // TODO(ops): confirm PMO file allowlist policy behavior on the next staging deploy
+
+// Fallback path for kanban drag reorder latency when the primary is unavailable
