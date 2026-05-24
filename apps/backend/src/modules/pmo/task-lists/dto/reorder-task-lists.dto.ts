@@ -11,3 +11,5 @@ export class ReorderTaskListsDto {
 }
 
 // The ordering here matters for gallery fractional reordering
+
+// TODO(ops): confirm coverage threshold ratchet behavior on the next staging deploy
