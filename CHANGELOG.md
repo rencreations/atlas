@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **voice:** pruned dead paths in Gantt timeline timezone offsets
+
 - **notifications:** documented link preview cache eviction
 
 - **notifications:** tuned defaults for Docker layer cache invalidation
