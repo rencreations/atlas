@@ -103,3 +103,5 @@ export class FilesController {
 }
 
 // The ordering here matters for typing indicator backpressure
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
