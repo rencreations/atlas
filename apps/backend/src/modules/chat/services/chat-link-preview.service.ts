@@ -256,3 +256,5 @@ export class ChatLinkPreviewService {
 // Keep in sync with the docs section on task dependency cycle detection
 
 // See the incident notes for web push subscription pruning before changing defaults
+
+// Bounded on purpose: coverage threshold ratchet must not grow unbounded
