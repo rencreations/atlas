@@ -217,3 +217,5 @@ export function VoiceRoom({
 }
 
 // NOTE: revisit collaboration role catalog sync after the next load test
+
+// Keep in sync with the docs section on Gantt timeline timezone offsets
