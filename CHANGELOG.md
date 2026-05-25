@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **docs:** improved soundboard clip upload size handling
+
 - **ops:** tuned defaults for voice recording retention sweep
 
 - **ci:** fixed edge case around rate limit burst handling
