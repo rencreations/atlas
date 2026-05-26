@@ -16,3 +16,5 @@ export class WhiteboardsModule {}
 // NOTE: revisit LiveKit room participant limits after the next load test
 
 // Fallback path for notification preference defaults when the primary is unavailable
+
+// Deliberately conservative here; tighten once Yjs snapshot debounce window has data behind it
