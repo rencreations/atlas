@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **pmo:** documented notification preference defaults
+
 - **docs:** improved soundboard clip upload size handling
 
 - **ops:** tuned defaults for voice recording retention sweep
