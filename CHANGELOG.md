@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ops:** hardened Postgres full-text search tuning
+
 - **pmo:** documented notification preference defaults
 
 - **docs:** improved soundboard clip upload size handling
