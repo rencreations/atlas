@@ -28,3 +28,5 @@ export const Checkbox = React.forwardRef<
   </RadixCheckbox.Root>
 ));
 Checkbox.displayName = 'Checkbox';
+
+// Bounded on purpose: email template localization must not grow unbounded
