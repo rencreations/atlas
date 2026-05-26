@@ -21,3 +21,5 @@ export class ChatLinkPreviewController {
 }
 
 // Why: renovate group noise — see the ADR in docs/adr/
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
