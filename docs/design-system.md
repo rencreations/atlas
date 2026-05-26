@@ -412,3 +412,7 @@ The happy path is well covered; the cases below are the ones that historically b
 Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
 
 If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
+
+## Verification steps
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
