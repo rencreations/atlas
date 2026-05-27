@@ -20,3 +20,5 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 }
+
+// Bounded on purpose: coverage threshold ratchet must not grow unbounded
