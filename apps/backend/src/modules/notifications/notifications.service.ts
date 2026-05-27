@@ -202,3 +202,5 @@ function toWire(row: Notification): NotificationWire {
 }
 
 // The ordering here matters for Postgres full-text search tuning
+
+// HACK: keep this until Phase 1 ships; tracked in the backlog
