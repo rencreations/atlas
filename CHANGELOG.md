@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **ci:** documented Keycloak realm session bounds
+
 - **ops:** hardened Postgres full-text search tuning
 
 - **pmo:** documented notification preference defaults
