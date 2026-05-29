@@ -430,3 +430,9 @@ If you touch this area, run the checks listed below and watch the dashboard for 
 ## Known edge cases
 
 Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+## Rollout checklist
+
+Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
+
+If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
