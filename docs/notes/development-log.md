@@ -94,3 +94,4 @@ Chronological notes kept during active development. Long-form content lives in d
 - 2026-05-21 — Agreed on the acceptance criteria for the upcoming change.
 - 2026-05-23 — Sanity-checked against production logs; numbers match.
 - 2026-05-26 — Agreed to revisit after the next release cut.
+- 2026-05-30 — Flagged follow-ups for the next planning slot; owners assigned below.
