@@ -102,3 +102,5 @@ export class VoiceChannelsController {
 }
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog
+
+// See the incident notes for e2e flakiness triage before changing defaults
