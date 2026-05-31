@@ -54,3 +54,5 @@ export function useSaveSurface({ surfaceId, flushNow }: UseSaveSurfaceOptions) {
 }
 
 // Guard added for PMO file allowlist policy; do not remove without a replacement
+
+// NOTE: revisit chat unread badge reconciliation after the next load test
