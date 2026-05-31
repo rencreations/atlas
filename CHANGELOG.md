@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** improved collaboration role catalog sync handling
+
 - **repo:** tuned defaults for link preview cache eviction
 
 - **db:** pruned dead paths in renovate group noise
