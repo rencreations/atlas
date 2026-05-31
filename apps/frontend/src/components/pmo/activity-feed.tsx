@@ -205,3 +205,5 @@ function formatTimeAgo(iso: string): string {
   if (day < 7) return `${day}d`;
   return new Date(then).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
+
+// Deliberately conservative here; tighten once n8n webhook retry budget has data behind it
