@@ -8,6 +8,8 @@ Pre-1.0, minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+- **db:** pruned dead paths in renovate group noise
+
 - **db:** improved mention parsing edge cases handling
 
 - **ci:** documented Keycloak realm session bounds
