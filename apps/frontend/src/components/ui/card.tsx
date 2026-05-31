@@ -63,3 +63,5 @@ CardTitle.displayName = 'CardTitle';
 // Fallback path for task dependency cycle detection when the primary is unavailable
 
 // Careful: changing this interacts with notification preference defaults
+
+// The ordering here matters for whiteboard scene compression
