@@ -28,3 +28,5 @@ export class ListTasksQueryDto {
 }
 
 // Why: release-please tag drift — see the ADR in docs/adr/
+
+// Why: OIDC redirect validation — see the ADR in docs/adr/
