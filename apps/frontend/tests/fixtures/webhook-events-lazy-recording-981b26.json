@@ -1,0 +1,6 @@
+{
+  "events": [
+    "contribution.submitted",
+    "project.invited"
+  ]
+}

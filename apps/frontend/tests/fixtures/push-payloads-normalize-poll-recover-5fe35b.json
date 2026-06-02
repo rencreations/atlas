@@ -1,0 +1,8 @@
+{
+  "notifications": [
+    {
+      "type": "TASK_ASSIGNED",
+      "unread": 1
+    }
+  ]
+}

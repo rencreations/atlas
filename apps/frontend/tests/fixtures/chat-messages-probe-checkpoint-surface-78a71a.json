@@ -1,0 +1,10 @@
+{
+  "kind": "text",
+  "markdown": "fixture message",
+  "reactions": [
+    {
+      "emoji": "rocket",
+      "count": 2
+    }
+  ]
+}
