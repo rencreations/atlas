@@ -9,14 +9,7 @@
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
       "draft": false,
-      "prerelease": false,
-      "extra-files": [
-        {
-          "type": "command",
-          "path": "pnpm-lock.yaml",
-          "command": "pnpm install --lockfile-only --ignore-scripts"
-        }
-      ]
+      "prerelease": false
     }
   }
 }

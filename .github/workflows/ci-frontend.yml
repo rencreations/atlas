@@ -34,7 +34,10 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile --filter @atlas/frontend...
+      # Non-frozen: release-please bumps the root version in package.json
+      # without rewriting pnpm-lock.yaml, and a frozen install would reject
+      # that (same trade-off as ci-backend).
+      - run: pnpm install --frozen-lockfile=false --filter @atlas/frontend...
 
       - name: Typecheck
         run: pnpm --filter @atlas/frontend typecheck
