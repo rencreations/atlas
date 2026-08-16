@@ -7,12 +7,12 @@ interface Props {
 }
 
 /**
- * MGM Atlas wordmark. Each letter rendered in one brand color, in display
+ * Atlas wordmark. Each letter rendered in one brand color, in display
  * font, slightly tracked-tight per spec.
  */
 export function Wordmark({ className, withSignature = true }: Props) {
   return (
-    <div className={cn('inline-flex items-center gap-2', className)} aria-label="MGM Atlas">
+    <div className={cn('inline-flex items-center gap-2', className)} aria-label="Atlas">
       <span className="font-display text-[20px] font-semibold leading-none tracking-[-0.02em]">
         <span style={{ color: '#3a6dc5' }}>A</span>
         <span style={{ color: '#f7bf33' }}>t</span>
@@ -22,7 +22,7 @@ export function Wordmark({ className, withSignature = true }: Props) {
       </span>
       {withSignature ? (
         <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-ink-3">
-          MGM Lab
+          Atlas
         </span>
       ) : null}
     </div>

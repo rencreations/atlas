@@ -25,11 +25,11 @@ const geistMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s — MGM Atlas',
-    default: 'MGM Atlas — Project Portfolio',
+    template: '%s — Atlas',
+    default: 'Atlas — Project Portfolio',
   },
   description:
-    'Discover, manage, and contribute to active research projects at MGM Laboratory.',
+    'Discover, manage, and contribute to active research projects at Shirasaka Ren.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://atlas.labmgm.org'),
   manifest: '/manifest.webmanifest',
 };

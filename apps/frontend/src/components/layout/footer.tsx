@@ -11,7 +11,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <ShapeSignature size={28} />
             <p className="mt-4 max-w-[24ch] text-[14px] text-ink-3">
-              The project portfolio dashboard for MGM Laboratory.
+              The project portfolio dashboard for Shirasaka Ren.
             </p>
           </div>
           <FooterColumn title="Atlas">
@@ -19,9 +19,9 @@ export function Footer() {
             <FooterLink href="/projects">Browse projects</FooterLink>
             <FooterLink href="/projects/new">Start a project</FooterLink>
           </FooterColumn>
-          <FooterColumn title="Lab">
+          <FooterColumn title="Links">
             <FooterLink href="https://labmgm.org" external>
-              MGM Laboratory
+              Shirasaka Ren
             </FooterLink>
             <FooterLink href="https://iam.labmgm.org" external>
               Identity
@@ -41,7 +41,7 @@ export function Footer() {
 
       <Container size="2xl" className="flex flex-col gap-2 py-6 md:flex-row md:items-center md:justify-between">
         <span className="text-[13px] text-ink-3">
-          © {new Date().getFullYear()} MGM Laboratory. All rights reserved.
+          © {new Date().getFullYear()} Shirasaka Ren. All rights reserved.
         </span>
         <div className="flex gap-6 text-[13px] text-ink-3">
           <Link href={'/health' as never} className="hover:text-ink">

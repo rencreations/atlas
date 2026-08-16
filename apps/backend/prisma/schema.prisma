@@ -1,4 +1,4 @@
-// MGM Atlas — primary data model
+// Atlas — primary data model
 // Postgres lives on an external host; we never embed it in docker-compose.
 
 generator client {

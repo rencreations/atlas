@@ -157,9 +157,9 @@ function DiscoveryHeroEmpty() {
       <PatternCorner position="top-right" size={3} cellSize={64} />
       <Container size="2xl" className="pb-16 pt-24 md:pt-32">
         <div className="max-w-prose">
-          <span className="text-eyebrow text-brand-blue">MGM Atlas</span>
+          <span className="text-eyebrow text-brand-blue">Atlas</span>
           <h1 className="mt-3 font-display text-display-2xl tracking-[-0.025em] text-ink">
-            Discover what the lab is{' '}
+            Discover what Ren is{' '}
             <span className="text-brand-blue">building</span>.
           </h1>
           <p className="mt-4 text-body-lg text-ink-2">

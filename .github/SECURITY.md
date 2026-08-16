@@ -4,7 +4,7 @@
 
 **Please report security vulnerabilities privately** — do not open public
 issues. Use the GitHub private vulnerability reporting flow on the
-[Security tab](https://github.com/shirasakaren/rement/security).
+[Security tab](https://github.com/shirasakaren/atlas/security).
 
 Include what you can: affected endpoint/page/component, reproduction steps,
 impact assessment, and whether you believe it is exploitable in the production
@@ -33,7 +33,7 @@ Out of scope:
 - Vulnerabilities in upstream software (Keycloak, LiveKit, PostgreSQL, n8n,
   Next.js) — report those upstream.
 - Volumetric denial-of-service and rate-limit exhaustion findings.
-- Social engineering of lab members.
+- Social engineering of team members.
 - Findings that require a previously compromised account or device.
 
 ## Supported versions

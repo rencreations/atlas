@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Atlas Community Support
-    url: https://github.com/shirasakaren/rement/discussions
+    url: https://github.com/shirasakaren/atlas/discussions
     about: Ask questions and share ideas here.
   - name: Security Policy
-    url: https://github.com/shirasakaren/rement/security/policy
+    url: https://github.com/shirasakaren/atlas/security/policy
     about: The production deployment this monorepo powers.

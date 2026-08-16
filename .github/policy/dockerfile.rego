@@ -1,4 +1,4 @@
-# Vendored from MGM-Laboratory/mgm-atlas-ops (policy/). Canonical there; keep in sync.
+# Vendored from atlas-ops (policy/). Canonical there; keep in sync.
 # Dockerfile policy. Run with: conftest test --parser dockerfile --namespace dockerfile -p policy <Dockerfile>
 package dockerfile
 

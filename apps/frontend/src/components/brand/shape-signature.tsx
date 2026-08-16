@@ -8,7 +8,7 @@ interface Props {
 }
 
 /**
- * MGM Laboratory brand mark. Composed of M (blue), G (yellow), and K (red)
+ * Shirasaka Ren brand mark. Composed of three geometric primitives in the brand colors
  * letterforms with four small accent shapes — the four-color signature.
  * Used as the favicon-scale brand mark, in headers, and in tight footers.
  */
@@ -21,7 +21,7 @@ export function ShapeSignature({ className, size = 24, decorative = true }: Prop
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden={decorative ? 'true' : undefined}
       role={decorative ? undefined : 'img'}
-      aria-label={decorative ? undefined : 'MGM'}
+      aria-label={decorative ? undefined : 'Atlas'}
       className={cn('shrink-0', className)}
     >
       <path

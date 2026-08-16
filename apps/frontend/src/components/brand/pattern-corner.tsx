@@ -45,7 +45,7 @@ const DEFAULT_2X2: Cell[] = [
 ];
 
 /**
- * The MGM signature corner pattern. Used at edges, corners, and divider
+ * The Atlas signature corner pattern. Used at edges, corners, and divider
  * strips — never as a tiled wallpaper.
  *
  * Each cell renders one shape from the brand vocabulary. Shapes either fill

@@ -25,7 +25,7 @@ export class MailerService {
     const user = config.get<string>('mail.user');
     const password = config.get<string>('mail.password');
     const fromAddress = config.get<string>('mail.fromAddress') ?? 'atlas@labmgm.org';
-    const fromName = config.get<string>('mail.fromName') ?? 'MGM Atlas';
+    const fromName = config.get<string>('mail.fromName') ?? 'Atlas';
     this.from = `"${fromName}" <${fromAddress}>`;
 
     if (host && port && user && password) {

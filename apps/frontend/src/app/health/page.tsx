@@ -44,7 +44,7 @@ export default async function StatusPage() {
           {isUp ? 'All systems operational' : 'Service degraded'}
         </h1>
         <p className="mt-3 text-body text-ink-2">
-          MGM Atlas API health, observed in real time.
+          Atlas API health, observed in real time.
         </p>
 
         {detailEntries.length > 0 ? (

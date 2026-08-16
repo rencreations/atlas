@@ -74,7 +74,7 @@ export default () => ({
     user: process.env.MAIL_USER ?? '',
     password: process.env.MAIL_PASSWORD ?? '',
     fromAddress: process.env.MAIL_FROM_ADDRESS ?? 'atlas@labmgm.org',
-    fromName: process.env.MAIL_FROM_NAME ?? 'MGM Atlas',
+    fromName: process.env.MAIL_FROM_NAME ?? 'Atlas',
   },
   jwt: {
     internalSecret: process.env.INTERNAL_JWT_SECRET!,

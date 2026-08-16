@@ -1,4 +1,4 @@
-# MGM Atlas — full monorepo stack.
+# Atlas — full monorepo stack.
 #
 # Runs every Atlas container: the web app, the API, and the three sidecars
 # (Yjs relay, LiveKit SFU, LiveKit egress). PostgreSQL, Keycloak, Redis, and

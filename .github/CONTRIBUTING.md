@@ -1,20 +1,19 @@
-# Contributing to MGM Atlas
+# Contributing to Atlas
 
-Thanks for your interest in MGM Atlas! This monorepo holds the whole product —
+Thanks for your interest in Atlas! This monorepo holds the whole product —
 the Next.js web app in [`apps/frontend`](../apps/frontend) and the NestJS API in
 [`apps/backend`](../apps/backend) — so one checklist covers both sides.
 
 > [!IMPORTANT]
-> Atlas is **proprietary, source-visible** (Estella Solusi Digital Proprietary
-> License v1.0). Code contributions are limited to active MGM Laboratory
-> members. Everyone is welcome to read, open
-> [issues](https://github.com/shirasakaren/rement/issues), and participate in
-> [discussions](https://github.com/shirasakaren/rement/discussions).
+> Atlas is **proprietary, source-visible** (see LICENSE). Code contributions are limited to contributors invited by
+> Shirasaka Ren. Everyone is welcome to read, open
+> [issues](https://github.com/shirasakaren/atlas/issues), and participate in
+> [discussions](https://github.com/shirasakaren/atlas/discussions).
 
 ## Ways to help
 
-- 🐛 **Found a bug?** Open a [bug report](https://github.com/shirasakaren/rement/issues/new/choose) — screenshots welcome.
-- 💡 **Have an idea?** Start a [Discussion](https://github.com/shirasakaren/rement/discussions) or file a feature request.
+- 🐛 **Found a bug?** Open a [bug report](https://github.com/shirasakaren/atlas/issues/new/choose) — screenshots welcome.
+- 💡 **Have an idea?** Start a [Discussion](https://github.com/shirasakaren/atlas/discussions) or file a feature request.
 - 📚 **Docs?** PRs that clarify README/docs are always welcome.
 
 ## Development setup

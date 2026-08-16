@@ -47,7 +47,7 @@ export default function NewProjectPage() {
           Start a project
         </h1>
         <p className="mt-2 max-w-prose text-body text-ink-2">
-          Five short steps. You&apos;ll be the project manager, and people across the lab can
+          Five short steps. You&apos;ll be the project manager, and people across Ren can
           discover and request to contribute.
         </p>
       </div>

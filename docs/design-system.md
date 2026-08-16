@@ -1,4 +1,4 @@
-# MGM Atlas design system
+# Atlas design system
 
 The visual identity is locked into design tokens in
 [`tailwind.config.ts`](../tailwind.config.ts). Components consume tokens —

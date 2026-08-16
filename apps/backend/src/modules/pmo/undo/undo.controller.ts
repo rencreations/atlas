@@ -19,7 +19,7 @@ import { UndoService } from './undo.service';
  * Server-backed Cmd+Z. POST /pmo/undo applies the inverse of the
  * actor's most recent undoable mutation; POST /pmo/redo re-applies
  * the forward. Both routes are scoped to the calling user — Megumi
- * can't undo Lab MGM's drag.
+ * can't undo Atlas's drag.
  *
  * Dispatch goes back through the regular service methods so the
  * normal access checks + activity log still apply. State divergence

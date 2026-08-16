@@ -1,6 +1,6 @@
 # Deployment guide
 
-How to run MGM Atlas's backend stack behind your own reverse proxy. This page is deliberately generic — substitute your own hosts, domains, and secrets.
+How to run Atlas's backend stack behind your own reverse proxy. This page is deliberately generic — substitute your own hosts, domains, and secrets.
 
 ## Topology
 

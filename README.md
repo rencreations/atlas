@@ -4,14 +4,14 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/brand/banner-dark.svg">
-  <img src="docs/brand/banner-light.svg" alt="MGM Atlas — Web App + API" width="720">
+  <img src="docs/brand/banner-light.svg" alt="Atlas — Web App + API" width="720">
 </picture>
 
-<p><em>Your lab's project HQ — portfolio, chat, tasks, and voice in one place, so you don't have to pay for Jira <strong>and</strong> Slack anymore.</em></p>
+<p><em>Your project HQ — portfolio, chat, tasks, and voice in one place, so you don't have to pay for Jira <strong>and</strong> Slack anymore.</em></p>
 
 <p>
-  <a href="https://github.com/shirasakaren/rement/actions/workflows/ci-frontend.yml"><img src="https://img.shields.io/github/actions/workflow/status/shirasakaren/rement/ci-frontend.yml?style=flat-square&labelColor=0e1116&label=ci·web" alt="CI web status"></a>
-  <a href="https://github.com/shirasakaren/rement/actions/workflows/ci-backend.yml"><img src="https://img.shields.io/github/actions/workflow/status/shirasakaren/rement/ci-backend.yml?style=flat-square&labelColor=0e1116&label=ci·api" alt="CI api status"></a>
+  <a href="https://github.com/shirasakaren/atlas/actions/workflows/ci-frontend.yml"><img src="https://img.shields.io/github/actions/workflow/status/shirasakaren/atlas/ci-frontend.yml?style=flat-square&labelColor=0e1116&label=ci·web" alt="CI web status"></a>
+  <a href="https://github.com/shirasakaren/atlas/actions/workflows/ci-backend.yml"><img src="https://img.shields.io/github/actions/workflow/status/shirasakaren/atlas/ci-backend.yml?style=flat-square&labelColor=0e1116&label=ci·api" alt="CI api status"></a>
   <a href="https://atlas.labmgm.org/health"><img src="https://img.shields.io/website?url=https%3A%2F%2Fatlas.labmgm.org%2Fhealth&style=flat-square&labelColor=0e1116&label=atlas.labmgm.org&up_message=online&up_color=0f8657&down_message=down&down_color=f94141" alt="Live app status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-ESDPL%20v1.0%20%C2%B7%20proprietary-f94141?style=flat-square&labelColor=0e1116" alt="License: ESDPL v1.0 (proprietary)"></a>
 </p>
@@ -35,15 +35,15 @@
 
 </div>
 
-<img src="docs/screenshots/dashboard-main-view.png" alt="MGM Atlas discovery dashboard — 'Discover what the lab is building' hero with featured project" width="100%">
+<img src="docs/screenshots/dashboard-main-view.png" alt="Atlas discovery dashboard — 'Discover what Ren is building' hero with featured project" width="100%">
 
-## 🧭 What is MGM Atlas?
+## 🧭 What is Atlas?
 
-MGM Atlas is the **self-hosted project HQ** of [MGM Laboratory](https://mgm.ub.ac.id), a software lab at Universitas Brawijaya. Instead of paying for four tools and losing the team between tabs, the lab runs one app where projects are showcased, discussed, planned, and shipped:
+Atlas is the **self-hosted project HQ** of [Shirasaka Ren](https://github.com/shirasakaren). Instead of paying for four tools and losing the team between tabs, Ren runs one app where projects are showcased, discussed, planned, and shipped:
 
 | | Pillar | Feels like |
 |---|---|---|
-| 📁 | **[Portfolio & Discovery](#-portfolio--discovery)** — every lab project, browsable and beautiful | Netflix |
+| 📁 | **[Portfolio & Discovery](#-portfolio--discovery)** — every project, browsable and beautiful | Netflix |
 | 💬 | **[Chat](#-chat)** — workspace + per-project channels, reactions, GIFs, pins | Slack |
 | ✅ | **[PMO](#-pmo--tasks-boards-notes-whiteboards)** — lists, kanban, gantt, notes, whiteboards, files | ClickUp |
 | 🎙 | **[Voice](#-voice)** — voice/video rooms with screen share and stages | Discord |
@@ -59,7 +59,7 @@ This repository is a **pnpm monorepo** holding the whole product:
 
 ### 📁 Portfolio & Discovery
 
-Projects are first-class citizens: hero media, tech stacks, phases, team rosters, and a discovery dashboard that surfaces what the lab is building right now.
+Projects are first-class citizens: hero media, tech stacks, phases, team rosters, and a discovery dashboard that surfaces what Ren is building right now.
 
 <img src="docs/screenshots/detailed-project-page-header-main.png" alt="Project detail page with media hero, tabs, and metadata" width="100%">
 
@@ -98,9 +98,9 @@ Discord-grade rooms: voice, camera, 1080p60 screen share, per-participant volume
 
 ## 📖 Using Atlas
 
-A tour of the app as a lab member experiences it:
+A tour of the app as a member experiences it:
 
-1. **Sign in** — one click takes you to the lab's Keycloak SSO; you come back signed in. No separate Atlas password.
+1. **Sign in** — one click takes you to Ren's Keycloak SSO; you come back signed in. No separate Atlas password.
 
    <img src="docs/screenshots/keycloak-support-login-page.png" alt="Atlas welcome screen with Continue with Keycloak button" width="520">
 
@@ -140,7 +140,7 @@ Admins additionally get `/admin`: tag manager, featured curation, collaboration 
 | Data | **TanStack Query 5** (client) · **Prisma 5 + PostgreSQL** (server) | 30 s staleTime; 48 models, 20 enums |
 | Realtime | **Socket.IO 4** + **Yjs / y-websocket** | Chat/notifications/voice events + CRDT co-editing |
 | Voice | **LiveKit** (SFU + egress) | WebRTC with screen share, recordings to S3 |
-| Auth | **Keycloak OIDC** → opaque DB sessions | SSO with lab identity; no Atlas passwords |
+| Auth | **Keycloak OIDC** → opaque DB sessions | SSO identity; no Atlas passwords |
 | Motion / icons | **Framer Motion** + **Lucide** (stroke 2.25) | One icon language, restrained motion |
 
 > [!WARNING]
@@ -350,7 +350,7 @@ Per-app scripts (run with `pnpm --filter @atlas/frontend …` / `pnpm --filter @
 ## 🗂 Project structure
 
 ```
-rement/
+atlas/
 ├── apps/
 │   ├── frontend/               # Next.js 15 web app
 │   │   ├── src/app/            # (authenticated)/ routes, /login, /health, /api/auth/callback
@@ -375,7 +375,7 @@ rement/
 
 ## 🎨 Design system
 
-The MGM identity is locked into design tokens — the full ruleset lives in [`docs/design-system.md`](docs/design-system.md). The five laws:
+The Atlas identity is locked into design tokens — the full ruleset lives in [`docs/design-system.md`](docs/design-system.md). The five laws:
 
 1. **Tokens, not literals** — colors, type ramp, radii, shadows, durations, easings all come from `tailwind.config.ts`.
 2. **One leading brand color per surface** — blue `#3a6dc5`, yellow `#f7bf33`, red `#f94141`, or green `#0f8657`.
@@ -417,10 +417,10 @@ Deploy jobs are **inert until Docker Hub / Tailscale / SSH vars and secrets are 
 
 - **[CONTRIBUTING](.github/CONTRIBUTING.md)** — setup, branch model, commit style, design-token rules
 - **[SECURITY](.github/SECURITY.md)** — private vulnerability reporting, please
-- **[SUPPORT](.github/SUPPORT.md)** — bugs → issues, questions → [Discussions](https://github.com/shirasakaren/rement/discussions)
+- **[SUPPORT](.github/SUPPORT.md)** — bugs → issues, questions → [Discussions](https://github.com/shirasakaren/atlas/discussions)
 
 > [!IMPORTANT]
-> **Proprietary, source-visible.** This code is published to read and learn from, but it is **not open source**: use, deployment, and code contribution are restricted under the [Estella Solusi Digital Proprietary License v1.0](LICENSE) (ESDPL). Code contributions are limited to active MGM Laboratory members — see [CONTRIBUTING](.github/CONTRIBUTING.md).
+> **Proprietary, source-visible.** This code is published to read and learn from, but it is **not open source**: use, deployment, and code contribution are restricted under the [proprietary license](LICENSE). Code contributions are limited to contributors invited by Shirasaka Ren — see [CONTRIBUTING](.github/CONTRIBUTING.md).
 
 Standing on excellent shoulders: [Next.js](https://nextjs.org), [NestJS](https://nestjs.com), [Prisma](https://www.prisma.io), [Radix UI](https://www.radix-ui.com), [shadcn/ui](https://ui.shadcn.com) patterns, [LiveKit](https://livekit.io), [Yjs](https://yjs.dev), [Excalidraw](https://excalidraw.com), [BlockNote](https://www.blocknotejs.org), [Tiptap](https://tiptap.dev). 💛
 
@@ -428,8 +428,8 @@ Standing on excellent shoulders: [Next.js](https://nextjs.org), [NestJS](https:/
 
 <div align="center">
   <sub>
-    MGM Atlas · <a href="https://atlas.labmgm.org">atlas.labmgm.org</a> · <a href="mailto:atlas@labmgm.org">atlas@labmgm.org</a><br>
-    © 2026 Estella Solusi Digital · Built with care by <a href="https://mgm.ub.ac.id">MGM Laboratory</a>, Universitas Brawijaya
+    Atlas · <a href="https://atlas.labmgm.org">atlas.labmgm.org</a> · Built with care by <a href="https://github.com/shirasakaren">Shirasaka Ren</a><br>
+    © 2026 Shirasaka Ren
   </sub>
 </div>
 

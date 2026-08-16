@@ -5,7 +5,7 @@ import { BRAND_LOGO_DATA_URL } from '@/lib/brand-logo';
 // and friends. Next.js convention only accepts raster for opengraph-image, so
 // we render the brand SVG into a PNG via Satori. Renders on demand and is
 // cached by Next.js.
-export const alt = 'MGM Atlas — Project Portfolio';
+export const alt = 'Atlas — Project Portfolio';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -35,7 +35,7 @@ export default async function OpengraphImage() {
             letterSpacing: '-0.025em',
           }}
         >
-          MGM Atlas
+          Atlas
         </div>
         <div
           style={{
@@ -44,7 +44,7 @@ export default async function OpengraphImage() {
             color: '#6b7280',
           }}
         >
-          The project portfolio dashboard for MGM Laboratory
+          The project portfolio dashboard for Shirasaka Ren
         </div>
       </div>
     ),

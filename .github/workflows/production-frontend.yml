@@ -196,7 +196,7 @@ jobs:
         run: |
           set -euo pipefail
           cosign verify "${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}" \
-            --certificate-identity-regexp "^https://github.com/shirasakaren/rement/\.github/workflows/.+@refs/heads/main$" \
+            --certificate-identity-regexp "^https://github.com/shirasakaren/atlas/\.github/workflows/.+@refs/heads/main$" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" > /dev/null
           echo "Signature verified."
 
@@ -233,7 +233,7 @@ jobs:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
           DEPLOY_USER: ${{ vars.DEPLOY_USER }}
-          COMPOSE_DIR: /home/user/docker/rement
+          COMPOSE_DIR: /home/user/docker/atlas
           SERVICE: atlas-frontend
         run: |
           set -euo pipefail

@@ -91,7 +91,7 @@ export default function ProjectsBrowsePage() {
           Browse projects
         </h1>
         <p className="max-w-prose text-body text-ink-2">
-          {q ? <>Showing results for <span className="font-medium text-ink">&ldquo;{q}&rdquo;</span>.</> : 'Find what the lab is working on. Filter by phase, tags, or open roles.'}
+          {q ? <>Showing results for <span className="font-medium text-ink">&ldquo;{q}&rdquo;</span>.</> : 'Find what Ren is working on. Filter by phase, tags, or open roles.'}
         </p>
       </div>
 

@@ -1,4 +1,4 @@
--- MGM Atlas — consolidated initial migration
+-- Atlas — consolidated initial migration
 -- Generated from apps/backend/prisma/schema.prisma via `prisma migrate diff`
 -- and merged with the raw-SQL constructs of the pre-monorepo migrations
 -- (frontend + backend repositories were consolidated into this monorepo,

@@ -1,7 +1,7 @@
 {
-  "name": "MGM Atlas",
+  "name": "Atlas",
   "short_name": "Atlas",
-  "description": "MGM Laboratory project portfolio dashboard.",
+  "description": "Shirasaka Ren project portfolio dashboard.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

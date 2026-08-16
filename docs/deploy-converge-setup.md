@@ -18,7 +18,7 @@ commit and smoke-tests the app, regardless of which layer converged it.
 
 The `converge` job is **inert** until you complete the setup below
 (`vars.DEPLOY_CONVERGE_ENABLED` is unset). Until then, if a deploy strands,
-recover manually: `ssh <host>` → `cd /home/user/docker/rement` →
+recover manually: `ssh <host>` → `cd /home/user/docker/atlas` →
 `docker compose up -d atlas-frontend` (or `atlas-backend`).
 
 ## One-time setup

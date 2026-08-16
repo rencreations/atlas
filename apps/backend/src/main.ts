@@ -62,8 +62,8 @@ async function bootstrap() {
 
   if (!isProd) {
     const swagger = new DocumentBuilder()
-      .setTitle('MGM Atlas API')
-      .setDescription('Project portfolio dashboard for MGM Laboratory')
+      .setTitle('Atlas API')
+      .setDescription('Project portfolio dashboard for Shirasaka Ren')
       .setVersion('1.0.0')
       .addBearerAuth({
         type: 'http',

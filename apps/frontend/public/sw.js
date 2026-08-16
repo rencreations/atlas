@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /**
- * MGM Atlas service worker.
+ * Atlas service worker.
  *
  * Responsibilities:
  *   - Receive Web Push payloads dispatched by the backend
@@ -44,7 +44,7 @@ self.addEventListener('push', (event) => {
     payload = { title: 'New notification', body: event.data.text() || '' };
   }
 
-  const title = payload.title || 'MGM Atlas';
+  const title = payload.title || 'Atlas';
   const body = payload.body || '';
   const link = payload.link || '/notifications';
   const tag = payload.tag || (payload.notificationId ? `notif:${payload.notificationId}` : undefined);

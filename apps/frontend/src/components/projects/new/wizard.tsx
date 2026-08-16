@@ -247,7 +247,7 @@ function BasicInfoStep({
         <Input
           id="title"
           maxLength={120}
-          placeholder="MGM Garden — interactive plant catalog"
+          placeholder="Atlas Garden — interactive plant catalog"
           value={form.title}
           onChange={(e) => update('title', e.target.value)}
           invalid={!!errors.title}
@@ -263,7 +263,7 @@ function BasicInfoStep({
           id="short"
           rows={3}
           maxLength={280}
-          placeholder="A web-based catalog that lets visitors explore and identify plants found in the lab garden."
+          placeholder="A web-based catalog that lets visitors explore and identify plants found in Ren garden."
           value={form.shortDescription}
           onChange={(e) => update('shortDescription', e.target.value)}
           invalid={!!errors.shortDescription}
@@ -575,7 +575,7 @@ function SettingsStep({
           >
             <Eye className="h-5 w-5 text-brand-blue" strokeWidth={2.25} />
             <div>
-              <div className="text-[14px] font-medium text-ink">Public to MGM Lab</div>
+              <div className="text-[14px] font-medium text-ink">Public to Atlas</div>
               <p className="mt-0.5 text-[12px] text-ink-2">
                 All authenticated members can see this project on the dashboard.
               </p>

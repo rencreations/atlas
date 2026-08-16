@@ -1,7 +1,7 @@
 {
   "name": "@atlas/backend",
   "version": "0.1.1",
-  "description": "MGM Atlas \u2014 project portfolio API for MGM Laboratory",
+  "description": "Atlas \u2014 project portfolio API for Shirasaka Ren",
   "private": true,
   "license": "UNLICENSED",
   "engines": {

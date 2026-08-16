@@ -59,7 +59,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
             Welcome back
           </h1>
           <p className="mt-2 text-body-sm text-ink-2">
-            Sign in to discover, manage, and contribute to MGM Laboratory projects.
+            Sign in to discover, manage, and contribute to Shirasaka Ren projects.
           </p>
 
           {params.reason === 'session-expired' ? (
@@ -94,7 +94,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
         </div>
 
         <p className="mt-6 text-center text-[13px] text-ink-3">
-          MGM Laboratory · Internal Service
+          Shirasaka Ren · Internal Service
         </p>
       </div>
     </main>
