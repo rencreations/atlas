@@ -65,6 +65,7 @@ export const apiPaths = {
   meAvatarPresign: () => '/users/me/avatar/presign',
   meConsent: () => '/users/me/consent',
   dashboard: () => '/users/me/dashboard',
+  forMe: () => '/users/me/for-me',
   bookmarks: () => '/users/me/bookmarks',
   bookmark: (projectId: string) => `/users/me/bookmarks/${projectId}`,
   users: (q?: string) => `/users${q ? `?q=${encodeURIComponent(q)}` : ''}`,

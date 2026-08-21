@@ -51,6 +51,12 @@ export class UsersController {
     return this.users.getDashboard(user.id);
   }
 
+  /** Jira-style personal overview ("For me"). */
+  @Get('me/for-me')
+  forMe(@CurrentUser() user: AuthenticatedUser) {
+    return this.users.getForMe(user.id);
+  }
+
   @Get('me/bookmarks')
   listBookmarks(@CurrentUser() user: AuthenticatedUser) {
     return this.users.listBookmarks(user.id);

@@ -268,6 +268,183 @@ export class UsersService {
     return grants.map((g) => g.role);
   }
 
+  // ─── "For me" overview ────────────────────────────────────────────
+
+  /**
+   * Jira-style personal work overview: everything assigned to the user
+   * that needs doing today, plus unread messages, notifications, pending
+   * invites/requests, and recent activity.
+   */
+  async getForMe(userId: string) {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrowStart = new Date(todayStart.getTime() + 24 * 3600_000);
+
+    const pmoEnabled = await this.settings.get<boolean>('modules.pmo.enabled');
+
+    const [
+      notifications,
+      unreadCount,
+      invites,
+      pendingRequests,
+      chatMemberships,
+    ] = await this.prisma.$transaction([
+      this.prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 6,
+      }),
+      this.prisma.notification.count({ where: { userId, readAt: null } }),
+      this.prisma.projectInvite.findMany({
+        where: { invitedUserId: userId, status: 'PENDING' },
+        include: { project: { select: { id: true, slug: true, title: true, thumbnailUrl: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+      this.prisma.contributionRequest.findMany({
+        where: { userId, status: 'PENDING' },
+        include: { project: { select: { id: true, slug: true, title: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+      this.prisma.chatChannelMember.findMany({
+        where: { userId, muted: false, channel: { isArchived: false } },
+        include: { channel: { select: { id: true, name: true, slug: true, project: { select: { slug: true } } } } },
+      }),
+    ]);
+
+    // Unread chat messages per channel (single query over all memberships).
+    const thresholds = chatMemberships.map((m) => ({
+      channelId: m.channelId,
+      createdAt: { gt: m.lastReadAt ?? m.joinedAt },
+    }));
+    const unreadByChannel = thresholds.length
+      ? await this.prisma.chatMessage.groupBy({
+          by: ['channelId'],
+          where: { deletedAt: null, OR: thresholds },
+          _count: { _all: true },
+        })
+      : [];
+    const chatUnread = chatMemberships
+      .map((m) => ({
+        channelId: m.channelId,
+        name: m.channel.name,
+        projectSlug: m.channel.project?.slug ?? null,
+        unread: unreadByChannel.find((u) => u.channelId === m.channelId)?._count._all ?? 0,
+      }))
+      .filter((c) => c.unread > 0)
+      .sort((a, b) => b.unread - a.unread)
+      .slice(0, 10);
+
+    // Tasks: overdue, due today, and the rest of the open backlog.
+    const taskSelect = {
+      id: true,
+      key: true,
+      title: true,
+      dueDate: true,
+      priority: true,
+      status: { select: { name: true, color: true, category: true } },
+      taskList: { select: { id: true, name: true } },
+      project: { select: { slug: true, title: true } },
+    } as const;
+
+    const [overdueTasks, dueTodayTasks, openTasks] = pmoEnabled
+      ? await this.prisma.$transaction([
+          this.prisma.task.findMany({
+            where: {
+              deletedAt: null,
+              archivedAt: null,
+              assignees: { some: { userId } },
+              status: { category: { in: ['TODO', 'IN_PROGRESS'] } },
+              dueDate: { lt: todayStart },
+              project: { deletedAt: null },
+            },
+            orderBy: { dueDate: 'asc' },
+            take: 20,
+            select: taskSelect,
+          }),
+          this.prisma.task.findMany({
+            where: {
+              deletedAt: null,
+              archivedAt: null,
+              assignees: { some: { userId } },
+              status: { category: { in: ['TODO', 'IN_PROGRESS'] } },
+              dueDate: { gte: todayStart, lt: tomorrowStart },
+              project: { deletedAt: null },
+            },
+            orderBy: { dueDate: 'asc' },
+            take: 20,
+            select: taskSelect,
+          }),
+          this.prisma.task.findMany({
+            where: {
+              deletedAt: null,
+              archivedAt: null,
+              assignees: { some: { userId } },
+              status: { category: { in: ['TODO', 'IN_PROGRESS'] } },
+              OR: [{ dueDate: { gte: tomorrowStart } }, { dueDate: null }],
+              project: { deletedAt: null },
+            },
+            orderBy: [{ dueDate: { sort: 'asc', nulls: 'last' } }, { createdAt: 'asc' }],
+            take: 20,
+            select: taskSelect,
+          }),
+        ])
+      : [[], [], []];
+
+    // Recent activity around the user's work.
+    const recentActivity = await this.prisma.taskActivity.findMany({
+      where: {
+        OR: [
+          { actorId: userId },
+          { task: { assignees: { some: { userId } } } },
+          { task: { createdById: userId } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 12,
+      include: {
+        actor: { select: { id: true, name: true, avatarUrl: true } },
+        task: {
+          select: {
+            id: true,
+            key: true,
+            title: true,
+            project: { select: { slug: true, title: true } },
+            taskList: { select: { id: true } },
+          },
+        },
+      },
+    });
+
+    return {
+      tasks: {
+        overdue: overdueTasks,
+        dueToday: dueTodayTasks,
+        open: openTasks,
+      },
+      chatUnread,
+      notifications: {
+        unread: unreadCount,
+        recent: notifications,
+      },
+      invites: invites.map((i) => ({
+        id: i.id,
+        role: i.role,
+        title: i.title,
+        createdAt: i.createdAt,
+        project: i.project,
+      })),
+      pendingRequests: pendingRequests.map((r) => ({
+        id: r.id,
+        role: r.role,
+        createdAt: r.createdAt,
+        project: r.project,
+      })),
+      recentActivity,
+    };
+  }
+
   async addBookmark(userId: string, projectId: string) {
     const exists = await this.prisma.project.findFirst({
       where: { id: projectId, deletedAt: null },

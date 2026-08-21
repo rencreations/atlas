@@ -963,3 +963,55 @@ export interface PublicConfig {
   features: { gifs: boolean; push: boolean };
   legal: { requireConsent: boolean; terms: boolean; privacy: boolean };
 }
+
+// ─── "For me" overview (GET /users/me/for-me) ────────────────────────────
+
+export interface ForMeTask {
+  id: string;
+  key: string;
+  title: string;
+  dueDate: string | null;
+  priority: string;
+  status: { name: string; color: string; category: string };
+  taskList: { id: string; name: string };
+  project: { slug: string; title: string };
+}
+
+export interface ForMeActivity {
+  id: string;
+  kind: string;
+  payload: Record<string, unknown>;
+  createdAt: string;
+  actor: { id: string; name: string; avatarUrl: string | null } | null;
+  task: {
+    id: string;
+    key: string;
+    title: string;
+    project: { slug: string; title: string };
+    taskList: { id: string };
+  } | null;
+}
+
+export interface ForMePayload {
+  tasks: {
+    overdue: ForMeTask[];
+    dueToday: ForMeTask[];
+    open: ForMeTask[];
+  };
+  chatUnread: { channelId: string; name: string; projectSlug: string | null; unread: number }[];
+  notifications: { unread: number; recent: NotificationItem[] };
+  invites: {
+    id: string;
+    role: string;
+    title: string | null;
+    createdAt: string;
+    project: { id: string; slug: string; title: string; thumbnailUrl: string | null };
+  }[];
+  pendingRequests: {
+    id: string;
+    role: string;
+    createdAt: string;
+    project: { id: string; slug: string; title: string };
+  }[];
+  recentActivity: ForMeActivity[];
+}

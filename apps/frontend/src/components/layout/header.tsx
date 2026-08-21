@@ -19,6 +19,7 @@ interface NavLink {
 }
 
 const NAV: NavLink[] = [
+  { label: 'For me', href: '/for-me' },
   { label: 'Discover', href: '/dashboard' },
   { label: 'Browse', href: '/projects' },
   { label: 'My work', href: '/me' },
