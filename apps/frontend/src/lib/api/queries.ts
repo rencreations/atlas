@@ -17,6 +17,7 @@ import type {
 
 export const queryKeys = {
   me: ['me'] as const,
+  publicConfig: ['public-config'] as const,
   dashboard: ['dashboard'] as const,
   forMe: ['for-me'] as const,
   notifications: (page: number) => ['notifications', page] as const,

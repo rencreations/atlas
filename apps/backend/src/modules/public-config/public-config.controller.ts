@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
 import { SettingsService } from '@/modules/settings/settings.service';
+import { THEME_OPTIONS } from '@/modules/settings/theme-ids';
 
 const OAUTH_LABELS: Record<string, string> = {
   google: 'Google',
@@ -115,6 +116,13 @@ export class PublicConfigController {
         name: siteName,
         description: siteDescription,
       },
+      appearance: {
+        defaultTheme: await this.settings.get<string>('appearance.defaultTheme'),
+        defaultThemeMode: await this.settings.get<string>('appearance.defaultThemeMode'),
+        allowUserThemes: await this.settings.get<boolean>('appearance.allowUserThemes'),
+      },
+      /** Theme catalog (ids + labels); the frontend owns the palettes. */
+      themes: THEME_OPTIONS,
       registration: {
         enabled: registrationEnabled,
         inviteRequired,

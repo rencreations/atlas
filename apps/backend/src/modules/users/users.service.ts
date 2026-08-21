@@ -49,7 +49,8 @@ export class UsersService {
         phone: true,
         phoneVerified: true,
         emailVerified: true,
-        theme: true,
+        themeId: true,
+        themeMode: true,
         consentAcceptedAt: true,
         passwordChangedAt: true,
         userRoles: { include: { role: { select: { id: true, code: true, name: true } } } },
@@ -81,7 +82,7 @@ export class UsersService {
     const user = await this.prisma.user.update({
       where: { id },
       data: { ...rest, ...(avatarS3Key ? { avatarS3Key } : {}) },
-      select: { ...ME_USER_SELECT, lastLoginAt: true, theme: true },
+      select: { ...ME_USER_SELECT, lastLoginAt: true, themeId: true, themeMode: true },
     });
     const { avatarS3Key: stored, ...stripped } = user;
     return {

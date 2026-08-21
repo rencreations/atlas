@@ -117,6 +117,23 @@ export interface SessionUser {
   isAdmin: boolean;
 }
 
+/** GET /users/me — the signed-in user's own profile. */
+export interface MeProfile {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+  bio?: string | null;
+  isAdmin: boolean;
+  phone?: string | null;
+  phoneVerified?: boolean;
+  emailVerified?: boolean;
+  /** Theme catalog id; null = instance default. */
+  themeId?: string | null;
+  /** light | dark | system. */
+  themeMode?: string | null;
+}
+
 export interface Tag {
   id: string;
   name: string;
@@ -941,6 +958,12 @@ export type FeatureFlagMap = Record<string, boolean>;
 export interface PublicConfig {
   configured: boolean;
   site: { name: string; description: string };
+  appearance: {
+    defaultTheme: string;
+    defaultThemeMode: string;
+    allowUserThemes: boolean;
+  };
+  themes: { label: string; value: string }[];
   registration: {
     enabled: boolean;
     inviteRequired: boolean;

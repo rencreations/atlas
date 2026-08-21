@@ -1,4 +1,5 @@
-import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { THEME_IDS } from '@/modules/settings/theme-ids';
 
 export class UpdateMeDto {
   @IsOptional()
@@ -11,10 +12,19 @@ export class UpdateMeDto {
   @MaxLength(120)
   name?: string;
 
-  /** UI theme preference: light | dark | system. */
+  /**
+   * Theme id from the catalog (see `modules/settings/theme-ids.ts`).
+   * `null` clears the override and falls back to the instance default.
+   */
+  @IsOptional()
+  @ValidateIf((_o, v) => v !== null)
+  @IsIn(THEME_IDS)
+  themeId?: string | null;
+
+  /** UI theme mode: light | dark | system. */
   @IsOptional()
   @IsIn(['light', 'dark', 'system'])
-  theme?: string;
+  themeMode?: string;
 
   /** S3 object key of the user-uploaded avatar. */
   @IsOptional()

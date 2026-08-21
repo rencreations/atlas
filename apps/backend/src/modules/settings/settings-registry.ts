@@ -10,6 +10,8 @@
  * `SettingsService.get('...')`. No migration needed.
  */
 
+import { THEME_OPTIONS } from './theme-ids';
+
 export type SettingType = 'boolean' | 'string' | 'number' | 'json' | 'enum';
 
 export interface SettingOption {
@@ -37,6 +39,7 @@ export interface SettingDef {
 export type SettingGroup =
   | 'system'
   | 'site'
+  | 'appearance'
   | 'registration'
   | 'auth'
   | 'sessions'
@@ -53,6 +56,11 @@ export type SettingGroup =
 export const SETTING_GROUPS: { slug: SettingGroup; label: string; description: string }[] = [
   { slug: 'system', label: 'System', description: 'Instance identity and first-run status.' },
   { slug: 'site', label: 'Site', description: 'Public site identity and branding.' },
+  {
+    slug: 'appearance',
+    label: 'Appearance',
+    description: 'The default theme users see, and whether they may pick their own.',
+  },
   {
     slug: 'registration',
     label: 'Registration',
@@ -198,6 +206,38 @@ export const SETTINGS: Record<string, SettingDef> = {
     'Tagline',
     'One-liner shown on the login page.',
     'Your organization workspace — projects, chat, PMO, and voice in one place.',
+  ),
+
+  // ─── Appearance ───────────────────────────────────────────────────
+  'appearance.defaultTheme': enu(
+    'appearance.defaultTheme',
+    'appearance',
+    'Default theme',
+    'The theme applied for visitors and for users who have not picked one.',
+    'atlas',
+    THEME_OPTIONS,
+    { public: true },
+  ),
+  'appearance.defaultThemeMode': enu(
+    'appearance.defaultThemeMode',
+    'appearance',
+    'Default mode',
+    'Light, dark, or follow the visitor’s device.',
+    'system',
+    [
+      { label: 'Light', value: 'light' },
+      { label: 'Dark', value: 'dark' },
+      { label: 'System', value: 'system' },
+    ],
+    { public: true },
+  ),
+  'appearance.allowUserThemes': bool(
+    'appearance.allowUserThemes',
+    'appearance',
+    'Let users pick their own theme',
+    'When off, everyone sees the default theme and the settings gallery is hidden.',
+    true,
+    { public: true },
   ),
 
   // ─── Registration ─────────────────────────────────────────────────

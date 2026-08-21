@@ -157,8 +157,10 @@ model User {
   emailVerified  Boolean   @default(false)
   /// Set when an admin assigns/forces a password change on first login.
   passwordChangedAt DateTime?
-  /// Per-user UI theme preference: light | dark | system.
-  theme             String?
+  /// Theme id from the catalog; null = instance default (`appearance.defaultTheme`).
+  themeId           String?
+  /// How the theme renders: light | dark | system.
+  themeMode         String   @default("system")
   /// When the user last accepted the terms/privacy consent version.
   consentAcceptedAt DateTime?
   /// S3 object key of the user-uploaded avatar (falls back to avatarUrl).
