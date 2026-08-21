@@ -255,6 +255,21 @@ export class GodmodeService {
     }
   }
 
+  /** Single-use registration invite code (email-bound when provided). */
+  async issueInviteCode(email?: string): Promise<{ code: string }> {
+    const code = randomBytes(6).toString('hex').toUpperCase();
+    const ttlHours = 24 * 7;
+    await this.prisma.magicLinkToken.create({
+      data: {
+        purpose: 'invite-accept',
+        email: (email ?? '').toLowerCase(),
+        tokenHash: this.hashToken(code),
+        expiresAt: new Date(Date.now() + ttlHours * 3600_000),
+      },
+    });
+    return { code };
+  }
+
   async revokeRole(userId: string, roleCode: string): Promise<void> {
     const role = await this.prisma.role.findUnique({ where: { code: roleCode } });
     if (!role) throw new ConflictException(`Unknown role: ${roleCode}`);

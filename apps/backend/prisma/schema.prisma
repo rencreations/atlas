@@ -9,6 +9,9 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Only used by `prisma migrate diff --from-migrations` / `migrate dev`
+  // to replay existing migrations against a scratch database.
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 // ─── Enums ───────────────────────────────────────────────────────────────
@@ -224,9 +227,17 @@ model Session {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  accessToken  String
+  /// Nullable since the self-host release: local logins (password, OTP,
+  /// magic link, passphrase) have no upstream token to store.
+  accessToken  String?
   refreshToken String?
   idToken      String?
+
+  /// 'password' | 'otp' | 'magic-link' | 'passphrase' | 'oauth:<id>' |
+  /// 'oidc' | 'saml' | 'keycloak' | 'register' — how this session began.
+  method     String?
+  userAgent String?
+  ip         String?
 
   expiresAt DateTime
   createdAt DateTime @default(now())

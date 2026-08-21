@@ -5,11 +5,31 @@ import { AuthService } from './auth.service';
 import { SessionService } from './session.service';
 import { KeycloakTokenService } from './keycloak-token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { IdentityService } from './identity.service';
+import { LocalAuthService } from './local-auth.service';
+import { OtpService } from './otp.service';
+import { SmsService } from './sms.service';
+import { OAuthService } from './oauth.service';
+import { OIDCService } from './oidc.service';
+import { SamlService } from './saml.service';
+import { OAuthController } from './oauth.controller';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt', session: false })],
-  controllers: [AuthController],
-  providers: [AuthService, SessionService, KeycloakTokenService, JwtStrategy],
-  exports: [AuthService, SessionService, KeycloakTokenService],
+  controllers: [AuthController, OAuthController],
+  providers: [
+    AuthService,
+    SessionService,
+    KeycloakTokenService,
+    JwtStrategy,
+    IdentityService,
+    LocalAuthService,
+    OtpService,
+    SmsService,
+    OAuthService,
+    OIDCService,
+    SamlService,
+  ],
+  exports: [AuthService, SessionService, KeycloakTokenService, IdentityService],
 })
 export class AuthModule {}

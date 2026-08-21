@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
+import { SettingsService } from '@/modules/settings/settings.service';
 
+/**
+ * Database-backed opaque sessions. The session id is the bearer token;
+ * the session lifetime comes from the `auth.sessionDurationMinutes`
+ * godmode setting (env fallback via the registry).
+ */
 @Injectable()
 export class SessionService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
+    private readonly settings: SettingsService,
   ) {}
 
   /**
@@ -35,25 +40,32 @@ export class SessionService {
   }
 
   /**
-   * Create a new session after successful Keycloak authentication.
-   * Returns the session ID to be stored on the frontend (no cookies).
+   * Create a new session after any successful authentication. Returns
+   * the session ID to be stored on the frontend (no cookies).
    */
   async createSession(
     userId: string,
-    accessToken: string,
-    refreshToken?: string,
-    idToken?: string,
+    opts?: {
+      method?: string;
+      accessToken?: string | null;
+      refreshToken?: string | null;
+      idToken?: string | null;
+      userAgent?: string | null;
+      ip?: string | null;
+    },
   ): Promise<{ sessionId: string; expiresAt: Date }> {
-    const sessionDurationMinutes = this.config.get<number>('session.durationMinutes', 480); // 8 hours default
-
+    const sessionDurationMinutes = await this.settings.get<number>('auth.sessionDurationMinutes');
     const expiresAt = new Date(Date.now() + sessionDurationMinutes * 60 * 1000);
 
     const session = await this.prisma.session.create({
       data: {
         userId,
-        accessToken,
-        refreshToken,
-        idToken,
+        accessToken: opts?.accessToken ?? null,
+        refreshToken: opts?.refreshToken ?? null,
+        idToken: opts?.idToken ?? null,
+        method: opts?.method ?? null,
+        userAgent: opts?.userAgent ?? null,
+        ip: opts?.ip ?? null,
         expiresAt,
       },
       select: {
@@ -69,12 +81,12 @@ export class SessionService {
   }
 
   /**
-   * Validate a session by its ID. Returns user data if valid.
+   * Validate a session by its ID. Returns session data if valid.
    * Clears expired sessions automatically.
    */
   async validateSession(sessionId: string): Promise<{
     userId: string;
-    accessToken: string;
+    accessToken: string | null;
     refreshToken: string | null;
     idToken: string | null;
     expiresAt: Date;
@@ -109,9 +121,7 @@ export class SessionService {
    * Destroy a session (logout).
    */
   async destroySession(sessionId: string): Promise<void> {
-    await this.prisma.session.delete({
-      where: { id: sessionId },
-    });
+    await this.prisma.session.delete({ where: { id: sessionId } }).catch(() => undefined);
   }
 
   /**
@@ -123,7 +133,7 @@ export class SessionService {
     newRefreshToken?: string,
     newIdToken?: string,
   ): Promise<void> {
-    const sessionDurationMinutes = this.config.get<number>('session.durationMinutes', 480);
+    const sessionDurationMinutes = await this.settings.get<number>('auth.sessionDurationMinutes');
     const expiresAt = new Date(Date.now() + sessionDurationMinutes * 60 * 1000);
 
     await this.prisma.session.update({

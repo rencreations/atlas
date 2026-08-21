@@ -131,6 +131,13 @@ export class GodmodeController {
     return this.godmode.createUser(dto);
   }
 
+  /** Issue a single-use registration invite code (optional email binding). */
+  @UseGuards(GodmodeGuard)
+  @Post('invites')
+  issueInvite(@Body() dto: { email?: string }) {
+    return this.godmode.issueInviteCode(dto.email);
+  }
+
   @UseGuards(GodmodeGuard)
   @Post('users/:id/roles')
   grantRole(

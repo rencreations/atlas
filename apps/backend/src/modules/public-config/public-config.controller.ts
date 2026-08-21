@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
 import { SettingsService } from '@/modules/settings/settings.service';
@@ -23,7 +24,10 @@ const OAUTH_LABELS: Record<string, string> = {
 @ApiTags('public-config')
 @Controller('public-config')
 export class PublicConfigController {
-  constructor(private readonly settings: SettingsService) {}
+  constructor(
+    private readonly settings: SettingsService,
+    private readonly config: ConfigService,
+  ) {}
 
   @Public()
   @Get()
@@ -80,6 +84,19 @@ export class PublicConfigController {
       })),
     );
 
+    const requireEmailVerification = await this.settings.get<boolean>(
+      'registration.requireEmailVerification',
+    );
+
+    // Callback URLs operators must register at each provider's console.
+    const backendBase = this.config.get<string>('app.baseUrl') ?? 'http://localhost:3000';
+    const oauthCallbacks = Object.fromEntries(
+      oauth.map((p) => [
+        p.id,
+        `${backendBase.replace(/\/+$/, '')}/api/v1/auth/oauth/${p.id}/callback`,
+      ]),
+    );
+
     return {
       configured,
       site: {
@@ -90,6 +107,7 @@ export class PublicConfigController {
         enabled: registrationEnabled,
         inviteRequired,
         defaultRole,
+        requireEmailVerification,
       },
       authMethods: {
         password: { enabled: passwordEnabled, label: 'Email & password' },
@@ -98,6 +116,7 @@ export class PublicConfigController {
         passphrase: { enabled: passphraseEnabled, label: 'Passphrase' },
       },
       oauthProviders: oauth.filter((p) => p.enabled).map((p) => ({ id: p.id, label: p.label })),
+      oauthCallbacks,
       sso: {
         oidc: { enabled: oidcEnabled, label: oidcLabel },
         saml: { enabled: samlEnabled, label: samlLabel },

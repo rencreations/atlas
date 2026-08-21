@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
+import { IdentityService, SessionUser } from './identity.service';
+import { SessionService } from './session.service';
 
 interface KeycloakClaims {
   sub: string;
@@ -13,62 +15,36 @@ interface KeycloakClaims {
   picture?: string;
 }
 
+/**
+ * Shared session issuance for every auth flow. All logins converge on
+ * `issueSession` so the frontend receives one consistent shape:
+ * `{ sessionId, expiresAt, user }` (stored in localStorage).
+ */
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
+    private readonly identity: IdentityService,
+    private readonly sessions: SessionService,
   ) {}
 
   /**
-   * Upsert the user record from a freshly validated Keycloak token.
-   * On first sync, the bootstrap admin email is granted `isAdmin = true`.
+   * Upsert the user record from a freshly validated Keycloak token
+   * (legacy labmgm flow). Admin status now comes from roles, not the
+   * bootstrap env var.
    */
   async syncUserFromToken(claims: KeycloakClaims): Promise<AuthenticatedUser> {
-    const email = (claims.email ?? '').toLowerCase().trim();
-    const name = this.resolveDisplayName(claims);
-    const avatarUrl = claims.picture ?? null;
-    const bootstrapAdmin = this.config
-      .getOrThrow<string>('bootstrap.adminEmail')
-      .toLowerCase()
-      .trim();
-
-    const existing = await this.prisma.user.findUnique({
-      where: { keycloakId: claims.sub },
-      select: { id: true, isAdmin: true },
+    const user = await this.identity.upsertFromExternal('keycloak', {
+      providerId: claims.sub,
+      email: claims.email,
+      name: this.resolveDisplayName(claims),
+      picture: claims.picture,
     });
-
-    const isAdminOnCreate = email === bootstrapAdmin;
-
-    const user = await this.prisma.user.upsert({
-      where: { keycloakId: claims.sub },
-      create: {
-        keycloakId: claims.sub,
-        email,
-        name,
-        avatarUrl,
-        isAdmin: isAdminOnCreate,
-        lastLoginAt: new Date(),
-      },
-      update: {
-        email,
-        name,
-        avatarUrl,
-        lastLoginAt: new Date(),
-        // never demote on sync; only the admin endpoint flips this flag.
-        ...(existing && !existing.isAdmin && email === bootstrapAdmin ? { isAdmin: true } : {}),
-      },
-      select: {
-        id: true,
-        keycloakId: true,
-        email: true,
-        name: true,
-        avatarUrl: true,
-        isAdmin: true,
-      },
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { keycloakId: claims.sub, lastLoginAt: new Date() },
     });
-
-    return user;
+    return user as AuthenticatedUser;
   }
 
   /**
@@ -81,49 +57,17 @@ export class AuthService {
     name: string;
     picture?: string;
   }): Promise<AuthenticatedUser> {
-    const email = (data.email ?? '').toLowerCase().trim();
-    const name = data.name ?? 'Unknown';
-    const avatarUrl = data.picture ?? null;
-    const bootstrapAdmin = this.config
-      .getOrThrow<string>('bootstrap.adminEmail')
-      .toLowerCase()
-      .trim();
-
-    const existing = await this.prisma.user.findUnique({
-      where: { keycloakId: data.keycloakId },
-      select: { id: true, isAdmin: true },
+    const user = await this.identity.upsertFromExternal('keycloak', {
+      providerId: data.keycloakId,
+      email: data.email,
+      name: data.name,
+      picture: data.picture,
     });
-
-    const isAdminOnCreate = email === bootstrapAdmin;
-
-    const user = await this.prisma.user.upsert({
-      where: { keycloakId: data.keycloakId },
-      create: {
-        keycloakId: data.keycloakId,
-        email,
-        name,
-        avatarUrl,
-        isAdmin: isAdminOnCreate,
-        lastLoginAt: new Date(),
-      },
-      update: {
-        email,
-        name,
-        avatarUrl,
-        lastLoginAt: new Date(),
-        ...(existing && !existing.isAdmin && email === bootstrapAdmin ? { isAdmin: true } : {}),
-      },
-      select: {
-        id: true,
-        keycloakId: true,
-        email: true,
-        name: true,
-        avatarUrl: true,
-        isAdmin: true,
-      },
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { keycloakId: data.keycloakId, lastLoginAt: new Date() },
     });
-
-    return user;
+    return user as AuthenticatedUser;
   }
 
   private resolveDisplayName(claims: KeycloakClaims): string {
@@ -132,5 +76,35 @@ export class AuthService {
     if (composed) return composed;
     if (claims.preferred_username) return claims.preferred_username;
     return claims.email ?? 'Unknown';
+  }
+
+  /**
+   * Mint a database session for a resolved user. Returns the exact
+   * response shape the frontend expects from every login endpoint.
+   */
+  async issueSession(
+    user: SessionUser,
+    opts?: {
+      method?: string;
+      accessToken?: string | null;
+      refreshToken?: string | null;
+      idToken?: string | null;
+    },
+    req?: Request,
+  ): Promise<{
+    sessionId: string;
+    expiresAt: Date;
+    user: SessionUser;
+    mustChangePassword?: boolean;
+  }> {
+    const { sessionId, expiresAt } = await this.sessions.createSession(user.id, {
+      method: opts?.method,
+      accessToken: opts?.accessToken,
+      refreshToken: opts?.refreshToken,
+      idToken: opts?.idToken,
+      userAgent: req?.get('user-agent')?.slice(0, 300),
+      ip: (req?.ip ?? req?.socket?.remoteAddress ?? null) as string | null,
+    });
+    return { sessionId, expiresAt, user };
   }
 }

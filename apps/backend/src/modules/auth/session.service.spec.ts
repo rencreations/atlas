@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- typed-mock casts in tests */
-import { ConfigService } from '@nestjs/config';
 import { SessionService } from './session.service';
+import { SettingsService } from '@/modules/settings/settings.service';
 
 function makePrisma() {
   return {
@@ -14,26 +14,38 @@ function makePrisma() {
   };
 }
 
-describe('SessionService', () => {
-  const config = { get: (_k: string, d?: unknown) => d } as unknown as ConfigService;
+function makeSettings(durationMinutes = 480) {
+  return {
+    get: jest.fn(async (key: string) => {
+      if (key === 'auth.sessionDurationMinutes') return durationMinutes;
+      return undefined;
+    }),
+  } as unknown as SettingsService;
+}
 
+describe('SessionService', () => {
   it('creates a session and returns its id + expiry', async () => {
     const prisma = makePrisma();
     const expiresAt = new Date(Date.now() + 3600_000);
     prisma.session.create.mockResolvedValue({ id: 'sess-1', expiresAt });
-    const svc = new SessionService(prisma as any, config);
+    const svc = new SessionService(prisma as any, makeSettings());
 
-    const res = await svc.createSession('user-1', 'access', 'refresh', 'id');
+    const res = await svc.createSession('user-1', {
+      method: 'password',
+      accessToken: null,
+    });
     expect(res).toEqual({ sessionId: 'sess-1', expiresAt });
     expect(prisma.session.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ userId: 'user-1' }) }),
+      expect.objectContaining({
+        data: expect.objectContaining({ userId: 'user-1', method: 'password' }),
+      }),
     );
   });
 
   it('returns null for an unknown session and never loads a user', async () => {
     const prisma = makePrisma();
     prisma.session.findUnique.mockResolvedValue(null);
-    const svc = new SessionService(prisma as any, config);
+    const svc = new SessionService(prisma as any, makeSettings());
 
     expect(await svc.validateBearerAndLoadUser('nope')).toBeNull();
     expect(prisma.user.findUnique).not.toHaveBeenCalled();
@@ -48,7 +60,7 @@ describe('SessionService', () => {
       idToken: null,
       expiresAt: new Date(Date.now() - 1000),
     });
-    const svc = new SessionService(prisma as any, config);
+    const svc = new SessionService(prisma as any, makeSettings());
 
     expect(await svc.validateBearerAndLoadUser('expired')).toBeNull();
     expect(prisma.session.delete).toHaveBeenCalledWith({ where: { id: 'expired' } });
@@ -71,7 +83,7 @@ describe('SessionService', () => {
       avatarUrl: null,
       isAdmin: false,
     });
-    const svc = new SessionService(prisma as any, config);
+    const svc = new SessionService(prisma as any, makeSettings());
 
     const user = await svc.validateBearerAndLoadUser('ok');
     expect(user).toMatchObject({ id: 'u1', email: 'u@labmgm.org' });
