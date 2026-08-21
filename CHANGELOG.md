@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Pre-1.0, minor versions may contain breaking changes.
 
+## [0.1.3](https://github.com/rencreations/atlas/compare/v0.1.2...v0.1.3) (2026-08-21)
+
+
+### Features
+
+* 'For me' personal work overview ([614dd40](https://github.com/rencreations/atlas/commit/614dd406b6c4fb80d845359ab9951bb6ff37492b))
+* **api:** godmode control plane, dynamic settings, and relaxed boot requirements ([14e9aaa](https://github.com/rencreations/atlas/commit/14e9aaa815a66fdaf8616c3a761297819c1ed02f))
+* **api:** pluggable authentication — local, OTP, magic link, OAuth, OIDC, SAML ([966ee49](https://github.com/rencreations/atlas/commit/966ee499c13460fa718af7631f6fcd5e266dc0e7))
+* **api:** role-based IAM — permission guard, dynamic admins, admin provisioning ([6b57347](https://github.com/rencreations/atlas/commit/6b573476040726b501af3a4e22dddb7d6d9983ac))
+* **api:** WebAuthn passkeys as a godmode second factor ([989a676](https://github.com/rencreations/atlas/commit/989a6760aa3cdbc8ce52dd024aa87ecde88a8d68))
+* **themes:** 24-theme token registry, generated CSS, and WCAG contrast gate ([204c5eb](https://github.com/rencreations/atlas/commit/204c5eb64579c47d1f1db337d5fb9833352bcbcd))
+* **themes:** per-user theme + instance default via godmode ([289c36b](https://github.com/rencreations/atlas/commit/289c36bdb701d3d7c755725a77e5d1d6c010388c))
+* **themes:** single primary color for all branding + minimal animated footer ([809492c](https://github.com/rencreations/atlas/commit/809492c5ff293431e253ddf5a7b0fe8343955f1f))
+* **web:** godmode control-plane dashboard at /godmode ([aac62de](https://github.com/rencreations/atlas/commit/aac62de43a7a2a2a250c50dd440aee1bdfddd26f))
+* **web:** multi-auth login surface and account flow pages ([ce18685](https://github.com/rencreations/atlas/commit/ce186857bcf6251e62b4d636172b2321d4cd3a62))
+* **web:** user profile & settings, theme support, legal pages ([b84d934](https://github.com/rencreations/atlas/commit/b84d9344dbd7896965cf68ace8497edcca15d6ed))
+
+
+### Bug Fixes
+
+* **api:** harden the avatar upload path and restore the e2e suite ([efe00b9](https://github.com/rencreations/atlas/commit/efe00b9714602e807488d54f6b4ba1b65555dc39))
+* **frontend:** comprehensive UX audit sweep — error states, titles, a11y ([a49c34a](https://github.com/rencreations/atlas/commit/a49c34a991a693264163ad628ba4b72b3be74773))
+
 ## [0.1.2](https://github.com/shirasakaren/atlas/compare/v0.1.1...v0.1.2) (2026-08-15)
 
 ### Changed
