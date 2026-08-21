@@ -116,6 +116,15 @@ export class UsersService {
     });
   }
 
+  /** True when the actor holds the superadmin role. */
+  private async isSuperadmin(actorId: string): Promise<boolean> {
+    const grants = await this.prisma.userRole.findMany({
+      where: { userId: actorId, role: { code: 'superadmin' } },
+      take: 1,
+    });
+    return grants.length > 0;
+  }
+
   /** Create a user from the admin console with a role grant. */
   async createUser(
     dto: { email: string; name: string; password?: string; roleCode?: string },
@@ -126,6 +135,11 @@ export class UsersService {
       throw new ConflictException('A user with that email already exists.');
     }
     const roleCode = dto.roleCode ?? 'member';
+    // Only superadmins may mint other superadmins — otherwise any admin
+    // could escalate by creating a privileged account.
+    if (roleCode === 'superadmin' && !(await this.isSuperadmin(actorId))) {
+      throw new ForbiddenException('Only superadmins can create superadmin accounts.');
+    }
     const role = await this.prisma.role.findUnique({ where: { code: roleCode } });
     if (!role) throw new BadRequestException(`Unknown role: ${roleCode}`);
 
@@ -159,22 +173,35 @@ export class UsersService {
   }
 
   /** Admin-initiated password reset: sets a fresh password with mustChange. */
-  async adminResetPassword(targetId: string, newPassword: string) {
+  async adminResetPassword(actorId: string, targetId: string, newPassword: string) {
     if (newPassword.length < 6) {
       throw new BadRequestException('Password must be at least 6 characters.');
     }
     const user = await this.prisma.user.findUnique({
       where: { id: targetId },
-      include: { passwordCredential: true },
+      include: {
+        passwordCredential: true,
+        userRoles: { where: { role: { code: 'superadmin' } }, take: 1 },
+      },
     });
     if (!user) throw new NotFoundException('User not found.');
     if (!user.passwordCredential) {
       throw new BadRequestException('This account has no local password (external identity only).');
     }
-    await this.prisma.passwordCredential.update({
-      where: { userId: targetId },
-      data: { passwordHash: await bcrypt.hash(newPassword, 12), mustChange: true },
-    });
+    // Nobody may seize a superadmin account: the target's privilege must
+    // be strictly below the actor's.
+    if (user.userRoles.length > 0 && !(await this.isSuperadmin(actorId))) {
+      throw new ForbiddenException('Only superadmins can reset a superadmin password.');
+    }
+    await this.prisma.$transaction([
+      this.prisma.passwordCredential.update({
+        where: { userId: targetId },
+        data: { passwordHash: await bcrypt.hash(newPassword, 12), mustChange: true },
+      }),
+      // An admin reset invalidates every existing session — if the
+      // account was compromised, this kicks the attacker out.
+      this.prisma.session.deleteMany({ where: { userId: targetId } }),
+    ]);
     return { ok: true };
   }
 

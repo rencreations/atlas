@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google';
 import { Providers } from './providers';
 import { MaintenanceBanner } from '@/components/feature-flags/maintenance-banner';
+import { ConfiguredGate } from '@/components/godmode/configured-gate';
 import './globals.css';
 
 const bricolage = Bricolage_Grotesque({
@@ -50,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-white antialiased">
         <Providers>
           <MaintenanceBanner />
-          {children}
+          <ConfiguredGate>{children}</ConfiguredGate>
         </Providers>
       </body>
     </html>

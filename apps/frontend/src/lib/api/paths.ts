@@ -2,6 +2,57 @@ import type { ProjectListFilters } from './queries';
 
 export const apiPaths = {
   session: () => '/auth/session',
+  publicConfig: () => '/public-config',
+
+  // ─── Auth methods (self-host) ──────────────────────────────────────
+  auth: {
+    loginPassword: () => '/auth/login/password',
+    loginPassphrase: () => '/auth/login/passphrase',
+    register: () => '/auth/register',
+    magicLinkRequest: () => '/auth/magic-link/request',
+    magicLinkVerify: () => '/auth/magic-link/verify',
+    phoneOtpRequest: () => '/auth/phone/otp/request',
+    phoneOtpVerify: () => '/auth/phone/otp/verify',
+    passwordForgot: () => '/auth/password/forgot',
+    passwordReset: () => '/auth/password/reset',
+    passwordChange: () => '/auth/password/change',
+    emailVerify: () => '/auth/email/verify',
+    emailVerifyResend: () => '/auth/email/verify/resend',
+    oauthCallbacks: () => '/auth/oauth-callbacks',
+    oauthStart: (provider: string) => `/auth/oauth/${provider}/start`,
+    oidcStart: () => '/auth/oidc/start',
+    samlStart: () => '/auth/saml/start',
+  },
+  myRoles: () => '/users/me/roles',
+
+  // ─── Godmode (control plane) ───────────────────────────────────────
+  godmode: {
+    unlock: () => '/godmode/unlock',
+    unlockFactors: () => '/godmode/unlock/factors',
+    session: () => '/godmode/session',
+    logout: () => '/godmode/logout',
+    onboarding: () => '/godmode/onboarding',
+    onboardingComplete: () => '/godmode/onboarding/complete',
+    settings: () => '/godmode/settings',
+    setting: (key: string) => `/godmode/settings/${encodeURIComponent(key)}`,
+    settingsBulk: () => '/godmode/settings',
+    users: (q?: string) => `/godmode/users${q ? `?q=${encodeURIComponent(q)}` : ''}`,
+    createUser: () => '/godmode/users',
+    grantRole: (id: string) => `/godmode/users/${id}/roles`,
+    revokeRole: (id: string, roleCode: string) =>
+      `/godmode/users/${id}/roles/${encodeURIComponent(roleCode)}`,
+    invites: () => '/godmode/invites',
+    roles: () => '/godmode/roles',
+    permissions: () => '/godmode/permissions',
+    twoFactorStatus: () => '/godmode/2fa/status',
+    totpSetup: () => '/godmode/2fa/totp/setup',
+    totpEnable: () => '/godmode/2fa/totp/enable',
+    totpDisable: () => '/godmode/2fa/totp/disable',
+    passkeyRegisterOptions: () => '/godmode/2fa/passkey/register/options',
+    passkeyRegisterVerify: () => '/godmode/2fa/passkey/register/verify',
+    passkeyAuthenticateOptions: () => '/godmode/2fa/passkey/authenticate/options',
+    passkeyDelete: (id: string) => `/godmode/2fa/passkey/${id}`,
+  },
 
   // Feature flags — public evaluated map + admin CRUD.
   featureFlags: () => '/feature-flags',

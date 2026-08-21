@@ -90,10 +90,11 @@ export class UsersController {
   @Post(':id/password/reset')
   @UseGuards(AdminGuard)
   adminResetPassword(
+    @CurrentUser() actor: AuthenticatedUser,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: { newPassword: string },
   ) {
-    return this.users.adminResetPassword(id, dto.newPassword);
+    return this.users.adminResetPassword(actor.id, id, dto.newPassword);
   }
 
   @Patch(':id/admin')
