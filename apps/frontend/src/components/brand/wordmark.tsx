@@ -6,18 +6,27 @@ interface Props {
   withSignature?: boolean;
 }
 
+const VIVID: Record<string, string> = {
+  A: 'rgb(var(--brand-blue-vivid))',
+  t: 'rgb(var(--brand-yellow-vivid))',
+  l: 'rgb(var(--brand-red-vivid))',
+  a: 'rgb(var(--brand-green-vivid))',
+};
+
 /**
- * Atlas wordmark. Each letter rendered in one brand color, in display
- * font, slightly tracked-tight per spec.
+ * Atlas wordmark. Each letter renders in one vivid brand color so the
+ * mark re-skins with the active theme; the final "s" follows the ink
+ * token. Display font, slightly tracked-tight per spec.
  */
 export function Wordmark({ className, withSignature = true }: Props) {
   return (
     <div className={cn('inline-flex items-center gap-2', className)} aria-label="Atlas">
       <span className="font-display text-[20px] font-semibold leading-none tracking-[-0.02em]">
-        <span style={{ color: '#3a6dc5' }}>A</span>
-        <span style={{ color: '#f7bf33' }}>t</span>
-        <span style={{ color: '#f94141' }}>l</span>
-        <span style={{ color: '#0f8657' }}>a</span>
+        {['A', 't', 'l', 'a'].map((letter) => (
+          <span key={letter} style={{ color: VIVID[letter] }}>
+            {letter}
+          </span>
+        ))}
         <span className="text-ink">s</span>
       </span>
       {withSignature ? (

@@ -1,38 +1,14 @@
+@import './themes.generated.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design tokens ───────────────────────────────────────────────────── */
+/* ─── Motion tokens (theme-independent) ────────────────────────────────
+   Color/ink/surface tokens live in the theme registry
+   (src/lib/themes/registry.ts) and are emitted into
+   themes.generated.css — edit the registry, run `pnpm themes:generate`. */
 :root {
-  --bg: 255 255 255;
-  --surface: 255 255 255;
-  --surface-muted: 247 247 245;
-  --surface-inverse: 14 17 22;
-
-  --brand-blue: 58 109 197;
-  --brand-yellow: 247 191 51;
-  --brand-red: 249 65 65;
-  --brand-green: 15 134 87;
-  --brand-blue-50: 236 241 250;
-  --brand-yellow-50: 254 246 224;
-  --brand-red-50: 254 229 229;
-  --brand-green-50: 226 241 234;
-  --brand-yellow-ink: 138 109 24;
-
-  --ink: 14 17 22;
-  --ink-2: 59 65 80;
-  --ink-3: 107 114 128;
-  --ink-4: 154 161 173;
-
-  --line: 236 236 234;
-  --line-strong: 216 216 210;
-
-  --focus: 58 109 197;
-
-  --shadow-1: 0 1px 2px rgba(14, 17, 22, 0.04), 0 1px 1px rgba(14, 17, 22, 0.03);
-  --shadow-2: 0 6px 24px -8px rgba(14, 17, 22, 0.10), 0 2px 6px -2px rgba(14, 17, 22, 0.05);
-  --shadow-3: 0 24px 60px -20px rgba(14, 17, 22, 0.18), 0 4px 12px -4px rgba(14, 17, 22, 0.06);
-
   --dur-1: 120ms;
   --dur-2: 200ms;
   --dur-3: 320ms;
@@ -42,38 +18,6 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* ─── Dark theme (per-user preference; `.dark` on <html>) ─────────────── */
-.dark {
-  --bg: 14 17 22;
-  --surface: 20 24 30;
-  --surface-muted: 26 31 39;
-  --surface-inverse: 255 255 255;
-
-  --brand-blue: 122 156 219;
-  --brand-yellow: 247 191 51;
-  --brand-red: 255 102 102;
-  --brand-green: 58 190 135;
-  --brand-blue-50: 30 42 66;
-  --brand-yellow-50: 48 40 16;
-  --brand-red-50: 56 26 26;
-  --brand-green-50: 22 48 38;
-  --brand-yellow-ink: 232 199 103;
-
-  --ink: 240 242 245;
-  --ink-2: 196 201 211;
-  --ink-3: 145 152 165;
-  --ink-4: 100 106 118;
-
-  --line: 42 48 58;
-  --line-strong: 62 70 84;
-
-  --focus: 122 156 219;
-
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 1px rgba(0, 0, 0, 0.25);
-  --shadow-2: 0 6px 24px -8px rgba(0, 0, 0, 0.55), 0 2px 6px -2px rgba(0, 0, 0, 0.35);
-  --shadow-3: 0 24px 60px -20px rgba(0, 0, 0, 0.65), 0 4px 12px -4px rgba(0, 0, 0, 0.4);
 }
 
 /* ─── Base ────────────────────────────────────────────────────────────── */
@@ -132,7 +76,7 @@
     background: linear-gradient(
       90deg,
       rgb(var(--surface-muted)) 0%,
-      rgba(255, 255, 255, 0.6) 50%,
+      rgba(var(--shimmer), 0.55) 50%,
       rgb(var(--surface-muted)) 100%
     );
     background-size: 200% 100%;
@@ -206,7 +150,7 @@
 
 /* ─── Chat jump-to-message flash ──────────────────────────────────────── */
 @keyframes chat-msg-flash {
-  0% { box-shadow: inset 0 0 0 2px rgb(var(--brand-blue)); background: rgba(58, 109, 197, 0.12); }
+  0% { box-shadow: inset 0 0 0 2px rgb(var(--brand-blue)); background: rgba(var(--brand-blue), 0.16); }
   100% { box-shadow: inset 0 0 0 0 transparent; background: transparent; }
 }
 .chat-msg-flash {

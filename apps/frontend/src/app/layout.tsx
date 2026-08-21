@@ -50,6 +50,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body className="bg-bg antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var id=localStorage.getItem('atlas_theme_id')||'atlas';var mode=localStorage.getItem('atlas_theme_mode')||localStorage.getItem('atlas_theme');var d=document.documentElement;d.setAttribute('data-theme',id);var dark=mode==='dark'||(mode!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark);d.style.colorScheme=dark?'dark':'light';}catch(e){}})();`,
+          }}
+        />
         <ThemeProvider>
           <Providers>
             <MaintenanceBanner />
