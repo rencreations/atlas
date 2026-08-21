@@ -56,7 +56,7 @@ export default function NotificationsPage() {
       ) : (list.data?.items.length ?? 0) === 0 ? (
         <EmptyState title="You're all caught up." description="New activity will appear here." />
       ) : (
-        <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+        <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
           {list.data!.items.map((n) => (
             <li key={n.id}>
               <Link
@@ -70,7 +70,7 @@ export default function NotificationsPage() {
                 <span
                   className={cn(
                     'mt-1.5 h-2 w-2 shrink-0 rounded-full',
-                    n.readAt ? 'bg-line-strong' : 'bg-brand-blue',
+                    n.readAt ? 'bg-line-strong' : 'bg-brand-blue-strong',
                   )}
                 />
                 <div className="min-w-0 flex-1">

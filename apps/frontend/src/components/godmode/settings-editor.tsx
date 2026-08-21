@@ -114,7 +114,7 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
         return (
           <div
             key={item.key}
-            className="rounded border border-line bg-white p-4 shadow-1"
+            className="rounded border border-line bg-surface p-4 shadow-1"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
@@ -145,7 +145,7 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
       })}
 
       {visible.length === 0 ? (
-        <div className="rounded border border-line bg-white p-8 text-center text-[14px] text-ink-3 shadow-1">
+        <div className="rounded border border-line bg-surface p-8 text-center text-[14px] text-ink-3 shadow-1">
           No settings in this group.
         </div>
       ) : null}

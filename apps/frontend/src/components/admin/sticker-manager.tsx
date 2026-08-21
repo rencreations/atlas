@@ -72,8 +72,8 @@ export function StickerManager() {
                   className={cn(
                     'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[13px] transition-colors',
                     selectedPackId === p.id
-                      ? 'bg-white shadow-1'
-                      : 'text-ink-2 hover:bg-white/70 hover:text-ink',
+                      ? 'bg-surface shadow-1'
+                      : 'text-ink-2 hover:bg-surface/70 hover:text-ink',
                     p.isArchived && 'opacity-60',
                   )}
                 >
@@ -285,7 +285,7 @@ function PackPanel({ pack }: { pack: AdminStickerPack }) {
         }}
         className={cn(
           'flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 text-center text-[13px] transition-colors',
-          isDragging ? 'border-brand-blue/60 bg-brand-blue/5' : 'border-line bg-surface-muted/40',
+          isDragging ? 'border-brand-blue/60 bg-brand-blue-strong/5' : 'border-line bg-surface-muted/40',
         )}
       >
         <Upload className="h-5 w-5 text-ink-3" strokeWidth={2.25} />
@@ -334,7 +334,7 @@ function PackPanel({ pack }: { pack: AdminStickerPack }) {
                   if (confirm(`Delete sticker "${s.name}"?`)) deleteStickerMutation.mutate(s.id);
                 }}
                 aria-label="Delete sticker"
-                className="absolute right-1 top-1 hidden h-5 w-5 place-items-center rounded-full bg-white/90 text-ink-3 shadow-1 hover:text-brand-red group-hover:grid"
+                className="absolute right-1 top-1 hidden h-5 w-5 place-items-center rounded-full bg-surface/90 text-ink-3 shadow-1 hover:text-brand-red group-hover:grid"
               >
                 <X className="h-3 w-3" strokeWidth={2.25} />
               </button>

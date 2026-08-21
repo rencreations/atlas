@@ -43,7 +43,7 @@ export function CreateVoiceChannelButton({
         aria-label={label}
         title={label}
         onClick={() => setOpen(true)}
-        className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 hover:bg-white hover:text-ink"
+        className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 hover:bg-surface hover:text-ink"
       >
         <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
       </button>
@@ -111,7 +111,7 @@ export function VoiceChannelSettingsMenu({
               e.preventDefault();
               e.stopPropagation();
             }}
-            className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-white hover:text-ink group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+            className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-surface hover:text-ink group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
           >
             <MoreVertical className="h-3.5 w-3.5" strokeWidth={2.25} />
           </button>

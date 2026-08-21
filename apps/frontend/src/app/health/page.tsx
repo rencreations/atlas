@@ -33,7 +33,7 @@ export default async function StatusPage() {
   const detailEntries = details ? Object.entries(details) : [];
 
   return (
-    <main className="grid min-h-svh place-items-center bg-white px-6">
+    <main className="grid min-h-svh place-items-center bg-surface px-6">
       <div className="w-full max-w-md text-center">
         <ShapeSignature size={36} className="mx-auto" />
         <h1
@@ -48,7 +48,7 @@ export default async function StatusPage() {
         </p>
 
         {detailEntries.length > 0 ? (
-          <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-white text-left">
+          <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-surface text-left">
             {detailEntries.map(([key, value]) => {
               const ok = value.status === 'up';
               return (
@@ -61,7 +61,7 @@ export default async function StatusPage() {
                   >
                     <span
                       className={`h-2 w-2 rounded-full ${
-                        ok ? 'bg-brand-green' : 'bg-brand-red'
+                        ok ? 'bg-brand-green-strong' : 'bg-brand-red-strong'
                       }`}
                     />
                     {ok ? 'Up' : (value.error ?? 'Down')}

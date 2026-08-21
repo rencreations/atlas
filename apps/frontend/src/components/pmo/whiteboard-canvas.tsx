@@ -399,7 +399,7 @@ function StatusPill({ status }: { status: 'connecting' | 'connected' | 'offline'
       <span
         className={cn(
           'h-2 w-2 rounded-full',
-          connected ? 'bg-brand-green' : 'animate-pulse bg-brand-yellow',
+          connected ? 'bg-brand-green-strong' : 'animate-pulse bg-brand-yellow',
         )}
       />
       {connected ? 'Live' : 'Connecting…'}

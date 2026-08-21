@@ -215,7 +215,7 @@ export default function ProjectDetailPage() {
 
           <aside className="lg:col-span-4">
             {insider ? (
-              <div className="space-y-6 rounded-lg border border-line bg-white p-5">
+              <div className="space-y-6 rounded-lg border border-line bg-surface p-5">
                 <Section title="Internal links">
                   {insider.internalLinks ? <InternalLinks links={insider.internalLinks} /> : (
                     <span className="text-[13px] text-ink-3">No links yet.</span>

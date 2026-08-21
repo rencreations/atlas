@@ -147,7 +147,7 @@ function ExpandedOverlay({
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
       onMouseLeave={onLeave}
-      className="pointer-events-auto fixed z-30 hidden overflow-hidden rounded-lg bg-white shadow-3 md:block"
+      className="pointer-events-auto fixed z-30 hidden overflow-hidden rounded-lg bg-surface shadow-3 md:block"
       style={{ left, top, width: expandedWidth }}
     >
       <Link href={`/projects/${project.slug}` as never} className="block">

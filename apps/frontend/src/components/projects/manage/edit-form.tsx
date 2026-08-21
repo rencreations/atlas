@@ -224,7 +224,7 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
                       }
                       className={cn(
                         'inline-flex h-7 items-center rounded-full px-3 text-[12px] font-medium transition-colors',
-                        active ? 'bg-brand-blue text-white' : 'bg-surface-muted text-ink-2 hover:bg-line',
+                        active ? 'bg-brand-blue-strong text-white' : 'bg-surface-muted text-ink-2 hover:bg-line',
                       )}
                     >
                       {t.name}

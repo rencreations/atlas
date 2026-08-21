@@ -360,15 +360,15 @@ export function MessageComposer({
   return (
     <div
       className={cn(
-        'relative border-t border-line bg-white px-6 py-3 transition-colors',
-        isDragging && 'bg-brand-blue/5',
+        'relative border-t border-line bg-surface px-6 py-3 transition-colors',
+        isDragging && 'bg-brand-blue-strong/5',
       )}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
       {isDragging ? (
-        <div className="pointer-events-none absolute inset-2 grid place-items-center rounded-lg border-2 border-dashed border-brand-blue/60 bg-brand-blue/5 text-[14px] font-medium text-brand-blue">
+        <div className="pointer-events-none absolute inset-2 grid place-items-center rounded-lg border-2 border-dashed border-brand-blue/60 bg-brand-blue-strong/5 text-[14px] font-medium text-brand-blue">
           Drop files to attach
         </div>
       ) : null}
@@ -396,7 +396,7 @@ export function MessageComposer({
           {preview ? (
             <LinkPreviewCard preview={preview} onRemove={() => setPreview(null)} />
           ) : (
-            <div className="flex items-center gap-2 rounded-lg border border-line bg-white p-2 text-[12px] text-ink-3">
+            <div className="flex items-center gap-2 rounded-lg border border-line bg-surface p-2 text-[12px] text-ink-3">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Fetching link preview…
             </div>
@@ -416,7 +416,7 @@ export function MessageComposer({
         </div>
       ) : null}
 
-      <div className="flex items-end gap-2 rounded-lg border border-line bg-white p-2 focus-within:border-line-strong">
+      <div className="flex items-end gap-2 rounded-lg border border-line bg-surface p-2 focus-within:border-line-strong">
         <Button
           size="icon-sm"
           variant="ghost"
@@ -521,7 +521,7 @@ function AttachmentChip({
         type="button"
         onClick={onRemove}
         aria-label="Remove attachment"
-        className="ml-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 hover:bg-white hover:text-ink"
+        className="ml-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 hover:bg-surface hover:text-ink"
       >
         <X className="h-3 w-3" strokeWidth={2.25} />
       </button>

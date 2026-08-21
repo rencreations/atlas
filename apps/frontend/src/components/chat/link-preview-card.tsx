@@ -26,7 +26,7 @@ export function LinkPreviewCard({
   })();
 
   return (
-    <div className="relative flex gap-3 rounded-lg border border-line bg-white p-2 text-[13px]">
+    <div className="relative flex gap-3 rounded-lg border border-line bg-surface p-2 text-[13px]">
       {preview.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

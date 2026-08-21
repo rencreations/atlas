@@ -15,7 +15,7 @@ export const SelectTrigger = React.forwardRef<
   <RadixSelect.Trigger
     ref={ref}
     className={cn(
-      'inline-flex h-10 w-full items-center justify-between rounded bg-white px-3.5 text-[15px] text-ink',
+      'inline-flex h-10 w-full items-center justify-between rounded bg-surface px-3.5 text-[15px] text-ink',
       'border border-line transition-[border-color,box-shadow] duration-120 ease-out-soft',
       'hover:border-line-strong',
       'focus:outline-none focus:border-brand-blue focus:shadow-[0_0_0_3px_rgba(58,109,197,0.15)]',
@@ -43,7 +43,7 @@ export const SelectContent = React.forwardRef<
       position={position}
       sideOffset={6}
       className={cn(
-        'z-50 max-h-[var(--radix-select-content-available-height)] overflow-hidden rounded-lg bg-white p-1 shadow-2 border border-line',
+        'z-50 max-h-[var(--radix-select-content-available-height)] overflow-hidden rounded-lg bg-surface p-1 shadow-2 border border-line',
         'min-w-[var(--radix-select-trigger-width)]',
         'data-[state=open]:animate-fade-up',
         className,

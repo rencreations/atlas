@@ -60,7 +60,7 @@ export default function ChatHomePage() {
             return (
               <li
                 key={p.id}
-                className="overflow-hidden rounded-lg border border-line bg-white transition-shadow hover:shadow-1"
+                className="overflow-hidden rounded-lg border border-line bg-surface transition-shadow hover:shadow-1"
               >
                 <Link href={`/projects/${p.slug}/chat/${general?.id ?? ''}` as never}>
                   <div className="flex items-start gap-3 border-b border-line px-4 py-3">
@@ -83,7 +83,7 @@ export default function ChatHomePage() {
                       </div>
                     </div>
                     {p.unread > 0 ? (
-                      <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue px-1.5 text-[11px] font-medium text-white">
+                      <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue-strong px-1.5 text-[11px] font-medium text-white">
                         {p.unread}
                       </span>
                     ) : null}
@@ -123,9 +123,9 @@ export default function ChatHomePage() {
  */
 function WorkspaceCard({ workspace }: { workspace: ChatWorkspaceOverview }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-brand-blue/30 bg-white">
-      <div className="flex items-center gap-3 border-b border-line bg-brand-blue/5 px-4 py-3">
-        <div className="grid h-10 w-10 place-items-center rounded bg-brand-blue/10 text-brand-blue">
+    <section className="overflow-hidden rounded-lg border border-brand-blue/30 bg-surface">
+      <div className="flex items-center gap-3 border-b border-line bg-brand-blue-strong/5 px-4 py-3">
+        <div className="grid h-10 w-10 place-items-center rounded bg-brand-blue-strong/10 text-brand-blue">
           <Globe className="h-4 w-4" strokeWidth={2.25} />
         </div>
         <div className="min-w-0 flex-1">
@@ -133,7 +133,7 @@ function WorkspaceCard({ workspace }: { workspace: ChatWorkspaceOverview }) {
           <div className="text-[12px] text-ink-3">Channels shared with everyone</div>
         </div>
         {workspace.unread > 0 ? (
-          <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue px-1.5 text-[11px] font-medium text-white">
+          <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue-strong px-1.5 text-[11px] font-medium text-white">
             {workspace.unread}
           </span>
         ) : null}

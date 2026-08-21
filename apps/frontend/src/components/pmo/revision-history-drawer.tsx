@@ -164,7 +164,7 @@ export function RevisionHistoryDrawer({
     <aside
       role="dialog"
       aria-label="Revision history"
-      className="absolute inset-y-0 right-0 z-20 flex w-[360px] flex-col border-l border-line bg-white shadow-2"
+      className="absolute inset-y-0 right-0 z-20 flex w-[360px] flex-col border-l border-line bg-surface shadow-2"
     >
       <header className="flex items-center justify-between border-b border-line px-4 py-3">
         <h2 className="flex items-center gap-2 text-[14px] font-semibold text-ink">

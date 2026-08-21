@@ -37,7 +37,7 @@ export const DialogContent = React.forwardRef<
             className={cn(
               'relative w-full',
               sizes[size],
-              'rounded-xl bg-white shadow-3 outline-none',
+              'rounded-xl bg-surface shadow-3 outline-none',
               'p-7',
               'data-[state=open]:animate-modal-in',
               className,

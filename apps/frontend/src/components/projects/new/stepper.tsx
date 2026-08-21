@@ -25,9 +25,9 @@ export function Stepper({ steps, activeIndex, onStep }: Props) {
               className={cn(
                 'inline-grid h-7 w-7 place-items-center rounded-full text-[12px] font-medium transition-colors',
                 current
-                  ? 'bg-brand-blue text-white'
+                  ? 'bg-brand-blue-strong text-white'
                   : done
-                    ? 'bg-brand-blue-50 text-brand-blue hover:bg-brand-blue/10'
+                    ? 'bg-brand-blue-50 text-brand-blue hover:bg-brand-blue-strong/10'
                     : 'bg-surface-muted text-ink-3',
                 done ? 'cursor-pointer' : 'cursor-default',
               )}

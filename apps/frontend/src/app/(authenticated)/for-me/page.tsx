@@ -287,7 +287,7 @@ function TaskSection({
                 <span
                   className={cn(
                     'h-2 w-2 shrink-0 rounded-full',
-                    t.status.category === 'IN_PROGRESS' ? 'bg-brand-blue' : 'bg-line-strong',
+                    t.status.category === 'IN_PROGRESS' ? 'bg-brand-blue-strong' : 'bg-line-strong',
                   )}
                 />
                 <span className="min-w-0 flex-1">

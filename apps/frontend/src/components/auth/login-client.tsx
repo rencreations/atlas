@@ -414,7 +414,7 @@ export function LoginClient({
             <a
               key={p.id}
               href={`${API_BASE}/auth/oauth/${p.id}/start?callbackUrl=${encodeURIComponent(safeCallback)}`}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-white text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
+              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
             >
               <OAuthGlyph id={p.id} />
               Continue with {p.label}
@@ -423,7 +423,7 @@ export function LoginClient({
           {config.sso.oidc.enabled ? (
             <a
               href={`${API_BASE}/auth/oidc/start`}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-white text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
+              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
             >
               <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
               {config.sso.oidc.label}
@@ -432,7 +432,7 @@ export function LoginClient({
           {config.sso.saml.enabled ? (
             <a
               href={`${API_BASE}/auth/saml/start`}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-white text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
+              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
             >
               <ShieldCheck className="h-4 w-4 text-brand-green" strokeWidth={2.25} />
               {config.sso.saml.label}

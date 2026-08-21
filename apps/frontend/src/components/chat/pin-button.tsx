@@ -125,7 +125,7 @@ export function PinButton({ messageId, isPinned, onChanged, onOpenChange }: Prop
             placeholder="e.g. Decision recorded here"
             maxLength={280}
             rows={3}
-            className="w-full resize-none rounded border border-line bg-white p-2 text-[13px] outline-none focus:border-line-strong"
+            className="w-full resize-none rounded border border-line bg-surface p-2 text-[13px] outline-none focus:border-line-strong"
           />
           <div className="flex items-center justify-between text-[10px] text-ink-3">
             <span>{note.length}/280</span>

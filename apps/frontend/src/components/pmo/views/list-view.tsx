@@ -146,7 +146,7 @@ export function ListView({
             return (
               <section
                 key={status.id}
-                className="overflow-hidden rounded-lg border border-line bg-white"
+                className="overflow-hidden rounded-lg border border-line bg-surface"
               >
                 <header className="flex items-center gap-2 border-b border-line px-3 py-2">
                   <button
@@ -214,7 +214,7 @@ function ListSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-lg border border-line bg-white">
+        <div key={i} className="overflow-hidden rounded-lg border border-line bg-surface">
           <div className="border-b border-line p-3">
             <div className="h-4 w-32 animate-pulse rounded bg-line" />
           </div>

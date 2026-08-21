@@ -72,7 +72,7 @@ export function UserManager() {
       {list.isLoading ? (
         <Skeleton className="h-64 rounded-lg" />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-line bg-white">
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
           <table className="w-full text-[14px]">
             <thead className="bg-surface-muted text-[12px] uppercase tracking-[0.05em] text-ink-3">
               <tr>

@@ -28,7 +28,7 @@ export function GlobalSearchBar({ className }: { className?: string }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className={cn(
-          'h-12 w-full rounded-full border border-line bg-white pl-11 pr-4 text-[15px] text-ink placeholder:text-ink-4',
+          'h-12 w-full rounded-full border border-line bg-surface pl-11 pr-4 text-[15px] text-ink placeholder:text-ink-4',
           'transition-[border-color,box-shadow] duration-120 ease-out-soft',
           'hover:border-line-strong',
           'focus:border-brand-blue focus:outline-none focus:shadow-[0_0_0_3px_rgba(58,109,197,0.15)]',

@@ -122,7 +122,7 @@ export function AddTabDialog({
                 className={cn(
                   'flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-[12px]',
                   presetKey === p.key
-                    ? 'border-brand-blue bg-brand-blue/5 text-brand-blue'
+                    ? 'border-brand-blue bg-brand-blue-strong/5 text-brand-blue'
                     : 'border-line text-ink-2 hover:bg-surface-muted',
                 )}
               >

@@ -104,7 +104,7 @@ export function FeatureFlagManager() {
       {list.isLoading ? (
         <Skeleton className="h-32 rounded-lg" />
       ) : (
-        <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+        <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
           {list.data!.length === 0 && (
             <li className="p-4 text-body-sm text-ink-2">No flags yet.</li>
           )}

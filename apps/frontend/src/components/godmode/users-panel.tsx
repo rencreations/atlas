@@ -145,7 +145,7 @@ export function UsersPanel() {
           {users.map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-4 rounded border border-line bg-white p-3 shadow-1"
+              className="flex items-center gap-4 rounded border border-line bg-surface p-3 shadow-1"
             >
               <Avatar src={user.avatarUrl ?? undefined} name={user.name} size={36} />
               <div className="min-w-0 flex-1">

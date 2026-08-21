@@ -109,7 +109,7 @@ export function ForwardDialog({ open, onClose, message }: Props) {
         ) : (
           <>
             <div className="border-b border-line px-3 py-2">
-              <div className="flex items-center gap-2 rounded border border-line bg-white px-2 py-1.5 focus-within:border-line-strong">
+              <div className="flex items-center gap-2 rounded border border-line bg-surface px-2 py-1.5 focus-within:border-line-strong">
                 <Search className="h-3.5 w-3.5 text-ink-3" strokeWidth={2.25} />
                 <input
                   autoFocus
@@ -144,7 +144,7 @@ export function ForwardDialog({ open, onClose, message }: Props) {
                               className={cn(
                                 'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[13px] transition-colors',
                                 selectedChannelId === c.id
-                                  ? 'bg-brand-blue/10 text-brand-blue'
+                                  ? 'bg-brand-blue-strong/10 text-brand-blue'
                                   : 'text-ink-2 hover:bg-surface-muted/60 hover:text-ink',
                               )}
                             >

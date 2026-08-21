@@ -67,7 +67,7 @@ export function PinPanel({ open, onClose, scope, channelId, canModerate }: Props
   const pins = pinsQuery.data ?? [];
 
   return (
-    <aside className="flex w-[360px] shrink-0 flex-col border-l border-line bg-white">
+    <aside className="flex w-[360px] shrink-0 flex-col border-l border-line bg-surface">
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
         <Pin className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
         <h2 className="flex-1 text-[14px] font-semibold text-ink">Pinned messages</h2>
@@ -90,7 +90,7 @@ export function PinPanel({ open, onClose, scope, channelId, canModerate }: Props
             {pins.map((p) => (
               <li key={p.id} className="px-4 py-3">
                 {p.note ? (
-                  <div className="mb-2 rounded border-l-2 border-brand-blue bg-brand-blue/5 px-2 py-1 text-[12px] text-ink-2">
+                  <div className="mb-2 rounded border-l-2 border-brand-blue bg-brand-blue-strong/5 px-2 py-1 text-[12px] text-ink-2">
                     {p.note}
                   </div>
                 ) : null}
@@ -178,7 +178,7 @@ function CompactAttachment({ attachment }: { attachment: ChatAttachment }) {
     );
   }
   return (
-    <div className="max-w-[160px] truncate rounded border border-line bg-white px-2 py-1 text-[11px] text-ink-2">
+    <div className="max-w-[160px] truncate rounded border border-line bg-surface px-2 py-1 text-[11px] text-ink-2">
       {attachment.s3Key.split('/').pop() ?? 'file'}
     </div>
   );

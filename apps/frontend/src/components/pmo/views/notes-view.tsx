@@ -165,7 +165,7 @@ export function NotesView({ projectSlug }: { projectSlug: string }) {
             <button
               type="button"
               onClick={() => createNote.mutate(null)}
-              className="w-full rounded border border-dashed border-line px-3 py-6 text-[13px] text-ink-3 hover:border-line-strong hover:bg-white"
+              className="w-full rounded border border-dashed border-line px-3 py-6 text-[13px] text-ink-3 hover:border-line-strong hover:bg-surface"
             >
               Create your first page
             </button>
@@ -233,7 +233,7 @@ function NoteRow({
       <div
         className={cn(
           'group flex items-center gap-1 rounded px-1.5 py-1 text-[13px]',
-          selectedId === node.id ? 'bg-brand-blue/10 text-brand-blue' : 'text-ink hover:bg-white',
+          selectedId === node.id ? 'bg-brand-blue-strong/10 text-brand-blue' : 'text-ink hover:bg-surface',
         )}
         style={{ paddingLeft: depth * 14 + 6 }}
       >

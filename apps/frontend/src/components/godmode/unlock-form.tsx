@@ -75,7 +75,7 @@ export function UnlockForm({ onUnlocked }: { onUnlocked: (token: string) => void
   }, [submitWith]);
 
   return (
-    <div className="rounded-xl border border-line bg-white p-8 shadow-1">
+    <div className="rounded-xl border border-line bg-surface p-8 shadow-1">
       <div className="flex items-center gap-2">
         <KeyRound className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
         <h1 className="font-display text-display-lg tracking-[-0.02em] text-ink">

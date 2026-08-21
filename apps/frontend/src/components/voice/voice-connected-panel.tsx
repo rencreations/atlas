@@ -48,7 +48,7 @@ export function VoiceConnectedPanel() {
             </span>
             {state.recording ? (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-brand-red px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white"
+                className="inline-flex items-center gap-1 rounded-full bg-brand-red-strong px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white"
                 title={`Recording started by ${state.recording.startedByName}`}
               >
                 <CircleDot className="h-2 w-2 animate-pulse" strokeWidth={3} />
@@ -127,7 +127,7 @@ function ConnectionBars({
   const activeBars = quality === 'excellent' ? 3 : quality === 'good' ? 2 : 1;
   const color =
     quality === 'excellent' || quality === 'good'
-      ? 'bg-brand-green'
+      ? 'bg-brand-green-strong'
       : 'bg-brand-yellow';
   return (
     <div

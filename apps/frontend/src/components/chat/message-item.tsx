@@ -88,7 +88,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
         // Subtle blue left rail + tinted background differentiate pinned
         // messages from the surrounding stream without shouting.
         isPinned && !isDeleted
-          ? 'border-l-2 border-brand-blue bg-brand-blue/[0.03] hover:bg-brand-blue/[0.06]'
+          ? 'border-l-2 border-brand-blue bg-brand-blue-strong/[0.03] hover:bg-brand-blue-strong/[0.06]'
           : 'hover:bg-surface-muted/60',
       )}
     >
@@ -156,7 +156,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
               <textarea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                className="w-full resize-y rounded border border-line bg-white p-2 text-[14px] focus:border-brand-blue focus:outline-none"
+                className="w-full resize-y rounded border border-line bg-surface p-2 text-[14px] focus:border-brand-blue focus:outline-none"
                 rows={Math.min(8, Math.max(2, draft.split('\n').length))}
               />
               <div className="flex gap-2">
@@ -209,8 +209,8 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
                     className={cn(
                       'inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[12px] transition-colors',
                       mine
-                        ? 'border-brand-blue/50 bg-brand-blue/10 text-ink'
-                        : 'border-line bg-white text-ink-2 hover:border-line-strong',
+                        ? 'border-brand-blue/50 bg-brand-blue-strong/10 text-ink'
+                        : 'border-line bg-surface text-ink-2 hover:border-line-strong',
                     )}
                   >
                     <span>{r.emoji}</span>
@@ -231,7 +231,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
       {!isDeleted && !editing ? (
         <div
           className={cn(
-            'absolute right-2 top-0 gap-0.5 rounded border border-line bg-white p-0.5 shadow-1',
+            'absolute right-2 top-0 gap-0.5 rounded border border-line bg-surface p-0.5 shadow-1',
             menuOpen ? 'flex' : 'hidden group-hover:flex',
           )}
         >

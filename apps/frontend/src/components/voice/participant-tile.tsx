@@ -160,7 +160,7 @@ export function ParticipantTile({
             <span
               className={cn(
                 'inline-flex h-4 w-4 items-center justify-center rounded-full',
-                hasVideo ? 'bg-brand-red' : 'bg-brand-red text-white',
+                hasVideo ? 'bg-brand-red-strong' : 'bg-brand-red-strong text-white',
               )}
               title="Muted"
             >
@@ -169,7 +169,7 @@ export function ParticipantTile({
           ) : null}
           {isLocallyMuted ? (
             <span
-              className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-ink-2 text-white"
+              className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-surface-inverse text-white"
               title="Muted only for you"
             >
               <VolumeX className="h-2.5 w-2.5" strokeWidth={2.5} />

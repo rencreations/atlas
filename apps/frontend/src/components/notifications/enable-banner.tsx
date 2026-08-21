@@ -92,7 +92,7 @@ export function EnableBanner() {
               type="button"
               disabled={busy}
               onClick={onEnable}
-              className="inline-flex items-center justify-center rounded bg-brand-blue px-3 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-brand-blue/90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded bg-brand-blue-strong px-3 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-brand-blue-strong/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy ? 'Enabling…' : 'Enable'}
             </button>

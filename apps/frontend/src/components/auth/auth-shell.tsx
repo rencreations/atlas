@@ -16,7 +16,7 @@ export function AuthShell({
   footer?: React.ReactNode;
 }) {
   return (
-    <main className="relative grid min-h-svh place-items-center overflow-hidden bg-white px-6">
+    <main className="relative grid min-h-svh place-items-center overflow-hidden bg-surface px-6">
       <PatternCorner position="top-right" size={3} cellSize={72} />
       <PatternCorner position="bottom-left" size={2} cellSize={56} />
 
@@ -28,7 +28,7 @@ export function AuthShell({
           </Link>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-8 shadow-1">
+        <div className="rounded-xl border border-line bg-surface p-8 shadow-1">
           <h1 className="font-display text-display-lg tracking-[-0.02em] text-ink">{title}</h1>
           {subtitle ? <p className="mt-2 text-body-sm text-ink-2">{subtitle}</p> : null}
           <div className="mt-6">{children}</div>

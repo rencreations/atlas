@@ -64,7 +64,7 @@ export function TeamPanel({ project, collaborationRoles }: Props) {
         </Button>
       </div>
 
-      <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+      <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
         {project.members.map((m) => (
           <MemberRow
             key={m.id}
@@ -293,7 +293,7 @@ function InviteDialog({
                 ) : null}
 
                 {showSuggestions && debounced.trim().length >= 1 ? (
-                  <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-line bg-white shadow-2">
+                  <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-line bg-surface shadow-2">
                     {userSearch.isLoading ? (
                       <div className="px-3 py-3 text-[13px] text-ink-3">Searching…</div>
                     ) : suggestions.length === 0 ? (

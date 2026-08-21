@@ -60,7 +60,7 @@ export function VoiceLayout({
         canManage={isManager}
       />
 
-      <section className="flex min-w-0 flex-1 flex-col bg-white">
+      <section className="flex min-w-0 flex-1 flex-col bg-surface">
         <header className="flex items-center gap-3 border-b border-line px-6 py-3">
           <Link
             href={`/projects/${projectSlug}` as never}
@@ -75,7 +75,7 @@ export function VoiceLayout({
           <h1 className="text-[15px] font-semibold text-ink">{channelName}</h1>
           {isRecordingHere ? (
             <span
-              className="inline-flex items-center gap-1 rounded-full bg-brand-red px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white"
+              className="inline-flex items-center gap-1 rounded-full bg-brand-red-strong px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white"
               title={`Recording started by ${voiceState.recording?.startedByName ?? 'a moderator'}`}
             >
               <CircleDot className="h-2.5 w-2.5 animate-pulse" strokeWidth={3} />

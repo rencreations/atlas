@@ -35,6 +35,8 @@ const ERROR_HINTS: Record<string, string> = {
 const FALLBACK_CONFIG: PublicConfig = {
   configured: true,
   site: { name: 'Atlas', description: '' },
+  appearance: { defaultTheme: 'atlas', defaultThemeMode: 'system', allowUserThemes: true },
+  themes: [],
   registration: {
     enabled: false,
     inviteRequired: true,
@@ -85,7 +87,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
   }
 
   return (
-    <main className="relative grid min-h-svh place-items-center overflow-hidden bg-white px-6">
+    <main className="relative grid min-h-svh place-items-center overflow-hidden bg-surface px-6">
       <PatternCorner position="top-right" size={3} cellSize={72} />
       <PatternCorner position="bottom-left" size={2} cellSize={56} />
 
@@ -95,7 +97,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
           <Wordmark withSignature={false} className="text-[28px]" />
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-8 shadow-1">
+        <div className="rounded-xl border border-line bg-surface p-8 shadow-1">
           <h1 className="font-display text-display-lg tracking-[-0.02em] text-ink">
             Welcome back
           </h1>
@@ -120,7 +122,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
                 <p className="mt-1 text-ink-2">{ERROR_HINTS[params.error]}</p>
               ) : null}
               {params.error_detail ? (
-                <pre className="mt-2 whitespace-pre-wrap break-words rounded bg-white/60 p-2 font-mono text-[11px] text-ink-3">
+                <pre className="mt-2 whitespace-pre-wrap break-words rounded bg-surface/60 p-2 font-mono text-[11px] text-ink-3">
                   {params.error_detail}
                 </pre>
               ) : null}

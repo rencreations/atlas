@@ -86,7 +86,7 @@ export function RichTextEditor({
     <div
       className={cn(
         editable
-          ? 'rounded border border-line bg-white focus-within:border-brand-blue focus-within:shadow-[0_0_0_3px_rgba(58,109,197,0.15)]'
+          ? 'rounded border border-line bg-surface focus-within:border-brand-blue focus-within:shadow-[0_0_0_3px_rgba(58,109,197,0.15)]'
           : '',
         className,
       )}

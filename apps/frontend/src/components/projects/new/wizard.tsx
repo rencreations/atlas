@@ -361,7 +361,7 @@ function MediaStep({
           {form.media.map((m, idx) => (
             <li
               key={m.id}
-              className="relative overflow-hidden rounded-lg border border-line bg-white"
+              className="relative overflow-hidden rounded-lg border border-line bg-surface"
             >
               <div className="relative aspect-[16/9] bg-surface-muted">
                 {m.type === 'IMAGE' ? (
@@ -371,7 +371,7 @@ function MediaStep({
                   <video src={m.previewUrl} className="h-full w-full object-cover" muted />
                 )}
                 {idx === 0 ? (
-                  <span className="absolute left-2 top-2 inline-flex h-5 items-center rounded-full bg-brand-blue px-2 text-[10px] font-medium uppercase tracking-[0.08em] text-white">
+                  <span className="absolute left-2 top-2 inline-flex h-5 items-center rounded-full bg-brand-blue-strong px-2 text-[10px] font-medium uppercase tracking-[0.08em] text-white">
                     Thumbnail
                   </span>
                 ) : null}
@@ -502,7 +502,7 @@ function DetailsStep({
                       className={cn(
                         'inline-flex h-7 items-center rounded-full px-3 text-[12px] font-medium transition-colors',
                         active
-                          ? 'bg-brand-blue text-white'
+                          ? 'bg-brand-blue-strong text-white'
                           : 'bg-surface-muted text-ink-2 hover:bg-line',
                       )}
                     >

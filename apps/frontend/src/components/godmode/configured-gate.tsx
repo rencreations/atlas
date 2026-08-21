@@ -38,7 +38,7 @@ export function ConfiguredGate({ children }: { children: React.ReactNode }) {
   if (configured || exempt) return <>{children}</>;
 
   return (
-    <div className="grid min-h-svh place-items-center bg-white px-6">
+    <div className="grid min-h-svh place-items-center bg-surface px-6">
       <div className="w-full max-w-[480px] text-center">
         <div className="mb-6 flex items-center justify-center gap-3">
           <ShapeSignature size={36} />
@@ -53,7 +53,7 @@ export function ConfiguredGate({ children }: { children: React.ReactNode }) {
         </p>
         <a
           href="/godmode"
-          className="mt-6 inline-flex h-10 items-center gap-2 rounded bg-brand-blue px-5 text-[14px] font-medium text-white transition-opacity duration-120 hover:opacity-90"
+          className="mt-6 inline-flex h-10 items-center gap-2 rounded bg-brand-blue-strong px-5 text-[14px] font-medium text-white transition-opacity duration-120 hover:opacity-90"
         >
           <LoaderCircle className="h-4 w-4" strokeWidth={2.25} />
           Open godmode setup

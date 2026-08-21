@@ -100,7 +100,7 @@ export function WhiteboardsView({ projectSlug }: { projectSlug: string }) {
             <li key={wb.id} className="group relative">
               <Link
                 href={wbHref(wb.id)}
-                className="block overflow-hidden rounded-lg border border-line bg-white transition-shadow duration-120 ease-out-soft hover:shadow-2"
+                className="block overflow-hidden rounded-lg border border-line bg-surface transition-shadow duration-120 ease-out-soft hover:shadow-2"
               >
                 <div className="flex aspect-[4/3] items-center justify-center bg-surface-muted">
                   {wb.thumbnailUrl ? (
@@ -123,7 +123,7 @@ export function WhiteboardsView({ projectSlug }: { projectSlug: string }) {
                     <button
                       type="button"
                       aria-label="Whiteboard actions"
-                      className="rounded bg-white/90 p-1 text-ink-4 opacity-0 shadow-1 hover:text-ink group-hover:opacity-100 data-[state=open]:opacity-100"
+                      className="rounded bg-surface/90 p-1 text-ink-4 opacity-0 shadow-1 hover:text-ink group-hover:opacity-100 data-[state=open]:opacity-100"
                     >
                       <MoreVertical className="h-4 w-4" strokeWidth={2.25} />
                     </button>

@@ -34,7 +34,7 @@ export function DiscoveryHero({ items }: { items: ProjectCardData[] }) {
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <span className="inline-flex items-center gap-2 text-eyebrow text-brand-blue">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-blue" />
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-blue-strong" />
               Featured
             </span>
 

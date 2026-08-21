@@ -214,7 +214,7 @@ function AudienceCard({
             <button
               type="button"
               onClick={onPromote}
-              className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-green hover:text-white group-hover/aud:opacity-100"
+              className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-green-strong hover:text-white group-hover/aud:opacity-100"
               aria-label="Promote to speaker"
             >
               <MicVocal className="h-2.5 w-2.5" strokeWidth={2.5} />

@@ -223,7 +223,7 @@ export default function MyDashboardPage() {
               {dash.pendingRequests.map((r) => (
                 <li
                   key={r.id}
-                  className="flex flex-wrap items-start gap-4 rounded-lg border border-line bg-white p-5"
+                  className="flex flex-wrap items-start gap-4 rounded-lg border border-line bg-surface p-5"
                 >
                   <div className="flex-1">
                     <Link

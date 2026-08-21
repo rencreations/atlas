@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 const toastVariants = cva(
   [
     'pointer-events-auto relative flex w-full max-w-[360px] items-start gap-3 overflow-hidden',
-    'rounded bg-white p-4 pr-10 shadow-2 border border-line',
+    'rounded bg-surface p-4 pr-10 shadow-2 border border-line',
     'data-[state=open]:animate-fade-up data-[state=closed]:animate-fade-in',
   ],
   {

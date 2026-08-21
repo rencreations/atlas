@@ -46,7 +46,7 @@ export function KanbanCard({ projectSlug, list, task, dragging, overlay }: Props
   const cardInner = (
     <article
       className={cn(
-        'rounded-md border border-line bg-white p-3 shadow-1 transition-shadow duration-120 ease-out-soft',
+        'rounded-md border border-line bg-surface p-3 shadow-1 transition-shadow duration-120 ease-out-soft',
         'hover:shadow-2 hover:border-line-strong',
         overlay && 'shadow-3 ring-2 ring-brand-blue/40',
         task.archivedAt && 'opacity-60',

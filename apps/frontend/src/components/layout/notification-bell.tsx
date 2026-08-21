@@ -103,7 +103,7 @@ export function NotificationBell() {
         >
           <Bell className="h-5 w-5" strokeWidth={2.25} />
           {count > 0 ? (
-            <span className="absolute right-1.5 top-1.5 inline-grid min-w-[18px] place-items-center rounded-full bg-brand-red px-1 text-[11px] font-medium leading-none text-white">
+            <span className="absolute right-1.5 top-1.5 inline-grid min-w-[18px] place-items-center rounded-full bg-brand-red-strong px-1 text-[11px] font-medium leading-none text-white">
               {count > 99 ? '99+' : count}
             </span>
           ) : null}
@@ -183,7 +183,7 @@ export function NotificationBell() {
                   >
                     <div className="flex items-start gap-3">
                       {!n.readAt ? (
-                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-blue" />
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-blue-strong" />
                       ) : (
                         <span className="mt-1.5 h-2 w-2 shrink-0" />
                       )}

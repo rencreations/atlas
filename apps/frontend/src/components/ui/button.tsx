@@ -17,12 +17,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-brand-blue text-white hover:brightness-[1.06] hover:-translate-y-px active:translate-y-0 active:brightness-95',
+          'bg-brand-blue-strong text-white hover:brightness-[1.06] hover:-translate-y-px active:translate-y-0 active:brightness-95',
         secondary:
-          'bg-white text-ink border border-line hover:bg-surface-muted hover:border-line-strong',
+          'bg-surface text-ink border border-line hover:bg-surface-muted hover:border-line-strong',
         ghost: 'text-ink hover:bg-surface-muted',
         danger:
-          'bg-brand-red text-white hover:brightness-[1.06] hover:-translate-y-px active:translate-y-0',
+          'bg-brand-red-strong text-white hover:brightness-[1.06] hover:-translate-y-px active:translate-y-0',
         inverse:
           'bg-surface-inverse text-white hover:brightness-110 hover:-translate-y-px active:translate-y-0',
       },

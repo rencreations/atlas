@@ -180,7 +180,7 @@ export function TaskModal({
   }
 
   return (
-    <div className="mx-auto max-w-container-wide overflow-hidden rounded-lg border border-line bg-white">
+    <div className="mx-auto max-w-container-wide overflow-hidden rounded-lg border border-line bg-surface">
       {body}
     </div>
   );

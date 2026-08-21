@@ -14,7 +14,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       rows={rows}
       data-invalid={invalid ? 'true' : undefined}
       className={cn(
-        'w-full resize-y rounded bg-white px-3.5 py-2.5 text-[15px] text-ink',
+        'w-full resize-y rounded bg-surface px-3.5 py-2.5 text-[15px] text-ink',
         'border border-line placeholder:text-ink-4',
         'transition-[border-color,box-shadow] duration-120 ease-out-soft',
         'hover:border-line-strong',

@@ -4,10 +4,10 @@ import { cn } from '@/lib/utils';
 import type { TaskStatus, TaskStatusCategory } from '@/lib/types';
 
 const COLOR_DOT: Record<string, string> = {
-  blue: 'bg-brand-blue',
+  blue: 'bg-brand-blue-strong',
   yellow: 'bg-brand-yellow',
-  red: 'bg-brand-red',
-  green: 'bg-brand-green',
+  red: 'bg-brand-red-strong',
+  green: 'bg-brand-green-strong',
   neutral: 'bg-ink-4',
 };
 

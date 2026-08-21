@@ -184,7 +184,7 @@ export function StatusManagerDialog({
             <select
               value={moveTo}
               onChange={(e) => setMoveTo(e.target.value)}
-              className="h-9 w-full rounded border border-line bg-white px-2 text-[13px]"
+              className="h-9 w-full rounded border border-line bg-surface px-2 text-[13px]"
             >
               {drafts
                 .filter((d) => d.originalId)
@@ -229,7 +229,7 @@ function DraftRow({
       value={draft}
       dragListener={false}
       dragControls={controls}
-      className="flex items-center gap-2 rounded border border-line bg-white p-2"
+      className="flex items-center gap-2 rounded border border-line bg-surface p-2"
     >
       <button
         type="button"
@@ -252,7 +252,7 @@ function DraftRow({
       <select
         value={draft.category}
         onChange={(e) => onUpdate({ category: e.target.value as TaskStatusCategory })}
-        className="h-8 w-28 rounded border border-line bg-white px-2 text-[12px]"
+        className="h-8 w-28 rounded border border-line bg-surface px-2 text-[12px]"
         aria-label="Status category"
       >
         {CATEGORIES.map((c) => (

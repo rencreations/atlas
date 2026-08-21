@@ -71,7 +71,7 @@ export default function ListOverviewPage() {
                   <span className="w-28 shrink-0 truncate text-[13px] text-ink-2">{s.name}</span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
                     <div
-                      className="h-full rounded-full bg-brand-blue"
+                      className="h-full rounded-full bg-brand-blue-strong"
                       style={{ width: `${(s.count / maxStatus) * 100}%` }}
                     />
                   </div>
@@ -94,7 +94,7 @@ export default function ListOverviewPage() {
                   <span className="w-28 shrink-0 truncate text-[13px] text-ink-2">{w.name}</span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
                     <div
-                      className="h-full rounded-full bg-brand-green"
+                      className="h-full rounded-full bg-brand-green-strong"
                       style={{ width: `${(w.count / maxLoad) * 100}%` }}
                     />
                   </div>

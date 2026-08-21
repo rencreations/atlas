@@ -45,14 +45,14 @@ export function MediaHero({ media, title }: { media: ProjectMedia[]; title: stri
           <>
             <button
               onClick={() => setIdx((i) => (i - 1 + items.length) % items.length)}
-              className="absolute left-3 top-1/2 inline-grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-ink shadow-2 hover:bg-white"
+              className="absolute left-3 top-1/2 inline-grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-surface/85 text-ink shadow-2 hover:bg-surface"
               aria-label="Previous"
             >
               <ChevronLeft className="h-4 w-4" strokeWidth={2.25} />
             </button>
             <button
               onClick={() => setIdx((i) => (i + 1) % items.length)}
-              className="absolute right-3 top-1/2 inline-grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-ink shadow-2 hover:bg-white"
+              className="absolute right-3 top-1/2 inline-grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-surface/85 text-ink shadow-2 hover:bg-surface"
               aria-label="Next"
             >
               <ChevronRight className="h-4 w-4" strokeWidth={2.25} />

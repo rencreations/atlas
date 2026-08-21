@@ -456,7 +456,7 @@ function KanbanSkeleton({ statusCount }: { statusCount: number }) {
   return (
     <div className="-mx-2 flex gap-3 overflow-x-auto pb-3">
       {Array.from({ length: Math.max(3, statusCount) }).map((_, i) => (
-        <div key={i} className="w-[280px] shrink-0 rounded-lg border border-line bg-white p-2">
+        <div key={i} className="w-[280px] shrink-0 rounded-lg border border-line bg-surface p-2">
           <div className="mb-2 h-4 w-24 animate-pulse rounded bg-line" />
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, j) => (

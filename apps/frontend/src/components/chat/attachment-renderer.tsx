@@ -56,7 +56,7 @@ export function AttachmentRenderer({ attachment }: { attachment: ChatAttachment 
           target="_blank"
           rel="noreferrer"
           download
-          className="inline-flex max-w-[320px] items-center gap-2 rounded border border-line bg-white px-3 py-2 text-[13px] text-ink hover:border-line-strong"
+          className="inline-flex max-w-[320px] items-center gap-2 rounded border border-line bg-surface px-3 py-2 text-[13px] text-ink hover:border-line-strong"
         >
           <FileText className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
           <span className="truncate">{attachment.s3Key.split('/').pop() ?? 'file'}</span>

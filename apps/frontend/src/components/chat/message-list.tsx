@@ -323,11 +323,11 @@ function UnreadDivider({ channelId }: { channelId: string }) {
       aria-label="New messages"
       className="my-3 flex items-center gap-2 px-1"
     >
-      <div className="h-px flex-1 bg-brand-red/40" />
-      <span className="rounded-full bg-brand-red/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-brand-red">
+      <div className="h-px flex-1 bg-brand-red-strong/40" />
+      <span className="rounded-full bg-brand-red-strong/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-brand-red">
         New
       </span>
-      <div className="h-px flex-1 bg-brand-red/40" />
+      <div className="h-px flex-1 bg-brand-red-strong/40" />
     </li>
   );
 }

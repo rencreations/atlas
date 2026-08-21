@@ -13,9 +13,9 @@ export const Checkbox = React.forwardRef<
     ref={ref}
     className={cn(
       'inline-grid h-5 w-5 shrink-0 place-items-center rounded-[6px]',
-      'border-[1.5px] border-line-strong bg-white',
+      'border-[1.5px] border-line-strong bg-surface',
       'transition-colors duration-120 ease-out-soft',
-      'data-[state=checked]:bg-brand-blue data-[state=checked]:border-brand-blue',
+      'data-[state=checked]:bg-brand-blue-strong data-[state=checked]:border-brand-blue-strong',
       'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
       'disabled:opacity-40 disabled:pointer-events-none',
       className,

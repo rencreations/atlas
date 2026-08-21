@@ -28,7 +28,7 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
   if (!text) notFound();
 
   return (
-    <main className="relative min-h-svh bg-white px-6 py-12">
+    <main className="relative min-h-svh bg-surface px-6 py-12">
       <PatternCorner position="top-right" size={2} cellSize={56} />
       <div className="relative z-10 mx-auto w-full max-w-prose">
         <div className="mb-8 flex items-center gap-3">

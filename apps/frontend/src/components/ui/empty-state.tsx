@@ -13,7 +13,7 @@ export function EmptyState({ title, description, action, className }: Props) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-lg border border-line bg-white p-10 text-center',
+        'relative overflow-hidden rounded-lg border border-line bg-surface p-10 text-center',
         className,
       )}
     >

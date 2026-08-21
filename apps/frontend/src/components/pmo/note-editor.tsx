@@ -380,7 +380,7 @@ function BlockNoteEditor({
           <Clock className="h-3.5 w-3.5" strokeWidth={2.25} /> History
         </Button>
       </div>
-      <div className="relative flex-1 overflow-auto rounded-lg border border-line bg-white">
+      <div className="relative flex-1 overflow-auto rounded-lg border border-line bg-surface">
         <BlockNoteView
           editor={editor}
           theme="light"
@@ -404,7 +404,7 @@ function BlockNoteEditor({
 
 /**
  * Centred spinner overlay shown while the Yjs provider hasn't completed
- * its first sync. `inset-0` + `bg-white/85` covers the empty editor
+ * its first sync. `inset-0` + `bg-surface/85` covers the empty editor
  * underneath so the user doesn't see a blank canvas they'll be tempted
  * to type into. The overlay catches pointer events too — belt-and-braces
  * even though the editor is already `editable={false}` — so stray clicks
@@ -415,7 +415,7 @@ function NoteLoadingOverlay() {
     <div
       role="status"
       aria-live="polite"
-      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-white/85 backdrop-blur-[2px]"
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-surface/85 backdrop-blur-[2px]"
     >
       <Loader2 className="h-5 w-5 animate-spin text-brand-blue" strokeWidth={2.25} />
       <span className="text-[13px] font-medium text-ink-2">Loading note…</span>
@@ -439,7 +439,7 @@ function StatusPill({ status }: { status: 'connecting' | 'connected' | 'offline'
       <span
         className={cn(
           'h-2 w-2 rounded-full',
-          connected ? 'bg-brand-green' : 'animate-pulse bg-brand-yellow',
+          connected ? 'bg-brand-green-strong' : 'animate-pulse bg-brand-yellow',
         )}
       />
       {connected ? 'Live' : 'Connecting…'}

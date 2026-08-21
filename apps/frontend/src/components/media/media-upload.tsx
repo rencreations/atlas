@@ -190,7 +190,7 @@ function ReorderableRow({
       whileDrag={{ scale: 1.01, boxShadow: '0 24px 60px -20px rgba(14,17,22,0.18)', zIndex: 20 }}
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
-      <article className="group relative flex items-center gap-3 rounded-lg border border-line bg-white p-2">
+      <article className="group relative flex items-center gap-3 rounded-lg border border-line bg-surface p-2">
         <button
           type="button"
           aria-label="Drag to reorder"
@@ -212,7 +212,7 @@ function ReorderableRow({
             </div>
           )}
           {idx === 0 ? (
-            <span className="absolute left-1 top-1 inline-flex h-5 items-center rounded-full bg-brand-blue px-2 text-[10px] font-medium uppercase tracking-[0.08em] text-white">
+            <span className="absolute left-1 top-1 inline-flex h-5 items-center rounded-full bg-brand-blue-strong px-2 text-[10px] font-medium uppercase tracking-[0.08em] text-white">
               Cover
             </span>
           ) : null}

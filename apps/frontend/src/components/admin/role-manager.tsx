@@ -71,7 +71,7 @@ export function CollaborationRoleManager() {
       {list.isLoading ? (
         <Skeleton className="h-32 rounded-lg" />
       ) : (
-        <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+        <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
           {list.data!.map((r) => (
             <li key={r.id} className="flex items-center justify-between px-5 py-3 text-[14px]">
               <span className="text-ink">{r.name}</span>

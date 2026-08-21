@@ -125,7 +125,7 @@ export function SecurityPanel() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded border border-line bg-white p-4 shadow-1">
+      <div className="rounded border border-line bg-surface p-4 shadow-1">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -155,13 +155,13 @@ export function SecurityPanel() {
           <div className="mt-4 flex flex-col items-start gap-4 rounded bg-surface-muted p-4 sm:flex-row">
             {qrDataUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={qrDataUrl} alt="TOTP QR code" className="rounded bg-white p-2" />
+              <img src={qrDataUrl} alt="TOTP QR code" className="rounded bg-surface p-2" />
             ) : null}
             <div className="flex flex-col gap-2">
               <p className="text-[13px] text-ink-2">
                 Scan the QR code with your authenticator app, or enter the secret manually:
               </p>
-              <code className="select-all break-all rounded bg-white p-2 font-mono text-[12px] text-ink">
+              <code className="select-all break-all rounded bg-surface p-2 font-mono text-[12px] text-ink">
                 {totpFlow.secret}
               </code>
               <div className="flex items-center gap-2">
@@ -185,7 +185,7 @@ export function SecurityPanel() {
         ) : null}
       </div>
 
-      <div className="rounded border border-line bg-white p-4 shadow-1">
+      <div className="rounded border border-line bg-surface p-4 shadow-1">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export function SecurityPanel() {
         ) : null}
       </div>
 
-      <div className="rounded border border-line bg-white p-4 shadow-1">
+      <div className="rounded border border-line bg-surface p-4 shadow-1">
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[14px] font-medium text-ink">

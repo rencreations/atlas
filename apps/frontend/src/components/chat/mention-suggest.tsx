@@ -101,7 +101,7 @@ export const MentionSuggest = React.forwardRef<MentionSuggestHandle, Props>(func
 
   return (
     <div
-      className="absolute bottom-full left-2 z-20 mb-1 w-[260px] overflow-hidden rounded-lg border border-line bg-white shadow-2"
+      className="absolute bottom-full left-2 z-20 mb-1 w-[260px] overflow-hidden rounded-lg border border-line bg-surface shadow-2"
       role="listbox"
     >
       {members.length === 0 ? (

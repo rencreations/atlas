@@ -5,7 +5,7 @@ import { Container } from './container';
 
 export function Footer() {
   return (
-    <footer className="mt-24 bg-white">
+    <footer className="mt-24 bg-surface">
       <Container size="2xl" className="py-12">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">

@@ -61,7 +61,7 @@ export function ChatNavButton() {
         >
           <MessagesSquare className="h-4 w-4" strokeWidth={2.25} />
           {totalUnread > 0 ? (
-            <span className="absolute -right-0.5 -top-0.5 inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue px-1 text-[10px] font-medium text-white">
+            <span className="absolute -right-0.5 -top-0.5 inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium text-white">
               {totalUnread > 99 ? '99+' : totalUnread}
             </span>
           ) : null}
@@ -81,7 +81,7 @@ export function ChatNavButton() {
             >
               <Search className="h-3 w-3" strokeWidth={2.25} />
               Search
-              <kbd className="ml-1 rounded border border-line bg-white px-1 text-[9px]">⌘K</kbd>
+              <kbd className="ml-1 rounded border border-line bg-surface px-1 text-[9px]">⌘K</kbd>
             </button>
             <Link
               href={'/chat' as never}
@@ -101,7 +101,7 @@ export function ChatNavButton() {
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 text-[13px] hover:bg-surface-muted"
               >
-                <div className="grid h-7 w-7 place-items-center rounded bg-brand-blue/10 text-brand-blue">
+                <div className="grid h-7 w-7 place-items-center rounded bg-brand-blue-strong/10 text-brand-blue">
                   <Globe className="h-3.5 w-3.5" strokeWidth={2.25} />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -109,7 +109,7 @@ export function ChatNavButton() {
                   <div className="truncate text-[11px] text-ink-3">Workspace</div>
                 </div>
                 {c.unread > 0 ? (
-                  <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue px-1.5 text-[10px] font-medium text-white">
+                  <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue-strong px-1.5 text-[10px] font-medium text-white">
                     {c.unread}
                   </span>
                 ) : null}
@@ -151,7 +151,7 @@ export function ChatNavButton() {
                       </div>
                     </div>
                     {p.unread > 0 ? (
-                      <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue px-1.5 text-[10px] font-medium text-white">
+                      <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-brand-blue-strong px-1.5 text-[10px] font-medium text-white">
                         {p.unread}
                       </span>
                     ) : null}

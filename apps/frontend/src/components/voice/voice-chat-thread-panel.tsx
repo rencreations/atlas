@@ -109,7 +109,7 @@ function ResolvedThreadPanel({
 
   if (threadQuery.isLoading) {
     return (
-      <aside className="flex h-full w-80 shrink-0 flex-col border-l border-line bg-white">
+      <aside className="flex h-full w-80 shrink-0 flex-col border-l border-line bg-surface">
         <PanelHeader title={voiceChannelName} onClose={onClose} />
         <div className="flex flex-1 items-center justify-center text-[13px] text-ink-3">
           <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.25} />
@@ -120,7 +120,7 @@ function ResolvedThreadPanel({
 
   if (threadQuery.isError || !chatChannelId) {
     return (
-      <aside className="flex h-full w-80 shrink-0 flex-col border-l border-line bg-white">
+      <aside className="flex h-full w-80 shrink-0 flex-col border-l border-line bg-surface">
         <PanelHeader title={voiceChannelName} onClose={onClose} />
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center text-[13px] text-ink-3">
           <MessageSquare className="h-6 w-6 text-ink-4" strokeWidth={2} />
@@ -134,7 +134,7 @@ function ResolvedThreadPanel({
   }
 
   return (
-    <aside className="flex h-full w-80 shrink-0 flex-col border-l border-line bg-white">
+    <aside className="flex h-full w-80 shrink-0 flex-col border-l border-line bg-surface">
       <PanelHeader
         title={voiceChannelName}
         liveDot={isConnected}
@@ -179,7 +179,7 @@ function PanelHeader({
       <h2 className="flex-1 truncate text-[13px] font-medium text-ink-1">{title}</h2>
       {liveDot ? (
         <span
-          className="inline-block h-1.5 w-1.5 rounded-full bg-brand-green"
+          className="inline-block h-1.5 w-1.5 rounded-full bg-brand-green-strong"
           title="Live"
         />
       ) : null}

@@ -332,8 +332,8 @@ export function FilesView({ projectSlug }: { projectSlug: string }) {
 
       {/* Upload drop overlay */}
       {uploadActive ? (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-brand-blue bg-brand-blue/5">
-          <span className="rounded-full bg-brand-blue px-4 py-2 text-[13px] font-medium text-white">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-brand-blue bg-brand-blue-strong/5">
+          <span className="rounded-full bg-brand-blue-strong px-4 py-2 text-[13px] font-medium text-white">
             Drop to upload
           </span>
         </div>
@@ -373,7 +373,7 @@ function Breadcrumb({
   const crumbClass = (active: boolean) =>
     cn(
       'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[13px] text-ink-3 hover:text-ink',
-      active && 'bg-brand-blue/10 text-brand-blue',
+      active && 'bg-brand-blue-strong/10 text-brand-blue',
     );
   return (
     <nav className="flex min-w-0 flex-wrap items-center gap-0.5" aria-label="Folder path">
@@ -448,7 +448,7 @@ function FileCard({
         onDrop={onDrop}
         onDoubleClick={onOpen}
         className={cn(
-          'group relative flex h-full cursor-pointer flex-col gap-2 rounded-lg border border-line bg-white p-3',
+          'group relative flex h-full cursor-pointer flex-col gap-2 rounded-lg border border-line bg-surface p-3',
           'transition-shadow duration-120 ease-out-soft hover:shadow-2',
           isDropTarget && item.isFolder && 'border-brand-blue ring-2 ring-brand-blue/30',
         )}
@@ -489,7 +489,7 @@ function FileGlyph({ item }: { item: ProjectFile }) {
     <div
       className={cn(
         'flex h-10 w-10 items-center justify-center rounded-md',
-        item.isFolder ? 'bg-brand-blue/10' : 'bg-surface-muted',
+        item.isFolder ? 'bg-brand-blue-strong/10' : 'bg-surface-muted',
       )}
     >
       <Icon className={cn('h-5 w-5', tone)} strokeWidth={2} />

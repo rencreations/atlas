@@ -297,7 +297,7 @@ function ChannelRow({
         href={href as never}
         className={cn(
           'flex items-center gap-2 rounded px-2 py-1.5 text-[13px] transition-colors',
-          active ? 'bg-white text-ink shadow-1' : 'text-ink-2 hover:bg-white/70 hover:text-ink',
+          active ? 'bg-surface text-ink shadow-1' : 'text-ink-2 hover:bg-surface/70 hover:text-ink',
           channel.isArchived && 'opacity-60',
         )}
       >
@@ -345,7 +345,7 @@ function CreateChannelButton({ scope }: { scope: ChatScope }) {
         <button
           type="button"
           aria-label={scope.kind === 'project' ? 'New channel' : 'New workspace channel'}
-          className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 hover:bg-white hover:text-ink"
+          className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 hover:bg-surface hover:text-ink"
         >
           <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
         </button>

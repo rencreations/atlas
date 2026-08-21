@@ -86,7 +86,7 @@ export function ChatLayout({
         canManage={isManager}
       />
 
-      <section className="flex min-w-0 flex-1 flex-col bg-white">
+      <section className="flex min-w-0 flex-1 flex-col bg-surface">
         <header className="flex items-center gap-3 border-b border-line px-6 py-3">
           {scope.kind === 'project' ? (
             <Link
@@ -113,7 +113,7 @@ export function ChatLayout({
           )}
           <h1 className="text-[15px] font-semibold text-ink">{channel?.name ?? 'channel'}</h1>
           {scope.kind === 'global' ? (
-            <span className="rounded-full bg-brand-blue/10 px-2 py-0.5 text-[11px] font-medium text-brand-blue">
+            <span className="rounded-full bg-brand-blue-strong/10 px-2 py-0.5 text-[11px] font-medium text-brand-blue">
               Workspace
             </span>
           ) : null}

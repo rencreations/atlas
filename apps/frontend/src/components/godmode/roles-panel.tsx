@@ -104,7 +104,7 @@ export function RolesPanel() {
           <button
             key={role.id}
             onClick={() => setSelectedCode(role.code)}
-            className={`rounded border bg-white p-3 text-left shadow-1 transition-[border-color] duration-120 ${
+            className={`rounded border bg-surface p-3 text-left shadow-1 transition-[border-color] duration-120 ${
               selectedCode === role.code ? 'border-brand-blue' : 'border-line hover:border-line-strong'
             }`}
           >
@@ -143,7 +143,7 @@ export function RolesPanel() {
             {categories.map(([category, perms]) => (
               <div
                 key={category}
-                className="rounded border border-line bg-white p-4 shadow-1"
+                className="rounded border border-line bg-surface p-4 shadow-1"
               >
                 <div className="text-eyebrow uppercase text-ink-4">{category}</div>
                 <div className="mt-3 flex flex-col gap-2">
@@ -187,7 +187,7 @@ export function RolesPanel() {
           </div>
         </div>
       ) : (
-        <div className="rounded border border-line bg-white p-8 text-center text-[14px] text-ink-3 shadow-1">
+        <div className="rounded border border-line bg-surface p-8 text-center text-[14px] text-ink-3 shadow-1">
           Select a role to edit its permissions.
         </div>
       )}

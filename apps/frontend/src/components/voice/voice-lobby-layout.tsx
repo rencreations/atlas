@@ -115,7 +115,7 @@ export function VoiceLobbyLayout({ channelId, channelName, channelTopic }: Props
         </nav>
       </aside>
 
-      <section className="flex min-w-0 flex-1 flex-col bg-white">
+      <section className="flex min-w-0 flex-1 flex-col bg-surface">
         <header className="flex items-center gap-3 border-b border-line px-6 py-3">
           <Link
             href={'/' as never}

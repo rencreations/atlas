@@ -48,7 +48,7 @@ export function PendingRequestsRow({ items }: { items: PendingRequest[] }) {
         {items.map((req) => (
           <article
             key={req.id}
-            className="flex w-[320px] shrink-0 snap-start flex-col rounded-lg border border-line bg-white p-4"
+            className="flex w-[320px] shrink-0 snap-start flex-col rounded-lg border border-line bg-surface p-4"
           >
             <Link href={`/projects/${req.project.slug}` as never} className="block">
               <ProjectThumbnail

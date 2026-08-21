@@ -33,7 +33,7 @@ export function EmbedView({ url, label }: { url: string; label: string }) {
   }
 
   return (
-    <div className="relative h-[calc(100vh-260px)] min-h-[480px] overflow-hidden rounded-lg border border-line bg-white">
+    <div className="relative h-[calc(100vh-260px)] min-h-[480px] overflow-hidden rounded-lg border border-line bg-surface">
       <iframe
         key={url}
         src={url}
@@ -49,7 +49,7 @@ export function EmbedView({ url, label }: { url: string; label: string }) {
       />
 
       {!loaded && !blocked ? (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface">
           <Loader2 className="h-5 w-5 animate-spin text-ink-3" strokeWidth={2.25} />
         </div>
       ) : null}
@@ -57,7 +57,7 @@ export function EmbedView({ url, label }: { url: string; label: string }) {
       {blocked && !loaded ? (
         <div
           className={cn(
-            'absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white text-center',
+            'absolute inset-0 flex flex-col items-center justify-center gap-3 bg-surface text-center',
           )}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

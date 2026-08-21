@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 const cardVariants = cva(['rounded-lg', 'transition-[transform,box-shadow] duration-200 ease-out-soft'], {
   variants: {
     variant: {
-      outlined: 'bg-white border border-line',
+      outlined: 'bg-surface border border-line',
       tinted: 'bg-surface-muted',
       'tint-blue': 'bg-brand-blue-50',
       'tint-yellow': 'bg-brand-yellow-50',

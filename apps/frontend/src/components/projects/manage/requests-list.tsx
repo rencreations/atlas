@@ -70,7 +70,7 @@ export function ContributionRequestsList({ projectSlug }: Props) {
       {list.data!.map((req) => (
         <li
           key={req.id}
-          className="rounded-lg border border-line bg-white p-5 transition-shadow hover:shadow-1"
+          className="rounded-lg border border-line bg-surface p-5 transition-shadow hover:shadow-1"
         >
           <div className="flex items-start gap-4">
             <Avatar src={req.user?.avatarUrl} name={req.user?.name ?? 'Anonymous'} size={40} />

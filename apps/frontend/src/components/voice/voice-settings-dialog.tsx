@@ -141,7 +141,7 @@ function InputModeSection() {
               type="button"
               onClick={() => setCapturingKey(true)}
               className={cn(
-                'inline-flex h-9 w-full items-center justify-between rounded-md border border-line bg-white px-3 text-sm',
+                'inline-flex h-9 w-full items-center justify-between rounded-md border border-line bg-surface px-3 text-sm',
                 capturingKey ? 'border-brand-blue text-brand-blue' : 'text-ink-1',
               )}
             >
@@ -466,7 +466,7 @@ function ShortcutRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-md border border-line-2 bg-surface-muted/40 px-3 py-2">
       <span className="text-[13px] text-ink-1">{label}</span>
-      <kbd className="rounded border border-line bg-white px-2 py-0.5 font-mono text-[11px] text-ink-2">
+      <kbd className="rounded border border-line bg-surface px-2 py-0.5 font-mono text-[11px] text-ink-2">
         {value}
       </kbd>
     </div>

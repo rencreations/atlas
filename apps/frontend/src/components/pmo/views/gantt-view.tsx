@@ -168,7 +168,7 @@ export function GanttView({ projectSlug, list, canManage }: Props) {
             aria-label="Search tasks"
           />
         </div>
-        <div className="inline-flex rounded border border-line bg-white p-0.5">
+        <div className="inline-flex rounded border border-line bg-surface p-0.5">
           {VIEW_MODES.map((m) => (
             <button
               key={m.value}
@@ -177,7 +177,7 @@ export function GanttView({ projectSlug, list, canManage }: Props) {
               className={cn(
                 'rounded px-3 py-1 text-[12px] font-medium transition-colors duration-120 ease-out-soft',
                 m.value === viewMode
-                  ? 'bg-brand-blue text-white shadow-1'
+                  ? 'bg-brand-blue-strong text-white shadow-1'
                   : 'text-ink-2 hover:bg-surface-muted',
               )}
             >
@@ -199,7 +199,7 @@ export function GanttView({ projectSlug, list, canManage }: Props) {
           No tasks to show. Create one from the List or Kanban tab and it will appear here.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-line bg-white">
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
           <Gantt
             tasks={ganttTasks}
             viewMode={viewMode}

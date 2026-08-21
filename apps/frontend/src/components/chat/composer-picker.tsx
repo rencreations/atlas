@@ -157,7 +157,7 @@ function GifTab({ onPick }: { onPick: (gif: ChatGif) => void }) {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search GIFs"
-        className="rounded border border-line bg-white px-2 py-1.5 text-[13px] outline-none focus:border-line-strong"
+        className="rounded border border-line bg-surface px-2 py-1.5 text-[13px] outline-none focus:border-line-strong"
       />
       {/* Masonry: CSS columns lets each GIF keep its natural aspect ratio
           and the scrollable parent grows downward as more pages load,

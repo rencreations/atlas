@@ -16,7 +16,7 @@ export function MaintenanceBanner() {
   return (
     <div
       role="status"
-      className="flex items-center justify-center gap-2 bg-brand-yellow px-4 py-2 text-center text-body-sm font-medium text-ink"
+      className="flex items-center justify-center gap-2 bg-brand-yellow px-4 py-2 text-center text-body-sm font-medium text-brand-yellow-fg"
     >
       <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={2.25} />
       <span>Atlas is undergoing scheduled maintenance — some features may be briefly unavailable.</span>

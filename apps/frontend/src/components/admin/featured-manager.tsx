@@ -84,7 +84,7 @@ export function FeaturedManager() {
             return (
               <li
                 key={id}
-                className="relative overflow-hidden rounded-lg border border-line bg-white"
+                className="relative overflow-hidden rounded-lg border border-line bg-surface"
               >
                 <div className="relative">
                   <ProjectThumbnail
@@ -92,7 +92,7 @@ export function FeaturedManager() {
                     thumbnailType={p.thumbnailType}
                     alt={p.title}
                   />
-                  <span className="absolute left-2 top-2 inline-flex h-6 items-center gap-1 rounded-full bg-white/90 px-2.5 text-[12px] font-medium text-ink">
+                  <span className="absolute left-2 top-2 inline-flex h-6 items-center gap-1 rounded-full bg-surface/90 px-2.5 text-[12px] font-medium text-ink">
                     <Star className="h-3 w-3 fill-brand-yellow text-brand-yellow" />
                     {idx + 1}
                   </span>
@@ -131,7 +131,7 @@ export function FeaturedManager() {
                   type="button"
                   onClick={() => add(p)}
                   disabled={order.includes(p.id)}
-                  className="flex w-full items-start gap-3 rounded-lg border border-line bg-white p-3 text-left hover:border-brand-blue disabled:opacity-50"
+                  className="flex w-full items-start gap-3 rounded-lg border border-line bg-surface p-3 text-left hover:border-brand-blue disabled:opacity-50"
                 >
                   <div className="h-14 w-20 shrink-0 overflow-hidden rounded bg-surface-muted">
                     {p.thumbnailUrl ? (

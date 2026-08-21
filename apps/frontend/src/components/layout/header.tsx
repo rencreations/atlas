@@ -41,7 +41,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
       className={cn(
         'sticky top-0 z-40 transition-[backdrop-filter,background-color,border-color] duration-200 ease-out-soft',
         scrolled
-          ? 'border-b border-line bg-white/80 backdrop-blur-md'
+          ? 'border-b border-line bg-surface/80 backdrop-blur-md'
           : 'border-b border-transparent bg-transparent',
       )}
     >
@@ -65,7 +65,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
               >
                 {link.label}
                 {active ? (
-                  <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-brand-blue" />
+                  <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-brand-blue-strong" />
                 ) : null}
               </Link>
             );

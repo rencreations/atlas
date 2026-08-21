@@ -13,11 +13,11 @@ import type { PmoBrandColor } from '@/lib/types';
 export const PMO_BRAND_COLORS: PmoBrandColor[] = ['blue', 'yellow', 'red', 'green', 'neutral'];
 
 const SWATCH_BG: Record<PmoBrandColor, string> = {
-  blue: 'bg-brand-blue',
+  blue: 'bg-brand-blue-strong',
   yellow: 'bg-brand-yellow',
-  red: 'bg-brand-red',
-  green: 'bg-brand-green',
-  neutral: 'bg-ink-3',
+  red: 'bg-brand-red-strong',
+  green: 'bg-brand-green-strong',
+  neutral: 'bg-surface-inverse',
 };
 
 export function ColorPicker({
@@ -53,7 +53,7 @@ export function ColorPicker({
                 strokeWidth={3}
                 className={cn(
                   'absolute inset-0 m-auto h-4 w-4',
-                  c === 'yellow' ? 'text-ink' : 'text-white',
+                  c === 'yellow' ? 'text-brand-yellow-fg' : 'text-white',
                 )}
               />
             ) : null}
@@ -78,7 +78,7 @@ export function pmoBgClass(color: PmoBrandColor | string | null | undefined): st
  * background. Yellow needs dark text; everything else gets white.
  */
 export function pmoFgClass(color: PmoBrandColor | string | null | undefined): string {
-  return color === 'yellow' ? 'text-ink' : 'text-white';
+  return color === 'yellow' ? 'text-brand-yellow-fg' : 'text-white';
 }
 
 // Fallback path for notification preference defaults when the primary is unavailable

@@ -167,7 +167,7 @@ function ClipTile({
         <span
           className={cn(
             'inline-grid h-7 w-7 shrink-0 place-items-center rounded-full',
-            isPlaying ? 'bg-brand-blue text-white' : 'bg-surface-muted text-ink-2',
+            isPlaying ? 'bg-brand-blue-strong text-white' : 'bg-surface-muted text-ink-2',
           )}
         >
           {isPlaying ? (
@@ -187,7 +187,7 @@ function ClipTile({
         <button
           type="button"
           onClick={() => deleteMutation.mutate()}
-          className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-red hover:text-white group-hover/clip:opacity-100"
+          className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-red-strong hover:text-white group-hover/clip:opacity-100"
           aria-label="Delete clip"
           title="Delete clip"
         >

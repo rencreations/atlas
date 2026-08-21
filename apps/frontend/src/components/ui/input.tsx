@@ -14,7 +14,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       type={type}
       data-invalid={invalid ? 'true' : undefined}
       className={cn(
-        'h-10 w-full rounded bg-white px-3.5 text-[15px] text-ink',
+        'h-10 w-full rounded bg-surface px-3.5 text-[15px] text-ink',
         'border border-line placeholder:text-ink-4',
         'transition-[border-color,box-shadow] duration-120 ease-out-soft',
         'hover:border-line-strong',

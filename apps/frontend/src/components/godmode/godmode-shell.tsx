@@ -109,7 +109,7 @@ export function GodmodeShell({
   return (
     <div className="mx-auto grid min-h-svh w-full max-w-[1360px] grid-cols-1 gap-0 md:grid-cols-[260px_1fr]">
       {/* ─── Sidebar ─── */}
-      <aside className="border-r border-line bg-white md:min-h-svh">
+      <aside className="border-r border-line bg-surface md:min-h-svh">
         <div className="flex h-14 items-center justify-between border-b border-line px-4">
           <Wordmark withSignature={false} className="text-[16px]" />
           <Badge tone="danger">godmode</Badge>
@@ -276,7 +276,7 @@ function OverviewSection({
       {OVERVIEW_STEPS.map((step, idx) => (
         <div
           key={step.id}
-          className="flex items-start gap-4 rounded border border-line bg-white p-5 shadow-1"
+          className="flex items-start gap-4 rounded border border-line bg-surface p-5 shadow-1"
         >
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-blue-50 font-display text-[13px] font-semibold text-brand-blue">
             {idx + 1}
@@ -291,7 +291,7 @@ function OverviewSection({
         </div>
       ))}
 
-      <div className="rounded border border-line bg-white p-5 shadow-1">
+      <div className="rounded border border-line bg-surface p-5 shadow-1">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[14px] font-medium text-ink">Finish onboarding</div>

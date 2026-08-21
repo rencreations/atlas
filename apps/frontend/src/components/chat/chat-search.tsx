@@ -172,7 +172,7 @@ function ScopeChip({
       onClick={onClick}
       className={cn(
         'rounded-full px-2 py-0.5 transition-colors',
-        active ? 'bg-brand-blue/10 text-brand-blue' : 'text-ink-2 hover:bg-white',
+        active ? 'bg-brand-blue-strong/10 text-brand-blue' : 'text-ink-2 hover:bg-surface',
       )}
     >
       {children}
