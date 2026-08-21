@@ -13,15 +13,23 @@ import { SettingsService } from '@/modules/settings/settings.service';
 import { S3Service } from '@/modules/media/s3.service';
 import { UpdateMeDto } from './dto/update-me.dto';
 
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
+const AVATAR_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
 const PUBLIC_USER_SELECT = {
   id: true,
   email: true,
   name: true,
   avatarUrl: true,
-  avatarS3Key: true,
   bio: true,
   isAdmin: true,
   createdAt: true,
+} satisfies Prisma.UserSelect;
+
+/** Select with the avatar key + upload state, only for getMe/updateMe. */
+const ME_USER_SELECT = {
+  ...PUBLIC_USER_SELECT,
+  avatarS3Key: true,
 } satisfies Prisma.UserSelect;
 
 @Injectable()
@@ -36,7 +44,7 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
-        ...PUBLIC_USER_SELECT,
+        ...ME_USER_SELECT,
         lastLoginAt: true,
         phone: true,
         phoneVerified: true,
@@ -58,22 +66,42 @@ export class UsersService {
   }
 
   async updateMe(id: string, dto: UpdateMeDto) {
+    // The avatar key is server-minted in avatarPresign; accept only keys
+    // that belong to this user's own avatar folder and match our format.
+    // Never let a client point a profile at arbitrary bucket objects.
+    let avatarS3Key: string | undefined;
+    if (dto.avatarS3Key) {
+      const pattern = new RegExp(`^avatars/${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+-[0-9a-f]{8}(\\.[a-z]{2,4})?$`);
+      if (!pattern.test(dto.avatarS3Key)) {
+        throw new BadRequestException('Invalid avatar key.');
+      }
+      avatarS3Key = dto.avatarS3Key;
+    }
+    const { avatarS3Key: _ignored, ...rest } = dto;
     const user = await this.prisma.user.update({
       where: { id },
-      data: dto,
-      select: { ...PUBLIC_USER_SELECT, lastLoginAt: true, theme: true },
+      data: { ...rest, ...(avatarS3Key ? { avatarS3Key } : {}) },
+      select: { ...ME_USER_SELECT, lastLoginAt: true, theme: true },
     });
-    const { avatarS3Key, ...rest } = user;
+    const { avatarS3Key: stored, ...stripped } = user;
     return {
-      ...rest,
-      avatarUrl: avatarS3Key ? this.s3.publicUrlFor(avatarS3Key) : user.avatarUrl,
+      ...stripped,
+      avatarUrl: stored ? this.s3.publicUrlFor(stored) : user.avatarUrl,
     };
   }
 
   /** Presigned upload URL for the user's avatar. */
   async avatarPresign(userId: string, contentType: string, contentLength?: number) {
+    if (!AVATAR_MIME.has(contentType)) {
+      throw new BadRequestException(
+        'Avatar must be an image: image/jpeg, image/png, image/webp, or image/gif.',
+      );
+    }
+    if (contentLength !== undefined && contentLength > AVATAR_MAX_BYTES) {
+      throw new BadRequestException('Avatar must be at most 5 MB.');
+    }
     const key = `avatars/${userId}/${Date.now()}-${randomUUID().slice(0, 8)}${this.extensionFor(contentType)}`;
-    return this.s3.presignPut({ key, contentType, contentLength: contentLength ?? 0 });
+    return this.s3.presignPut({ key, contentType, contentLength: contentLength ?? AVATAR_MAX_BYTES });
   }
 
   async recordConsent(userId: string) {
@@ -282,36 +310,37 @@ export class UsersService {
 
     const pmoEnabled = await this.settings.get<boolean>('modules.pmo.enabled');
 
-    const [
-      notifications,
-      unreadCount,
-      invites,
-      pendingRequests,
-      chatMemberships,
-    ] = await this.prisma.$transaction([
-      this.prisma.notification.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        take: 6,
-      }),
-      this.prisma.notification.count({ where: { userId, readAt: null } }),
-      this.prisma.projectInvite.findMany({
-        where: { invitedUserId: userId, status: 'PENDING' },
-        include: { project: { select: { id: true, slug: true, title: true, thumbnailUrl: true } } },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      }),
-      this.prisma.contributionRequest.findMany({
-        where: { userId, status: 'PENDING' },
-        include: { project: { select: { id: true, slug: true, title: true } } },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      }),
-      this.prisma.chatChannelMember.findMany({
-        where: { userId, muted: false, channel: { isArchived: false } },
-        include: { channel: { select: { id: true, name: true, slug: true, project: { select: { slug: true } } } } },
-      }),
-    ]);
+    const [notifications, unreadCount, invites, pendingRequests, chatMemberships] =
+      await this.prisma.$transaction([
+        this.prisma.notification.findMany({
+          where: { userId },
+          orderBy: { createdAt: 'desc' },
+          take: 6,
+        }),
+        this.prisma.notification.count({ where: { userId, readAt: null } }),
+        this.prisma.projectInvite.findMany({
+          where: { invitedUserId: userId, status: 'PENDING' },
+          include: {
+            project: { select: { id: true, slug: true, title: true, thumbnailUrl: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        }),
+        this.prisma.contributionRequest.findMany({
+          where: { userId, status: 'PENDING' },
+          include: { project: { select: { id: true, slug: true, title: true } } },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        }),
+        this.prisma.chatChannelMember.findMany({
+          where: { userId, muted: false, channel: { isArchived: false } },
+          include: {
+            channel: {
+              select: { id: true, name: true, slug: true, project: { select: { slug: true } } },
+            },
+          },
+        }),
+      ]);
 
     // Unread chat messages per channel (single query over all memberships).
     const thresholds = chatMemberships.map((m) => ({

@@ -240,10 +240,7 @@ export class GodmodeController {
   @UseGuards(GodmodeGuard)
   @Post('2fa/passkey/register/verify')
   passkeyRegisterVerify(@Body() dto: { challenge: string; response: unknown }) {
-    return this.godmode.verifyPasskeyRegistration(
-      dto.challenge,
-      dto.response as never,
-    );
+    return this.godmode.verifyPasskeyRegistration(dto.challenge, dto.response as never);
   }
 
   @UseGuards(GodmodeGuard)

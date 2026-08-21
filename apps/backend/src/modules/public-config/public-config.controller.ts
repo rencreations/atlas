@@ -32,10 +32,12 @@ export class PublicConfigController {
   @Public()
   @Get('legal/:page')
   async legal(@Param('page') page: string) {
-    const key = page === 'terms' ? 'legal.termsText' : page === 'privacy' ? 'legal.privacyText' : null;
+    const key =
+      page === 'terms' ? 'legal.termsText' : page === 'privacy' ? 'legal.privacyText' : null;
     if (!key) throw new NotFoundException('Unknown legal page.');
     const text = await this.settings.get<string>(key);
-    if (!text) throw new NotFoundException('This legal page has not been published on this instance.');
+    if (!text)
+      throw new NotFoundException('This legal page has not been published on this instance.');
     return { page, text };
   }
 

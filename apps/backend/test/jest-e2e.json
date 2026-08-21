@@ -4,6 +4,13 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": { "^.+\\.(t|j)s$": "ts-jest" },
-  "moduleNameMapper": { "^@/(.*)$": "<rootDir>/../src/$1" },
+  "transformIgnorePatterns": [
+    "/node_modules/(?!(@simplewebauthn|openid-client|jose|@node-saml|oauth4webapi)/)"
+  ],
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/../src/$1",
+    "^openid-client$": "<rootDir>/mocks/openid-client.ts",
+    "^@node-saml/node-saml$": "<rootDir>/mocks/@node-saml__node-saml.ts"
+  },
   "testTimeout": 60000
 }

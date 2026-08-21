@@ -95,12 +95,16 @@ export class UsersController {
   /** Create a user from the admin console (role-based grant). */
   @Post()
   @UseGuards(AdminGuard)
-  createUser(@CurrentUser() actor: AuthenticatedUser, @Body() dto: {
-    email: string;
-    name: string;
-    password?: string;
-    roleCode?: string;
-  }) {
+  createUser(
+    @CurrentUser() actor: AuthenticatedUser,
+    @Body()
+    dto: {
+      email: string;
+      name: string;
+      password?: string;
+      roleCode?: string;
+    },
+  ) {
     return this.users.createUser(dto, actor.id);
   }
 
