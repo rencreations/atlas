@@ -1,11 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Two projects:
+// Three projects:
 //  - smoke: read-only checks against any BASE_URL (defaults to prod). No auth.
 //  - e2e:   authenticated flows against staging; `setup` logs in once via the
 //           real Keycloak flow and saves the storage state the e2e specs reuse.
+//  - themes: the multi-theme compliance matrix — runs against the local dev
+//           servers (frontend :3001, backend API :3002) by default.
 const E2E_BASE = process.env.E2E_BASE_URL || 'https://atlas-staging.labmgm.org';
 const SMOKE_BASE = process.env.SMOKE_BASE_URL || 'https://atlas.labmgm.org';
+const THEME_BASE = process.env.THEME_BASE_URL || 'http://localhost:3001';
 
 export default defineConfig({
   testDir: 'tests',
@@ -19,6 +22,15 @@ export default defineConfig({
       name: 'smoke',
       testMatch: /tests\/smoke\/.*\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], baseURL: SMOKE_BASE },
+    },
+    {
+      name: 'themes',
+      testMatch: /tests\/themes\/.*\.spec\.ts/,
+      // The matrix hammers the local API (every page load fetches
+      // /public-config); keep parallelism modest so the dev throttler
+      // never trips.
+      workers: 4,
+      use: { ...devices['Desktop Chrome'], baseURL: THEME_BASE },
     },
     {
       name: 'setup',
