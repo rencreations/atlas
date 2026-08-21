@@ -91,12 +91,12 @@ for (const theme of THEMES) {
       const bodyBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
       expect(bodyBg).toBe(rgbOf(palette.bg));
 
-      // The wordmark letters follow the vivid tokens.
+      // The wordmark renders in the theme's single primary color.
       const letterColor = await page.evaluate(() => {
-        const span = document.querySelector('[aria-label="Atlas"] span[style]');
-        return span ? getComputedStyle(span).color : null;
+        const el = document.querySelector('.font-display.text-brand-blue');
+        return el ? getComputedStyle(el).color : null;
       });
-      expect(letterColor).toBe(rgbOf(palette.brandBlueVivid));
+      expect(letterColor).toBe(rgbOf(palette.brandBlue));
 
       // Meta theme-color tracks the palette so browser chrome matches.
       const metaTheme = await page.evaluate(() =>

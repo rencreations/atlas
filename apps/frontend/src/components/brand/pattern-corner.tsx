@@ -1,25 +1,9 @@
 import { cn } from '@/lib/utils';
 
-type CellColor = 'blue' | 'yellow' | 'red' | 'green';
-
-const VIVID: Record<CellColor, string> = {
-  blue: 'rgb(var(--brand-blue-vivid))',
-  yellow: 'rgb(var(--brand-yellow-vivid))',
-  red: 'rgb(var(--brand-red-vivid))',
-  green: 'rgb(var(--brand-green-vivid))',
-};
-
-/** The page paper color — motifs and empty cells track the theme. */
-const PAPER = 'rgb(var(--bg))';
-
 type Shape = 'circle' | 'square' | 'plus' | 'x' | 'triangle' | 'half' | 'quarter' | 'flower';
 
 interface Cell {
   shape: Shape;
-  /** A brand color, or 'paper' (a hollow shape on a brand-colored cell). */
-  color: CellColor | 'paper';
-  /** When color is 'paper' the cell background uses this brand color. */
-  bg?: CellColor;
   rotate?: 0 | 90 | 180 | 270;
 }
 
@@ -36,32 +20,31 @@ interface Props {
 }
 
 const DEFAULT_3X3: Cell[] = [
-  { shape: 'circle', color: 'blue' },
-  { shape: 'square', color: 'paper', bg: 'yellow' },
-  { shape: 'triangle', color: 'red' },
-  { shape: 'plus', color: 'paper', bg: 'blue' },
-  { shape: 'circle', color: 'green' },
-  { shape: 'x', color: 'paper', bg: 'red' },
-  { shape: 'flower', color: 'yellow' },
-  { shape: 'half', color: 'paper', bg: 'green' },
-  { shape: 'quarter', color: 'blue' },
+  { shape: 'circle' },
+  { shape: 'square' },
+  { shape: 'triangle' },
+  { shape: 'plus' },
+  { shape: 'circle' },
+  { shape: 'x' },
+  { shape: 'flower' },
+  { shape: 'half' },
+  { shape: 'quarter' },
 ];
 
 const DEFAULT_2X2: Cell[] = [
-  { shape: 'triangle', color: 'blue' },
-  { shape: 'circle', color: 'paper', bg: 'yellow' },
-  { shape: 'square', color: 'paper', bg: 'red' },
-  { shape: 'x', color: 'green' },
+  { shape: 'triangle' },
+  { shape: 'circle' },
+  { shape: 'square' },
+  { shape: 'x' },
 ];
 
 /**
  * The Atlas signature corner pattern. Used at edges, corners, and divider
  * strips — never as a tiled wallpaper.
  *
- * Each cell renders one shape from the brand vocabulary, driven by the
- * vivid tokens so the pattern re-skins with the active theme. Shapes
- * either fill a brand-colored cell with a paper motif, or place a
- * brand-colored motif on a paper cell.
+ * Every motif renders in the theme's single primary brand color on the
+ * page paper, so the pattern re-skins with the active theme and stays one
+ * hue.
  */
 export function PatternCorner({
   className,
@@ -95,12 +78,9 @@ export function PatternCorner({
         const row = Math.floor(idx / size);
         const x = col * cellSize;
         const y = row * cellSize;
-        const bg = cell.color === 'paper' ? VIVID[cell.bg ?? 'blue'] : PAPER;
-        const motif = cell.color === 'paper' ? PAPER : VIVID[cell.color];
         return (
           <g key={idx} transform={`translate(${x} ${y})`}>
-            <rect width={cellSize} height={cellSize} style={{ fill: bg }} />
-            <Motif shape={cell.shape} color={motif} size={cellSize} rotate={cell.rotate ?? 0} />
+            <Motif shape={cell.shape} size={cellSize} rotate={cell.rotate ?? 0} />
           </g>
         );
       })}
@@ -108,17 +88,8 @@ export function PatternCorner({
   );
 }
 
-function Motif({
-  shape,
-  color,
-  size,
-  rotate,
-}: {
-  shape: Shape;
-  color: string;
-  size: number;
-  rotate: number;
-}) {
+function Motif({ shape, size, rotate }: { shape: Shape; size: number; rotate: number }) {
+  const color = 'rgb(var(--brand-blue))';
   const c = size / 2;
   const r = size * 0.35;
   const stroke = size * 0.16;
@@ -192,35 +163,4 @@ function Motif({
       );
     }
   }
-}
-
-/**
- * A thin horizontal strip used at the bottom of footers — alternating
- * 8px squares in the four vivid brand colors, repeated to fit the
- * available width. Re-skins with the active theme.
- */
-export function PatternDado({ className, height = 8 }: { className?: string; height?: number }) {
-  const cells = 80;
-  const colors = Object.values(VIVID);
-  return (
-    <svg
-      width="100%"
-      height={height}
-      viewBox={`0 0 ${cells * 8} ${height}`}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-      className={cn('block', className)}
-    >
-      {Array.from({ length: cells }).map((_, i) => (
-        <rect
-          key={i}
-          x={i * 8}
-          y={0}
-          width={8}
-          height={height}
-          style={{ fill: colors[i % colors.length] }}
-        />
-      ))}
-    </svg>
-  );
 }

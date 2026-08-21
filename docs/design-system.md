@@ -8,10 +8,12 @@ tokens — never literals. This page is the human-readable reference.
 1. **Tokens, not literals.** No hand-rolled hex values, no custom
    `transition-duration`, no arbitrary shadows. If a value isn't a token,
    it doesn't ship.
-2. **One leading brand color per surface.** Each component picks blue,
-   yellow, red, *or* green deliberately. The only place all four appear
-   together is the geometric pattern (`<PatternCorner>` / `<PatternDado>`
-   in `components/brand/`).
+2. **One primary color for all branding.** The wordmark, the shape
+   signature, and the corner pattern render exclusively in the theme's
+   primary brand color (`--brand-blue`) — one hue per theme, so every
+   brand element stays in sync automatically. Yellow/red/green remain
+   strictly semantic: warnings, destructive actions, success, and
+   user-defined status colors.
 3. **Stroke icons only.** Lucide with `strokeWidth={2.25}`. No filled
    variants, no mixed icon sets.
 4. **Restrained motion.** Compose from the duration + easing tokens;
@@ -55,11 +57,10 @@ Each palette defines, per mode:
 |---|---|---|
 | Core | `--bg`, `--surface`, `--surface-muted`, `--surface-inverse` | Page, cards, muted fills, inverse chips (always dark chips with white text — used by tooltips and inverse buttons) |
 | Ink | `--ink`, `--ink-2`, `--ink-3`, `--ink-4` | Text ramp, darkest → lightest (light mode) / lightest → darkest (dark mode). Every tier holds **4.5:1** on every surface it renders on |
-| Brand text | `--brand-blue/yellow/red/green` | Links, icons, text accents — 4.5:1 on the surfaces they sit on |
+| Brand text | `--brand-blue/yellow/red/green` | Links, icons, text accents — 4.5:1 on the surfaces they sit on. `brand-blue` is the single primary color every brand element (wordmark, mark, pattern) renders in |
 | Brand fills | `--brand-*-strong` | Filled buttons/badges — must hold **white text at 4.5:1 in both modes** (equal to the brand color in light mode; a deeper shade in dark mode) |
 | Yellow text | `--brand-yellow-fg` | Text on yellow fills (yellow is bright in both modes) |
 | Tints | `--brand-*-50`, `--brand-yellow-ink` | Pastel chips (light) / deep chips (dark); brand text and ink-3 both hold 4.5:1 on them |
-| Vivid | `--brand-*-vivid` | The decorative brand signature — wordmark letters, shape mark, corner pattern. Exempt from text contrast |
 | Support | `--line`, `--line-strong`, `--focus`, `--shimmer`, `--shadow-1…3` | Hairlines, focus ring (3:1), skeleton shimmer, elevation |
 
 The atlas palette is also emitted onto bare `:root` / `.dark` as the
@@ -134,10 +135,14 @@ Micro-interactions use `120–200`; entrances `320`; celebratory moments `520+`.
   textarea, toast, tooltip. Build features by composing these; never reach
   for raw Radix in feature code.
 - **Brand** (`src/components/brand/`) — `Wordmark`, `ShapeSignature`,
-  `PatternCorner`, `PatternDado` — all driven by the vivid tokens, so the
-  brand re-skins with the active theme. The static favicon and metadata
-  images (`icon.svg`, `brand-logo.ts`) keep the default atlas palette:
-  they are instance identity, not user preference.
+  `PatternCorner` — all render in the single primary brand color, so the
+  brand re-skins with the active theme as one hue. The static favicon and
+  metadata images (`icon.svg`, `brand-logo.ts`) keep the default atlas
+  primary: they are instance identity, not user preference.
+- **Footer** (`src/components/layout/footer.tsx`) — an oversized ATLAS
+  wordmark whose letters emerge one by one on scroll, followed by the
+  essential links only (GitHub, Terms, Privacy, Status). No columns, no
+  rainbow strip.
 
 ## Voice & tone in UI copy
 

@@ -15,9 +15,9 @@
  *             lineStrong, focus, shimmer.
  *  - Brand:   blue/yellow/red/green (text, icons, links), their -50 tints,
  *             `strong` variants (button fills in dark mode — must hold
- *             white text at ≥ 4.5:1), `yellowInk` (readable text on the
- *             yellow tint), and `vivid` variants (the decorative brand
- *             signature — exempt from text contrast).
+ *             white text at ≥ 4.5:1) and `yellowInk` (readable text on
+ *             the yellow tint). All branding (wordmark, mark, patterns)
+ *             renders in the single primary color `brandBlue`.
  *
  * The theme id list must stay in sync with the backend catalog at
  * `apps/backend/src/modules/settings/theme-ids.ts` (godmode enum +
@@ -49,21 +49,17 @@ export interface ThemePalette {
   brandBlue: RGB;
   brandBlue50: RGB;
   brandBlueStrong: RGB;
-  brandBlueVivid: RGB;
   brandYellow: RGB;
   brandYellow50: RGB;
   brandYellowInk: RGB;
   /** Text color on yellow-filled buttons (yellow is bright in both modes). */
   brandYellowFg: RGB;
-  brandYellowVivid: RGB;
   brandRed: RGB;
   brandRed50: RGB;
   brandRedStrong: RGB;
-  brandRedVivid: RGB;
   brandGreen: RGB;
   brandGreen50: RGB;
   brandGreenStrong: RGB;
-  brandGreenVivid: RGB;
   shadows: ThemeShadows;
 }
 
@@ -114,20 +110,16 @@ export function paletteToCssVars(p: ThemePalette): string {
   push('brand-blue', p.brandBlue);
   push('brand-blue-50', p.brandBlue50);
   push('brand-blue-strong', p.brandBlueStrong);
-  push('brand-blue-vivid', p.brandBlueVivid);
   push('brand-yellow', p.brandYellow);
   push('brand-yellow-50', p.brandYellow50);
   push('brand-yellow-ink', p.brandYellowInk);
   push('brand-yellow-fg', p.brandYellowFg);
-  push('brand-yellow-vivid', p.brandYellowVivid);
   push('brand-red', p.brandRed);
   push('brand-red-50', p.brandRed50);
   push('brand-red-strong', p.brandRedStrong);
-  push('brand-red-vivid', p.brandRedVivid);
   push('brand-green', p.brandGreen);
   push('brand-green-50', p.brandGreen50);
   push('brand-green-strong', p.brandGreenStrong);
-  push('brand-green-vivid', p.brandGreenVivid);
   lines.push(`  --shadow-1: ${p.shadows.one};`);
   lines.push(`  --shadow-2: ${p.shadows.two};`);
   lines.push(`  --shadow-3: ${p.shadows.three};`);
@@ -153,10 +145,6 @@ interface ThemeSeed {
   redStrong: RGB;
   greenStrong: RGB;
   yellowInk: RGB;
-  blueVivid: RGB;
-  yellowVivid: RGB;
-  redVivid: RGB;
-  greenVivid: RGB;
   /** In light mode the "inverse" surface is near-ink; override per theme. */
   surfaceInverse?: RGB;
   /** Shadow tint in light mode (defaults to the ink color). */
@@ -176,9 +164,11 @@ function palette(seed: ThemeSeed, mode: 'light' | 'dark'): ThemePalette {
   const tintWeight = mode === 'dark' ? 0.22 : 0.1;
   const ink = seed.ink;
   // ink-3 sits on brand tints too (descriptions inside selected rows), and
-  // the tints are dimmer than plain surfaces — pull it slightly toward ink
-  // in light mode so it holds 4.5:1 everywhere.
-  const ink3 = mode === 'light' ? mix(seed.ink3, seed.ink, 0.12) : seed.ink3;
+  // the tints are dimmer than plain surfaces in light mode / brighter than
+  // surfaces in dark mode — pull it toward ink (light) / ink-2 (dark) so
+  // it holds 4.5:1 everywhere.
+  const ink3 =
+    mode === 'light' ? mix(seed.ink3, seed.ink, 0.12) : mix(seed.ink3, seed.ink2, 0.4);
 
   // Inverse surfaces (tooltips, inverse buttons) always carry white text,
   // so they stay dark chips in both modes. In dark mode they are a clearly
@@ -213,7 +203,7 @@ function palette(seed: ThemeSeed, mode: 'light' | 'dark'): ThemePalette {
     // no luminance headroom between ink-3 and a compliant ink-4 on light
     // surfaces, so in light mode it equals ink-3; in dark mode it stays a
     // step below ink-3 to keep the hierarchy.
-    ink4: mode === 'light' ? ink3 : mix(seed.ink4, seed.ink3, 0.9),
+    ink4: mode === 'light' ? ink3 : mix(seed.ink4, ink3, 0.8),
     line: mix(ink, seed.bg, mode === 'light' ? 0.92 : 0.85),
     lineStrong: mix(ink, seed.bg, mode === 'light' ? 0.82 : 0.72),
     focus: seed.blue,
@@ -222,20 +212,16 @@ function palette(seed: ThemeSeed, mode: 'light' | 'dark'): ThemePalette {
     brandBlue: seed.blue,
     brandBlue50: mix(base, seed.blue, tintWeight),
     brandBlueStrong: seed.blueStrong,
-    brandBlueVivid: seed.blueVivid,
     brandYellow: seed.yellow,
     brandYellow50: mix(base, seed.yellow, tintWeight),
     brandYellowInk: seed.yellowInk,
     brandYellowFg: mix(seed.yellow, [12, 10, 6], 0.8),
-    brandYellowVivid: seed.yellowVivid,
     brandRed: seed.red,
     brandRed50: mix(base, seed.red, tintWeight),
     brandRedStrong: seed.redStrong,
-    brandRedVivid: seed.redVivid,
     brandGreen: seed.green,
     brandGreen50: mix(base, seed.green, tintWeight),
     brandGreenStrong: seed.greenStrong,
-    brandGreenVivid: seed.greenVivid,
     shadows,
   };
 }
@@ -273,10 +259,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [196, 42, 32],
       greenStrong: [13, 116, 77],
       yellowInk: [128, 99, 20],
-      blueVivid: [58, 109, 197],
-      yellowVivid: [246, 190, 50],
-      redVivid: [248, 64, 64],
-      greenVivid: [68, 188, 141],
     },
     {
       bg: [14, 17, 22],
@@ -294,10 +276,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [211, 58, 50],
       greenStrong: [24, 132, 84],
       yellowInk: [232, 199, 103],
-      blueVivid: [130, 165, 230],
-      yellowVivid: [250, 200, 80],
-      redVivid: [255, 110, 110],
-      greenVivid: [90, 205, 160],
     },
   ),
   theme(
@@ -320,10 +298,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [192, 46, 58],
       greenStrong: [17, 112, 74],
       yellowInk: [128, 88, 22],
-      blueVivid: [20, 148, 140],
-      yellowVivid: [250, 176, 80],
-      redVivid: [230, 70, 82],
-      greenVivid: [50, 170, 116],
     },
     {
       bg: [9, 24, 26],
@@ -341,10 +315,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [203, 56, 68],
       greenStrong: [22, 128, 86],
       yellowInk: [240, 196, 110],
-      blueVivid: [110, 215, 205],
-      yellowVivid: [250, 180, 90],
-      redVivid: [255, 140, 134],
-      greenVivid: [100, 215, 165],
     },
   ),
   theme(
@@ -367,10 +337,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [184, 48, 54],
       greenStrong: [13, 114, 94],
       yellowInk: [112, 82, 20],
-      blueVivid: [30, 128, 66],
-      yellowVivid: [214, 166, 58],
-      redVivid: [210, 62, 66],
-      greenVivid: [36, 156, 126],
     },
     {
       bg: [11, 22, 16],
@@ -388,10 +354,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [186, 52, 58],
       greenStrong: [14, 116, 96],
       yellowInk: [238, 204, 118],
-      blueVivid: [130, 215, 165],
-      yellowVivid: [234, 196, 100],
-      redVivid: [255, 146, 142],
-      greenVivid: [130, 220, 180],
     },
   ),
   theme(
@@ -414,10 +376,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [192, 52, 54],
       greenStrong: [8, 120, 110],
       yellowInk: [122, 94, 20],
-      blueVivid: [34, 150, 74],
-      yellowVivid: [238, 190, 56],
-      redVivid: [232, 78, 80],
-      greenVivid: [30, 172, 160],
     },
     {
       bg: [12, 24, 18],
@@ -435,10 +393,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [208, 62, 64],
       greenStrong: [10, 118, 108],
       yellowInk: [240, 206, 96],
-      blueVivid: [136, 222, 166],
-      yellowVivid: [240, 200, 78],
-      redVivid: [255, 152, 146],
-      greenVivid: [136, 226, 186],
     },
   ),
   theme(
@@ -461,10 +415,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [190, 44, 60],
       greenStrong: [14, 116, 110],
       yellowInk: [126, 80, 14],
-      blueVivid: [242, 104, 20],
-      yellowVivid: [250, 170, 24],
-      redVivid: [214, 58, 74],
-      greenVivid: [30, 150, 142],
     },
     {
       bg: [27, 15, 12],
@@ -482,10 +432,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [190, 46, 60],
       greenStrong: [14, 114, 108],
       yellowInk: [246, 198, 96],
-      blueVivid: [255, 160, 88],
-      yellowVivid: [252, 190, 58],
-      redVivid: [255, 142, 138],
-      greenVivid: [130, 214, 200],
     },
   ),
   theme(
@@ -508,10 +454,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [186, 24, 92],
       greenStrong: [48, 108, 74],
       yellowInk: [126, 80, 22],
-      blueVivid: [222, 72, 124],
-      yellowVivid: [248, 172, 88],
-      redVivid: [208, 36, 108],
-      greenVivid: [78, 152, 106],
     },
     {
       bg: [26, 15, 23],
@@ -529,10 +471,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [184, 26, 92],
       greenStrong: [54, 120, 84],
       yellowInk: [246, 200, 122],
-      blueVivid: [252, 158, 198],
-      yellowVivid: [250, 192, 116],
-      redVivid: [255, 142, 176],
-      greenVivid: [158, 214, 178],
     },
   ),
   theme(
@@ -555,10 +493,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [188, 50, 80],
       greenStrong: [14, 110, 98],
       yellowInk: [116, 82, 18],
-      blueVivid: [134, 74, 238],
-      yellowVivid: [228, 172, 58],
-      redVivid: [226, 76, 108],
-      greenVivid: [36, 156, 138],
     },
     {
       bg: [19, 15, 30],
@@ -576,10 +510,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [203, 60, 92],
       greenStrong: [18, 122, 108],
       yellowInk: [242, 202, 108],
-      blueVivid: [190, 152, 255],
-      yellowVivid: [240, 192, 88],
-      redVivid: [255, 156, 180],
-      greenVivid: [140, 218, 202],
     },
   ),
   theme(
@@ -602,10 +532,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [156, 44, 60],
       greenStrong: [56, 108, 80],
       yellowInk: [106, 80, 22],
-      blueVivid: [122, 44, 188],
-      yellowVivid: [206, 164, 80],
-      redVivid: [178, 56, 74],
-      greenVivid: [76, 134, 100],
     },
     {
       bg: [22, 13, 30],
@@ -623,10 +549,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [158, 46, 62],
       greenStrong: [56, 108, 80],
       yellowInk: [238, 200, 112],
-      blueVivid: [200, 148, 255],
-      yellowVivid: [228, 188, 108],
-      redVivid: [255, 154, 164],
-      greenVivid: [156, 210, 174],
     },
   ),
   theme(
@@ -649,10 +571,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [192, 48, 70],
       greenStrong: [22, 124, 94],
       yellowInk: [126, 100, 24],
-      blueVivid: [74, 92, 214],
-      yellowVivid: [246, 204, 88],
-      redVivid: [230, 72, 96],
-      greenVivid: [54, 176, 134],
     },
     {
       bg: [12, 14, 30],
@@ -670,10 +588,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [210, 56, 80],
       greenStrong: [24, 120, 92],
       yellowInk: [246, 216, 118],
-      blueVivid: [162, 174, 248],
-      yellowVivid: [250, 216, 108],
-      redVivid: [255, 152, 166],
-      greenVivid: [146, 226, 190],
     },
   ),
   theme(
@@ -696,10 +610,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [190, 62, 66],
       greenStrong: [10, 110, 78],
       yellowInk: [124, 92, 20],
-      blueVivid: [14, 146, 216],
-      yellowVivid: [244, 192, 60],
-      redVivid: [228, 88, 92],
-      greenVivid: [32, 156, 112],
     },
     {
       bg: [9, 19, 29],
@@ -717,10 +627,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [206, 70, 76],
       greenStrong: [12, 124, 90],
       yellowInk: [244, 208, 92],
-      blueVivid: [132, 204, 244],
-      yellowVivid: [248, 204, 78],
-      redVivid: [255, 156, 158],
-      greenVivid: [136, 218, 180],
     },
   ),
   theme(
@@ -743,10 +649,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [182, 58, 76],
       greenStrong: [10, 114, 100],
       yellowInk: [118, 92, 22],
-      blueVivid: [16, 144, 180],
-      yellowVivid: [232, 190, 86],
-      redVivid: [220, 86, 104],
-      greenVivid: [32, 162, 142],
     },
     {
       bg: [9, 22, 27],
@@ -764,10 +666,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [196, 68, 88],
       greenStrong: [14, 128, 112],
       yellowInk: [242, 210, 114],
-      blueVivid: [126, 210, 234],
-      yellowVivid: [240, 204, 104],
-      redVivid: [255, 158, 170],
-      greenVivid: [130, 220, 200],
     },
   ),
   theme(
@@ -790,10 +688,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [188, 48, 78],
       greenStrong: [64, 116, 74],
       yellowInk: [122, 96, 20],
-      blueVivid: [24, 158, 114],
-      yellowVivid: [240, 196, 64],
-      redVivid: [226, 74, 106],
-      greenVivid: [92, 152, 102],
     },
     {
       bg: [11, 24, 20],
@@ -811,10 +705,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [202, 56, 88],
       greenStrong: [70, 124, 80],
       yellowInk: [242, 210, 96],
-      blueVivid: [128, 222, 182],
-      yellowVivid: [244, 206, 84],
-      redVivid: [255, 156, 176],
-      greenVivid: [172, 216, 178],
     },
   ),
   theme(
@@ -837,10 +727,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [184, 58, 38],
       greenStrong: [92, 114, 42],
       yellowInk: [118, 90, 20],
-      blueVivid: [194, 122, 30],
-      yellowVivid: [244, 196, 76],
-      redVivid: [216, 82, 56],
-      greenVivid: [112, 138, 54],
     },
     {
       bg: [26, 19, 11],
@@ -858,10 +744,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [194, 64, 44],
       greenStrong: [88, 110, 40],
       yellowInk: [244, 210, 106],
-      blueVivid: [250, 192, 108],
-      yellowVivid: [248, 208, 96],
-      redVivid: [255, 160, 138],
-      greenVivid: [194, 208, 132],
     },
   ),
   theme(
@@ -884,10 +766,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [168, 62, 48],
       greenStrong: [84, 106, 62],
       yellowInk: [110, 84, 30],
-      blueVivid: [72, 136, 136],
-      yellowVivid: [212, 170, 98],
-      redVivid: [206, 88, 70],
-      greenVivid: [120, 146, 92],
     },
     {
       bg: [26, 22, 16],
@@ -905,10 +783,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [182, 72, 58],
       greenStrong: [96, 120, 74],
       yellowInk: [238, 204, 128],
-      blueVivid: [156, 206, 204],
-      yellowVivid: [228, 190, 122],
-      redVivid: [255, 170, 154],
-      greenVivid: [188, 208, 162],
     },
   ),
   theme(
@@ -931,10 +805,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [160, 50, 48],
       greenStrong: [74, 118, 82],
       yellowInk: [116, 86, 22],
-      blueVivid: [212, 94, 50],
-      yellowVivid: [228, 178, 78],
-      redVivid: [182, 62, 58],
-      greenVivid: [94, 142, 100],
     },
     {
       bg: [28, 17, 12],
@@ -952,10 +822,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [158, 48, 48],
       greenStrong: [72, 114, 80],
       yellowInk: [242, 202, 108],
-      blueVivid: [250, 154, 110],
-      yellowVivid: [240, 192, 98],
-      redVivid: [255, 154, 146],
-      greenVivid: [172, 210, 176],
     },
   ),
   theme(
@@ -978,10 +844,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [172, 64, 54],
       greenStrong: [54, 104, 64],
       yellowInk: [108, 94, 30],
-      blueVivid: [106, 126, 52],
-      yellowVivid: [208, 186, 102],
-      redVivid: [194, 78, 66],
-      greenVivid: [72, 128, 80],
     },
     {
       bg: [22, 24, 13],
@@ -999,10 +861,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [168, 62, 54],
       greenStrong: [52, 100, 62],
       yellowInk: [232, 212, 128],
-      blueVivid: [194, 208, 142],
-      yellowVivid: [224, 204, 122],
-      redVivid: [255, 164, 152],
-      greenVivid: [164, 204, 168],
     },
   ),
   theme(
@@ -1025,10 +883,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [174, 62, 54],
       greenStrong: [68, 100, 72],
       yellowInk: [114, 86, 20],
-      blueVivid: [84, 100, 124],
-      yellowVivid: [228, 178, 66],
-      redVivid: [214, 90, 78],
-      greenVivid: [100, 140, 102],
     },
     {
       bg: [16, 20, 26],
@@ -1046,10 +900,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [190, 74, 66],
       greenStrong: [76, 112, 82],
       yellowInk: [240, 204, 102],
-      blueVivid: [174, 190, 208],
-      yellowVivid: [238, 196, 90],
-      redVivid: [255, 166, 156],
-      greenVivid: [176, 208, 180],
     },
   ),
   theme(
@@ -1072,10 +922,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [160, 62, 60],
       greenStrong: [70, 98, 80],
       yellowInk: [112, 96, 44],
-      blueVivid: [72, 82, 96],
-      yellowVivid: [214, 188, 118],
-      redVivid: [198, 88, 86],
-      greenVivid: [112, 142, 120],
     },
     {
       bg: [18, 19, 21],
@@ -1093,10 +939,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [174, 74, 74],
       greenStrong: [88, 116, 98],
       yellowInk: [236, 216, 148],
-      blueVivid: [184, 194, 206],
-      yellowVivid: [226, 204, 140],
-      redVivid: [255, 172, 166],
-      greenVivid: [182, 206, 188],
     },
   ),
   theme(
@@ -1119,10 +961,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [182, 50, 50],
       greenStrong: [34, 104, 74],
       yellowInk: [120, 90, 20],
-      blueVivid: [48, 118, 192],
-      yellowVivid: [236, 184, 68],
-      redVivid: [220, 72, 72],
-      greenVivid: [58, 148, 106],
     },
     {
       bg: [14, 19, 27],
@@ -1140,10 +978,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [198, 56, 56],
       greenStrong: [40, 118, 86],
       yellowInk: [242, 204, 100],
-      blueVivid: [150, 186, 226],
-      yellowVivid: [244, 198, 88],
-      redVivid: [255, 158, 154],
-      greenVivid: [146, 212, 174],
     },
   ),
   theme(
@@ -1166,10 +1000,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [196, 40, 76],
       greenStrong: [11, 122, 102],
       yellowInk: [126, 96, 20],
-      blueVivid: [44, 82, 214],
-      yellowVivid: [250, 202, 72],
-      redVivid: [234, 60, 100],
-      greenVivid: [34, 168, 142],
     },
     {
       bg: [10, 13, 32],
@@ -1187,10 +1017,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [210, 46, 84],
       greenStrong: [10, 120, 100],
       yellowInk: [248, 214, 98],
-      blueVivid: [144, 166, 244],
-      yellowVivid: [252, 212, 88],
-      redVivid: [255, 146, 172],
-      greenVivid: [140, 222, 196],
     },
   ),
   theme(
@@ -1213,10 +1039,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [164, 38, 40],
       greenStrong: [84, 114, 82],
       yellowInk: [124, 86, 20],
-      blueVivid: [220, 96, 34],
-      yellowVivid: [244, 182, 66],
-      redVivid: [188, 48, 50],
-      greenVivid: [104, 138, 100],
     },
     {
       bg: [28, 13, 9],
@@ -1234,10 +1056,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [162, 38, 40],
       greenStrong: [80, 110, 80],
       yellowInk: [244, 202, 96],
-      blueVivid: [255, 156, 98],
-      yellowVivid: [250, 196, 86],
-      redVivid: [255, 142, 132],
-      greenVivid: [178, 206, 172],
     },
   ),
   theme(
@@ -1260,10 +1078,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [172, 50, 82],
       greenStrong: [64, 110, 64],
       yellowInk: [124, 86, 26],
-      blueVivid: [208, 86, 124],
-      yellowVivid: [246, 184, 102],
-      redVivid: [192, 62, 96],
-      greenVivid: [112, 160, 106],
     },
     {
       bg: [28, 14, 21],
@@ -1281,10 +1095,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [170, 48, 82],
       greenStrong: [68, 114, 68],
       yellowInk: [246, 206, 126],
-      blueVivid: [255, 162, 196],
-      yellowVivid: [250, 198, 122],
-      redVivid: [255, 146, 178],
-      greenVivid: [176, 214, 172],
     },
   ),
   theme(
@@ -1308,10 +1118,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [196, 66, 60],
       greenStrong: [34, 116, 84],
       yellowInk: [242, 212, 118],
-      blueVivid: [164, 184, 210],
-      yellowVivid: [238, 204, 108],
-      redVivid: [255, 162, 156],
-      greenVivid: [158, 210, 182],
     },
     {
       bg: [0, 0, 0],
@@ -1329,10 +1135,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [198, 68, 62],
       greenStrong: [36, 118, 86],
       yellowInk: [244, 214, 120],
-      blueVivid: [166, 186, 212],
-      yellowVivid: [240, 206, 110],
-      redVivid: [255, 164, 158],
-      greenVivid: [160, 212, 184],
     },
   ),
   theme(
@@ -1355,10 +1157,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [176, 62, 46],
       greenStrong: [74, 98, 56],
       yellowInk: [110, 82, 22],
-      blueVivid: [76, 108, 152],
-      yellowVivid: [214, 166, 56],
-      redVivid: [196, 74, 56],
-      greenVivid: [110, 136, 84],
     },
     {
       bg: [28, 24, 18],
@@ -1376,10 +1174,6 @@ export const THEMES: ThemeDefinition[] = [
       redStrong: [172, 60, 46],
       greenStrong: [86, 110, 66],
       yellowInk: [240, 202, 96],
-      blueVivid: [158, 184, 220],
-      yellowVivid: [230, 188, 86],
-      redVivid: [255, 162, 146],
-      greenVivid: [184, 204, 158],
     },
   ),
 ];

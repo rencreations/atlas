@@ -1,95 +1,111 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ShapeSignature } from '@/components/brand/shape-signature';
-import { PatternDado } from '@/components/brand/pattern-corner';
-import { Container } from './container';
+import { cn } from '@/lib/utils';
 
-export function Footer() {
-  return (
-    <footer className="mt-24 bg-surface">
-      <Container size="2xl" className="py-12">
-        <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
-          <div className="col-span-2 md:col-span-1">
-            <ShapeSignature size={28} />
-            <p className="mt-4 max-w-[24ch] text-[14px] text-ink-3">
-              The project portfolio dashboard for Shirasaka Ren.
-            </p>
-          </div>
-          <FooterColumn title="Atlas">
-            <FooterLink href="/dashboard">Discover</FooterLink>
-            <FooterLink href="/projects">Browse projects</FooterLink>
-            <FooterLink href="/projects/new">Start a project</FooterLink>
-          </FooterColumn>
-          <FooterColumn title="Links">
-            <FooterLink href="https://labmgm.org" external>
-              Shirasaka Ren
-            </FooterLink>
-            <FooterLink href="https://iam.labmgm.org" external>
-              Identity
-            </FooterLink>
-            <FooterLink href="https://n8n.labmgm.org" external>
-              Automation
-            </FooterLink>
-          </FooterColumn>
-          <FooterColumn title="Support">
-            <FooterLink href="/health">Status</FooterLink>
-            <FooterLink href="mailto:atlas@labmgm.org">Contact</FooterLink>
-          </FooterColumn>
-        </div>
-      </Container>
+const LETTERS = ['A', 'T', 'L', 'A', 'S'];
 
-      <PatternDado height={8} />
-
-      <Container size="2xl" className="flex flex-col gap-2 py-6 md:flex-row md:items-center md:justify-between">
-        <span className="text-[13px] text-ink-3">
-          © {new Date().getFullYear()} Shirasaka Ren. All rights reserved.
-        </span>
-        <div className="flex gap-6 text-[13px] text-ink-3">
-          <Link href={'/health' as never} className="hover:text-ink">
-            Status
-          </Link>
-        </div>
-      </Container>
-    </footer>
-  );
-}
-
-function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h4 className="mb-3 text-[13px] font-semibold text-ink">{title}</h4>
-      <ul className="space-y-2">{children}</ul>
-    </div>
-  );
-}
-
-function FooterLink({
-  href,
-  external,
-  children,
-}: {
+interface FooterLinkItem {
+  label: string;
   href: string;
   external?: boolean;
-  children: React.ReactNode;
-}) {
-  if (external) {
-    return (
-      <li>
-        <a
-          href={href}
-          target="_blank"
-          rel="noreferrer"
-          className="text-[14px] text-ink-3 hover:text-ink"
-        >
-          {children}
-        </a>
-      </li>
+}
+
+const LINKS: FooterLinkItem[] = [
+  { label: 'GitHub', href: 'https://github.com/shirasakaren/atlas', external: true },
+  { label: 'Terms', href: '/legal/terms' },
+  { label: 'Privacy', href: '/legal/privacy' },
+  { label: 'Status', href: '/health' },
+];
+
+/**
+ * The Atlas footer — one oversized wordmark in the theme's primary color
+ * whose letters emerge one by one when the footer scrolls into view,
+ * followed by the essential links only. No columns, no rainbow strip.
+ */
+export function Footer() {
+  const rootRef = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.2 },
     );
-  }
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <li>
-      <Link href={href as never} className="text-[14px] text-ink-3 hover:text-ink">
-        {children}
-      </Link>
-    </li>
+    <footer ref={rootRef} className="mt-24 overflow-hidden border-t border-line bg-surface">
+      <div className="container-x flex flex-col items-center gap-8 py-16 text-center md:py-20">
+        <p className="select-none font-display text-[clamp(3.5rem,13vw,9.5rem)] font-semibold leading-none tracking-[-0.04em]">
+          {LETTERS.map((letter, i) => (
+            <span
+              key={i}
+              aria-hidden
+              className={cn('inline-block text-brand-blue', visible ? 'animate-fade-up' : 'opacity-0')}
+              style={{ animationDelay: `${140 + i * 90}ms` }}
+            >
+              {letter}
+            </span>
+          ))}
+        </p>
+        <span className="sr-only">Atlas</span>
+
+        <nav
+          aria-label="Footer"
+          className={cn(
+            'flex flex-wrap items-center justify-center gap-x-8 gap-y-3',
+            visible ? 'animate-fade-up' : 'opacity-0',
+          )}
+          style={{ animationDelay: '700ms' }}
+        >
+          {LINKS.map((link) =>
+            link.external ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[13.5px] font-medium text-ink-3 transition-colors duration-120 hover:text-brand-blue"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href as never}
+                className="text-[13.5px] font-medium text-ink-3 transition-colors duration-120 hover:text-brand-blue"
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
+        </nav>
+
+        <p
+          className={cn(
+            'text-[12.5px] text-ink-4',
+            visible ? 'animate-fade-up' : 'opacity-0',
+          )}
+          style={{ animationDelay: '820ms' }}
+        >
+          © {new Date().getFullYear()} Shirasaka Ren · Licensed under AGPL-3.0
+        </p>
+      </div>
+    </footer>
   );
 }

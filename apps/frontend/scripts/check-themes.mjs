@@ -87,10 +87,10 @@ const NAME = {
   brandRedStrong: 'brand-red-strong',
   brandGreen: 'brand-green',
   brandGreenStrong: 'brand-green-strong',
+  brandBlue50: 'brand-blue-50',
   brandYellow: 'brand-yellow',
   brandYellowInk: 'brand-yellow-ink',
   brandYellowFg: 'brand-yellow-fg',
-  brandBlue50: 'brand-blue-50',
   brandRed50: 'brand-red-50',
   brandGreen50: 'brand-green-50',
   brandYellow50: 'brand-yellow-50',
@@ -172,13 +172,15 @@ for (const theme of THEMES) {
         );
       }
     }
-    // Decorative brand signature — soft floor only (logo mark, patterns).
-    for (const key of ['brandBlueVivid', 'brandYellowVivid', 'brandRedVivid', 'brandGreenVivid']) {
-      const r = ratio(p[key], p.bg);
-      if (r < 1.4) {
-        warnings += 1;
-        console.warn(
-          `warn ${theme.id}/${mode}: ${NAME[key] ?? key} on bg = ${r.toFixed(2)} (decorative; < 2.2)`,
+    // The primary brand color doubles as the decorative signature (wordmark,
+    // mark, patterns) — it must hold 3:1 on the page background as a
+    // meaningful graphic as well as 4.5:1 as text.
+    {
+      const r = ratio(p.brandBlue, p.bg);
+      if (r < 3) {
+        failures += 1;
+        console.error(
+          `FAIL ${theme.id}/${mode}: brand-blue on bg = ${r.toFixed(2)} (need 3.0 as graphic)`,
         );
       }
     }

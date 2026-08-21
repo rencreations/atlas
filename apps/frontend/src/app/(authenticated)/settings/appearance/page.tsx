@@ -27,7 +27,7 @@ function rgbCss(c: RGB): string {
   return `rgb(${c.join(' ')} / 1)`;
 }
 
-/** Mini palette preview: light + dark rows, four vivid chips, ink bar. */
+/** Mini palette preview: light + dark rows, primary swatch, ink bar. */
 function ThemePreview({ id }: { id: string }) {
   const theme = THEMES.find((t) => t.id === id) ?? THEMES[0];
   return (
@@ -37,13 +37,10 @@ function ThemePreview({ id }: { id: string }) {
         return (
           <div key={m} className="flex h-9 items-stretch">
             <div
-              className="flex w-1/2 items-center gap-1 px-1.5"
+              className="flex w-1/2 items-center gap-1.5 px-2"
               style={{ background: rgbCss(p.bg) }}
             >
-              <span className="h-3 w-3 rounded-full" style={{ background: rgbCss(p.brandBlueVivid) }} />
-              <span className="h-3 w-3 rounded-full" style={{ background: rgbCss(p.brandYellowVivid) }} />
-              <span className="h-3 w-3 rounded-full" style={{ background: rgbCss(p.brandRedVivid) }} />
-              <span className="h-3 w-3 rounded-full" style={{ background: rgbCss(p.brandGreenVivid) }} />
+              <span className="h-4 w-4 rounded-full" style={{ background: rgbCss(p.brandBlue) }} />
             </div>
             <div
               className="flex w-1/2 items-center gap-1.5 border-l border-line px-2"
