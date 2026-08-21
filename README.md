@@ -193,8 +193,8 @@ secrets are configured — see
 ## Contributing
 
 Bug reports, feature requests, and pull requests are welcome. See
-[`CONTRIBUTING.md`](CONTRIBUTING.md) and
-[`SECURITY.md`](SECURITY.md) before opening a PR. Please keep the
+[`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md) and
+[`.github/SECURITY.md`](.github/SECURITY.md) before opening a PR. Please keep the
 design system rules in [`docs/design-system.md`](docs/design-system.md)
 in mind for any UI work.
 
