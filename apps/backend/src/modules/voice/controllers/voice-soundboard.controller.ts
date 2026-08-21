@@ -3,10 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { AdminGuard } from '@/modules/auth/guards/admin.guard';
-import {
-  PresignSoundboardClipDto,
-  RegisterSoundboardClipDto,
-} from '../dto/soundboard.dto';
+import { PresignSoundboardClipDto, RegisterSoundboardClipDto } from '../dto/soundboard.dto';
 import { VoiceFeatureFlagGuard } from '../guards/voice-feature-flag.guard';
 import { VoiceSoundboardService } from '../services/voice-soundboard.service';
 
@@ -42,10 +39,7 @@ export class VoiceSoundboardController {
 
   @UseGuards(AdminGuard)
   @Post()
-  async register(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: RegisterSoundboardClipDto,
-  ) {
+  async register(@CurrentUser() user: AuthenticatedUser, @Body() dto: RegisterSoundboardClipDto) {
     return this.soundboard.register(user.id, dto);
   }
 

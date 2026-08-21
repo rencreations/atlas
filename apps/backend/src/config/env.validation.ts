@@ -43,26 +43,37 @@ class EnvVars {
   @IsNotEmpty()
   DATABASE_URL!: string;
 
-  @IsUrl({ require_tld: false })
-  KEYCLOAK_BASE_URL!: string;
-
+  // Keycloak is one auth method among many now — optional. Credentials
+  // can be entered in godmode instead.
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  KEYCLOAK_REALM!: string;
+  KEYCLOAK_BASE_URL?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  KEYCLOAK_CLIENT_ID!: string;
+  KEYCLOAK_REALM?: string;
 
-  @IsUrl({ require_tld: false })
-  KEYCLOAK_ISSUER!: string;
+  @IsOptional()
+  @IsString()
+  KEYCLOAK_CLIENT_ID?: string;
 
-  @IsUrl({ require_tld: false })
-  KEYCLOAK_JWKS_URI!: string;
+  @IsOptional()
+  @IsString()
+  KEYCLOAK_ISSUER?: string;
+
+  @IsOptional()
+  @IsString()
+  KEYCLOAK_JWKS_URI?: string;
 
   @IsOptional()
   @IsString()
   KEYCLOAK_AUDIENCE?: string;
+
+  /// Control-plane passphrase for /godmode. Required for self-hosted
+  /// deployments — without it nothing can be configured.
+  @IsString()
+  @IsNotEmpty()
+  GODMODE_PASSPHRASE!: string;
 
   /// Emergency kill switch for login token verification. Unset/true =
   /// verify (default). Only set to "false" during an auth incident.
@@ -89,48 +100,54 @@ class EnvVars {
   @IsString()
   SENTRY_TRACES_SAMPLE_RATE?: string;
 
+  /// Legacy env admin seeding — optional; admin assignment is role-based
+  /// via godmode now.
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  BOOTSTRAP_ADMIN_EMAIL!: string;
+  BOOTSTRAP_ADMIN_EMAIL?: string;
 
   @IsOptional()
   @IsString()
   ADMIN_NOTIFICATION_EMAILS?: string;
 
+  // Storage is configured from godmode; the env vars below are optional
+  // fallbacks for existing deployments.
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  AWS_REGION!: string;
+  AWS_REGION?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  AWS_S3_BUCKET!: string;
+  AWS_S3_BUCKET?: string;
 
   @IsOptional()
   @IsString()
   AWS_S3_PUBLIC_BASE_URL?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  AWS_ACCESS_KEY_ID!: string;
+  AWS_ACCESS_KEY_ID?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  AWS_SECRET_ACCESS_KEY!: string;
+  AWS_SECRET_ACCESS_KEY?: string;
 
   @IsOptional()
   @IsInt()
   S3_UPLOAD_PRESIGN_TTL?: number;
 
-  @IsUrl({ require_tld: false })
-  N8N_BASE_URL!: string;
+  // n8n integration is configured from godmode; env fallbacks optional.
+  @IsOptional()
+  @IsString()
+  N8N_BASE_URL?: string;
 
   @IsOptional()
   @IsString()
   N8N_WEBHOOK_PATH?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  N8N_WEBHOOK_SECRET!: string;
+  N8N_WEBHOOK_SECRET?: string;
 
   @IsOptional()
   @IsString()

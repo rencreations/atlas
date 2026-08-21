@@ -12,10 +12,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ProjectRole } from '@prisma/client';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
-import {
-  ProjectRoleGuard,
-  RequireProjectRole,
-} from '../auth/guards/project-role.guard';
+import { ProjectRoleGuard, RequireProjectRole } from '../auth/guards/project-role.guard';
 import { ProjectAccessService } from '../projects/project-access.service';
 import { PresignUploadDto } from './dto/presign-upload.dto';
 import { RegisterMediaDto } from './dto/register-media.dto';
@@ -34,26 +31,17 @@ export class MediaController {
   ) {}
 
   @Post('presign')
-  presign(
-    @Param('projectId', ParseUUIDPipe) projectId: string,
-    @Body() dto: PresignUploadDto,
-  ) {
+  presign(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() dto: PresignUploadDto) {
     return this.media.presignUpload(projectId, dto);
   }
 
   @Post()
-  register(
-    @Param('projectId', ParseUUIDPipe) projectId: string,
-    @Body() dto: RegisterMediaDto,
-  ) {
+  register(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() dto: RegisterMediaDto) {
     return this.media.registerMedia(projectId, dto);
   }
 
   @Patch('reorder')
-  reorder(
-    @Param('projectId', ParseUUIDPipe) projectId: string,
-    @Body() dto: ReorderMediaDto,
-  ) {
+  reorder(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() dto: ReorderMediaDto) {
     return this.media.reorder(projectId, dto.orderedIds);
   }
 

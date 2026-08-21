@@ -49,10 +49,7 @@ export class VoiceStageController {
   ) {}
 
   @Post('hand/raise')
-  async raiseHand(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('channelId') channelId: string,
-  ) {
+  async raiseHand(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanRead(channelId, user);
     return this.stage.raiseHand({ channelId, userId: user.id });
   }
@@ -64,12 +61,9 @@ export class VoiceStageController {
     @Body() dto: LowerHandDto,
   ) {
     const targetUserId = dto.targetUserId ?? user.id;
-    const isMod =
-      targetUserId !== user.id
-        ? await this.isModerator(channelId, user)
-        : false;
+    const isMod = targetUserId !== user.id ? await this.isModerator(channelId, user) : false;
     if (targetUserId !== user.id && !isMod) {
-      throw new ForbiddenException('Only moderators can lower other people\'s hands.');
+      throw new ForbiddenException("Only moderators can lower other people's hands.");
     }
     await this.assertCanRead(channelId, user);
     return this.stage.lowerHand({
@@ -81,10 +75,7 @@ export class VoiceStageController {
   }
 
   @Get('hand/queue')
-  async queue(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('channelId') channelId: string,
-  ) {
+  async queue(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanRead(channelId, user);
     const items = await this.stage.listHandQueue(channelId);
     return { items };
@@ -149,10 +140,7 @@ export class VoiceStageController {
     }
   }
 
-  private async isModerator(
-    channelId: string,
-    user: AuthenticatedUser,
-  ): Promise<boolean> {
+  private async isModerator(channelId: string, user: AuthenticatedUser): Promise<boolean> {
     const channel = await this.prisma.voiceChannel.findUnique({
       where: { id: channelId },
       select: { projectId: true },

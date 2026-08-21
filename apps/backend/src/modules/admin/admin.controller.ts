@@ -38,10 +38,7 @@ export class AdminController {
 
   @Patch('collaboration-roles/:id')
   @UseGuards(AdminGuard)
-  updateRole(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateCollaborationRoleDto,
-  ) {
+  updateRole(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateCollaborationRoleDto) {
     return this.admin.updateRole(id, dto);
   }
 

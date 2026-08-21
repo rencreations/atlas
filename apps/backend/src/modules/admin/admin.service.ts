@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { CreateCollaborationRoleDto, UpdateCollaborationRoleDto } from './dto/collaboration-role.dto';
+import {
+  CreateCollaborationRoleDto,
+  UpdateCollaborationRoleDto,
+} from './dto/collaboration-role.dto';
 
 @Injectable()
 export class AdminService {

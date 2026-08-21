@@ -67,7 +67,9 @@ export class VoiceModerationService {
 
     // Pull the published-track list from LiveKit so we can mute each
     // mic publication independently (LiveKit's API is per-track).
-    let participantInfo: { tracks?: Array<{ sid?: string; source?: string | number; muted?: boolean }> };
+    let participantInfo: {
+      tracks?: Array<{ sid?: string; source?: string | number; muted?: boolean }>;
+    };
     try {
       participantInfo = await room.getParticipant(roomName, args.targetUserId);
     } catch (err) {

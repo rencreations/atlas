@@ -62,29 +62,20 @@ export class VoiceRecordingController {
   }
 
   @Post('voice/channels/:channelId/recording/stop')
-  async stop(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('channelId') channelId: string,
-  ) {
+  async stop(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanModerate(channelId, user);
     return this.recording.stop({ channelId });
   }
 
   @Get('voice/channels/:channelId/recordings')
-  async list(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('channelId') channelId: string,
-  ) {
+  async list(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanRead(channelId, user);
     const items = await this.recording.listForChannel(channelId);
     return { items };
   }
 
   @Get('voice/recordings/:id/download')
-  async download(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
-  ) {
+  async download(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     // Reader-level gate — same channel access as list.
     const rec = await this.prisma.voiceRecording.findUnique({
       where: { id },

@@ -14,7 +14,11 @@ import {
 
 const splitCsv = ({ value }: { value: unknown }) => {
   if (Array.isArray(value)) return value as string[];
-  if (typeof value === 'string') return value.split(',').map((s) => s.trim()).filter(Boolean);
+  if (typeof value === 'string')
+    return value
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   return value;
 };
 

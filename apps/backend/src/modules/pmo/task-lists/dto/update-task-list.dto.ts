@@ -7,5 +7,11 @@ import { CreateTaskListDto } from './create-task-list.dto';
  * `order` is reordered via a separate endpoint, not this one.
  */
 export class UpdateTaskListDto extends PartialType(
-  PickType(CreateTaskListDto, ['name', 'iconName', 'iconColor', 'projectKey', 'contributorsCanCreateTasks'] as const),
+  PickType(CreateTaskListDto, [
+    'name',
+    'iconName',
+    'iconColor',
+    'projectKey',
+    'contributorsCanCreateTasks',
+  ] as const),
 ) {}

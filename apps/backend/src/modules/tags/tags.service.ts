@@ -34,7 +34,11 @@ export class TagsService {
 
   async create(dto: CreateTagDto) {
     return this.prisma.tag.create({
-      data: { name: dto.name.trim(), category: dto.category.trim(), slug: toUniqueSlug(`${dto.category}-${dto.name}`) },
+      data: {
+        name: dto.name.trim(),
+        category: dto.category.trim(),
+        slug: toUniqueSlug(`${dto.category}-${dto.name}`),
+      },
     });
   }
 

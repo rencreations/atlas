@@ -23,6 +23,9 @@ import { AdminModule } from './modules/admin/admin.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { PmoModule } from './modules/pmo/pmo.module';
 import { VoiceModule } from './modules/voice/voice.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { GodmodeModule } from './modules/godmode/godmode.module';
+import { PublicConfigModule } from './modules/public-config/public-config.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RedisModule } from './infra/redis/redis.module';
 import { MetricsModule } from './infra/metrics/metrics.module';
@@ -49,6 +52,9 @@ import { MetricsModule } from './infra/metrics/metrics.module';
     }),
     PrismaModule,
     RedisModule,
+    SettingsModule,
+    GodmodeModule,
+    PublicConfigModule,
     MailerModule,
     WebhooksModule,
     AuthModule,

@@ -60,7 +60,9 @@ export class MediaService {
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.projectMedia.count({ where: { projectId } });
       if (existing >= max + 1) {
-        throw new BadRequestException(`A project can have at most ${max} gallery items + 1 thumbnail.`);
+        throw new BadRequestException(
+          `A project can have at most ${max} gallery items + 1 thumbnail.`,
+        );
       }
 
       // If incoming media is order=0 (thumbnail), demote any existing thumbnail.

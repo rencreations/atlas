@@ -30,10 +30,13 @@ export class WebhooksService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    const base = config.getOrThrow<string>('n8n.baseUrl').replace(/\/+$/, '');
+    const base = (config.get<string>('n8n.baseUrl') ?? '').replace(/\/+$/, '');
     const path = config.get<string>('n8n.webhookPath') ?? '/webhook/atlas';
-    this.url = `${base}${path.startsWith('/') ? path : `/${path}`}`;
-    this.secret = config.getOrThrow<string>('n8n.secret');
+    this.url = base ? `${base}${path.startsWith('/') ? path : `/${path}`}` : '';
+    this.secret = config.get<string>('n8n.secret') ?? '';
+    if (!this.url) {
+      this.logger.warn('Webhooks disabled — n8n not configured. Configure it in godmode.');
+    }
   }
 
   /**
@@ -50,6 +53,11 @@ export class WebhooksService {
     };
     const body = JSON.stringify(envelope);
     const signature = createHmac('sha256', this.secret).update(body).digest('hex');
+
+    if (!this.url) {
+      this.logger.debug(`Skipping ${event} — webhooks not configured.`);
+      return;
+    }
 
     const log = await this.prisma.webhookDelivery.create({
       data: { event, payload: envelope as object },
@@ -71,7 +79,10 @@ export class WebhooksService {
         where: { id: log.id },
         data: {
           status: res.status,
-          responseBody: typeof res.data === 'string' ? res.data.slice(0, 4000) : JSON.stringify(res.data).slice(0, 4000),
+          responseBody:
+            typeof res.data === 'string'
+              ? res.data.slice(0, 4000)
+              : JSON.stringify(res.data).slice(0, 4000),
           succeeded,
           completedAt: new Date(),
         },

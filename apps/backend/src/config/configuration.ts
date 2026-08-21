@@ -13,12 +13,18 @@ export default () => ({
     url: process.env.DATABASE_URL!,
   },
   keycloak: {
-    baseUrl: process.env.KEYCLOAK_BASE_URL!,
-    realm: process.env.KEYCLOAK_REALM!,
-    clientId: process.env.KEYCLOAK_CLIENT_ID!,
-    issuer: process.env.KEYCLOAK_ISSUER!,
-    jwksUri: process.env.KEYCLOAK_JWKS_URI!,
+    // Optional since the self-host release — Keycloak is one auth method
+    // among many, configured from godmode. Empty values disable it.
+    baseUrl: process.env.KEYCLOAK_BASE_URL ?? '',
+    realm: process.env.KEYCLOAK_REALM ?? '',
+    clientId: process.env.KEYCLOAK_CLIENT_ID ?? '',
+    issuer: process.env.KEYCLOAK_ISSUER ?? '',
+    jwksUri: process.env.KEYCLOAK_JWKS_URI ?? '',
     audience: process.env.KEYCLOAK_AUDIENCE ?? 'account',
+  },
+  godmode: {
+    // Control-plane passphrase. Required — see env.validation.ts.
+    passphrase: process.env.GODMODE_PASSPHRASE ?? '',
   },
   auth: {
     // Verify Keycloak token signatures on POST /auth/login (JWKS + issuer +
@@ -38,25 +44,30 @@ export default () => ({
     tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE ?? '0'),
   },
   bootstrap: {
-    adminEmail: process.env.BOOTSTRAP_ADMIN_EMAIL ?? 'admin@labmgm.org',
+    // Legacy env seeding kept as an optional fallback; primary admin
+    // assignment is role-based via godmode (see the godmode module).
+    adminEmail: process.env.BOOTSTRAP_ADMIN_EMAIL ?? '',
     adminNotificationEmails: (process.env.ADMIN_NOTIFICATION_EMAILS ?? '')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean),
   },
   s3: {
-    region: process.env.AWS_REGION!,
-    bucket: process.env.AWS_S3_BUCKET!,
+    // Optional at boot — storage is configured from godmode.
+    region: process.env.AWS_REGION ?? '',
+    bucket: process.env.AWS_S3_BUCKET ?? '',
     publicBaseUrl: process.env.AWS_S3_PUBLIC_BASE_URL ?? '',
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? '',
     presignTtl: parseInt(process.env.S3_UPLOAD_PRESIGN_TTL ?? '300', 10),
   },
   media: {
     maxImageBytes: parseInt(process.env.MEDIA_MAX_IMAGE_BYTES ?? '10485760', 10),
     maxVideoBytes: parseInt(process.env.MEDIA_MAX_VIDEO_BYTES ?? '104857600', 10),
     maxGalleryItems: parseInt(process.env.MEDIA_MAX_GALLERY_ITEMS ?? '10', 10),
-    allowedImageMime: (process.env.MEDIA_ALLOWED_IMAGE_MIME ?? 'image/jpeg,image/png,image/webp,image/gif')
+    allowedImageMime: (
+      process.env.MEDIA_ALLOWED_IMAGE_MIME ?? 'image/jpeg,image/png,image/webp,image/gif'
+    )
       .split(',')
       .map((s) => s.trim()),
     allowedVideoMime: (process.env.MEDIA_ALLOWED_VIDEO_MIME ?? 'video/mp4,video/webm')
@@ -64,9 +75,10 @@ export default () => ({
       .map((s) => s.trim()),
   },
   n8n: {
-    baseUrl: process.env.N8N_BASE_URL!,
+    // Optional at boot — configured from godmode.
+    baseUrl: process.env.N8N_BASE_URL ?? '',
     webhookPath: process.env.N8N_WEBHOOK_PATH ?? '/webhook/atlas',
-    secret: process.env.N8N_WEBHOOK_SECRET!,
+    secret: process.env.N8N_WEBHOOK_SECRET ?? '',
   },
   mail: {
     host: process.env.MAIL_HOST ?? '',

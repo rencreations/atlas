@@ -46,9 +46,7 @@ export class ProjectRoleGuard implements CanActivate {
     });
 
     if (!membership || !required.includes(membership.role)) {
-      throw new ForbiddenException(
-        `Requires one of [${required.join(', ')}] on this project.`,
-      );
+      throw new ForbiddenException(`Requires one of [${required.join(', ')}] on this project.`);
     }
     return true;
   }

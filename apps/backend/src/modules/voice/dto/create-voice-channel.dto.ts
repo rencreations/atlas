@@ -21,8 +21,7 @@ export class CreateVoiceChannelDto {
   @MinLength(1)
   @MaxLength(64)
   @Matches(/^[a-zA-Z0-9][a-zA-Z0-9 \-_]*$/, {
-    message:
-      'Channel name may only contain letters, numbers, spaces, hyphens, and underscores.',
+    message: 'Channel name may only contain letters, numbers, spaces, hyphens, and underscores.',
   })
   name!: string;
 

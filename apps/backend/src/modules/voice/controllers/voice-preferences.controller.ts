@@ -27,10 +27,7 @@ export class VoicePreferencesController {
   }
 
   @Patch()
-  async patch(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: UpdateVoicePreferencesDto,
-  ) {
+  async patch(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateVoicePreferencesDto) {
     return this.preferences.update(user.id, dto);
   }
 }

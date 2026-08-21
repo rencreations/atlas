@@ -12,11 +12,7 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
-import {
-  ModerateKickDto,
-  ModerateMoveDto,
-  ModerateMuteDto,
-} from '../dto/moderate-voice.dto';
+import { ModerateKickDto, ModerateMoveDto, ModerateMuteDto } from '../dto/moderate-voice.dto';
 import { VoiceFeatureFlagGuard } from '../guards/voice-feature-flag.guard';
 import { VoiceModerationService } from '../services/voice-moderation.service';
 

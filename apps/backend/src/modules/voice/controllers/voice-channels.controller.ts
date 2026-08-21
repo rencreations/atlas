@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
@@ -38,10 +29,7 @@ export class VoiceChannelsController {
 
   /** List voice channels for a project (insider-only). */
   @Get()
-  async list(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('slugOrId') slugOrId: string,
-  ) {
+  async list(@CurrentUser() user: AuthenticatedUser, @Param('slugOrId') slugOrId: string) {
     const { projectId, access } = await this.access.resolve(slugOrId, user);
     this.access.assertInsider(access);
     const channels = await this.channels.listForProject(projectId);

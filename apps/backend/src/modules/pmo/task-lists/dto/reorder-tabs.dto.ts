@@ -1,4 +1,12 @@
-import { ArrayMaxSize, ArrayNotEmpty, IsArray, IsBoolean, IsOptional, IsUUID, ValidateNested } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TabOrderItemDto {

@@ -80,9 +80,10 @@ export class VoiceWebhooksController {
     // shape because it just SHA's the string. If the global pipe didn't
     // mangle field names (it doesn't for raw body access), this works.
     const rawBody = JSON.stringify(req.body);
-    const event = (await this.livekit.verifyWebhook(rawBody, authHeader ?? '')) as
-      | LivekitWebhookEvent
-      | null;
+    const event = (await this.livekit.verifyWebhook(
+      rawBody,
+      authHeader ?? '',
+    )) as LivekitWebhookEvent | null;
     if (!event) {
       this.logger.warn('LiveKit webhook rejected (signature mismatch or missing creds)');
       return { ok: false };
@@ -96,9 +97,7 @@ export class VoiceWebhooksController {
         if (!roomName || !identity) break;
         const { left } = await this.participants.reconcileLeftFromWebhook({ roomName, identity });
         if (left > 0) {
-          const channelId = roomName.startsWith('voice:')
-            ? roomName.slice('voice:'.length)
-            : null;
+          const channelId = roomName.startsWith('voice:') ? roomName.slice('voice:'.length) : null;
           if (channelId) {
             // We don't have projectId here without an extra query; fan
             // out to both rooms (lobby + project) — the unused one is
@@ -120,9 +119,7 @@ export class VoiceWebhooksController {
         if (!roomName || !identity) break;
         const source = (event.track?.source ?? '').toUpperCase();
         if (source !== 'SCREEN_SHARE' && source !== 'SCREEN_SHARE_AUDIO') break;
-        const channelId = roomName.startsWith('voice:')
-          ? roomName.slice('voice:'.length)
-          : null;
+        const channelId = roomName.startsWith('voice:') ? roomName.slice('voice:'.length) : null;
         if (!channelId) break;
         this.realtime.screenShareState(channelId, {
           userId: identity,
@@ -157,8 +154,7 @@ export class VoiceWebhooksController {
           durationRaw !== undefined
             ? Math.round(Number(durationRaw.toString()) / 1_000_000_000) // ns → s
             : undefined;
-        const sizeBytes =
-          sizeRaw !== undefined ? BigInt(sizeRaw.toString()) : undefined;
+        const sizeBytes = sizeRaw !== undefined ? BigInt(sizeRaw.toString()) : undefined;
         await this.recording.onEgressEnded({
           egressId,
           success,

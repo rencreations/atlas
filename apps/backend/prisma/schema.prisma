@@ -143,16 +143,35 @@ enum ChatDeleteActor {
 // ─── Identity ────────────────────────────────────────────────────────────
 
 model User {
-  id          String    @id @default(uuid())
-  keycloakId  String    @unique
-  email       String    @unique
-  name        String
-  avatarUrl   String?
-  bio         String?
-  isAdmin     Boolean   @default(false)
-  lastLoginAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String  @id @default(uuid())
+  /// OIDC/SAML subject id when the user first signed in via Keycloak or
+  /// another external IdP. Null for purely local accounts (self-host).
+  keycloakId String? @unique
+  email      String  @unique
+  /// E.164 phone number for phone+password / phone OTP sign-in. Nullable.
+  phone          String?   @unique
+  phoneVerified  Boolean   @default(false)
+  emailVerified  Boolean   @default(false)
+  /// Set when an admin assigns/forces a password change on first login.
+  passwordChangedAt DateTime?
+  /// Per-user UI theme preference: light | dark | system.
+  theme             String?
+  /// When the user last accepted the terms/privacy consent version.
+  consentAcceptedAt DateTime?
+  /// S3 object key of the user-uploaded avatar (falls back to avatarUrl).
+  avatarS3Key       String?
+  name              String
+  avatarUrl         String?
+  bio               String?
+  isAdmin           Boolean   @default(false)
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  identities        UserAuthIdentity[]
+  passwordCredential PasswordCredential?
+  userRoles         UserRole[]
+  roleGrantsMade    UserRole[]             @relation("RoleGrantedBy")
 
   ownedProjects                  Project[]               @relation("ProjectOwner")
   memberships                    ProjectMember[]
@@ -1346,4 +1365,156 @@ model FeatureFlag {
   updatedBy   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ─── Godmode (self-host control plane) ─────────────────────────────────────
+// The superadmin config surface. Settings, godmode sessions, roles,
+// permissions, auth identities, and auth challenges. All additive.
+
+/// One database-backed setting. Keys are dotted (`auth.sms.provider`).
+/// `value` is the typed JSON value; `isSecret` values are encrypted at
+/// rest by the SettingsService. Unset keys fall back to the code-defined
+/// registry default (and, for some keys, a legacy env var).
+model AppSetting {
+  key       String   @id
+  value     Json
+  isSecret  Boolean  @default(false)
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
+
+/// A godmode session minted after a successful passphrase (+ optional
+/// 2FA) unlock. The client sends the opaque token in `X-Godmode-Token`;
+/// only its SHA-256 hash is stored.
+model GodmodeSession {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  /// e.g. { method: 'passphrase', totp: true, passkey: false }
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+/// Links a user to an external identity: 'password', 'oauth:google',
+/// 'oidc:<issuer-hash>', 'saml:<entityId>', 'keycloak', etc.
+model UserAuthIdentity {
+  id         String   @id @default(uuid())
+  userId     String
+  provider   String
+  providerId String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+/// Argon2id hash for email/password sign-in. Separate table so user
+/// queries never touch the hash column by accident.
+model PasswordCredential {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  passwordHash String
+  /// True when an admin set the password and the user must change it on
+  /// next login (best practice for admin-provisioned accounts).
+  mustChange   Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Hashed one-time codes for phone OTP / email verification flows.
+model OtpChallenge {
+  id         String   @id @default(uuid())
+  /// 'login' | 'register' | 'verify-phone' | 'verify-email'
+  purpose    String
+  /// Normalized phone (E.164) or email the code was issued for.
+  target     String
+  /// SHA-256 of the code; never the code itself.
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([purpose, target, createdAt])
+}
+
+/// Single-use tokens for magic links, password resets, and email
+/// verification links. Only the SHA-256 hash is stored.
+model MagicLinkToken {
+  id         String   @id @default(uuid())
+  /// 'login' | 'password-reset' | 'email-verify' | 'invite-accept'
+  purpose    String
+  userId     String?
+  email      String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([email, purpose, createdAt])
+}
+
+/// RBAC role. `permissions` holds permission codes from the catalog.
+/// Seeded templates (superadmin/admin/member/developer/visitor) are
+/// `isSystem = true` and editable only by superadmins.
+model Role {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  permissions String[] @default([])
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userRoles UserRole[]
+}
+
+/// Grant of a role to a user.
+model UserRole {
+  id          String   @id @default(uuid())
+  userId      String
+  roleId      String
+  grantedById String?
+  createdAt   DateTime @default(now())
+
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  grantedBy User? @relation("RoleGrantedBy", fields: [grantedById], references: [id])
+
+  @@unique([userId, roleId])
+  @@index([userId])
+}
+
+/// Permission catalog rows. `code` strings are the source of truth that
+/// guards check (`projects.manage`, `chat.moderate`, ...). Seeded by
+/// `prisma/seed.ts`; new permissions are additive.
+model Permission {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  /// Grouping for the godmode UI, e.g. 'projects', 'chat', 'users'.
+  category    String
+  isSystem    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+/// WebAuthn passkey credential for godmode second-factor sign-in.
+model GodmodePasskey {
+  id           String   @id @default(uuid())
+  /// Base64url credential id from the authenticator.
+  credentialId String   @unique
+  /// COSE public key (CBOR bytes).
+  publicKey    Bytes
+  counter      BigInt   @default(0)
+  transports   String[] @default([])
+  name         String?
+  createdAt    DateTime @default(now())
 }

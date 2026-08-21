@@ -173,7 +173,10 @@ export class FilesService {
 
   private buildKey(projectId: string, filename: string): string {
     const safeName =
-      filename.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').slice(0, 80) || 'file';
+      filename
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]+/g, '-')
+        .slice(0, 80) || 'file';
     return `projects/${projectId}/files/${objectId()}/${safeName}`;
   }
 

@@ -58,7 +58,9 @@ export class WhiteboardsService {
   async create(userId: string, projectId: string, dto: CreateWhiteboardDto) {
     const count = await this.prisma.whiteboard.count({ where: { projectId, deletedAt: null } });
     if (count >= this.maxWhiteboards) {
-      throw new BadRequestException(`A project can have at most ${this.maxWhiteboards} whiteboards.`);
+      throw new BadRequestException(
+        `A project can have at most ${this.maxWhiteboards} whiteboards.`,
+      );
     }
     const id = randomUUID();
     const yDocKey = `whiteboard:${id}`;
@@ -182,7 +184,8 @@ export class WhiteboardsService {
     if (dto.contentLength > THUMB_MAX_BYTES) {
       throw new BadRequestException(`Thumbnail exceeds the ${THUMB_MAX_BYTES}-byte limit.`);
     }
-    const ext = dto.contentType === 'image/png' ? 'png' : dto.contentType === 'image/webp' ? 'webp' : 'jpg';
+    const ext =
+      dto.contentType === 'image/png' ? 'png' : dto.contentType === 'image/webp' ? 'webp' : 'jpg';
     const key = `projects/${projectId}/whiteboards/${wbId}/thumb-${objectId()}.${ext}`;
     const { uploadUrl, expiresIn } = await this.s3.presignPut({
       key,

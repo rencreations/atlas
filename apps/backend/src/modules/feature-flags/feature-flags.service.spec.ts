@@ -2,7 +2,9 @@ import { FeatureFlagsService } from './feature-flags.service';
 
 describe('FeatureFlagsService', () => {
   function make(rows: { key: string; enabled: boolean }[], opts: { throws?: boolean } = {}) {
-    const findMany = jest.fn(() => (opts.throws ? Promise.reject(new Error('db down')) : Promise.resolve(rows)));
+    const findMany = jest.fn(() =>
+      opts.throws ? Promise.reject(new Error('db down')) : Promise.resolve(rows),
+    );
     const prisma = { featureFlag: { findMany } } as any;
     return { service: new FeatureFlagsService(prisma), findMany };
   }

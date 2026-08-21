@@ -172,12 +172,7 @@ export class NotesService {
    *  projection only — collaborative Yjs state continues from wherever
    *  it is, which for single-user notes converges immediately and for
    *  multi-user notes converges on next snapshot. */
-  async restoreRevision(
-    projectId: string,
-    noteId: string,
-    revisionId: string,
-    actorId: string,
-  ) {
+  async restoreRevision(projectId: string, noteId: string, revisionId: string, actorId: string) {
     const rev = await this.getRevision(projectId, noteId, revisionId);
     const size = Buffer.byteLength(JSON.stringify(rev.contentSnapshot ?? null));
     return this.prisma.$transaction(async (tx) => {

@@ -15,8 +15,18 @@ export const DEFAULT_TASK_STATUSES: ReadonlyArray<{
   isDefault: boolean;
 }> = [
   { name: 'Backlog', color: 'neutral', category: TaskStatusCategory.TODO, isDefault: true },
-  { name: 'In Progress', color: 'blue', category: TaskStatusCategory.IN_PROGRESS, isDefault: false },
-  { name: 'In Review', color: 'yellow', category: TaskStatusCategory.IN_PROGRESS, isDefault: false },
+  {
+    name: 'In Progress',
+    color: 'blue',
+    category: TaskStatusCategory.IN_PROGRESS,
+    isDefault: false,
+  },
+  {
+    name: 'In Review',
+    color: 'yellow',
+    category: TaskStatusCategory.IN_PROGRESS,
+    isDefault: false,
+  },
   { name: 'Done', color: 'green', category: TaskStatusCategory.DONE, isDefault: false },
 ];
 
@@ -46,7 +56,10 @@ export const DEFAULT_TASK_LIST_TABS: ReadonlyArray<{
  * multi-word, falls back to the first 4 chars of a single word.
  */
 export function deriveProjectKey(name: string): string {
-  const cleaned = name.trim().toUpperCase().replace(/[^A-Z0-9 ]+/g, ' ');
+  const cleaned = name
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]+/g, ' ');
   const words = cleaned.split(/\s+/).filter(Boolean);
   if (words.length === 0) return 'TASK';
   if (words.length === 1) {

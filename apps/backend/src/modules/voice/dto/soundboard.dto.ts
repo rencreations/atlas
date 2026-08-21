@@ -1,13 +1,4 @@
-import {
-  IsIn,
-  IsInt,
-  IsString,
-  Matches,
-  Max,
-  MaxLength,
-  Min,
-  MinLength,
-} from 'class-validator';
+import { IsIn, IsInt, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 /** Acceptable upload content types for soundboard clips. */
 export const SOUNDBOARD_ALLOWED_MIME = [

@@ -17,10 +17,7 @@ export class TeamController {
   ) {}
 
   @Get('projects/:slug/pmo/team')
-  async get(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('slug') slug: string,
-  ) {
+  async get(@CurrentUser() user: AuthenticatedUser, @Param('slug') slug: string) {
     const { projectId, access } = await this.access.resolve(slug, user);
     this.access.assertInsider(access);
     return this.team.get(projectId);

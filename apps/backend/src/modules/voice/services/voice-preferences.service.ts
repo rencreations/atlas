@@ -26,10 +26,7 @@ export class VoicePreferencesService {
    * Apply a partial update. Unknown / undefined fields are left alone.
    * Empty string for a nullable field clears it (null in DB).
    */
-  async update(
-    userId: string,
-    dto: UpdateVoicePreferencesDto,
-  ): Promise<VoiceUserPreferences> {
+  async update(userId: string, dto: UpdateVoicePreferencesDto): Promise<VoiceUserPreferences> {
     const data: Prisma.VoiceUserPreferencesUpdateInput = {};
     if (dto.inputMode !== undefined) data.inputMode = dto.inputMode;
     if (dto.pttKey !== undefined) data.pttKey = dto.pttKey || null;
@@ -57,30 +54,16 @@ export class VoicePreferencesService {
         ...(dto.inputMode !== undefined ? { inputMode: dto.inputMode } : {}),
         ...(dto.pttKey !== undefined ? { pttKey: dto.pttKey || null } : {}),
         ...(dto.pttReleaseMs !== undefined ? { pttReleaseMs: dto.pttReleaseMs } : {}),
-        ...(dto.noiseSuppression !== undefined
-          ? { noiseSuppression: dto.noiseSuppression }
-          : {}),
-        ...(dto.echoCancellation !== undefined
-          ? { echoCancellation: dto.echoCancellation }
-          : {}),
-        ...(dto.autoGainControl !== undefined
-          ? { autoGainControl: dto.autoGainControl }
-          : {}),
+        ...(dto.noiseSuppression !== undefined ? { noiseSuppression: dto.noiseSuppression } : {}),
+        ...(dto.echoCancellation !== undefined ? { echoCancellation: dto.echoCancellation } : {}),
+        ...(dto.autoGainControl !== undefined ? { autoGainControl: dto.autoGainControl } : {}),
         ...(dto.micDeviceId !== undefined ? { micDeviceId: dto.micDeviceId || null } : {}),
-        ...(dto.cameraDeviceId !== undefined
-          ? { cameraDeviceId: dto.cameraDeviceId || null }
-          : {}),
-        ...(dto.outputDeviceId !== undefined
-          ? { outputDeviceId: dto.outputDeviceId || null }
-          : {}),
+        ...(dto.cameraDeviceId !== undefined ? { cameraDeviceId: dto.cameraDeviceId || null } : {}),
+        ...(dto.outputDeviceId !== undefined ? { outputDeviceId: dto.outputDeviceId || null } : {}),
         ...(dto.micVolume !== undefined ? { micVolume: dto.micVolume } : {}),
         ...(dto.outputVolume !== undefined ? { outputVolume: dto.outputVolume } : {}),
-        ...(dto.shortcutMute !== undefined
-          ? { shortcutMute: dto.shortcutMute || null }
-          : {}),
-        ...(dto.shortcutDeafen !== undefined
-          ? { shortcutDeafen: dto.shortcutDeafen || null }
-          : {}),
+        ...(dto.shortcutMute !== undefined ? { shortcutMute: dto.shortcutMute || null } : {}),
+        ...(dto.shortcutDeafen !== undefined ? { shortcutDeafen: dto.shortcutDeafen || null } : {}),
         ...(dto.shortcutDisconnect !== undefined
           ? { shortcutDisconnect: dto.shortcutDisconnect || null }
           : {}),

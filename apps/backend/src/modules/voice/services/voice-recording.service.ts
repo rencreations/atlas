@@ -74,11 +74,7 @@ export class VoiceRecordingService {
   }
 
   /** Start a recording. Refuses if one is already active in this channel. */
-  async start(args: {
-    channelId: string;
-    startedByUserId: string;
-    audioOnly?: boolean;
-  }) {
+  async start(args: { channelId: string; startedByUserId: string; audioOnly?: boolean }) {
     if (!this.livekit.isAvailable()) {
       throw new ServiceUnavailableException('Voice service is temporarily unavailable.');
     }
@@ -117,9 +113,7 @@ export class VoiceRecordingService {
 
     const retentionDays = this.config.get<number>('voice.recordingRetentionDays', 30);
     const retentionUntil =
-      retentionDays && retentionDays > 0
-        ? new Date(Date.now() + retentionDays * 86_400_000)
-        : null;
+      retentionDays && retentionDays > 0 ? new Date(Date.now() + retentionDays * 86_400_000) : null;
 
     const recording = await this.prisma.voiceRecording.create({
       data: {
@@ -231,17 +225,14 @@ export class VoiceRecordingService {
       include: { channel: { select: { id: true, projectId: true } } },
     });
     if (!row) return;
-    const nextStatus = args.success
-      ? VoiceRecordingStatus.COMPLETED
-      : VoiceRecordingStatus.FAILED;
+    const nextStatus = args.success ? VoiceRecordingStatus.COMPLETED : VoiceRecordingStatus.FAILED;
     await this.prisma.voiceRecording.update({
       where: { id: row.id },
       data: {
         status: nextStatus,
         endedAt: new Date(),
         durationSec: args.durationSec ?? null,
-        sizeBytes:
-          args.sizeBytes !== undefined ? BigInt(args.sizeBytes) : null,
+        sizeBytes: args.sizeBytes !== undefined ? BigInt(args.sizeBytes) : null,
         errorMessage: args.error ?? null,
       },
     });

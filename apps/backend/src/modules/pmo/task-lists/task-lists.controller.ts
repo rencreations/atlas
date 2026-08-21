@@ -33,10 +33,7 @@ export class TaskListsController {
   ) {}
 
   @Get('projects/:slug/task-lists')
-  async list(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('slug') slug: string,
-  ) {
+  async list(@CurrentUser() user: AuthenticatedUser, @Param('slug') slug: string) {
     const { projectId, access } = await this.access.resolve(slug, user);
     this.access.assertInsider(access);
     return this.lists.list(projectId);

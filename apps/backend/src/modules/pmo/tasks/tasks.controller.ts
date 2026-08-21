@@ -13,10 +13,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
-import {
-  ProjectAccess,
-  ProjectAccessService,
-} from '@/modules/projects/project-access.service';
+import { ProjectAccess, ProjectAccessService } from '@/modules/projects/project-access.service';
 import { PmoFeatureFlagGuard } from '../guards/pmo-feature-flag.guard';
 import { CreateDependencyDto } from './dto/create-dependency.dto';
 import { CreateTaskDto } from './dto/create-task.dto';

@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ContributionRequestStatus } from '@prisma/client';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
@@ -51,10 +43,7 @@ export class ContributionsController {
   }
 
   @Post('contributions/:id/withdraw')
-  withdraw(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  withdraw(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.contributions.withdraw(user, id);
   }
 

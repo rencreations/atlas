@@ -59,18 +59,12 @@ export class AdminStickersController {
   }
 
   @Post('packs/:packId/stickers/presign')
-  presignSticker(
-    @Param('packId', ParseUUIDPipe) packId: string,
-    @Body() dto: PresignStickerDto,
-  ) {
+  presignSticker(@Param('packId', ParseUUIDPipe) packId: string, @Body() dto: PresignStickerDto) {
     return this.stickers.presignSticker(packId, dto);
   }
 
   @Post('packs/:packId/stickers')
-  registerSticker(
-    @Param('packId', ParseUUIDPipe) packId: string,
-    @Body() dto: RegisterStickerDto,
-  ) {
+  registerSticker(@Param('packId', ParseUUIDPipe) packId: string, @Body() dto: RegisterStickerDto) {
     return this.stickers.registerSticker(packId, dto);
   }
 

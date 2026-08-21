@@ -26,7 +26,11 @@ export interface MentionSuggestion {
 export class MentionsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async search(projectId: string, kind: MentionSuggestionKind, q: string): Promise<MentionSuggestion[]> {
+  async search(
+    projectId: string,
+    kind: MentionSuggestionKind,
+    q: string,
+  ): Promise<MentionSuggestion[]> {
     const query = q.trim();
     if (kind === 'user') return this.searchUsers(projectId, query);
     if (kind === 'task') return this.searchTasks(projectId, query);

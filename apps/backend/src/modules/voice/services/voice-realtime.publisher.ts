@@ -79,11 +79,7 @@ export class VoiceRealtimePublisher {
     this.emit(listRoom, 'voice.roster.update', { channelId });
   }
 
-  participantLeft(
-    channelId: string,
-    projectId: string | null,
-    payload: { userId: string },
-  ): void {
+  participantLeft(channelId: string, projectId: string | null, payload: { userId: string }): void {
     this.emit(this.channelRoom(channelId), 'voice.participant.left', {
       channelId,
       ...payload,

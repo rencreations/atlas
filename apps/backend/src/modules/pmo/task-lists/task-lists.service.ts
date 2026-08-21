@@ -17,10 +17,7 @@ import { CreateTaskListDto } from './dto/create-task-list.dto';
 import { UpdateTaskListDto } from './dto/update-task-list.dto';
 import { ReorderTabsDto } from './dto/reorder-tabs.dto';
 import { ReorderTaskListsDto } from './dto/reorder-task-lists.dto';
-import {
-  BulkUpdateStatusesDto,
-  StatusEntryDto,
-} from '../tasks/dto/bulk-update-statuses.dto';
+import { BulkUpdateStatusesDto, StatusEntryDto } from '../tasks/dto/bulk-update-statuses.dto';
 
 export type TaskListWithRelations = TaskList & {
   statuses: TaskStatus[];
@@ -167,9 +164,7 @@ export class TaskListsService {
     await this.prisma.$transaction(
       dto.listIds
         .filter((id) => ownedIds.has(id))
-        .map((id, idx) =>
-          this.prisma.taskList.update({ where: { id }, data: { order: idx } }),
-        ),
+        .map((id, idx) => this.prisma.taskList.update({ where: { id }, data: { order: idx } })),
     );
     return { ok: true };
   }

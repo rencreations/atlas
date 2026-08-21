@@ -150,9 +150,7 @@ export class VoiceParticipantsService {
       // LiveKit protocol level.
       canPublish: isAudience ? false : (args.canPublish ?? true),
       canSubscribe: args.canSubscribe ?? true,
-      canPublishSources: isAudience
-        ? []
-        : undefined /* default: mic + camera + screen */,
+      canPublishSources: isAudience ? [] : undefined /* default: mic + camera + screen */,
     });
     if (!token) {
       // Roll back the participant row so we don't leave a phantom occupant.

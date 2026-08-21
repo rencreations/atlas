@@ -6,7 +6,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { customAlphabet } from 'nanoid';
 
@@ -15,23 +15,42 @@ const objectId = customAlphabet('0123456789abcdefghijkmnopqrstuvwxyz', 16);
 @Injectable()
 export class S3Service {
   private readonly logger = new Logger(S3Service.name);
-  private readonly client: S3Client;
+  private readonly client: S3Client | null;
   private readonly bucket: string;
+  private readonly region: string;
   private readonly publicBaseUrl: string;
   private readonly presignTtl: number;
 
   constructor(private readonly config: ConfigService) {
-    this.bucket = config.getOrThrow<string>('s3.bucket');
+    this.bucket = config.get<string>('s3.bucket') ?? '';
+    this.region = config.get<string>('s3.region') ?? '';
     this.publicBaseUrl = config.get<string>('s3.publicBaseUrl') ?? '';
     this.presignTtl = config.get<number>('s3.presignTtl') ?? 300;
 
-    this.client = new S3Client({
-      region: config.getOrThrow<string>('s3.region'),
-      credentials: {
-        accessKeyId: config.getOrThrow<string>('s3.accessKeyId'),
-        secretAccessKey: config.getOrThrow<string>('s3.secretAccessKey'),
-      },
-    });
+    const accessKeyId = config.get<string>('s3.accessKeyId') ?? '';
+    const secretAccessKey = config.get<string>('s3.secretAccessKey') ?? '';
+    if (this.bucket && this.region && accessKeyId && secretAccessKey) {
+      this.client = new S3Client({
+        region: this.region,
+        credentials: { accessKeyId, secretAccessKey },
+      });
+    } else {
+      this.client = null;
+      this.logger.warn('S3 storage not configured — uploads disabled. Configure it in godmode.');
+    }
+  }
+
+  isConfigured(): boolean {
+    return this.client !== null;
+  }
+
+  private requireClient(): S3Client {
+    if (!this.client) {
+      throw new ServiceUnavailableException(
+        'Storage is not configured on this instance. Configure it in godmode.',
+      );
+    }
+    return this.client;
   }
 
   /** Build a deterministic, namespaced object key for a project upload. */
@@ -45,8 +64,7 @@ export class S3Service {
     if (this.publicBaseUrl) {
       return `${this.publicBaseUrl.replace(/\/+$/, '')}/${key}`;
     }
-    const region = this.config.getOrThrow<string>('s3.region');
-    return `https://${this.bucket}.s3.${region}.amazonaws.com/${key}`;
+    return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
   }
 
   async presignPut(opts: {
@@ -54,13 +72,14 @@ export class S3Service {
     contentType: string;
     contentLength: number;
   }): Promise<{ uploadUrl: string; expiresIn: number }> {
+    const client = this.requireClient();
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: opts.key,
       ContentType: opts.contentType,
       ContentLength: opts.contentLength,
     });
-    const uploadUrl = await getSignedUrl(this.client, command, { expiresIn: this.presignTtl });
+    const uploadUrl = await getSignedUrl(client, command, { expiresIn: this.presignTtl });
     return { uploadUrl, expiresIn: this.presignTtl };
   }
 
@@ -70,14 +89,16 @@ export class S3Service {
    * Default TTL is 5 minutes (`s3.presignTtl`).
    */
   async presignGet(key: string): Promise<{ downloadUrl: string; expiresIn: number }> {
+    const client = this.requireClient();
     const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
-    const downloadUrl = await getSignedUrl(this.client, command, {
+    const downloadUrl = await getSignedUrl(client, command, {
       expiresIn: this.presignTtl,
     });
     return { downloadUrl, expiresIn: this.presignTtl };
   }
 
   async deleteObject(key: string): Promise<void> {
+    if (!this.client) return;
     try {
       await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
     } catch (err) {
@@ -87,6 +108,7 @@ export class S3Service {
 
   /** Used by the health check — fast existence probe. */
   async ping(): Promise<boolean> {
+    if (!this.client) return false;
     try {
       await this.client.send(new HeadBucketCommand({ Bucket: this.bucket }));
       return true;

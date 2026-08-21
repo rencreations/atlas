@@ -34,17 +34,21 @@ export class KeycloakTokenService {
   private readonly audience: string;
 
   constructor(private readonly config: ConfigService) {
-    this.issuer = this.config.getOrThrow<string>('keycloak.issuer');
-    this.clientId = this.config.getOrThrow<string>('keycloak.clientId');
+    this.issuer = this.config.get<string>('keycloak.issuer') ?? '';
+    this.clientId = this.config.get<string>('keycloak.clientId') ?? '';
     this.audience = this.config.get<string>('keycloak.audience') ?? 'account';
     this.jwks = new jwksRsa.JwksClient({
-      jwksUri: this.config.getOrThrow<string>('keycloak.jwksUri'),
+      jwksUri: this.config.get<string>('keycloak.jwksUri') ?? this.issuer,
       cache: true,
       cacheMaxAge: 10 * 60 * 1000,
       rateLimit: true,
       jwksRequestsPerMinute: 10,
       timeout: 10_000,
     });
+  }
+
+  isConfigured(): boolean {
+    return !!(this.issuer && this.clientId);
   }
 
   /**
@@ -58,6 +62,9 @@ export class KeycloakTokenService {
    * using the (already verified) access token.
    */
   async verifyLoginTokens(tokens: LoginTokens): Promise<VerifiedKeycloakClaims> {
+    if (!this.isConfigured()) {
+      throw new UnauthorizedException('Keycloak is not configured on this instance.');
+    }
     const access = await this.verify(tokens.accessToken, 'access');
     const id = tokens.idToken ? await this.verify(tokens.idToken, 'id') : undefined;
 

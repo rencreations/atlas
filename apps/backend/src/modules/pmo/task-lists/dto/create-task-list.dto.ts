@@ -1,11 +1,4 @@
-import {
-  IsBoolean,
-  IsIn,
-  IsOptional,
-  IsString,
-  Length,
-  Matches,
-} from 'class-validator';
+import { IsBoolean, IsIn, IsOptional, IsString, Length, Matches } from 'class-validator';
 
 const ICON_COLORS = ['blue', 'yellow', 'red', 'green', 'neutral'] as const;
 export type TaskListIconColor = (typeof ICON_COLORS)[number];

@@ -7,13 +7,7 @@ import { PresignChatAttachmentDto } from '../dto/presign-attachment.dto';
 
 const objectId = customAlphabet('0123456789abcdefghijkmnopqrstuvwxyz', 12);
 
-const IMAGE_MIMES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-  'image/avif',
-]);
+const IMAGE_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']);
 const VIDEO_MIMES = new Set(['video/mp4', 'video/webm', 'video/quicktime']);
 const AUDIO_MIMES = new Set(['audio/mpeg', 'audio/mp4', 'audio/wav', 'audio/webm', 'audio/ogg']);
 
@@ -52,9 +46,7 @@ export class ChatAttachmentsService {
     dto: PresignChatAttachmentDto,
   ): Promise<ChatAttachmentPresignResult> {
     if (dto.contentLength > this.maxBytes) {
-      throw new BadRequestException(
-        `Attachment exceeds the ${this.maxBytes}-byte limit.`,
-      );
+      throw new BadRequestException(`Attachment exceeds the ${this.maxBytes}-byte limit.`);
     }
     const kind = this.classify(dto.contentType);
     const key = this.buildKey(channelId, dto.contentType, dto.filename);
@@ -81,10 +73,11 @@ export class ChatAttachmentsService {
   }
 
   private buildKey(channelId: string, contentType: string, filename: string): string {
-    const safeName = filename
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]+/g, '-')
-      .slice(0, 80) || 'file';
+    const safeName =
+      filename
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]+/g, '-')
+        .slice(0, 80) || 'file';
     return `chat/${channelId}/${Date.now()}-${objectId()}-${safeName}`;
   }
 }

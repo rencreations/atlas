@@ -80,7 +80,7 @@ export class AuthService {
     email: string;
     name: string;
     picture?: string;
-  }): Promise<{ id: string; keycloakId: string; email: string; name: string; avatarUrl: string | null; isAdmin: boolean }> {
+  }): Promise<AuthenticatedUser> {
     const email = (data.email ?? '').toLowerCase().trim();
     const name = data.name ?? 'Unknown';
     const avatarUrl = data.picture ?? null;

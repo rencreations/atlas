@@ -135,10 +135,7 @@ export class ChatLinkPreviewService {
 
     // open-graph-scraper types ogImage as an array of objects with .url.
     // Cast through unknown to handle older/single-object shapes too.
-    const ogImage = data.ogImage as unknown as
-      | { url?: string }
-      | { url?: string }[]
-      | undefined;
+    const ogImage = data.ogImage as unknown as { url?: string } | { url?: string }[] | undefined;
     const image = Array.isArray(ogImage) ? (ogImage[0]?.url ?? null) : (ogImage?.url ?? null);
     const out: LinkPreviewResult = {
       url,
@@ -158,7 +155,15 @@ export class ChatLinkPreviewService {
   private canonicalize(raw: string): string {
     const u = new URL(raw);
     // Drop common tracking params; keep query intact otherwise.
-    const stripped = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid'];
+    const stripped = [
+      'utm_source',
+      'utm_medium',
+      'utm_campaign',
+      'utm_term',
+      'utm_content',
+      'fbclid',
+      'gclid',
+    ];
     for (const p of stripped) u.searchParams.delete(p);
     u.hash = '';
     return u.toString();

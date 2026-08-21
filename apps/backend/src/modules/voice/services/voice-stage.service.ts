@@ -75,7 +75,7 @@ export class VoiceStageService {
   }) {
     const channel = await this.requireStageChannel(args.channelId);
     if (args.targetUserId !== args.actorUserId && !args.actorIsModerator) {
-      throw new ForbiddenException('Only moderators can lower other people\'s hands.');
+      throw new ForbiddenException("Only moderators can lower other people's hands.");
     }
     const live = await this.prisma.voiceParticipant.findFirst({
       where: { channelId: channel.id, userId: args.targetUserId, leftAt: null },
@@ -118,11 +118,7 @@ export class VoiceStageService {
    * Promote an audience member to speaker. Moderator-only — the
    * controller asserts that before calling.
    */
-  async promote(args: {
-    channelId: string;
-    targetUserId: string;
-    actorUserId: string;
-  }) {
+  async promote(args: { channelId: string; targetUserId: string; actorUserId: string }) {
     const channel = await this.requireStageChannel(args.channelId);
     const live = await this.prisma.voiceParticipant.findFirst({
       where: { channelId: channel.id, userId: args.targetUserId, leftAt: null },
@@ -132,7 +128,7 @@ export class VoiceStageService {
       throw new NotFoundException('That user is not currently in this channel.');
     }
     if (live.role === 'SPEAKER') {
-      throw new BadRequestException("That user is already a speaker.");
+      throw new BadRequestException('That user is already a speaker.');
     }
 
     // Flip LiveKit permissions BEFORE updating the DB. If LiveKit
@@ -168,11 +164,7 @@ export class VoiceStageService {
    * Demote a speaker back to audience. Mutes any current mic track
    * so the demoted user stops broadcasting immediately.
    */
-  async demote(args: {
-    channelId: string;
-    targetUserId: string;
-    actorUserId: string;
-  }) {
+  async demote(args: { channelId: string; targetUserId: string; actorUserId: string }) {
     const channel = await this.requireStageChannel(args.channelId);
     const live = await this.prisma.voiceParticipant.findFirst({
       where: { channelId: channel.id, userId: args.targetUserId, leftAt: null },
@@ -182,7 +174,7 @@ export class VoiceStageService {
       throw new NotFoundException('That user is not currently in this channel.');
     }
     if (live.role === 'AUDIENCE') {
-      throw new BadRequestException("That user is already in the audience.");
+      throw new BadRequestException('That user is already in the audience.');
     }
 
     const room = await this.livekit.getRoomService();
@@ -198,9 +190,7 @@ export class VoiceStageService {
       const tracks = info?.tracks ?? [];
       for (const t of tracks) {
         if (!t?.sid) continue;
-        const src = (typeof t.source === 'number'
-          ? t.source
-          : String(t.source ?? '').toUpperCase());
+        const src = typeof t.source === 'number' ? t.source : String(t.source ?? '').toUpperCase();
         if (src === 2 || src === 'MICROPHONE') {
           try {
             await room.mutePublishedTrack(roomName, args.targetUserId, t.sid, true);

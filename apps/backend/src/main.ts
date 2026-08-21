@@ -1,5 +1,5 @@
 import './instrument'; // Sentry init — must be imported first (no-op without SENTRY_DSN).
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -24,7 +24,10 @@ async function bootstrap() {
   const isProd = config.get<string>('app.env') === 'production';
 
   app.setGlobalPrefix(prefix);
-  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+  // No URI versioning layer: the `api/v1` global prefix already carries
+  // the API version. (Enabling VersioningType.URI here used to stack a
+  // second /v1 segment — every route actually lived at /api/v1/v1/*,
+  // contradicting the docs, healthchecks, and the frontend base URL.)
 
   app.use(
     helmet({

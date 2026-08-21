@@ -76,9 +76,7 @@ export class UsersService {
     if (actorId === targetId) {
       throw new ForbiddenException('Admins cannot change their own admin status.');
     }
-    const bootstrapEmail = this.config
-      .getOrThrow<string>('bootstrap.adminEmail')
-      .toLowerCase();
+    const bootstrapEmail = this.config.getOrThrow<string>('bootstrap.adminEmail').toLowerCase();
     const target = await this.prisma.user.findUnique({
       where: { id: targetId },
       select: { id: true, email: true },
@@ -194,12 +192,8 @@ export class UsersService {
       }),
     ]);
 
-    const managed = memberships
-      .filter((m) => m.role === 'PROJECT_MANAGER')
-      .map((m) => m.project);
-    const contributing = memberships
-      .filter((m) => m.role === 'CONTRIBUTOR')
-      .map((m) => m.project);
+    const managed = memberships.filter((m) => m.role === 'PROJECT_MANAGER').map((m) => m.project);
+    const contributing = memberships.filter((m) => m.role === 'CONTRIBUTOR').map((m) => m.project);
 
     const myOpenTasks = await this.getMyOpenTasks(userId);
 

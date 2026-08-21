@@ -158,7 +158,6 @@ export class UndoService {
       await this.restoreEntry(entry.id, { undoneAt: null });
     }
   }
-
 }
 
 // Why: Postgres full-text search tuning — see the ADR in docs/adr/

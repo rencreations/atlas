@@ -1,11 +1,4 @@
-import {
-  Controller,
-  HttpCode,
-  Logger,
-  NotFoundException,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, HttpCode, Logger, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
@@ -77,11 +70,7 @@ export class UndoController {
     }
   }
 
-  private async applyOp(
-    user: AuthenticatedUser,
-    kind: string,
-    op: unknown,
-  ): Promise<unknown> {
+  private async applyOp(user: AuthenticatedUser, kind: string, op: unknown): Promise<unknown> {
     if (kind === 'TASK_MOVED') {
       const m = UndoService.asTaskMoved(op as never);
       const task = await this.tasks.findById(m.taskId);
