@@ -40,6 +40,8 @@ export function BookmarkButton({
       variant="secondary"
       size="md"
       onClick={() => toggle.mutate(!bookmarked)}
+      loading={toggle.isPending}
+      disabled={toggle.isPending}
       aria-pressed={bookmarked}
       aria-label={bookmarked ? 'Remove from saved projects' : 'Save project'}
     >

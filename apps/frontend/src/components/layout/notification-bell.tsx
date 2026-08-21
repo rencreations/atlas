@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Bell, BellOff, Check, Inbox, Sparkles } from 'lucide-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Bell, BellOff, Check, Inbox, Loader2, Sparkles } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Popover,
   PopoverContent,
@@ -14,6 +14,7 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import type { NotificationItem, Paginated } from '@/lib/types';
 import { cn, formatRelative } from '@/lib/utils';
+import { ATLAS_TITLE_EVENT, getPageTitleBase } from '@/lib/page-title';
 import { usePushPermission } from '@/lib/notifications/use-push-permission';
 import { useToast } from '@/components/ui/toast';
 
@@ -38,31 +39,40 @@ export function NotificationBell() {
 
   const count = unread.data?.unread ?? 0;
 
-  async function markAll() {
-    await api(apiPaths.markAllRead(), { method: 'POST' });
-    qc.invalidateQueries({ queryKey: ['notifications'] });
-  }
+  const markAll = useMutation({
+    mutationFn: () => api(apiPaths.markAllRead(), { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+    onError: () =>
+      show({
+        tone: 'danger',
+        title: 'Could not mark all as read',
+        description: 'Try again in a moment.',
+      }),
+  });
 
   // Live-update the tab title with an "(N) " prefix when there are
   // unread notifications. Restore the original title when the user
   // returns to this tab or unread drops to 0. Bookends the bell badge:
   // people glance at their tab strip more often than the bell icon.
+  // Reads the base title through the page-title module (and re-applies
+  // on its change event) so per-page titles keep the prefix on navigation.
   React.useEffect(() => {
     if (typeof document === 'undefined') return;
-    const stripExisting = (t: string) => t.replace(/^\(\d+\)\s+/, '');
-    const original = stripExisting(document.title);
-    if (count > 0) {
-      document.title = `(${count > 99 ? '99+' : count}) ${original}`;
-    } else {
-      document.title = original;
-    }
+    const sync = () => {
+      const base =
+        getPageTitleBase() || document.title.replace(/^\(\d+\)\s+/, '');
+      document.title = count > 0 ? `(${count > 99 ? '99+' : count}) ${base}` : base;
+    };
+    sync();
+    window.addEventListener(ATLAS_TITLE_EVENT, sync);
     const onVisibility = () => {
-      if (document.visibilityState === 'visible' && count === 0) {
-        document.title = stripExisting(document.title);
-      }
+      if (document.visibilityState === 'visible') sync();
     };
     document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener(ATLAS_TITLE_EVENT, sync);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [count]);
 
   const onEnableClicked = async () => {
@@ -114,11 +124,16 @@ export function NotificationBell() {
           <span className="text-[14px] font-medium text-ink">Notifications</span>
           {count > 0 ? (
             <button
-              onClick={markAll}
-              className="inline-flex items-center gap-1 text-[12px] font-medium text-brand-blue hover:underline"
+              onClick={() => markAll.mutate()}
+              disabled={markAll.isPending}
+              className="inline-flex items-center gap-1 text-[12px] font-medium text-brand-blue hover:underline disabled:opacity-60"
             >
-              <Check className="h-3.5 w-3.5" strokeWidth={2.25} />
-              Mark all read
+              {markAll.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.25} />
+              ) : (
+                <Check className="h-3.5 w-3.5" strokeWidth={2.25} />
+              )}
+              {markAll.isPending ? 'Marking…' : 'Mark all read'}
             </button>
           ) : null}
         </div>
@@ -159,7 +174,17 @@ export function NotificationBell() {
         ) : null}
 
         <div className="max-h-[420px] overflow-y-auto">
-          {list.isLoading ? (
+          {list.isError ? (
+            <div className="flex flex-col items-center gap-2 px-4 py-10 text-ink-3">
+              <span className="text-[13px]">Couldn&apos;t load notifications.</span>
+              <button
+                onClick={() => list.refetch()}
+                className="text-[13px] font-medium text-brand-blue hover:underline"
+              >
+                Try again
+              </button>
+            </div>
+          ) : list.isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="skeleton h-14 rounded" />

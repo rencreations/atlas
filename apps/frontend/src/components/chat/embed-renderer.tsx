@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Image as ImageIcon } from 'lucide-react';
 
 /**
  * Detects bare URLs to YouTube / Vimeo / Tenor / Giphy in the message
@@ -42,18 +43,51 @@ export function EmbedFor({ url }: { url: string }) {
         </div>
       );
     case 'gif':
-      return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          className="my-2 block max-w-[360px] overflow-hidden rounded-lg border border-line"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={embed.previewUrl} alt="GIF" loading="lazy" className="block w-full" />
-        </a>
-      );
+      return <GifEmbed url={url} src={embed.previewUrl} />;
   }
+}
+
+/** GIF embed with a graceful fallback when the image fails to load
+ *  (dead Tenor/Giphy CDN link) — swap to an icon + host link instead
+ *  of leaving a broken-image box in the stream. */
+function GifEmbed({ url, src }: { url: string; src: string }) {
+  const [broken, setBroken] = React.useState(false);
+  if (broken) {
+    let host = url;
+    try {
+      host = new URL(url).hostname;
+    } catch {
+      // keep the raw URL as the label
+    }
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="my-2 flex max-w-[360px] items-center gap-2 overflow-hidden rounded-lg border border-line bg-surface-muted px-3 py-2 text-[13px] text-ink-2"
+      >
+        <ImageIcon className="h-4 w-4 shrink-0 text-ink-3" strokeWidth={2.25} />
+        <span className="truncate">{host}</span>
+      </a>
+    );
+  }
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="my-2 block max-w-[360px] overflow-hidden rounded-lg border border-line"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt="GIF"
+        loading="lazy"
+        className="block w-full"
+        onError={() => setBroken(true)}
+      />
+    </a>
+  );
 }
 
 interface Detected {

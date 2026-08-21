@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
@@ -45,6 +46,16 @@ export function ContributionRequestsList({ projectSlug }: Props) {
     onError: (err) =>
       show({ tone: 'danger', title: 'Action failed', description: (err as Error).message }),
   });
+
+  if (list.isError) {
+    return (
+      <ErrorState
+        title="Couldn't load requests"
+        message="Something went wrong while fetching pending requests. Check your connection and try again."
+        onRetry={() => list.refetch()}
+      />
+    );
+  }
 
   if (list.isLoading) {
     return (

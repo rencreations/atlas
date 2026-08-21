@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
+import { usePageTitle } from '@/lib/page-title';
 import type { DiscoveryPayload } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { DiscoveryHero } from '@/components/projects/hero';
@@ -13,43 +14,44 @@ import { ProjectRow } from '@/components/projects/project-row';
 import { PendingRequestsRow } from '@/components/projects/pending-requests-row';
 import { GlobalSearchBar } from '@/components/projects/search-bar';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
 import { Button } from '@/components/ui/button';
 
+// Rows the discovery feed can emit, and the browse URL each one's
+// "View all" should point at. Rows without a browse-filter equivalent
+// (e.g. "recent" — browse has no recency filter) get no link rather
+// than a dead one. browse maps the row key back to these filters.
+const ROW_VIEW_ALL: Record<string, string | undefined> = {
+  shipped: '/projects?row=shipped', // browse maps row=shipped → phase=SHIPPED
+  recruiting: undefined,
+  recent: undefined,
+};
+
 export default function DashboardPage() {
-  const [data, setData] = useState<DiscoveryPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  usePageTitle('Discover');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await api<DiscoveryPayload>(apiPaths.discovery());
-        setData(result);
-      } catch (err) {
-        console.error('Failed to load dashboard:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: queryKeys.discovery,
+    queryFn: () => api<DiscoveryPayload>(apiPaths.discovery()),
+  });
 
-    fetchData();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Container size="2xl" className="space-y-12 py-12">
-        <div className="text-center text-ink-2">Loading...</div>
+        <div className="h-40 animate-pulse rounded bg-line" />
       </Container>
     );
   }
 
-  if (error || !data) {
+  if (isError || !data) {
     return (
       <Container size="2xl" className="space-y-12 py-12">
-        <div className="rounded border border-red-200 bg-red-50 p-4 text-red-600">
-          {error || 'Failed to load dashboard'}
-        </div>
+        <ErrorState
+          page
+          title="Couldn't load your dashboard"
+          message="Something went wrong while fetching your feed. Check your connection and try again."
+          onRetry={() => refetch()}
+        />
       </Container>
     );
   }
@@ -97,7 +99,7 @@ export default function DashboardPage() {
             key={row.key}
             label={row.label}
             items={row.items}
-            viewAllHref={`/projects?row=${row.key}`}
+            viewAllHref={ROW_VIEW_ALL[row.key]}
           />
         ))}
 

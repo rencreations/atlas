@@ -23,6 +23,11 @@ export function RolesPanel() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [baseline, setBaseline] = useState<{
+    name: string;
+    description: string;
+    permissions: string[];
+  } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -50,8 +55,20 @@ export function RolesPanel() {
       setName(role.name);
       setDescription(role.description ?? '');
       setChecked(new Set(role.permissions));
+      setBaseline({
+        name: role.name,
+        description: role.description ?? '',
+        permissions: [...role.permissions].sort(),
+      });
     }
   }, [roles, selectedCode]);
+
+  const dirty =
+    baseline !== null &&
+    (name !== baseline.name ||
+      description !== baseline.description ||
+      checked.size !== baseline.permissions.length ||
+      baseline.permissions.some((p) => !checked.has(p)));
 
   const categories = useMemo(() => {
     const map = new Map<string, GodmodePermission[]>();
@@ -100,6 +117,11 @@ export function RolesPanel() {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-[280px_1fr]">
       <div className="flex flex-col gap-2">
+        {roles.length === 0 ? (
+          <div className="rounded border border-line bg-surface p-8 text-center text-[14px] text-ink-3 shadow-1">
+            No roles yet.
+          </div>
+        ) : null}
         {roles.map((role) => (
           <button
             key={role.id}
@@ -176,7 +198,7 @@ export function RolesPanel() {
           </div>
 
           <div className="flex items-center justify-end gap-2">
-            <Button size="sm" onClick={() => void save()} disabled={saving}>
+            <Button size="sm" onClick={() => void save()} disabled={saving || !dirty}>
               {saving ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
               ) : (

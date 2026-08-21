@@ -66,6 +66,10 @@ export function MemberPicker({
         <div className="max-h-72 overflow-y-auto py-1">
           {members.isLoading ? (
             <div className="px-3 py-4 text-center text-[12px] text-ink-3">Loading…</div>
+          ) : members.isError ? (
+            <div className="px-3 py-4 text-center text-[12px] text-ink-3">
+              Couldn&apos;t load members.
+            </div>
           ) : !members.data || members.data.length === 0 ? (
             <div className="px-3 py-4 text-center text-[12px] text-ink-3">
               <UserPlus className="mx-auto mb-1 h-4 w-4" strokeWidth={2.25} />
@@ -94,7 +98,7 @@ export function MemberPicker({
                     ) : null}
                   </div>
                   {selected ? (
-                    <Check className="h-4 w-4 text-brand-blue" strokeWidth={2.5} />
+                    <Check className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
                   ) : null}
                 </button>
               );

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import {
   ArrowUpRight,
   ExternalLink,
@@ -16,11 +16,14 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
+import { usePageTitle } from '@/lib/page-title';
 import { isInsider, type ProjectDetail, type ProjectDetailInsider, type SessionUser } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ErrorState } from '@/components/ui/error-state';
 import { MediaHero } from '@/components/projects/media-hero';
 import { PhaseBadge } from '@/components/projects/project-thumbnail';
 import { ContributeModal } from '@/components/projects/contribute-modal';
@@ -33,40 +36,44 @@ import { PROJECT_PHASE_LABEL } from '@/lib/types';
 
 export default function ProjectDetailPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const slug = params.slug as string;
 
-  const [project, setProject] = useState<ProjectDetail | null>(null);
-  const [me, setMe] = useState<SessionUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: queryKeys.project(slug),
+    queryFn: async () => {
+      const [projectData, userData] = await Promise.all([
+        api<ProjectDetail>(apiPaths.project(slug)),
+        api<SessionUser>(apiPaths.session()).catch(() => null),
+      ]);
+      return { project: projectData, me: userData };
+    },
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [projectData, userData] = await Promise.all([
-          api<ProjectDetail>(apiPaths.project(slug)),
-          api<SessionUser>(apiPaths.session()).catch(() => null),
-        ]);
-        setProject(projectData);
-        setMe(userData);
-      } catch (err) {
-        console.error('Failed to fetch project:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  usePageTitle(data?.project.title ?? 'Project');
 
-    fetchData();
-  }, [slug]);
+  if (isError) {
+    return (
+      <Container size="2xl" className="space-y-10 py-10">
+        <ErrorState
+          page
+          title="Couldn't load this project"
+          message="Something went wrong while fetching the project. Check your connection and try again."
+          onRetry={() => refetch()}
+        />
+      </Container>
+    );
+  }
 
-  if (loading || !project) {
+  if (isLoading || !data) {
     return (
       <Container size="2xl" className="space-y-10 py-10">
         <div className="h-40 animate-pulse rounded bg-line" />
       </Container>
     );
   }
+
+  const project = data.project;
+  const me = data.me;
 
   const insider = isInsider(project) ? (project as ProjectDetailInsider) : null;
   const canContribute =

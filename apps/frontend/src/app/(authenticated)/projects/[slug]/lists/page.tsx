@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ListTodo } from 'lucide-react';
+import { Archive, ArrowLeft, ListTodo } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api/client';
@@ -61,6 +61,33 @@ export default function TaskListsIndexPage() {
             Back to project
           </Link>
         </Button>
+      </Container>
+    );
+  }
+
+  // All lists archived → the redirect above only fires for an active
+  // list, so this would otherwise masquerade as "no lists yet".
+  const allArchived =
+    lists.data && lists.data.length > 0 && lists.data.every((l) => !!l.archivedAt);
+  if (allArchived) {
+    return (
+      <Container size="2xl" className="py-16">
+        <div className="mx-auto max-w-prose text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-muted text-ink-3">
+            <Archive className="h-6 w-6" strokeWidth={2.25} />
+          </div>
+          <h1 className="font-display text-h1 text-ink">All task lists are archived</h1>
+          <p className="mt-3 text-ink-2">
+            Every task list in this project is archived. Unarchive one from the project page to
+            bring it back.
+          </p>
+          <Button asChild variant="secondary" className="mt-6">
+            <Link href={`/projects/${slug}` as never}>
+              <ArrowLeft className="h-4 w-4" strokeWidth={2.25} />
+              Back to project
+            </Link>
+          </Button>
+        </div>
       </Container>
     );
   }

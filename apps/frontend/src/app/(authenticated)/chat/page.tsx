@@ -8,7 +8,9 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { Container } from '@/components/layout/container';
+import { ErrorState } from '@/components/ui/error-state';
 import type { ChatOverviewPayload, ChatWorkspaceOverview } from '@/lib/types';
+import { usePageTitle } from '@/lib/page-title';
 
 /**
  * Global chat home. Workspace-wide channels first (visible to everyone),
@@ -16,6 +18,7 @@ import type { ChatOverviewPayload, ChatWorkspaceOverview } from '@/lib/types';
  * channels and unread counts.
  */
 export default function ChatHomePage() {
+  usePageTitle('Chat');
   const query = useQuery({
     queryKey: queryKeys.chat.myProjects,
     queryFn: () => api<ChatOverviewPayload>(apiPaths.chat.myProjects()),
@@ -39,7 +42,13 @@ export default function ChatHomePage() {
         <WorkspaceCard workspace={workspace} />
       ) : null}
 
-      {query.isLoading ? (
+      {query.isError ? (
+        <ErrorState
+          title="Couldn't load your chats"
+          message="We couldn't fetch your chats. Check your connection and try again."
+          onRetry={() => void query.refetch()}
+        />
+      ) : query.isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-44 animate-pulse rounded-lg bg-line/50" />

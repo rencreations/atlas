@@ -28,6 +28,13 @@ import { cn } from '@/lib/utils';
 
 const lowlight = createLowlight(common);
 
+/// Empty JSON docs (`{}`) come back from the API for records without
+/// content; Tiptap rejects those with "Invalid content" warnings, so
+/// treat them as no content.
+function isBlankDoc(v: object | null | undefined): boolean {
+  return !v || (typeof v === 'object' && Object.keys(v).length === 0);
+}
+
 interface Props {
   value?: object | null;
   onChange?: (json: object) => void;
@@ -57,7 +64,7 @@ export function RichTextEditor({
       Placeholder.configure({ placeholder: placeholder ?? 'Start writing…' }),
       CodeBlockLowlight.configure({ lowlight }),
     ],
-    content: value ?? undefined,
+    content: isBlankDoc(value) ? undefined : value,
     editable,
     onUpdate: ({ editor }) => onChange?.(editor.getJSON()),
     editorProps: {
@@ -74,7 +81,7 @@ export function RichTextEditor({
   // Sync external value changes (e.g. when switching projects).
   React.useEffect(() => {
     if (!editor) return;
-    if (!value) return;
+    if (isBlankDoc(value)) return;
     const current = JSON.stringify(editor.getJSON());
     const next = JSON.stringify(value);
     if (current !== next) editor.commands.setContent(value as never, false);
@@ -254,7 +261,7 @@ function ToolbarBtn({
       aria-label={label}
       title={label}
       className={cn(
-        'inline-grid h-8 w-8 place-items-center rounded transition-colors',
+        'inline-grid h-9 w-9 place-items-center rounded transition-colors',
         active ? 'bg-brand-blue-50 text-brand-blue' : 'text-ink-2 hover:bg-surface-muted hover:text-ink',
         'disabled:opacity-40 disabled:pointer-events-none',
       )}

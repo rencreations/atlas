@@ -34,7 +34,14 @@ function initialEditorValue(item: GodmodeSettingItem): EditorValue {
  * Renders every registry item type (boolean switch, text, secret,
  * number, enum, json) and saves changed items in bulk.
  */
-export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
+export function SettingsEditor({
+  items,
+  onDirtyChange,
+}: {
+  items: GodmodeSettingItem[];
+  /** Fired when the set of unsaved edits becomes non-empty / empty. */
+  onDirtyChange?: (dirty: boolean) => void;
+}) {
   const { show } = useToast();
   const [values, setValues] = useState<Record<string, EditorValue>>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -46,6 +53,11 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
     setValues(next);
   }, [items]);
 
+  const dirtyCount = Object.values(values).filter((v) => v.dirty).length;
+  useEffect(() => {
+    onDirtyChange?.(dirtyCount > 0);
+  }, [dirtyCount, onDirtyChange]);
+
   const visible = useMemo(
     () => items.filter((i) => showAdvanced || !i.advanced),
     [items, showAdvanced],
@@ -55,11 +67,43 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
     setValues((prev) => ({ ...prev, [key]: { value, dirty: true } }));
   }, []);
 
+  function isValidJson(raw: string): boolean {
+    if (raw.trim() === '') return true;
+    try {
+      JSON.parse(raw);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const hasInvalidJson = visible.some(
+    (i) => i.type === 'json' && !isValidJson(String(values[i.key]?.value ?? '')),
+  );
+
   const save = useCallback(async () => {
+    const itemByKey = new Map(items.map((i) => [i.key, i]));
     const changed = Object.entries(values)
       .filter(([, v]) => v.dirty)
+      // An emptied number field stays '' until a value is typed — skip it
+      // rather than sending 0 or an empty string to a numeric setting.
+      .filter(([key, v]) => {
+        const item = itemByKey.get(key);
+        return !(item?.type === 'number' && v.value === '');
+      })
       .map(([key, v]) => ({ key, value: v.value }));
     if (changed.length === 0) return;
+    const invalidJson = changed.some(
+      (c) => (itemByKey.get(c.key)?.type ?? '') === 'json' && !isValidJson(String(c.value)),
+    );
+    if (invalidJson) {
+      show({
+        title: 'Invalid JSON',
+        description: 'Fix the highlighted JSON fields before saving.',
+        tone: 'danger',
+      });
+      return;
+    }
     setSaving(true);
     try {
       await godmodeFetch(godmodePaths.settingsBulk(), {
@@ -81,9 +125,7 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
     } finally {
       setSaving(false);
     }
-  }, [values, show]);
-
-  const dirtyCount = Object.values(values).filter((v) => v.dirty).length;
+  }, [values, items, show]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -97,7 +139,7 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
           Show advanced settings
         </label>
         {dirtyCount > 0 ? (
-          <Button size="sm" onClick={() => void save()} disabled={saving}>
+          <Button size="sm" onClick={() => void save()} disabled={saving || hasInvalidJson}>
             {saving ? (
               <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
             ) : (
@@ -137,7 +179,12 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
                 <p className="mt-1 font-mono text-[11px] text-ink-4">{item.key}</p>
               </div>
               <div className="shrink-0">
-                <SettingControl item={item} entry={entry} onChange={(v) => set(item.key, v)} />
+                <SettingControl
+                  item={item}
+                  entry={entry}
+                  jsonValid={item.type === 'json' ? isValidJson(String(entry.value)) : true}
+                  onChange={(v) => set(item.key, v)}
+                />
               </div>
             </div>
           </div>
@@ -152,6 +199,11 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
 
       {dirtyCount > 0 ? (
         <div className="sticky bottom-4 flex items-center justify-end gap-2">
+          {hasInvalidJson ? (
+            <span className="mr-auto text-[12px] text-brand-red">
+              Some JSON fields don&apos;t parse — fix them before saving.
+            </span>
+          ) : null}
           <Button variant="secondary" size="sm" onClick={() => {
             const next: Record<string, EditorValue> = {};
             for (const item of items) next[item.key] = initialEditorValue(item);
@@ -160,7 +212,7 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
             <RotateCcw className="h-4 w-4" strokeWidth={2.25} />
             Discard
           </Button>
-          <Button size="sm" onClick={() => void save()} disabled={saving}>
+          <Button size="sm" onClick={() => void save()} disabled={saving || hasInvalidJson}>
             {saving ? (
               <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
             ) : (
@@ -177,10 +229,13 @@ export function SettingsEditor({ items }: { items: GodmodeSettingItem[] }) {
 function SettingControl({
   item,
   entry,
+  jsonValid,
   onChange,
 }: {
   item: GodmodeSettingItem;
   entry: EditorValue;
+  /** Whether the current value parses as JSON (only meaningful for json items). */
+  jsonValid: boolean;
   onChange: (value: EditorValue['value']) => void;
 }) {
   if (item.type === 'boolean') {
@@ -196,7 +251,7 @@ function SettingControl({
   if (item.type === 'enum' && item.options) {
     return (
       <Select value={String(entry.value)} onValueChange={(v) => onChange(v)}>
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className="w-[220px]" aria-label={item.label}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -215,20 +270,30 @@ function SettingControl({
       <Input
         type="number"
         className="w-[160px]"
+        aria-label={item.label}
+        // Keep '' while the field is empty instead of coercing to 0;
+        // emptied numbers are skipped at save time.
         value={String(entry.value)}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
       />
     );
   }
 
   if (item.type === 'json') {
     return (
-      <Textarea
-        className="w-[280px] font-mono text-[12px]"
-        rows={4}
-        value={String(entry.value)}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      <div className="flex w-[280px] flex-col gap-1">
+        <Textarea
+          className="w-full font-mono text-[12px]"
+          rows={4}
+          aria-label={item.label}
+          invalid={!jsonValid}
+          value={String(entry.value)}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        {!jsonValid ? (
+          <span className="text-[12px] text-brand-red">Invalid JSON — fix before saving.</span>
+        ) : null}
+      </div>
     );
   }
 

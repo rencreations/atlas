@@ -17,19 +17,24 @@ interface PageProps {
   }>;
 }
 
+/** User-facing explanations for known error codes. Keep these free of
+ *  operator jargon — raw codes live behind the "Technical details"
+ *  disclosure instead. */
 const ERROR_HINTS: Record<string, string> = {
   session_creation_failed:
-    'The Atlas API rejected the /auth/login request — usually a database problem (missing Session table, broken migration) or the API process is down. Check the API logs.',
+    "We couldn't start your session. The sign-in service didn't respond — please try again in a moment.",
   missing_identity_claims:
-    'The identity provider returned no usable identity claims. Check the provider configuration in godmode.',
+    "The identity provider didn't return any profile information. Try a different sign-in method.",
   token_exchange_failed:
-    'The identity provider refused to exchange the authorization code. Check that the client secret is correct and that the redirect URI matches exactly.',
+    'The identity provider rejected the sign-in attempt. Check that the provider is set up correctly, then try again.',
   missing_parameters:
-    'The redirect from the identity provider was missing required parameters. Re-initiate the sign-in.',
-  missing_api_url: 'NEXT_PUBLIC_API_URL is not configured for the frontend.',
-  invalid_session_data: 'The session blob returned by the callback could not be parsed. Sign in again.',
-  internal_error: 'An unexpected error occurred. Check the frontend server logs.',
-  oauth_failed: 'Social sign-in failed. See the detail below.',
+    'The sign-in response was incomplete. Please try signing in again.',
+  missing_api_url:
+    "The sign-in service isn't configured for this page. Contact your administrator.",
+  invalid_session_data:
+    "The sign-in response couldn't be read. Please try signing in again.",
+  internal_error: 'Something went wrong on our side. Please try again.',
+  oauth_failed: 'Social sign-in failed. Please try again.',
 };
 
 const FALLBACK_CONFIG: PublicConfig = {
@@ -63,13 +68,20 @@ const FALLBACK_CONFIG: PublicConfig = {
 async function loadPublicConfig(): Promise<PublicConfig> {
   const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
   try {
-    const res = await fetch(`${base}/public-config`, { cache: 'no-store' });
+    const res = await fetch(`${base}/public-config`, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(8000),
+    });
     if (res.ok) return (await res.json()) as PublicConfig;
   } catch {
-    // API down → fall back to the password-only surface; the API error
-    // will surface on submit.
+    // API down or timed out → fall back to the password-only surface; the
+    // API error will surface on submit.
   }
   return FALLBACK_CONFIG;
+}
+
+function truncateDetail(detail: string, max = 400): string {
+  return detail.length > max ? `${detail.slice(0, max)}…` : detail;
 }
 
 export default async function LoginPage({ searchParams }: PageProps) {
@@ -85,6 +97,8 @@ export default async function LoginPage({ searchParams }: PageProps) {
   if (session) {
     redirect(sanitizeReturnTo(params.callbackUrl) ?? '/dashboard');
   }
+
+  const isEmailVerificationNotice = params.error === 'check_your_email';
 
   return (
     <main className="relative grid min-h-svh place-items-center overflow-hidden bg-surface px-6">
@@ -112,19 +126,45 @@ export default async function LoginPage({ searchParams }: PageProps) {
             </div>
           ) : null}
 
-          {params.error ? (
-            <div className="mt-5 rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink">
-              <div className="font-medium text-brand-red">
-                Authentication failed: {params.error}
-                {params.error_status ? ` (${params.error_status})` : null}
+          {isEmailVerificationNotice ? (
+            <div
+              role="status"
+              className="mt-5 rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-3 text-[13px] text-ink"
+            >
+              <div className="font-medium text-brand-blue">
+                Check your email — we sent a verification link
               </div>
-              {ERROR_HINTS[params.error] ? (
-                <p className="mt-1 text-ink-2">{ERROR_HINTS[params.error]}</p>
-              ) : null}
-              {params.error_detail ? (
-                <pre className="mt-2 whitespace-pre-wrap break-words rounded bg-surface/60 p-2 font-mono text-[11px] text-ink-3">
-                  {params.error_detail}
-                </pre>
+              <p className="mt-1 text-ink-2">
+                Follow the link to confirm your address, then sign in.
+              </p>
+            </div>
+          ) : null}
+
+          {params.error && !isEmailVerificationNotice ? (
+            <div
+              role="alert"
+              className="mt-5 rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink"
+            >
+              <div className="font-medium text-brand-red">
+                {ERROR_HINTS[params.error] ?? 'Sign-in failed. Please try again.'}
+              </div>
+              {(params.error_detail || !ERROR_HINTS[params.error]) ? (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-[12px] font-medium text-ink-3 hover:text-ink">
+                    Technical details
+                  </summary>
+                  {!ERROR_HINTS[params.error] ? (
+                    <pre className="mt-2 whitespace-pre-wrap break-words rounded bg-surface/60 p-2 font-mono text-[11px] text-ink-3">
+                      error: {params.error}
+                      {params.error_status ? ` (${params.error_status})` : null}
+                    </pre>
+                  ) : null}
+                  {params.error_detail ? (
+                    <pre className="mt-2 whitespace-pre-wrap break-words rounded bg-surface/60 p-2 font-mono text-[11px] text-ink-3">
+                      {truncateDetail(params.error_detail)}
+                    </pre>
+                  ) : null}
+                </details>
               ) : null}
             </div>
           ) : null}

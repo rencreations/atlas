@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Loader2, Plus, Trash2, Archive, ArchiveRestore, Upload, X } from 'lucide-react';
+import { Archive, ArchiveRestore, Loader2, Plus, Upload, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, uploadToPresigned } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -126,7 +127,7 @@ function CreatePackButton() {
         </Button>
       </DialogTrigger>
       <DialogContent size="sm">
-        <h2 className="font-display text-h3 text-ink">New sticker pack</h2>
+        <DialogTitle className="font-display text-h3 text-ink">New sticker pack</DialogTitle>
         <form
           className="mt-4 space-y-3"
           onSubmit={(e) => {

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { getStoredSession } from '@/lib/auth-client';
 import { sanitizeReturnTo } from '@/lib/auth-redirect';
+import { LoadingShell } from '@/components/auth/loading-shell';
 import { Header } from '@/components/layout/header';
 import { NotificationsClient } from '@/components/notifications/notifications-client';
 import { VoiceConnectedPanel } from '@/components/voice/voice-connected-panel';
@@ -36,7 +37,9 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
   }, [session, router, pathname]);
 
   if (!session) {
-    return null;
+    // Brief loading shell while the redirect to /login happens, so
+    // unauthenticated visitors see feedback instead of a blank flash.
+    return <LoadingShell />;
   }
 
   const isChatConversation = pathname ? CHAT_CONVERSATION_RE.test(pathname) : false;

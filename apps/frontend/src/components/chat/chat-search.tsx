@@ -137,6 +137,10 @@ export function ChatSearch({ chatScope, projectId, channelId }: Props) {
             <div className="grid h-20 place-items-center text-ink-3">
               <Loader2 className="h-4 w-4 animate-spin" />
             </div>
+          ) : query.isError ? (
+            <div className="px-3 py-4 text-[12px] text-brand-red">
+              Search failed. Check your connection and try again.
+            </div>
           ) : noResults ? (
             <div className="px-3 py-4 text-[12px] text-ink-3">No matches.</div>
           ) : (

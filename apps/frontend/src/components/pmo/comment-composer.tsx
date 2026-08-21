@@ -119,7 +119,7 @@ export function CommentComposer({
             className="ml-2 inline-grid h-5 w-5 place-items-center rounded text-ink-3 hover:bg-line"
             aria-label="Cancel reply"
           >
-            <X className="h-3 w-3" strokeWidth={2.5} />
+            <X className="h-3 w-3" strokeWidth={2.25} />
           </button>
         </div>
       ) : null}

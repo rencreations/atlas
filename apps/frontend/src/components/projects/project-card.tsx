@@ -43,6 +43,16 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
     if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
     setHovered(false);
   }, []);
+  // Keep the overlay open while keyboard focus is still inside the card
+  // (e.g. tabbing from the base link into the overlay buttons). relatedTarget
+  // is null for clicks on non-focusable chrome or window blur — close then.
+  const onBlur = React.useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget as Node)) return;
+      onLeave();
+    },
+    [onLeave],
+  );
 
   // The overlay is fixed-positioned to the card's location at hover time. Once
   // the user scrolls, the card slides away under it and the cursor is still
@@ -75,9 +85,9 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
       onFocus={onEnter}
-      onBlur={onLeave}
+      onBlur={onBlur}
       className={cn(
-        'relative snap-start',
+        'group relative snap-start',
         isStatic ? 'w-full' : 'shrink-0',
         className,
       )}
@@ -86,7 +96,7 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
       {/* Base card — always visible */}
       <Link
         href={`/projects/${project.slug}` as never}
-        className="block focus:outline-none"
+        className="block rounded focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         aria-label={`Open ${project.title}`}
       >
         <ProjectThumbnail
@@ -147,7 +157,7 @@ function ExpandedOverlay({
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
       onMouseLeave={onLeave}
-      className="pointer-events-auto fixed z-30 hidden overflow-hidden rounded-lg bg-surface shadow-3 md:block"
+      className="pointer-events-auto fixed z-30 hidden overflow-hidden rounded-lg bg-surface shadow-3 md:group-focus-within:block md:block"
       style={{ left, top, width: expandedWidth }}
     >
       <Link href={`/projects/${project.slug}` as never} className="block">

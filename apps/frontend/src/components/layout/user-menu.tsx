@@ -1,8 +1,9 @@
 'use client';
 
+import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Bell, LogOut, Settings, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Bell, Loader2, LogOut, Settings, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { clearSession, getStoredSession } from '@/lib/auth-client';
 import { api } from '@/lib/api/client';
 import { Avatar } from '@/components/ui/avatar';
@@ -21,10 +22,12 @@ interface Props {
 
 export function UserMenu({ isAdmin }: Props) {
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = React.useState(false);
   const session = getStoredSession();
   const user = session?.user;
 
   const handleLogout = async () => {
+    setLoggingOut(true);
     try {
       await api('/auth/logout', { method: 'DELETE' });
     } catch {
@@ -79,9 +82,17 @@ export function UserMenu({ isAdmin }: Props) {
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="text-brand-red">
-          <LogOut className="h-4 w-4" strokeWidth={2.25} />
-          Sign out
+        <DropdownMenuItem
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="text-brand-red"
+        >
+          {loggingOut ? (
+            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.25} />
+          ) : (
+            <LogOut className="h-4 w-4" strokeWidth={2.25} />
+          )}
+          {loggingOut ? 'Signing out…' : 'Sign out'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

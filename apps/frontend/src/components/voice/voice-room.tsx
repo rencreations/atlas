@@ -106,7 +106,6 @@ export function VoiceRoom({
     return (
       <StageRoom
         channelId={channelId}
-        channelName={channelName}
         projectId={projectId}
         projectSlugOrId={projectSlugOrId ?? null}
         canModerate={!!canModerate}
@@ -145,7 +144,7 @@ export function VoiceRoom({
     return (
       <div ref={containerRef} className="flex h-full flex-col bg-surface-1">
         <div className="relative flex min-h-0 flex-1 flex-col gap-3 p-3 md:flex-row">
-          <div className="relative min-h-[60vh] flex-1 md:min-h-0">
+          <div className="group relative min-h-[60vh] flex-1 md:min-h-0">
             <ParticipantTile
               participant={spotlight}
               large

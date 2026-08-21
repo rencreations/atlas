@@ -12,6 +12,8 @@ import { isPmoEnabled } from '@/lib/hooks/use-pmo-enabled';
 import { isInsider, type ProjectDetail, type ProjectDetailInsider, type TaskList } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
+import { ErrorState } from '@/components/ui/error-state';
+import { usePageTitle } from '@/lib/page-title';
 import { Badge } from '@/components/ui/badge';
 import { pmoBgClass, pmoFgClass } from '@/components/pmo/color-picker';
 import { ListNavbar } from '@/components/pmo/list-navbar';
@@ -43,6 +45,8 @@ export default function TaskListLayout({
     queryFn: () => api<TaskList>(apiPaths.pmo.lists.one(slug, listId)),
   });
 
+  usePageTitle(list.data?.name ?? 'Task list');
+
   if (!pmoEnabled) {
     return (
       <Container size="2xl" className="py-12">
@@ -65,14 +69,25 @@ export default function TaskListLayout({
 
   if (project.isError || !project.data || list.isError || !list.data) {
     return (
-      <Container size="2xl" className="py-12">
-        <p className="text-brand-red">Could not load this task list.</p>
-        <Button asChild variant="secondary" className="mt-4">
-          <Link href={`/projects/${slug}` as never}>
-            <ArrowLeft className="h-4 w-4" strokeWidth={2.25} />
-            Back to project
-          </Link>
-        </Button>
+      <Container size="2xl" className="py-16">
+        <ErrorState
+          page
+          title="Couldn't load this task list"
+          message="The task list couldn't be fetched. Check your connection and try again."
+          onRetry={() => {
+            project.refetch();
+            list.refetch();
+          }}
+          className="max-w-lg mx-auto"
+        />
+        <div className="mt-6 text-center">
+          <Button asChild variant="secondary" size="sm">
+            <Link href={`/projects/${slug}` as never}>
+              <ArrowLeft className="h-4 w-4" strokeWidth={2.25} />
+              Back to project
+            </Link>
+          </Button>
+        </div>
       </Container>
     );
   }

@@ -13,26 +13,27 @@ import { useToast } from '@/components/ui/toast';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
 import type { GodmodeRole, GodmodeUser } from '@/lib/godmode/types';
 
-const ROLE_BADGE_TONE: Record<string, 'danger' | 'info' | 'neutral' | 'success'> = {
-  superadmin: 'danger',
-  admin: 'warning' as never,
-};
-
 export function UsersPanel() {
   const { show } = useToast();
   const [users, setUsers] = useState<GodmodeUser[]>([]);
   const [roles, setRoles] = useState<GodmodeRole[]>([]);
   const [q, setQ] = useState('');
+  const [debouncedQ, setDebouncedQ] = useState('');
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
-  const [inviteEmail, setInviteEmail] = useState('');
+
+  // Debounce the search input (~300ms) so the users API isn't hit per keystroke.
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQ(q), 300);
+    return () => window.clearTimeout(t);
+  }, [q]);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const [u, r] = await Promise.all([
-        godmodeFetch<GodmodeUser[]>(godmodePaths.users(q)),
+        godmodeFetch<GodmodeUser[]>(godmodePaths.users(debouncedQ)),
         godmodeFetch<GodmodeRole[]>(godmodePaths.roles()),
       ]);
       setUsers(u);
@@ -42,7 +43,7 @@ export function UsersPanel() {
     } finally {
       setLoading(false);
     }
-  }, [q, show]);
+  }, [debouncedQ, show]);
 
   useEffect(() => {
     void load();
@@ -97,13 +98,13 @@ export function UsersPanel() {
     try {
       const res = await godmodeFetch<{ code: string }>(godmodePaths.invites(), {
         method: 'POST',
-        body: JSON.stringify({ email: inviteEmail || undefined }),
+        body: JSON.stringify({}),
       });
       setInviteCode(res.code);
     } catch (err) {
       show({ title: 'Invite failed', description: String(err), tone: 'danger' });
     }
-  }, [inviteEmail, show]);
+  }, [show]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -132,13 +133,17 @@ export function UsersPanel() {
           <span className="select-all font-mono text-[13px] font-semibold text-brand-yellow-ink">
             {inviteCode}
           </span>{' '}
-          — valid for 7 days{inviteEmail ? `, bound to ${inviteEmail}` : ''}.
+          — valid for 7 days.
         </div>
       ) : null}
 
       {loading ? (
         <div className="flex justify-center py-12">
           <LoaderCircle className="h-6 w-6 animate-spin text-ink-3" strokeWidth={2.25} />
+        </div>
+      ) : users.length === 0 ? (
+        <div className="rounded border border-line bg-surface p-10 text-center text-[14px] text-ink-3 shadow-1">
+          No users found{debouncedQ ? ` for “${debouncedQ}”` : ' yet'}.
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -256,9 +261,9 @@ function CreateUserDialog({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Role</Label>
+            <Label htmlFor="cu-role">Role</Label>
             <Select value={roleCode} onValueChange={setRoleCode}>
-              <SelectTrigger>
+              <SelectTrigger id="cu-role">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

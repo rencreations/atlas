@@ -153,7 +153,7 @@ export function ParticipantTile({
         <div className="flex shrink-0 items-center gap-1">
           {isScreenSharing ? (
             <span title="Sharing screen">
-              <MonitorUp className="h-3 w-3" strokeWidth={2.5} />
+              <MonitorUp className="h-3 w-3" strokeWidth={2.25} />
             </span>
           ) : null}
           {isMuted ? (
@@ -164,7 +164,7 @@ export function ParticipantTile({
               )}
               title="Muted"
             >
-              <MicOff className="h-2.5 w-2.5 text-white" strokeWidth={2.5} />
+              <MicOff className="h-2.5 w-2.5 text-white" strokeWidth={2.25} />
             </span>
           ) : null}
           {isLocallyMuted ? (
@@ -172,7 +172,7 @@ export function ParticipantTile({
               className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-surface-inverse text-white"
               title="Muted only for you"
             >
-              <VolumeX className="h-2.5 w-2.5" strokeWidth={2.5} />
+              <VolumeX className="h-2.5 w-2.5" strokeWidth={2.25} />
             </span>
           ) : null}
         </div>

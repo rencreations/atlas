@@ -1,34 +1,52 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
+import { ErrorState } from '@/components/ui/error-state';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/auth/password-input';
 import { apiPaths } from '@/lib/api/paths';
+import { usePageTitle } from '@/lib/page-title';
 import type { PublicConfig } from '@/lib/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 
 export default function RegisterPage() {
+  usePageTitle('Create an account');
   const router = useRouter();
   const [config, setConfig] = useState<PublicConfig | null>(null);
+  const [configFailed, setConfigFailed] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invalid, setInvalid] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const loadConfig = useCallback(() => {
+    setConfigFailed(false);
     fetch(`${API_BASE}${apiPaths.publicConfig()}`)
       .then((r) => r.json() as Promise<PublicConfig>)
       .then(setConfig)
-      .catch(() => setConfig(null));
+      .catch(() => setConfigFailed(true));
   }, []);
+
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
+
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+
+  const clearInvalid = useCallback(() => setInvalid([]), []);
 
   const submit = useCallback(async () => {
     setBusy(true);
@@ -55,14 +73,32 @@ export default function RegisterPage() {
       router.push('/login' as never);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed.');
+      setInvalid(['reg-email', 'reg-password']);
       setBusy(false);
     }
   }, [name, email, password, inviteCode, router]);
 
+  if (configFailed) {
+    return (
+      <AuthShell
+        title="Create an account"
+        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+      >
+        <ErrorState
+          title="Couldn't load sign-up settings"
+          message="The registration service didn't respond. Check your connection and try again."
+          onRetry={loadConfig}
+        />
+      </AuthShell>
+    );
+  }
+
   if (!config) {
     return (
       <AuthShell title="Create an account">
-        <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-ink-3" strokeWidth={2.25} />
+        <div className="flex justify-center py-2">
+          <LoaderCircle className="h-5 w-5 animate-spin text-ink-3" strokeWidth={2.25} />
+        </div>
       </AuthShell>
     );
   }
@@ -93,27 +129,54 @@ export default function RegisterPage() {
         className="flex flex-col gap-4"
       >
         {error ? (
-          <div className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink">
+          <div
+            ref={errorRef}
+            role="alert"
+            tabIndex={-1}
+            className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink"
+          >
             {error}
           </div>
         ) : null}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="reg-name">Name</Label>
-          <Input id="reg-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
+          <Input
+            id="reg-name"
+            value={name}
+            onChange={(e) => {
+              clearInvalid();
+              setName(e.target.value);
+            }}
+            autoComplete="name"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="reg-email">Email</Label>
-          <Input id="reg-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          <Input
+            id="reg-email"
+            type="email"
+            invalid={invalid.includes('reg-email')}
+            value={email}
+            onChange={(e) => {
+              clearInvalid();
+              setEmail(e.target.value);
+            }}
+            autoComplete="email"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="reg-password">Password</Label>
-          <Input
+          <PasswordInput
             id="reg-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
+            invalid={invalid.includes('reg-password')}
+            value={password}
+            onChange={(e) => {
+              clearInvalid();
+              setPassword(e.target.value);
+            }}
           />
+          <p className="text-[12px] text-ink-3">At least 6 characters</p>
         </div>
         {config.registration.inviteRequired ? (
           <div className="flex flex-col gap-1.5">

@@ -60,6 +60,13 @@ export type VoiceConnectionState =
 /** Video / screen-share quality presets baked into the publish call. */
 export type ScreenShareQuality = '720p30' | '1080p30' | '1080p60';
 
+/** True when a getUserMedia/device request was denied (browser prompt
+ *  dismissed, blocked in settings, or a sandboxed iframe). */
+function isNotAllowedError(err: unknown): boolean {
+  const name = (err as { name?: unknown })?.name;
+  return name === 'NotAllowedError' || name === 'PermissionDeniedError';
+}
+
 export interface VoiceParticipantView {
   identity: string; // userId
   name: string;
@@ -540,7 +547,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         socket.emit('voice:subscribe.channel', { channelId });
       }
     },
-    [enabled, patch, refreshParticipants, refreshDevices, teardownRoom],
+    [enabled, patch, refreshParticipants, refreshDevices, teardownRoom, state.preferences],
   );
 
   const leaveChannel = useCallback<VoiceActions['leaveChannel']>(async () => {
@@ -564,7 +571,20 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     const room = roomRef.current;
     if (!room) return;
     const enableMic = state.micMuted; // currently muted → enabling
-    await room.localParticipant.setMicrophoneEnabled(enableMic);
+    try {
+      await room.localParticipant.setMicrophoneEnabled(enableMic);
+    } catch (err) {
+      // The device never changed — leave the mic toggle where it was
+      // instead of flipping optimistically.
+      if (isNotAllowedError(err)) {
+        patch({
+          error: 'Microphone permission denied — allow it in your browser and retry.',
+        });
+      } else {
+        patch({ error: (err as Error).message ?? 'Could not toggle your microphone.' });
+      }
+      return;
+    }
     patch({ micMuted: !enableMic, deafened: !enableMic ? state.deafened : false });
     // Phase 7 — local feedback chime, prefs-gated.
     if (state.preferences?.soundsEnabled !== false) {
@@ -579,12 +599,23 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     const next = !state.deafened;
     // Deafening also mutes the mic (Discord behavior); undeafening
     // restores it.
-    if (next) {
-      await room.localParticipant.setMicrophoneEnabled(false);
-      patch({ deafened: true, micMuted: true });
-    } else {
-      await room.localParticipant.setMicrophoneEnabled(true);
-      patch({ deafened: false, micMuted: false });
+    try {
+      if (next) {
+        await room.localParticipant.setMicrophoneEnabled(false);
+        patch({ deafened: true, micMuted: true });
+      } else {
+        await room.localParticipant.setMicrophoneEnabled(true);
+        patch({ deafened: false, micMuted: false });
+      }
+    } catch (err) {
+      // Leave the deafen toggle where it was — the device never changed.
+      if (isNotAllowedError(err)) {
+        patch({
+          error: 'Microphone permission denied — allow it in your browser and retry.',
+        });
+      } else {
+        patch({ error: (err as Error).message ?? 'Could not toggle your microphone.' });
+      }
     }
   }, [patch, state.deafened]);
 
@@ -592,7 +623,19 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     async (deviceId) => {
       const room = roomRef.current;
       if (!room) return;
-      await room.switchActiveDevice('audioinput', deviceId);
+      try {
+        await room.switchActiveDevice('audioinput', deviceId);
+      } catch (err) {
+        // Keep the previous device selected — the switch never happened.
+        if (isNotAllowedError(err)) {
+          patch({
+            error: 'Microphone permission denied — allow it in your browser and retry.',
+          });
+        } else {
+          patch({ error: (err as Error).message ?? 'Could not switch your microphone.' });
+        }
+        return;
+      }
       patch({ micDeviceId: deviceId });
     },
     [patch],

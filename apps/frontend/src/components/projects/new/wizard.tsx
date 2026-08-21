@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardBody } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { RichTextEditor } from '@/components/rich-text/editor';
 import { PhaseBadge } from '@/components/projects/project-thumbnail';
@@ -85,23 +86,29 @@ const PHASES: ProjectPhase[] = [
   'SHIPPED',
 ];
 
+const INITIAL_FORM: FormState = {
+  title: '',
+  shortDescription: '',
+  phase: 'PLANNING',
+  description: EMPTY_DOC,
+  techStack: [],
+  collaborationRoles: [],
+  tagIds: [],
+  visibility: 'PUBLIC',
+  internalLinks: {},
+  media: [],
+};
+
 export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProps) {
   const router = useRouter();
   const { show } = useToast();
 
   const [step, setStep] = React.useState(0);
-  const [form, setForm] = React.useState<FormState>({
-    title: '',
-    shortDescription: '',
-    phase: 'PLANNING',
-    description: EMPTY_DOC,
-    techStack: [],
-    collaborationRoles: [],
-    tagIds: [],
-    visibility: 'PUBLIC',
-    internalLinks: {},
-    media: [],
-  });
+  const [form, setForm] = React.useState<FormState>(INITIAL_FORM);
+  // Serialized snapshot of the untouched form, for unsaved-changes detection.
+  const [initialSig] = React.useState(() => JSON.stringify(INITIAL_FORM));
+  const dirty = JSON.stringify(form) !== initialSig;
+  const [discardOpen, setDiscardOpen] = React.useState(false);
 
   const errors = useStepErrors(form, step);
 
@@ -122,22 +129,49 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
         },
       });
 
-      // Upload each media item in order. The first becomes the thumbnail.
-      for (let i = 0; i < form.media.length; i++) {
-        const m = form.media[i];
-        const presign = await api<{
-          uploadUrl: string;
-          publicUrl: string;
-          type: MediaType;
-        }>(apiPaths.presignMedia(project.id), {
-          method: 'POST',
-          body: { contentType: m.file.type, contentLength: m.file.size },
-        });
-        await uploadToPresigned(presign.uploadUrl, m.file);
-        await api<ProjectMedia>(apiPaths.registerMedia(project.id), {
-          method: 'POST',
-          body: { url: presign.publicUrl, type: presign.type, order: i },
-        });
+      try {
+        // Upload each media item in order. The first becomes the thumbnail.
+        for (let i = 0; i < form.media.length; i++) {
+          const m = form.media[i];
+          const presign = await api<{
+            uploadUrl: string;
+            publicUrl: string;
+            type: MediaType;
+          }>(apiPaths.presignMedia(project.id), {
+            method: 'POST',
+            body: { contentType: m.file.type, contentLength: m.file.size },
+          });
+          await uploadToPresigned(presign.uploadUrl, m.file);
+          await api<ProjectMedia>(apiPaths.registerMedia(project.id), {
+            method: 'POST',
+            body: { url: presign.publicUrl, type: presign.type, order: i },
+          });
+        }
+      } catch (err) {
+        // The project row already exists — a media failure here would
+        // orphan it. Compensate with a DELETE so a retry never creates
+        // a duplicate project.
+        const message = err instanceof Error ? err.message : 'Upload failed';
+        let deleted = false;
+        try {
+          await api(`/projects/${project.id}`, { method: 'DELETE' });
+          deleted = true;
+        } catch {
+          deleted = false;
+        }
+        if (!deleted) {
+          // Couldn't roll back: the project exists without its media.
+          // Leaving the form would risk a duplicate on retry, so surface
+          // the partial state and take the user there instead.
+          show({
+            tone: 'danger',
+            title: 'Media upload failed',
+            description: `“${form.title.trim()}” was created without its media. Add it from the project page.`,
+          });
+          router.push(`/projects/${project.slug}` as never);
+          throw new Error('MEDIA_UPLOAD_FAILED_NO_ROLLBACK');
+        }
+        throw new Error(`Media upload failed — the empty project was rolled back. ${message}`);
       }
 
       return project;
@@ -146,8 +180,10 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
       show({ tone: 'success', title: 'Project created', description: 'Your project is live on the dashboard.' });
       router.push(`/projects/${project.slug}` as never);
     },
-    onError: (err) =>
-      show({ tone: 'danger', title: 'Could not create project', description: (err as Error).message }),
+    onError: (err) => {
+      if ((err as Error).message === 'MEDIA_UPLOAD_FAILED_NO_ROLLBACK') return; // already surfaced + navigated
+      show({ tone: 'danger', title: 'Could not create project', description: (err as Error).message });
+    },
   });
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -159,6 +195,18 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
     if (step < STEPS.length - 1) setStep(step + 1);
   }
 
+  function handleCancel() {
+    // Cancel always lands on the discovery home — router.back() could
+    // dump the user off-site (direct landing) or on an unrelated page.
+    if (dirty) setDiscardOpen(true);
+    else router.push('/dashboard' as never);
+  }
+
+  function discardAndLeave() {
+    setDiscardOpen(false);
+    router.push('/dashboard' as never);
+  }
+
   return (
     <div className="space-y-8">
       <Stepper steps={STEPS} activeIndex={step} onStep={setStep} />
@@ -168,7 +216,7 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
           {step === 0 ? (
             <BasicInfoStep form={form} update={update} errors={errors} />
           ) : null}
-          {step === 1 ? <MediaStep form={form} update={update} /> : null}
+          {step === 1 ? <MediaStep form={form} update={update} errors={errors} /> : null}
           {step === 2 ? (
             <DetailsStep
               form={form}
@@ -187,7 +235,7 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
         <Button
           type="button"
           variant="ghost"
-          onClick={() => (step === 0 ? router.back() : setStep(step - 1))}
+          onClick={() => (step === 0 ? handleCancel() : setStep(step - 1))}
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
           {step === 0 ? 'Cancel' : 'Back'}
@@ -204,6 +252,23 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
           </Button>
         )}
       </div>
+
+      <Dialog open={discardOpen} onOpenChange={setDiscardOpen}>
+        <DialogContent size="sm">
+          <DialogTitle>Discard your draft?</DialogTitle>
+          <DialogDescription>
+            You&apos;ll lose everything you&apos;ve entered so far. This can&apos;t be undone.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDiscardOpen(false)}>
+              Keep editing
+            </Button>
+            <Button variant="danger" onClick={discardAndLeave}>
+              Discard
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -213,6 +278,11 @@ function useStepErrors(form: FormState, step: number) {
   if (step === 0) {
     if (form.title.trim().length < 2) errors.title = 'Title is required.';
     if (form.shortDescription.trim().length < 10) errors.shortDescription = 'Add a short, punchy line (10+ chars).';
+  }
+  if (step === 1) {
+    if (form.media.length === 0) {
+      errors.media = 'Add at least one image or video — the first one becomes the thumbnail.';
+    }
   }
   if (step === 2) {
     if (!form.description || JSON.stringify(form.description) === JSON.stringify(EMPTY_DOC)) {
@@ -297,9 +367,11 @@ function BasicInfoStep({
 function MediaStep({
   form,
   update,
+  errors,
 }: {
   form: FormState;
   update: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
+  errors: Record<string, string>;
 }) {
   const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -347,14 +419,18 @@ function MediaStep({
         type="button"
         onClick={() => fileRef.current?.click()}
         className={cn(
-          'flex aspect-[16/8] w-full max-w-2xl flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-line bg-surface-muted text-ink-3',
+          'flex aspect-[16/8] w-full max-w-2xl flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-surface-muted text-ink-3',
           'transition-colors hover:border-line-strong hover:bg-line/40',
+          errors.media ? 'border-brand-red' : 'border-line',
         )}
       >
         <Upload className="h-6 w-6" strokeWidth={2.25} />
         <span className="text-[14px] font-medium text-ink">Click to upload</span>
         <span className="text-[12px]">JPEG, PNG, WebP, GIF up to 10 MB · MP4 / WebM up to 100 MB</span>
       </button>
+      <FieldHelp error={errors.media}>
+        The first item becomes your project&apos;s thumbnail.
+      </FieldHelp>
 
       {form.media.length > 0 ? (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -499,6 +575,7 @@ function DetailsStep({
                           active ? form.tagIds.filter((x) => x !== t.id) : [...form.tagIds, t.id],
                         )
                       }
+                      aria-pressed={active}
                       className={cn(
                         'inline-flex h-7 items-center rounded-full px-3 text-[12px] font-medium transition-colors',
                         active

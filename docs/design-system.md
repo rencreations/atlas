@@ -17,9 +17,40 @@ tokens — never literals. This page is the human-readable reference.
 3. **Stroke icons only.** Lucide with `strokeWidth={2.25}`. No filled
    variants, no mixed icon sets.
 4. **Restrained motion.** Compose from the duration + easing tokens;
-   `prefers-reduced-motion` is honored globally via `globals.css`.
+   `prefers-reduced-motion` is honored globally via `globals.css` — JS
+   smooth-scroll and JS-driven transforms must check
+   `prefers-reduced-motion` themselves.
 5. **Pattern as accent, never wallpaper.** Corners and dadoes only — the
    pattern is a signature, not a texture.
+
+## UX states — non-negotiable
+
+Every data fetch must handle **all three states**, in this order:
+`isError` first (never masquerade a failure as an empty state), then
+loading, then empty, then content.
+
+- **Errors** render the shared `ErrorState` component
+  (`src/components/ui/error-state.tsx`) with a message and a retry that
+  refetches. Error boxes are `role="alert"`; form errors mark the
+  offending input with the `invalid` prop (which sets `aria-invalid`).
+- **Empty** states explain the next action, never apologize.
+- **Loading** uses the `Skeleton` primitive or `animate-pulse` on `bg-line`
+  — an infinite spinner on failure is a bug.
+- **Destructive actions require confirmation.** Removing members, kicking
+  participants, disabling security factors, deleting clips/flags/roles —
+  all go through the `Dialog` primitive with a danger confirm. One-click
+  irreversible deletes are a bug.
+- **Hover-only affordances are bugs.** Every hover-revealed control needs
+  a `focus-visible:`/`group-focus-within:` equivalent and a
+  keyboard/touch path. Icon-only buttons carry `aria-label`s; toggles
+  carry `aria-pressed`/`aria-checked`; switches are labelled and their
+  row text is clickable.
+- **Touch targets** are ≥ 36px (`h-9`) even for toolbar-style controls.
+- **Every page sets a distinct tab title** via `usePageTitle('Name')`
+  (`src/lib/page-title.ts`) — the notification bell composes its unread
+  prefix with it. Browser tabs and history must read distinctly.
+- **Toasts** dedupe identical messages, fade out on close, and hold
+  danger/warning tones longer than confirmations.
 
 ## Themes
 

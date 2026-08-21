@@ -81,6 +81,7 @@ export function MessageComposer({
   const [attachments, setAttachments] = React.useState<PendingAttachment[]>([]);
   const [preview, setPreview] = React.useState<ChatLinkPreview | null>(null);
   const [previewLoading, setPreviewLoading] = React.useState(false);
+  const [previewFailed, setPreviewFailed] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -124,6 +125,8 @@ export function MessageComposer({
 
   const ready = attachments.every((a) => a.url && !a.error);
   const hasContent = draft.trim().length > 0 || attachments.length > 0;
+  // Backend caps message length at 8000 chars (@MaxLength on markdown).
+  const overLimit = draft.length > 8000;
 
   const sendMutation = useMutation({
     mutationFn: () =>
@@ -164,6 +167,7 @@ export function MessageComposer({
       setDraft('');
       setAttachments([]);
       setPreview(null);
+      setPreviewFailed(false);
       seenPreviewUrlsRef.current.clear();
       onClearReply();
       onTypingStop?.();
@@ -172,7 +176,7 @@ export function MessageComposer({
   });
 
   const submit = () => {
-    if (!hasContent || !ready || sendMutation.isPending) return;
+    if (!hasContent || !ready || overLimit || sendMutation.isPending) return;
     sendMutation.mutate();
   };
 
@@ -215,6 +219,7 @@ export function MessageComposer({
   };
 
   const fetchPreview = async (url: string) => {
+    setPreviewFailed(false);
     setPreviewLoading(true);
     try {
       const result = await api<ChatLinkPreview>(apiPaths.chat.linkPreview(), {
@@ -224,9 +229,13 @@ export function MessageComposer({
       // Only show meaningful previews — bare-link results are noise.
       if (result.title || result.description || result.imageUrl) {
         setPreview(result);
+      } else {
+        setPreviewFailed(true);
       }
     } catch {
-      // silently drop — link still in text
+      // Link stays in the text either way — surface the failure so the
+      // user knows the preview fetch didn't happen.
+      setPreviewFailed(true);
     } finally {
       setPreviewLoading(false);
     }
@@ -391,14 +400,29 @@ export function MessageComposer({
         </div>
       ) : null}
 
-      {preview || previewLoading ? (
+      {preview || previewLoading || previewFailed ? (
         <div className="mb-2">
           {preview ? (
             <LinkPreviewCard preview={preview} onRemove={() => setPreview(null)} />
-          ) : (
+          ) : previewLoading ? (
             <div className="flex items-center gap-2 rounded-lg border border-line bg-surface p-2 text-[12px] text-ink-3">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Fetching link preview…
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 rounded-lg border border-line bg-surface p-2 text-[12px] text-ink-3">
+              <X className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
+              <span className="flex-1">
+                Couldn&apos;t preview that link — it stays in your message.
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewFailed(false)}
+                aria-label="Dismiss preview error"
+                className="rounded p-0.5 text-ink-3 hover:bg-line/40 hover:text-ink"
+              >
+                <X className="h-3 w-3" strokeWidth={2.25} />
+              </button>
             </div>
           )}
         </div>
@@ -468,7 +492,7 @@ export function MessageComposer({
         <Button
           size="icon-sm"
           onClick={submit}
-          disabled={!hasContent || !ready || sendMutation.isPending}
+          disabled={!hasContent || !ready || overLimit || sendMutation.isPending}
           aria-label="Send message"
         >
           <Send className="h-4 w-4" strokeWidth={2.25} />
@@ -477,6 +501,16 @@ export function MessageComposer({
       {sendMutation.isError ? (
         <div className="mt-1 text-[12px] text-brand-red">
           Failed to send. Press Enter to try again.
+        </div>
+      ) : null}
+      {draft.length > 7200 ? (
+        <div
+          className={cn(
+            'mt-1 text-right text-[11px]',
+            draft.length > 8000 ? 'text-brand-red' : 'text-ink-3',
+          )}
+        >
+          {draft.length}/8000
         </div>
       ) : null}
     </div>

@@ -4,6 +4,13 @@ import * as React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -20,6 +27,7 @@ export function FeatureFlagManager() {
   const { show } = useToast();
   const [key, setKey] = React.useState('');
   const [description, setDescription] = React.useState('');
+  const [confirming, setConfirming] = React.useState<FeatureFlag | null>(null);
 
   const list = useQuery({
     queryKey: ['admin', 'feature-flags'],
@@ -45,7 +53,11 @@ export function FeatureFlagManager() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'feature-flags'] });
       qc.invalidateQueries({ queryKey: ['feature-flags'] });
+      setConfirming(null);
+      show({ tone: 'success', title: 'Flag deleted' });
     },
+    onError: (e: unknown) =>
+      show({ tone: 'danger', title: e instanceof Error ? e.message : 'Delete failed' }),
   });
 
   function addFlag(e: React.FormEvent) {
@@ -130,7 +142,7 @@ export function FeatureFlagManager() {
               />
               <button
                 type="button"
-                onClick={() => remove.mutate(f.key)}
+                onClick={() => setConfirming(f)}
                 className="text-ink-2 transition-colors hover:text-brand-red"
                 aria-label={`Delete ${f.key}`}
               >
@@ -140,6 +152,40 @@ export function FeatureFlagManager() {
           ))}
         </ul>
       )}
+
+      <Dialog
+        open={confirming !== null}
+        onOpenChange={(o) => {
+          if (!o && !(remove.isPending && remove.variables === confirming?.key)) {
+            setConfirming(null);
+          }
+        }}
+      >
+        <DialogContent size="sm">
+          <DialogTitle>Delete flag {confirming?.key}?</DialogTitle>
+          <DialogDescription>
+            The flag is removed from the registry and evaluates to off everywhere. This
+            cannot be undone.
+          </DialogDescription>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setConfirming(null)}
+              disabled={remove.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={remove.isPending}
+              onClick={() => confirming && remove.mutate(confirming.key)}
+            >
+              <Trash2 className="h-4 w-4" strokeWidth={2.25} />
+              Delete flag
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

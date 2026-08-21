@@ -15,7 +15,6 @@ import {
   MessageSquareText,
   Plug,
   Rocket,
-  ScrollText,
   Settings2,
   ShieldCheck,
   Timer,
@@ -32,7 +31,7 @@ import {
   godmodeFetch,
   godmodePaths,
 } from '@/lib/godmode/client';
-import type { GodmodeSettingsView } from '@/lib/godmode/types';
+import type { GodmodeSettingsView, GodmodeUser } from '@/lib/godmode/types';
 import { SettingsEditor } from './settings-editor';
 import { UsersPanel } from './users-panel';
 import { RolesPanel } from './roles-panel';
@@ -74,6 +73,14 @@ export function GodmodeShell({
   const [section, setSection] = useState('overview');
   const [settings, setSettings] = useState<GodmodeSettingsView | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dirty, setDirty] = useState(false);
+
+  const navigate = (next: string) => {
+    if (dirty && next !== section) {
+      if (!window.confirm('Discard unsaved changes?')) return;
+    }
+    setSection(next);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -121,7 +128,8 @@ export function GodmodeShell({
             return (
               <button
                 key={s.id}
-                onClick={() => setSection(s.id)}
+                onClick={() => navigate(s.id)}
+                aria-current={activeSection ? 'page' : undefined}
                 className={`flex items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] font-medium transition-colors duration-120 ${
                   activeSection
                     ? 'bg-brand-blue-50 text-brand-blue'
@@ -158,7 +166,7 @@ export function GodmodeShell({
             {section === 'overview' && settings ? (
               <OverviewSection
                 settings={settings}
-                onNavigate={setSection}
+                onNavigate={navigate}
                 onComplete={async () => {
                   await godmodeFetch(godmodePaths.onboardingComplete(), { method: 'POST' });
                   await load();
@@ -166,7 +174,9 @@ export function GodmodeShell({
                 }}
               />
             ) : null}
-            {active.groups ? <SettingsEditor items={groupItems} /> : null}
+            {active.groups ? (
+              <SettingsEditor items={groupItems} onDirtyChange={setDirty} />
+            ) : null}
             {section === 'users' ? <UsersPanel /> : null}
             {section === 'roles' ? <RolesPanel /> : null}
             {section === 'security' ? <SecurityPanel /> : null}
@@ -266,10 +276,29 @@ function OverviewSection({
   onNavigate: (section: string) => void;
   onComplete: () => void;
 }) {
-  const superadminExists = true; // presence check happens on the users page
+  const [superadminExists, setSuperadminExists] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    godmodeFetch<GodmodeUser[]>(godmodePaths.users())
+      .then((users) => {
+        if (cancelled) return;
+        setSuperadminExists(
+          users.some((u) => u.userRoles.some((ur) => ur.role.code === 'superadmin')),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setSuperadminExists(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const siteConfigured = settings.items.some(
     (i) => i.key === 'system.instanceUrl' && String(i.value ?? '').length > 0,
   );
+  const canComplete = superadminExists === true && siteConfigured;
 
   return (
     <div className="flex flex-col gap-4">
@@ -299,15 +328,27 @@ function OverviewSection({
               Marks the instance as configured. Until then, every route shows the setup
               screen with a link here. You can come back and change anything later.
             </p>
+            {superadminExists === false ? (
+              <p className="mt-2 text-[12.5px] text-brand-red">
+                Create the superadmin account first — step 1 above.
+              </p>
+            ) : null}
+            {!siteConfigured ? (
+              <p className="mt-2 text-[12.5px] text-brand-red">
+                Set the instance URL in the Site settings first — step 2 above.
+              </p>
+            ) : null}
           </div>
-          <Button onClick={() => void onComplete()}>
+          <Button
+            onClick={() => void onComplete()}
+            disabled={!canComplete || superadminExists === null}
+            loading={superadminExists === null}
+          >
             <Settings2 className="h-4 w-4" strokeWidth={2.25} />
             Complete setup
           </Button>
         </div>
       </div>
-
-      {superadminExists && siteConfigured ? null : null}
     </div>
   );
 }

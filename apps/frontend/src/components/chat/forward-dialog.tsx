@@ -126,6 +126,17 @@ export function ForwardDialog({ open, onClose, message }: Props) {
                 <div className="grid h-32 place-items-center text-ink-3">
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
+              ) : overviewQuery.isError ? (
+                <div className="px-4 py-6 text-center text-[13px] text-brand-red">
+                  Couldn&apos;t load conversations.{' '}
+                  <button
+                    type="button"
+                    className="underline underline-offset-2 hover:no-underline"
+                    onClick={() => void overviewQuery.refetch()}
+                  >
+                    Try again
+                  </button>
+                </div>
               ) : filtered.length === 0 ? (
                 <div className="px-4 py-6 text-center text-[13px] text-ink-3">No matches.</div>
               ) : (

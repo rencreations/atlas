@@ -2,17 +2,19 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Archive, ArchiveRestore, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
 import type { ProjectDetailInsider } from '@/lib/types';
 
 export function DangerZone({ project }: { project: ProjectDetailInsider }) {
   const router = useRouter();
+  const qc = useQueryClient();
   const { show } = useToast();
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
@@ -26,8 +28,17 @@ export function DangerZone({ project }: { project: ProjectDetailInsider }) {
         tone: 'success',
         title: project.archivedAt ? 'Project unarchived' : 'Project archived',
       });
+      // Refetch the project so this panel (and the detail page) re-render
+      // the archived/unarchived state instead of stale cached data.
+      qc.invalidateQueries({ queryKey: queryKeys.project(project.slug) });
       router.refresh();
     },
+    onError: (err) =>
+      show({
+        tone: 'danger',
+        title: project.archivedAt ? 'Could not unarchive' : 'Could not archive',
+        description: (err as Error).message,
+      }),
   });
 
   const remove = useMutation({

@@ -60,6 +60,46 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
     designs: project.internalLinks?.designs ?? '',
   });
 
+  // Snapshot of the pristine form for unsaved-changes (dirty) tracking.
+  // Media entries are compared by id+url, not server bookkeeping fields.
+  const initialSig = React.useRef(
+    JSON.stringify({
+      title: project.title,
+      shortDescription: project.shortDescription,
+      phase: project.phase,
+      visibility: project.visibility,
+      description: project.description,
+      tagIds: project.tags.map((t) => t.id),
+      techStack: project.techStack,
+      recruiting: project.collaborationRoles,
+      media: project.media.map((m) => `${m.id}:${m.url}`),
+      links: {
+        pmTool: project.internalLinks?.pmTool ?? '',
+        repository: project.internalLinks?.repository ?? '',
+        staging: project.internalLinks?.staging ?? '',
+        designs: project.internalLinks?.designs ?? '',
+      },
+    }),
+  );
+
+  function signature() {
+    return JSON.stringify({
+      title,
+      shortDescription,
+      phase,
+      visibility,
+      description,
+      tagIds,
+      techStack,
+      recruiting,
+      media: media.map((m) => `${m.id}:${m.url}`),
+      links,
+    });
+  }
+
+  const dirty = signature() !== initialSig.current;
+  const titleError = title.trim().length < 2 ? 'Title is required.' : null;
+
   function addTech() {
     const v = techInput.trim();
     if (!v || techStack.includes(v)) return;
@@ -115,7 +155,14 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
         <div className="grid gap-5 lg:grid-cols-2">
           <div>
             <Label required>Title</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              maxLength={120}
+              invalid={!!titleError}
+              aria-invalid={!!titleError}
+            />
+            <FieldHelp error={titleError ?? undefined}>A short, memorable name.</FieldHelp>
           </div>
           <div>
             <Label>Phase</Label>
@@ -222,6 +269,7 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
                           active ? prev.filter((x) => x !== t.id) : [...prev, t.id],
                         )
                       }
+                      aria-pressed={active}
                       className={cn(
                         'inline-flex h-7 items-center rounded-full px-3 text-[12px] font-medium transition-colors',
                         active ? 'bg-brand-blue-strong text-white' : 'bg-surface-muted text-ink-2 hover:bg-line',
@@ -294,7 +342,12 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
       </Section>
 
       <div className="sticky bottom-4 flex justify-end">
-        <Button onClick={() => save.mutate()} loading={save.isPending} size="lg">
+        <Button
+          onClick={() => save.mutate()}
+          loading={save.isPending}
+          disabled={!dirty || !!titleError}
+          size="lg"
+        >
           <Save className="h-4 w-4" strokeWidth={2.25} />
           Save changes
         </Button>

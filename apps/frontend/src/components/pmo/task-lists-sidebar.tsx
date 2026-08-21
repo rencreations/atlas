@@ -68,6 +68,17 @@ export function TaskListsSidebar({
             <li key={i} className="h-9 animate-pulse rounded bg-line/70" />
           ))}
         </ul>
+      ) : lists.isError ? (
+        <p className="text-[13px] text-brand-red">
+          Couldn&apos;t load task lists.{' '}
+          <button
+            type="button"
+            className="underline underline-offset-2 hover:no-underline"
+            onClick={() => void lists.refetch()}
+          >
+            Try again
+          </button>
+        </p>
       ) : items.length === 0 ? (
         <p className="text-[13px] text-ink-3">
           {canManage

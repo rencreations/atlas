@@ -6,16 +6,27 @@ import { startRegistration } from '@simplewebauthn/browser';
 import { Fingerprint, LoaderCircle, ShieldCheck, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
-import type { GodmodePasskey } from '@/lib/godmode/types';
+import type { GodmodePasskey, GodmodeSettingsView } from '@/lib/godmode/types';
 
 interface TwoFactorStatus {
   totpEnabled: boolean;
   passkeys: GodmodePasskey[];
 }
+
+type ConfirmTarget =
+  | { kind: 'totp' }
+  | { kind: 'passkey'; passkey: GodmodePasskey }
+  | null;
 
 export function SecurityPanel() {
   const { show } = useToast();
@@ -24,6 +35,8 @@ export function SecurityPanel() {
   const [totpCode, setTotpCode] = useState('');
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState<ConfirmTarget>(null);
+  const [sessionTtlMinutes, setSessionTtlMinutes] = useState<string | number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -35,6 +48,16 @@ export function SecurityPanel() {
 
   useEffect(() => {
     void load();
+    // The session lifetime is a settings value, not a 2FA value — read it
+    // from the settings registry so we can render it read-only.
+    godmodeFetch<GodmodeSettingsView>(godmodePaths.settings())
+      .then((view) => {
+        const item = view.items.find((i) => i.key === 'godmode.sessionTtlMinutes');
+        if (item && item.value !== undefined && item.value !== null && item.value !== '') {
+          setSessionTtlMinutes(String(item.value));
+        }
+      })
+      .catch(() => undefined);
   }, [load]);
 
   const beginTotp = useCallback(async () => {
@@ -113,11 +136,16 @@ export function SecurityPanel() {
 
   const deletePasskey = useCallback(
     async (id: string) => {
+      setBusy(true);
       try {
         await godmodeFetch(godmodePaths.passkeyDelete(id), { method: 'DELETE' });
+        setConfirming(null);
+        show({ title: 'Passkey deleted', tone: 'success' });
         void load();
       } catch (err) {
         show({ title: 'Delete failed', description: String(err), tone: 'danger' });
+      } finally {
+        setBusy(false);
       }
     },
     [load, show],
@@ -141,7 +169,12 @@ export function SecurityPanel() {
             </p>
           </div>
           {status?.totpEnabled ? (
-            <Button variant="danger" size="sm" onClick={() => void disableTotp()} disabled={busy}>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => setConfirming({ kind: 'totp' })}
+              disabled={busy}
+            >
               Disable
             </Button>
           ) : totpFlow ? null : (
@@ -220,7 +253,7 @@ export function SecurityPanel() {
                   variant="ghost"
                   size="icon-sm"
                   aria-label="Delete passkey"
-                  onClick={() => void deletePasskey(pk.id)}
+                  onClick={() => setConfirming({ kind: 'passkey', passkey: pk })}
                 >
                   <Trash2 className="h-3.5 w-3.5 text-brand-red" strokeWidth={2.25} />
                 </Button>
@@ -231,18 +264,79 @@ export function SecurityPanel() {
       </div>
 
       <div className="rounded border border-line bg-surface p-4 shadow-1">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="text-[14px] font-medium text-ink">
-              Godmode session lifetime
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[14px] font-medium text-ink">
+                Godmode session lifetime
+              </span>
+              <Badge tone="neutral">
+                {sessionTtlMinutes !== null ? `${sessionTtlMinutes} min` : 'managed'}
+              </Badge>
+            </div>
             <p className="mt-1 text-[13px] text-ink-3">
-              Configured under Settings → Godmode security (godmode.sessionTtlMinutes).
+              Configure in Settings → Godmode security (godmode.sessionTtlMinutes).
             </p>
           </div>
-          <Switch checked disabled aria-label="Session lifetime is a settings value" />
         </div>
       </div>
+
+      <Dialog
+        open={confirming !== null}
+        onOpenChange={(o) => {
+          if (!o && !busy) setConfirming(null);
+        }}
+      >
+        <DialogContent size="sm">
+          {confirming?.kind === 'totp' ? (
+            <>
+              <DialogTitle>Disable TOTP?</DialogTitle>
+              <DialogDescription>
+                Unlock will no longer require a 6-digit authenticator code. Anyone with the
+                passphrase can unlock godmode without a second factor.
+              </DialogDescription>
+              <DialogFooter>
+                <Button
+                  variant="ghost"
+                  onClick={() => setConfirming(null)}
+                  disabled={busy}
+                >
+                  Cancel
+                </Button>
+                <Button variant="danger" loading={busy} onClick={() => void disableTotp()}>
+                  Disable TOTP
+                </Button>
+              </DialogFooter>
+            </>
+          ) : confirming?.kind === 'passkey' ? (
+            <>
+              <DialogTitle>Delete this passkey?</DialogTitle>
+              <DialogDescription>
+                “{confirming.passkey.name ?? 'Security key'}” (
+                {confirming.passkey.credentialId.slice(0, 10)}…) can no longer be used as a
+                second factor. This cannot be undone.
+              </DialogDescription>
+              <DialogFooter>
+                <Button
+                  variant="ghost"
+                  onClick={() => setConfirming(null)}
+                  disabled={busy}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  loading={busy}
+                  onClick={() => void deletePasskey(confirming.passkey.id)}
+                >
+                  <Trash2 className="h-4 w-4" strokeWidth={2.25} />
+                  Delete passkey
+                </Button>
+              </DialogFooter>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

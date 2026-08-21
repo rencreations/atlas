@@ -30,7 +30,6 @@ import { VoiceControls } from './voice-controls';
 
 interface Props {
   channelId: string;
-  channelName: string;
   projectId: string | null;
   projectSlugOrId: string | null;
   canModerate: boolean;
@@ -52,7 +51,6 @@ interface Props {
  */
 export function StageRoom({
   channelId,
-  channelName,
   projectId: _projectId,
   projectSlugOrId,
   canModerate,
@@ -214,7 +212,7 @@ function AudienceCard({
             <button
               type="button"
               onClick={onPromote}
-              className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-green-strong hover:text-white group-hover/aud:opacity-100"
+              className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-green-strong hover:text-white group-hover/aud:opacity-100 focus-visible:opacity-100"
               aria-label="Promote to speaker"
             >
               <MicVocal className="h-2.5 w-2.5" strokeWidth={2.5} />

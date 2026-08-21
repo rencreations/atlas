@@ -80,8 +80,8 @@ export function DatePickerPopover({
  */
 export function formatDueDate(iso: string | null): string {
   if (!iso) return '';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '';
+  const d = parseDate(iso);
+  if (!d) return '';
   const today = startOfDay(new Date());
   const target = startOfDay(d);
   const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -100,9 +100,25 @@ export function formatDueDate(iso: string | null): string {
 
 export function isOverdue(iso: string | null, completed: boolean): boolean {
   if (!iso || completed) return false;
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return false;
+  const d = parseDate(iso);
+  if (!d) return false;
   return startOfDay(d).getTime() < startOfDay(new Date()).getTime();
+}
+
+/**
+ * Parse a date string ("YYYY-MM-DD" or an ISO datetime) into a LOCAL
+ * Date. Date-only strings must NOT go through `new Date(iso)` — that
+ * treats them as UTC midnight, which shifts the day back by one in
+ * negative-offset timezones and breaks "Today" / overdue logic.
+ */
+function parseDate(iso: string): Date | null {
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 function startOfDay(d: Date): Date {

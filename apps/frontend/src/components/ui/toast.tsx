@@ -10,7 +10,7 @@ const toastVariants = cva(
   [
     'pointer-events-auto relative flex w-full max-w-[360px] items-start gap-3 overflow-hidden',
     'rounded bg-surface p-4 pr-10 shadow-2 border border-line',
-    'data-[state=open]:animate-fade-up data-[state=closed]:animate-fade-in',
+    'data-[state=open]:animate-fade-up data-[state=closed]:animate-fade-out',
   ],
   {
     variants: {
@@ -50,7 +50,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = React.useState<ToastItem[]>([]);
   const show = React.useCallback((item: Omit<ToastItem, 'id'>) => {
     const id = Math.random().toString(36).slice(2);
-    setItems((prev) => [...prev.slice(-2), { ...item, id }]);
+    setItems((prev) => {
+      // Don't stack identical toasts (repeated saves/undoes) — keep the
+      // existing one on screen instead.
+      const tone = item.tone ?? 'neutral';
+      if (prev.some((t) => t.title === item.title && (t.tone ?? 'neutral') === tone)) {
+        return prev;
+      }
+      return [...prev.slice(-2), { ...item, id }];
+    });
   }, []);
 
   const ctx = React.useMemo(() => ({ show }), [show]);
@@ -63,6 +71,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <RadixToast.Root
             key={t.id}
             className={cn(toastVariants({ tone: t.tone ?? 'neutral' }))}
+            // Errors need more reading time than transient confirmations.
+            duration={t.tone === 'danger' ? 10000 : t.tone === 'warning' ? 8000 : 6000}
             onOpenChange={(open) => {
               if (!open) setItems((prev) => prev.filter((x) => x.id !== t.id));
             }}

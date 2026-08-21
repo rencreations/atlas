@@ -24,6 +24,7 @@ export function TeamPanel({ project, collaborationRoles }: Props) {
   const qc = useQueryClient();
   const { show } = useToast();
   const [inviteOpen, setInviteOpen] = React.useState(false);
+  const [removeTarget, setRemoveTarget] = React.useState<ProjectMember | null>(null);
 
   const updateMember = useMutation({
     mutationFn: (vars: { memberId: string; role?: ProjectRole; title?: string }) =>
@@ -71,7 +72,7 @@ export function TeamPanel({ project, collaborationRoles }: Props) {
             member={m}
             isOwner={m.user.id === project.owner.id}
             onChangeRole={(role) => updateMember.mutate({ memberId: m.id, role })}
-            onRemove={() => removeMember.mutate(m.id)}
+            onRequestRemove={() => setRemoveTarget(m)}
             isUpdating={updateMember.isPending && updateMember.variables?.memberId === m.id}
             isRemoving={removeMember.isPending && removeMember.variables === m.id}
           />
@@ -85,6 +86,31 @@ export function TeamPanel({ project, collaborationRoles }: Props) {
         projectSlug={project.slug}
         roles={collaborationRoles}
       />
+
+      <Dialog open={removeTarget !== null} onOpenChange={(o) => (!o ? setRemoveTarget(null) : undefined)}>
+        <DialogContent size="sm">
+          <DialogTitle>Remove {removeTarget?.user.name}?</DialogTitle>
+          <DialogDescription>
+            They&apos;ll lose access to this project. Their contributions stay on the record.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRemoveTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={removeMember.isPending}
+              onClick={() => {
+                if (removeTarget) removeMember.mutate(removeTarget.id);
+                setRemoveTarget(null);
+              }}
+            >
+              <Trash2 className="h-4 w-4" strokeWidth={2.25} />
+              Remove member
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -93,14 +119,14 @@ function MemberRow({
   member,
   isOwner,
   onChangeRole,
-  onRemove,
+  onRequestRemove,
   isUpdating,
   isRemoving,
 }: {
   member: ProjectMember;
   isOwner: boolean;
   onChangeRole: (role: ProjectRole) => void;
-  onRemove: () => void;
+  onRequestRemove: () => void;
   isUpdating: boolean;
   isRemoving: boolean;
 }) {
@@ -142,10 +168,10 @@ function MemberRow({
         <Button
           variant="ghost"
           size="icon-sm"
-          onClick={onRemove}
+          onClick={onRequestRemove}
           disabled={isOwner}
           loading={isRemoving}
-          aria-label="Remove member"
+          aria-label={`Remove ${member.user.name}`}
           className="text-ink-3 hover:bg-brand-red-50 hover:text-brand-red"
         >
           <Trash2 className="h-4 w-4" strokeWidth={2.25} />
@@ -296,6 +322,10 @@ function InviteDialog({
                   <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-line bg-surface shadow-2">
                     {userSearch.isLoading ? (
                       <div className="px-3 py-3 text-[13px] text-ink-3">Searching…</div>
+                    ) : userSearch.isError ? (
+                      <div className="px-3 py-3 text-[13px] text-brand-red">
+                        Search failed — try again.
+                      </div>
                     ) : suggestions.length === 0 ? (
                       <div className="px-3 py-3 text-[13px] text-ink-3">No matches.</div>
                     ) : (

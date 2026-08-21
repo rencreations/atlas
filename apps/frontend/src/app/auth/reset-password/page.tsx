@@ -1,24 +1,41 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
+import { LoadingShell } from '@/components/auth/loading-shell';
+import { ErrorState } from '@/components/ui/error-state';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/auth/password-input';
 import { apiPaths } from '@/lib/api/paths';
+import { usePageTitle } from '@/lib/page-title';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<LoadingShell />}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordContent() {
+  usePageTitle('Reset password');
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
 
   const submit = useCallback(async () => {
     setBusy(true);
@@ -41,6 +58,20 @@ export default function ResetPasswordPage() {
       setBusy(false);
     }
   }, [token, password]);
+
+  if (!token) {
+    return (
+      <AuthShell
+        title="Reset your password"
+        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+      >
+        <ErrorState
+          title="This link is missing its token"
+          message="Use the full link from your email — the one that contains the token. If it still doesn't work, request a new reset link from the sign-in page."
+        />
+      </AuthShell>
+    );
+  }
 
   if (done) {
     return (
@@ -68,21 +99,27 @@ export default function ResetPasswordPage() {
         className="flex flex-col gap-4"
       >
         {error ? (
-          <div className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink">
+          <div
+            ref={errorRef}
+            role="alert"
+            tabIndex={-1}
+            className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink"
+          >
             {error}
           </div>
         ) : null}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="rp-password">New password</Label>
-          <Input
+          <PasswordInput
             id="rp-password"
-            type="password"
             autoComplete="new-password"
+            invalid={Boolean(error)}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <p className="text-[12px] text-ink-3">At least 6 characters</p>
         </div>
-        <Button type="submit" disabled={!token || password.length < 6 || busy} size="lg" className="w-full">
+        <Button type="submit" disabled={password.length < 6 || busy} size="lg" className="w-full">
           {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
           Update password
         </Button>

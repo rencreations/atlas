@@ -4,6 +4,13 @@ import * as React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,6 +23,7 @@ export function CollaborationRoleManager() {
   const qc = useQueryClient();
   const { show } = useToast();
   const [name, setName] = React.useState('');
+  const [confirming, setConfirming] = React.useState<CollaborationRole | null>(null);
 
   const list = useQuery({
     queryKey: ['admin', 'collaboration-roles'],
@@ -34,7 +42,17 @@ export function CollaborationRoleManager() {
 
   const archive = useMutation({
     mutationFn: (id: string) => api(apiPaths.collaborationRole(id), { method: 'DELETE' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'collaboration-roles'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'collaboration-roles'] });
+      setConfirming(null);
+      show({ tone: 'success', title: 'Role archived' });
+    },
+    onError: (err) =>
+      show({
+        tone: 'danger',
+        title: 'Archive failed',
+        description: (err as Error).message,
+      }),
   });
 
   return (
@@ -78,7 +96,7 @@ export function CollaborationRoleManager() {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                onClick={() => archive.mutate(r.id)}
+                onClick={() => setConfirming(r)}
                 loading={archive.isPending && archive.variables === r.id}
                 aria-label={`Archive ${r.name}`}
                 className="text-ink-3 hover:bg-brand-red-50 hover:text-brand-red"
@@ -89,6 +107,40 @@ export function CollaborationRoleManager() {
           ))}
         </ul>
       )}
+
+      <Dialog
+        open={confirming !== null}
+        onOpenChange={(o) => {
+          if (!o && !(archive.isPending && archive.variables === confirming?.id)) {
+            setConfirming(null);
+          }
+        }}
+      >
+        <DialogContent size="sm">
+          <DialogTitle>Archive {confirming?.name}?</DialogTitle>
+          <DialogDescription>
+            The role disappears from the contribute modal and project filters. Members holding
+            it keep their other roles.
+          </DialogDescription>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setConfirming(null)}
+              disabled={archive.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={archive.isPending}
+              onClick={() => confirming && archive.mutate(confirming.id)}
+            >
+              <Trash2 className="h-4 w-4" strokeWidth={2.25} />
+              Archive role
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,12 +2,13 @@
 
 import * as React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Clock, Loader2, RotateCcw, X } from 'lucide-react';
+import { Clock, Loader2, RotateCcw } from 'lucide-react';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 
@@ -161,34 +162,35 @@ export function RevisionHistoryDrawer({
   const items = revisions.data?.revisions ?? [];
 
   return (
-    <aside
-      role="dialog"
-      aria-label="Revision history"
-      className="absolute inset-y-0 right-0 z-20 flex w-[360px] flex-col border-l border-line bg-surface shadow-2"
-    >
-      <header className="flex items-center justify-between border-b border-line px-4 py-3">
-        <h2 className="flex items-center gap-2 text-[14px] font-semibold text-ink">
-          <Clock className="h-4 w-4" strokeWidth={2.25} /> History
-        </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="inline-grid h-7 w-7 place-items-center rounded text-ink-3 hover:bg-surface-muted"
-          aria-label="Close history"
-        >
-          <X className="h-4 w-4" strokeWidth={2.25} />
-        </button>
-      </header>
-      <div className="flex-1 overflow-auto">
-        {revisions.isLoading ? (
-          <div className="flex h-32 items-center justify-center">
-            <Loader2 className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
-          </div>
-        ) : items.length === 0 ? (
-          <p className="px-4 py-6 text-center text-[12px] text-ink-3">
-            No revisions yet. Edits made from now on will appear here.
-          </p>
-        ) : (
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="fixed inset-y-0 right-0 w-[360px] max-w-[90vw] rounded-none border-l border-line bg-surface p-0 shadow-2">
+        {/* pr-14 keeps the title clear of the Dialog's built-in close (top-right). */}
+        <header className="flex items-center justify-between border-b border-line py-3 pl-4 pr-14">
+          <DialogTitle className="flex items-center gap-2 font-display text-[14px] font-semibold tracking-normal text-ink">
+            <Clock className="h-4 w-4" strokeWidth={2.25} /> History
+          </DialogTitle>
+        </header>
+        <div className="flex-1 overflow-auto">
+          {revisions.isLoading ? (
+            <div className="flex h-32 items-center justify-center">
+              <Loader2 className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
+            </div>
+          ) : revisions.isError ? (
+            <p className="px-4 py-6 text-center text-[12px] text-brand-red">
+              Couldn&apos;t load revisions.{' '}
+              <button
+                type="button"
+                className="underline underline-offset-2 hover:no-underline"
+                onClick={() => void revisions.refetch()}
+              >
+                Try again
+              </button>
+            </p>
+          ) : items.length === 0 ? (
+            <p className="px-4 py-6 text-center text-[12px] text-ink-3">
+              No revisions yet. Edits made from now on will appear here.
+            </p>
+          ) : (
           <ul className="divide-y divide-line">
             {items.map((rev) => (
               <li
@@ -254,8 +256,9 @@ export function RevisionHistoryDrawer({
             ))}
           </ul>
         )}
-      </div>
-    </aside>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

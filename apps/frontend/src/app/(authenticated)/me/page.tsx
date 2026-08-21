@@ -1,15 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { Plus, Settings2 } from 'lucide-react';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
+import { usePageTitle } from '@/lib/page-title';
 import type { DashboardPayload, SessionUser } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
 import { ProjectThumbnail, PhaseBadge } from '@/components/projects/project-thumbnail';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -18,37 +21,41 @@ import { formatDueDate } from '@/components/pmo/date-picker-popover';
 import { formatRelative, cn } from '@/lib/utils';
 
 export default function MyDashboardPage() {
-  const [me, setMe] = useState<SessionUser & { lastLoginAt?: string; bio?: string | null } | null>(null);
-  const [dash, setDash] = useState<DashboardPayload | null>(null);
-  const [loading, setLoading] = useState(true);
+  usePageTitle('My work');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [meData, dashData] = await Promise.all([
-          api<SessionUser & { lastLoginAt?: string; bio?: string | null }>(apiPaths.me()),
-          api<DashboardPayload>(apiPaths.dashboard()),
-        ]);
-        setMe(meData);
-        setDash(dashData);
-      } catch (err) {
-        console.error('Failed to fetch dashboard:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: queryKeys.dashboard,
+    queryFn: async () => {
+      const [meData, dashData] = await Promise.all([
+        api<SessionUser & { lastLoginAt?: string; bio?: string | null }>(apiPaths.me()),
+        api<DashboardPayload>(apiPaths.dashboard()),
+      ]);
+      return { me: meData, dash: dashData };
+    },
+  });
 
-    fetchData();
-  }, []);
+  if (isError) {
+    return (
+      <Container size="2xl" className="space-y-10 py-10">
+        <ErrorState
+          page
+          title="Couldn't load your work"
+          message="Something went wrong while fetching your projects and tasks. Check your connection and try again."
+          onRetry={() => refetch()}
+        />
+      </Container>
+    );
+  }
 
-  if (loading || !me || !dash) {
+  if (isLoading || !data) {
     return (
       <Container size="2xl" className="space-y-10 py-10">
         <div className="h-40 animate-pulse rounded bg-line" />
       </Container>
     );
   }
+
+  const { me, dash } = data;
 
   return (
     <Container size="2xl" className="space-y-10 py-10">
@@ -73,12 +80,14 @@ export default function MyDashboardPage() {
         </Button>
       </header>
 
-      {dash.myOpenTasks && dash.myOpenTasks.length > 0 ? (
-        <section>
-          <h2 className="mb-3 text-[12px] uppercase tracking-[0.12em] text-ink-3">My open tasks</h2>
-          <Card className="p-0">
-            <ul className="divide-y divide-line">
-              {dash.myOpenTasks.map((t) => {
+      <section>
+        <h2 className="mb-3 text-[12px] uppercase tracking-[0.12em] text-ink-3">My open tasks</h2>
+        {!dash.myOpenTasks || dash.myOpenTasks.length === 0 ? (
+          <p className="text-body-sm text-ink-3">No open tasks — nice.</p>
+        ) : (
+        <Card className="p-0">
+          <ul className="divide-y divide-line">
+            {dash.myOpenTasks.map((t) => {
                 const overdue = t.dueDate
                   ? new Date(t.dueDate) < new Date(new Date().toDateString())
                   : false;
@@ -111,8 +120,8 @@ export default function MyDashboardPage() {
               })}
             </ul>
           </Card>
-        </section>
-      ) : null}
+        )}
+      </section>
 
       <Tabs defaultValue="managing">
         <TabsList>

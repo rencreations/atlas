@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import type { SessionUser } from '@/lib/types';
+import { usePageTitle } from '@/lib/page-title';
 import { Container } from '@/components/layout/container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TagManager } from '@/components/admin/tag-manager';
@@ -16,12 +17,16 @@ import { StickerManager } from '@/components/admin/sticker-manager';
 import { FeatureFlagManager } from '@/components/admin/feature-flag-manager';
 
 export default function AdminPage() {
+  usePageTitle('Atlas controls');
   const searchParams = useSearchParams();
   const router = useRouter();
   const [me, setMe] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const tab = searchParams.get('tab') || 'tags';
+  const requestedTab = searchParams.get('tab') || 'tags';
+  const tab = ['tags', 'featured', 'roles', 'users', 'stickers', 'flags'].includes(requestedTab)
+    ? requestedTab
+    : 'tags';
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -67,7 +72,10 @@ export default function AdminPage() {
         </p>
       </header>
 
-      <Tabs defaultValue={tab}>
+      <Tabs
+        value={tab}
+        onValueChange={(v) => router.replace(`/admin?tab=${v}`)}
+      >
         <TabsList>
           <TabsTrigger value="tags">Tags</TabsTrigger>
           <TabsTrigger value="featured">Featured</TabsTrigger>

@@ -17,12 +17,14 @@ import {
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
+import { usePageTitle } from '@/lib/page-title';
 import { getStoredSession } from '@/lib/auth-client';
 import type { ForMePayload, ForMeTask } from '@/lib/types';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardBody, CardTitle } from '@/components/ui/card';
 import { Container } from '@/components/layout/container';
+import { ErrorState } from '@/components/ui/error-state';
 import { formatRelative, cn } from '@/lib/utils';
 
 const PRIORITY_LABEL: Record<string, string> = {
@@ -41,11 +43,14 @@ function greeting(): string {
 }
 
 export default function ForMePage() {
+  usePageTitle('For me');
   const session = getStoredSession();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.forMe,
     queryFn: () => api<ForMePayload>(apiPaths.forMe()),
   });
+
+  const firstName = session?.user.name?.split(' ')[0] ?? '';
 
   const today = new Date().toLocaleDateString(undefined, {
     weekday: 'long',
@@ -59,13 +64,21 @@ export default function ForMePage() {
         <Avatar src={session?.user.avatarUrl ?? undefined} name={session?.user.name ?? '?'} size={48} />
         <div>
           <h1 className="font-display text-display-lg tracking-[-0.02em] text-ink">
-            {greeting()}, {session?.user.name?.split(' ')[0]}
+            {greeting()}
+            {firstName ? `, ${firstName}` : ''}
           </h1>
           <p className="text-body-sm text-ink-3">{today} — here&apos;s what needs you.</p>
         </div>
       </div>
 
-      {isLoading || !data ? (
+      {isError ? (
+        <ErrorState
+          page
+          title="Couldn't load your queue"
+          message="Something went wrong while fetching your tasks and activity. Check your connection and try again."
+          onRetry={() => refetch()}
+        />
+      ) : isLoading || !data ? (
         <div className="flex justify-center py-24">
           <LoaderCircle className="h-6 w-6 animate-spin text-ink-3" strokeWidth={2.25} />
         </div>

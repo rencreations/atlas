@@ -91,6 +91,17 @@ export default function AppearanceSettingsPage() {
         description: err instanceof Error ? err.message : 'Unknown error.',
         tone: 'danger',
       });
+      // Roll the optimistic local state back to what the server actually has.
+      const me = queryClient.getQueryData<MeProfile>(queryKeys.me);
+      if (!me) return;
+      if (me.themeId) {
+        setThemeId(me.themeId);
+      } else {
+        resetToDefault();
+      }
+      if (me.themeMode === 'light' || me.themeMode === 'dark' || me.themeMode === 'system') {
+        setMode(me.themeMode);
+      }
     },
   });
 
@@ -207,7 +218,7 @@ export default function AppearanceSettingsPage() {
                   >
                     {themeId === theme.id ? (
                       <span className="absolute right-2.5 top-2.5 inline-grid h-5 w-5 place-items-center rounded-full bg-brand-blue-strong text-white">
-                        <Check className="h-3 w-3" strokeWidth={3} />
+                        <Check className="h-3 w-3" strokeWidth={2.25} />
                       </span>
                     ) : null}
                     {usingDefault && theme.id === defaultTheme ? (

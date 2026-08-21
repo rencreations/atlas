@@ -19,7 +19,6 @@ import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { useSaveSurface, SaveBadge } from '@/lib/save-coordinator';
 import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -139,7 +138,13 @@ export function TaskModal({
     },
   });
 
+  // Flush the in-progress title edit before the modal actually closes
+  // (X button, Escape, overlay click, delete-then-close). ModalBody
+  // registers its commit callback into this ref.
+  const preCloseRef = React.useRef<() => void>(() => {});
+
   const handleClose = React.useCallback(() => {
+    preCloseRef.current();
     if (onClose) onClose();
     else router.back();
   }, [onClose, router]);
@@ -163,6 +168,7 @@ export function TaskModal({
         }
       }}
       onClose={handleClose}
+      registerPreClose={preCloseRef}
     />
   );
 
@@ -196,6 +202,7 @@ function ModalBody({
   onArchive,
   onDelete,
   onClose,
+  registerPreClose,
 }: {
   projectSlug: string;
   list: TaskList;
@@ -206,6 +213,9 @@ function ModalBody({
   onArchive: () => void;
   onDelete: () => void;
   onClose: () => void;
+  /** TaskModal registers this so a pending title edit is committed
+   *  before the modal unmounts on close. */
+  registerPreClose?: React.MutableRefObject<() => void>;
 }) {
   const completed = !!task.completedAt;
   const [titleDraft, setTitleDraft] = React.useState(task.title);
@@ -216,6 +226,11 @@ function ModalBody({
     if (trimmed && trimmed !== task.title) onPatch({ title: trimmed });
     else setTitleDraft(task.title);
   };
+
+  // Keep the pre-close hook pointing at the latest draft closure.
+  React.useEffect(() => {
+    if (registerPreClose) registerPreClose.current = commitTitle;
+  });
 
   // Debounce description writes so every keystroke doesn't fire a PATCH.
   const lastDescriptionRef = React.useRef(task.description);
@@ -364,12 +379,7 @@ function ModalBody({
 
         {/* Right rail */}
         <aside className="overflow-y-auto border-t border-line bg-surface-muted/30 px-5 py-5 lg:border-l lg:border-t-0">
-          <RightRail
-            projectSlug={projectSlug}
-            task={task}
-            list={list}
-            onPatch={onPatch}
-          />
+          <RightRail projectSlug={projectSlug} task={task} onPatch={onPatch} />
           <hr className="my-5 border-line" />
           <ActivityFeed projectSlug={projectSlug} taskId={task.id} />
         </aside>
@@ -381,12 +391,10 @@ function ModalBody({
 function RightRail({
   projectSlug,
   task,
-  list,
   onPatch,
 }: {
   projectSlug: string;
   task: Task;
-  list: TaskList;
   onPatch: (body: Record<string, unknown>) => void;
 }) {
   const overdueDue = isOverdue(task.dueDate, !!task.completedAt);

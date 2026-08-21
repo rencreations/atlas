@@ -10,6 +10,7 @@ import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
+import { ErrorState } from '@/components/ui/error-state';
 import type { ProjectDetail, SessionUser, TaskList } from '@/lib/types';
 import { TaskModal } from '@/components/pmo/task-modal';
 
@@ -38,6 +39,22 @@ export default function TaskFullPage() {
     queryKey: queryKeys.me,
     queryFn: () => api<SessionUser>(apiPaths.me()),
   });
+
+  if (project.isError || list.isError || me.isError) {
+    return (
+      <Container size="2xl" className="py-12">
+        <ErrorState
+          title="Couldn't load this task"
+          message="We couldn't load the task. Check your connection and try again."
+          onRetry={() => {
+            void project.refetch();
+            void list.refetch();
+            void me.refetch();
+          }}
+        />
+      </Container>
+    );
+  }
 
   if (!project.data || !list.data) {
     return (

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Search, Star, X } from 'lucide-react';
+import { Search, Star, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -48,8 +48,25 @@ export function FeaturedManager() {
   const featuredProjects = featured.data ?? [];
   const featuredById = new Map(featuredProjects.map((f) => [f.projectId, f.project]));
 
+  const savedOrder = featured.data ? featured.data.map((f) => f.projectId) : null;
+  const orderChanged =
+    savedOrder !== null &&
+    (savedOrder.length !== order.length ||
+      savedOrder.some((id, i) => order[i] !== id));
+
   function remove(id: string) {
+    show({ tone: 'success', title: 'Removed from featured' });
     setOrder((prev) => prev.filter((x) => x !== id));
+  }
+  function move(id: string, dir: -1 | 1) {
+    setOrder((prev) => {
+      const idx = prev.indexOf(id);
+      const target = idx + dir;
+      if (idx < 0 || target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
+    });
   }
   function add(p: ProjectCard) {
     if (order.includes(p.id)) return;
@@ -99,13 +116,33 @@ export function FeaturedManager() {
                 </div>
                 <div className="flex items-center justify-between gap-2 p-3">
                   <span className="truncate text-[14px] font-medium text-ink">{p.title}</span>
-                  <button
-                    onClick={() => remove(id)}
-                    aria-label="Remove from featured"
-                    className="text-ink-3 hover:text-brand-red"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="flex shrink-0 items-center gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => move(id, -1)}
+                      disabled={idx === 0}
+                      aria-label={`Move ${p.title} up in the featured order`}
+                      className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 transition-colors hover:bg-surface-muted hover:text-ink disabled:opacity-30 disabled:pointer-events-none"
+                    >
+                      <ChevronUp className="h-4 w-4" strokeWidth={2.25} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => move(id, 1)}
+                      disabled={idx === order.length - 1}
+                      aria-label={`Move ${p.title} down in the featured order`}
+                      className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 transition-colors hover:bg-surface-muted hover:text-ink disabled:opacity-30 disabled:pointer-events-none"
+                    >
+                      <ChevronDown className="h-4 w-4" strokeWidth={2.25} />
+                    </button>
+                    <button
+                      onClick={() => remove(id)}
+                      aria-label="Remove from featured"
+                      className="ml-1 text-ink-3 transition-colors hover:text-brand-red"
+                    >
+                      <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+                    </button>
+                  </div>
                 </div>
               </li>
             );
@@ -120,8 +157,18 @@ export function FeaturedManager() {
             value={search}
             placeholder="Find a project to feature"
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 pr-9"
           />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              aria-label="Clear search"
+              className="absolute right-2.5 top-1/2 inline-grid h-6 w-6 -translate-y-1/2 place-items-center rounded text-ink-3 transition-colors hover:bg-surface-muted hover:text-ink"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </button>
+          ) : null}
         </div>
         {projects.data?.items.length ? (
           <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -147,11 +194,17 @@ export function FeaturedManager() {
               </li>
             ))}
           </ul>
+        ) : projects.data ? (
+          <p className="mt-3 text-[13px] text-ink-3">No projects match your search.</p>
         ) : null}
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => save.mutate()} loading={save.isPending}>
+        <Button
+          onClick={() => save.mutate()}
+          loading={save.isPending}
+          disabled={!orderChanged || order.length === 0}
+        >
           Save featured order
         </Button>
       </div>

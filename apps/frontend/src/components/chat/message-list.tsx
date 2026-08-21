@@ -6,6 +6,7 @@ import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-quer
 import { api } from '@/lib/api/client';
 import { queryKeys } from '@/lib/api/queries';
 import { messagesPath, readPath, statePath, type ChatScope } from '@/lib/chat/scope';
+import { ErrorState } from '@/components/ui/error-state';
 import { cn } from '@/lib/utils';
 import type { ChatChannelState, ChatMessage, ChatMessagePage } from '@/lib/types';
 import { MessageItem } from './message-item';
@@ -235,7 +236,12 @@ export function MessageList({
     if (!jumpToMessageId || messages.length === 0) return;
     const target = document.getElementById(`chat-msg-${jumpToMessageId}`);
     if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth',
+        block: 'center',
+      });
       target.classList.add('chat-msg-flash');
       setTimeout(() => target.classList.remove('chat-msg-flash'), 1800);
       jumpAttemptsRef.current = 0;
@@ -257,6 +263,22 @@ export function MessageList({
             <div key={i} className="h-12 animate-pulse rounded bg-line/50" />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <div
+        ref={scrollRef}
+        className="flex flex-1 items-center justify-center overflow-y-auto px-6 py-4"
+      >
+        <ErrorState
+          title="Couldn't load messages"
+          message="We couldn't fetch this channel's messages. Check your connection and try again."
+          onRetry={() => void query.refetch()}
+          className="w-full"
+        />
       </div>
     );
   }

@@ -9,6 +9,7 @@ import { queryKeys } from '@/lib/api/queries';
 import { channelHref, pinsPath, type ChatScope } from '@/lib/chat/scope';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { ErrorState } from '@/components/ui/error-state';
 import type { ChatAttachment, ChatAttachmentKind, ChatMessageKind } from '@/lib/types';
 import { MarkdownBody } from './markdown-body';
 
@@ -81,6 +82,13 @@ export function PinPanel({ open, onClose, scope, channelId, canModerate }: Props
           <div className="grid h-32 place-items-center text-ink-3">
             <Loader2 className="h-4 w-4 animate-spin" />
           </div>
+        ) : pinsQuery.isError ? (
+          <ErrorState
+            title="Couldn't load pins"
+            message="We couldn't fetch pinned messages for this channel."
+            onRetry={() => void pinsQuery.refetch()}
+            className="m-4 border-0 bg-transparent p-4"
+          />
         ) : pins.length === 0 ? (
           <div className="px-4 py-10 text-center text-[13px] text-ink-3">
             Nothing pinned yet. Managers can pin a message from its hover menu.

@@ -1,18 +1,33 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, KeyRound, LoaderCircle, Mail, MessageSquareText, ShieldCheck } from 'lucide-react';
+import {
+  ArrowLeft,
+  KeyRound,
+  LoaderCircle,
+  Mail,
+  MessageSquareText,
+  ShieldCheck,
+  type LucideIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/auth/password-input';
 import { sanitizeReturnTo } from '@/lib/auth-redirect';
 import { apiPaths } from '@/lib/api/paths';
 import { storeSession } from '@/lib/auth-client';
+import { usePageTitle } from '@/lib/page-title';
+import { cn } from '@/lib/utils';
 import type { PublicConfig } from '@/lib/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+
+/** sessionStorage key used to carry the intended destination through the
+ *  magic-link round-trip (consumed by /auth/magic-link). */
+export const MAGIC_CALLBACK_KEY = 'atlas_magic_callback';
 
 type View = 'password' | 'magic-link' | 'phone' | 'passphrase' | 'must-change';
 
@@ -23,6 +38,17 @@ interface SessionResponse {
   mustChangePassword?: boolean;
 }
 
+const METHOD_DEFS: {
+  view: View;
+  configKey: 'magicLink' | 'phone' | 'passphrase';
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { view: 'magic-link', configKey: 'magicLink', label: 'Magic link', icon: Mail },
+  { view: 'phone', configKey: 'phone', label: 'Phone OTP', icon: MessageSquareText },
+  { view: 'passphrase', configKey: 'passphrase', label: 'Passphrase', icon: KeyRound },
+];
+
 export function LoginClient({
   config,
   callbackUrl,
@@ -30,11 +56,28 @@ export function LoginClient({
   config: PublicConfig;
   callbackUrl?: string;
 }) {
+  usePageTitle('Sign in');
   const router = useRouter();
-  const [view, setView] = useState<View>('password');
+
+  const enabledViews = useMemo<View[]>(() => {
+    const views: View[] = [];
+    if (config.authMethods.password.enabled) views.push('password');
+    if (config.authMethods.magicLink.enabled) views.push('magic-link');
+    if (config.authMethods.phone.enabled) views.push('phone');
+    if (config.authMethods.passphrase.enabled) views.push('passphrase');
+    return views;
+  }, [config.authMethods]);
+
+  // When password auth is disabled, start on the first enabled method.
+  const [view, setView] = useState<View>(() =>
+    config.authMethods.password.enabled ? 'password' : (enabledViews[0] ?? 'password'),
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [invalid, setInvalid] = useState<string[]>([]);
+  const [redirecting, setRedirecting] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   // ─── password view state
   const [email, setEmail] = useState('');
@@ -52,6 +95,30 @@ export function LoginClient({
   const [passphrase, setPassphrase] = useState('');
 
   const safeCallback = useMemo(() => sanitizeReturnTo(callbackUrl) ?? '/dashboard', [callbackUrl]);
+
+  // View when "Back to sign-in" is pressed: the password view when it
+  // exists, otherwise the first enabled method.
+  const fallbackView: View = config.authMethods.password.enabled
+    ? 'password'
+    : (enabledViews[0] ?? 'password');
+
+  // After a failed submit, move focus to the error box so screen readers
+  // and keyboard users hear the message instead of missing it.
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+
+  const clearInvalid = useCallback(() => setInvalid([]), []);
+
+  /** Every view switch clears stale error/notice (and OTP state) so one
+   *  method's message never bleeds into another. */
+  const switchView = useCallback((v: View) => {
+    setError(null);
+    setNotice(null);
+    setInvalid([]);
+    setOtpSent(false);
+    setView(v);
+  }, []);
 
   const finishSession = useCallback(
     (session: SessionResponse) => {
@@ -87,16 +154,17 @@ export function LoginClient({
       const session = await post<SessionResponse>(apiPaths.auth.loginPassword(), { email, password });
       if (session.mustChangePassword) {
         setPendingSession(session);
-        setView('must-change');
+        switchView('must-change');
       } else {
         finishSession(session);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign-in failed.');
+      setInvalid(['login-email', 'login-password']);
     } finally {
       setBusy(false);
     }
-  }, [email, password, finishSession, post]);
+  }, [email, password, finishSession, post, switchView]);
 
   const submitMustChange = useCallback(async () => {
     if (!pendingSession) return;
@@ -109,6 +177,7 @@ export function LoginClient({
       finishSession(pendingSession);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Password change failed.');
+      setInvalid(['new-password']);
       setBusy(false);
     }
   }, [pendingSession, newPassword, finishSession, post]);
@@ -117,14 +186,18 @@ export function LoginClient({
     setBusy(true);
     setError(null);
     try {
+      // Stash the intended destination so the emailed link lands the user
+      // back where they were (see /auth/magic-link).
+      sessionStorage.setItem(MAGIC_CALLBACK_KEY, safeCallback);
       await post(apiPaths.auth.magicLinkRequest(), { email: magicEmail });
       setNotice(`If an account exists for ${magicEmail}, a sign-in link is on its way.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed.');
+      setInvalid(['magic-email']);
     } finally {
       setBusy(false);
     }
-  }, [magicEmail, post]);
+  }, [magicEmail, post, safeCallback]);
 
   const requestOtp = useCallback(async () => {
     setBusy(true);
@@ -135,6 +208,7 @@ export function LoginClient({
       setNotice('Enter the code we sent to your phone.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed.');
+      setInvalid(['login-phone']);
     } finally {
       setBusy(false);
     }
@@ -152,6 +226,7 @@ export function LoginClient({
       finishSession(session);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign-in failed.');
+      setInvalid(['login-otp']);
       setBusy(false);
     }
   }, [phone, otp, finishSession, post]);
@@ -164,28 +239,84 @@ export function LoginClient({
       finishSession(session);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign-in failed.');
+      setInvalid(['login-passphrase']);
       setBusy(false);
     }
   }, [passphrase, finishSession, post]);
 
+  const handleProviderClick = useCallback(
+    (e: ReactMouseEvent<HTMLAnchorElement>) => {
+      if (redirecting) {
+        e.preventDefault();
+        return;
+      }
+      const label = e.currentTarget.dataset.providerLabel ?? '';
+      e.preventDefault();
+      setRedirecting(label);
+      // Navigate after a paint so the busy state is visible.
+      window.setTimeout(() => {
+        window.location.assign(e.currentTarget.href);
+      }, 0);
+    },
+    [redirecting],
+  );
+
   const showOAuth = config.oauthProviders.length > 0;
   const showSso = config.sso.oidc.enabled || config.sso.saml.enabled;
   const dividerNeeded = showOAuth || showSso;
+  // With password auth off the provider links must still be reachable from
+  // whichever view we defaulted to.
+  const showProviderBlock = (view === 'password' || !config.authMethods.password.enabled) && dividerNeeded;
+
+  const providerLinkClass =
+    'flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color,opacity] duration-120 hover:border-line-strong hover:bg-surface-muted';
+
+  const switcherGrid =
+    config.authMethods.magicLink.enabled || config.authMethods.phone.enabled || config.authMethods.passphrase.enabled ? (
+      <div className="grid grid-cols-2 gap-2">
+        {METHOD_DEFS.filter((m) => config.authMethods[m.configKey].enabled).map((m) => (
+          <Button
+            key={m.view}
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => switchView(m.view)}
+          >
+            <m.icon className="h-4 w-4" strokeWidth={2.25} />
+            {m.label}
+          </Button>
+        ))}
+      </div>
+    ) : null;
 
   return (
     <div className="mt-6">
       {error ? (
-        <div className="mb-4 rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink">
+        <div
+          ref={errorRef}
+          role="alert"
+          tabIndex={-1}
+          className="mb-4 rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink"
+        >
           {error}
         </div>
       ) : null}
       {notice ? (
-        <div className="mb-4 rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-3 text-[13px] text-ink">
+        <div
+          role="status"
+          className="mb-4 rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-3 text-[13px] text-ink"
+        >
           {notice}
         </div>
       ) : null}
 
-      {view === 'password' ? (
+      {enabledViews.length === 0 ? (
+        <div className="rounded border border-line bg-surface-muted px-4 py-3 text-[13px] text-ink-2">
+          No sign-in methods are enabled on this instance. Contact your administrator.
+        </div>
+      ) : null}
+
+      {view === 'password' && config.authMethods.password.enabled ? (
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -199,8 +330,12 @@ export function LoginClient({
               id="login-email"
               type="email"
               autoComplete="email"
+              invalid={invalid.includes('login-email')}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                clearInvalid();
+                setEmail(e.target.value);
+              }}
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -213,39 +348,22 @@ export function LoginClient({
                 Forgot password?
               </Link>
             </div>
-            <Input
+            <PasswordInput
               id="login-password"
-              type="password"
               autoComplete="current-password"
+              invalid={invalid.includes('login-password')}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                clearInvalid();
+                setPassword(e.target.value);
+              }}
             />
           </div>
           <Button type="submit" disabled={!email || !password || busy} size="lg" className="w-full">
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
             Sign in
           </Button>
-
-          <div className="grid grid-cols-2 gap-2">
-            {config.authMethods.magicLink.enabled ? (
-              <Button type="button" variant="secondary" size="sm" onClick={() => setView('magic-link')}>
-                <Mail className="h-4 w-4" strokeWidth={2.25} />
-                Magic link
-              </Button>
-            ) : null}
-            {config.authMethods.phone.enabled ? (
-              <Button type="button" variant="secondary" size="sm" onClick={() => setView('phone')}>
-                <MessageSquareText className="h-4 w-4" strokeWidth={2.25} />
-                Phone OTP
-              </Button>
-            ) : null}
-            {config.authMethods.passphrase.enabled ? (
-              <Button type="button" variant="secondary" size="sm" onClick={() => setView('passphrase')}>
-                <KeyRound className="h-4 w-4" strokeWidth={2.25} />
-                Passphrase
-              </Button>
-            ) : null}
-          </div>
+          {switcherGrid}
         </form>
       ) : null}
 
@@ -265,8 +383,13 @@ export function LoginClient({
             <Input
               id="magic-email"
               type="email"
+              autoComplete="email"
+              invalid={invalid.includes('magic-email')}
               value={magicEmail}
-              onChange={(e) => setMagicEmail(e.target.value)}
+              onChange={(e) => {
+                clearInvalid();
+                setMagicEmail(e.target.value);
+              }}
             />
           </div>
           <Button type="submit" disabled={!magicEmail || busy} size="lg" className="w-full">
@@ -275,12 +398,13 @@ export function LoginClient({
           </Button>
           <button
             type="button"
-            onClick={() => setView('password')}
+            onClick={() => switchView(fallbackView)}
             className="flex items-center justify-center gap-1 text-[13px] font-medium text-ink-3 hover:text-ink"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
             Back to sign-in
           </button>
+          {!config.authMethods.password.enabled ? switcherGrid : null}
         </form>
       ) : null}
 
@@ -298,10 +422,15 @@ export function LoginClient({
             <Input
               id="login-phone"
               type="tel"
+              autoComplete="tel"
               placeholder="+15551234567"
+              invalid={invalid.includes('login-phone')}
               value={phone}
               disabled={otpSent}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => {
+                clearInvalid();
+                setPhone(e.target.value);
+              }}
             />
           </div>
           {otpSent ? (
@@ -310,27 +439,36 @@ export function LoginClient({
               <Input
                 id="login-otp"
                 inputMode="numeric"
+                autoComplete="one-time-code"
                 maxLength={6}
+                invalid={invalid.includes('login-otp')}
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => {
+                  clearInvalid();
+                  setOtp(e.target.value.replace(/\D/g, ''));
+                }}
               />
+              <p className="text-[12px] text-ink-3">4–6 digit code</p>
             </div>
           ) : null}
           <Button type="submit" disabled={!phone || busy || (otpSent && otp.length < 4)} size="lg" className="w-full">
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
             {otpSent ? 'Verify & sign in' : 'Send code'}
           </Button>
+          {otpSent ? (
+            <p className="text-center text-[12px] text-ink-3">
+              Didn&apos;t receive the code? Go back and request a new one.
+            </p>
+          ) : null}
           <button
             type="button"
-            onClick={() => {
-              setOtpSent(false);
-              setView('password');
-            }}
+            onClick={() => switchView(fallbackView)}
             className="flex items-center justify-center gap-1 text-[13px] font-medium text-ink-3 hover:text-ink"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
             Back to sign-in
           </button>
+          {!config.authMethods.password.enabled ? switcherGrid : null}
         </form>
       ) : null}
 
@@ -347,11 +485,14 @@ export function LoginClient({
           </p>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="login-passphrase">Passphrase</Label>
-            <Input
+            <PasswordInput
               id="login-passphrase"
-              type="password"
+              invalid={invalid.includes('login-passphrase')}
               value={passphrase}
-              onChange={(e) => setPassphrase(e.target.value)}
+              onChange={(e) => {
+                clearInvalid();
+                setPassphrase(e.target.value);
+              }}
             />
           </div>
           <Button type="submit" disabled={!passphrase || busy} size="lg" className="w-full">
@@ -360,12 +501,13 @@ export function LoginClient({
           </Button>
           <button
             type="button"
-            onClick={() => setView('password')}
+            onClick={() => switchView(fallbackView)}
             className="flex items-center justify-center gap-1 text-[13px] font-medium text-ink-3 hover:text-ink"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
             Back to sign-in
           </button>
+          {!config.authMethods.password.enabled ? switcherGrid : null}
         </form>
       ) : null}
 
@@ -382,23 +524,37 @@ export function LoginClient({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="new-password">New password</Label>
-            <Input
+            <PasswordInput
               id="new-password"
-              type="password"
               autoComplete="new-password"
+              invalid={invalid.includes('new-password')}
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                clearInvalid();
+                setNewPassword(e.target.value);
+              }}
             />
+            <p className="text-[12px] text-ink-3">At least 6 characters</p>
           </div>
           <Button type="submit" disabled={newPassword.length < 6 || busy} size="lg" className="w-full">
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
             Set password & continue
           </Button>
+          <button
+            type="button"
+            onClick={() => {
+              setPendingSession(null);
+              switchView(fallbackView);
+            }}
+            className="flex items-center justify-center gap-1 text-[13px] font-medium text-ink-3 hover:text-ink"
+          >
+            Sign out instead
+          </button>
         </form>
       ) : null}
 
       {/* ─── OAuth / SSO ─── */}
-      {dividerNeeded && view === 'password' ? (
+      {showProviderBlock ? (
         <div className="my-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-line" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-4">
@@ -408,34 +564,59 @@ export function LoginClient({
         </div>
       ) : null}
 
-      {view === 'password' && (showOAuth || showSso) ? (
+      {showProviderBlock && (showOAuth || showSso) ? (
         <div className="flex flex-col gap-2">
           {config.oauthProviders.map((p) => (
             <a
               key={p.id}
               href={`${API_BASE}/auth/oauth/${p.id}/start?callbackUrl=${encodeURIComponent(safeCallback)}`}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
+              data-provider-label={p.label}
+              onClick={handleProviderClick}
+              aria-disabled={redirecting !== null}
+              className={cn(providerLinkClass, redirecting !== null && 'pointer-events-none opacity-60')}
             >
-              <OAuthGlyph id={p.id} />
-              Continue with {p.label}
+              {redirecting === p.label ? (
+                <LoaderCircle className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
+              ) : (
+                <OAuthGlyph id={p.id} />
+              )}
+              {redirecting === p.label ? `Redirecting to ${p.label}…` : `Continue with ${p.label}`}
             </a>
           ))}
           {config.sso.oidc.enabled ? (
             <a
-              href={`${API_BASE}/auth/oidc/start`}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
+              href={`${API_BASE}/auth/oidc/start?callbackUrl=${encodeURIComponent(safeCallback)}`}
+              data-provider-label={config.sso.oidc.label}
+              onClick={handleProviderClick}
+              aria-disabled={redirecting !== null}
+              className={cn(providerLinkClass, redirecting !== null && 'pointer-events-none opacity-60')}
             >
-              <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
-              {config.sso.oidc.label}
+              {redirecting === config.sso.oidc.label ? (
+                <LoaderCircle className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
+              ) : (
+                <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
+              )}
+              {redirecting === config.sso.oidc.label
+                ? `Redirecting to ${config.sso.oidc.label}…`
+                : config.sso.oidc.label}
             </a>
           ) : null}
           {config.sso.saml.enabled ? (
             <a
-              href={`${API_BASE}/auth/saml/start`}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color] duration-120 hover:border-line-strong hover:bg-surface-muted"
+              href={`${API_BASE}/auth/saml/start?callbackUrl=${encodeURIComponent(safeCallback)}`}
+              data-provider-label={config.sso.saml.label}
+              onClick={handleProviderClick}
+              aria-disabled={redirecting !== null}
+              className={cn(providerLinkClass, redirecting !== null && 'pointer-events-none opacity-60')}
             >
-              <ShieldCheck className="h-4 w-4 text-brand-green" strokeWidth={2.25} />
-              {config.sso.saml.label}
+              {redirecting === config.sso.saml.label ? (
+                <LoaderCircle className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
+              ) : (
+                <ShieldCheck className="h-4 w-4 text-brand-green" strokeWidth={2.25} />
+              )}
+              {redirecting === config.sso.saml.label
+                ? `Redirecting to ${config.sso.saml.label}…`
+                : config.sso.saml.label}
             </a>
           ) : null}
         </div>

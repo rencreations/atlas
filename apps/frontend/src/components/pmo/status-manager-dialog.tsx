@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
-import type { TaskList, TaskStatus, TaskStatusCategory } from '@/lib/types';
+import type { TaskList, TaskStatusCategory } from '@/lib/types';
 import { ColorPicker, pmoBgClass } from './color-picker';
 
 interface Draft {
@@ -55,10 +55,11 @@ export function StatusManagerDialog({
   const [drafts, setDrafts] = React.useState<Draft[]>([]);
   const [moveTo, setMoveTo] = React.useState<string>('');
   const nextTmpId = React.useRef(0);
+  // Suppresses the discard-confirm on the close that follows a save.
+  const justSavedRef = React.useRef(false);
 
-  React.useEffect(() => {
-    if (!open) return;
-    const seeded: Draft[] = list.statuses
+  const seedDrafts = React.useCallback((statuses: TaskList['statuses']) => {
+    const seeded: Draft[] = statuses
       .slice()
       .sort((a, b) => a.order - b.order)
       .map((s) => ({
@@ -72,7 +73,39 @@ export function StatusManagerDialog({
     setDrafts(seeded);
     setMoveTo(seeded.find((d) => d.isDefault)?.id ?? seeded[0]?.id ?? '');
     nextTmpId.current = 0;
-  }, [open, list.statuses]);
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    justSavedRef.current = false;
+    seedDrafts(list.statuses);
+  }, [open, list.statuses, seedDrafts]);
+
+  // Compare drafts against the persisted statuses (position-aware, so a
+  // drag-reorder counts as a change too).
+  const dirty = React.useMemo(() => {
+    const saved = list.statuses.slice().sort((a, b) => a.order - b.order);
+    if (drafts.length !== saved.length) return true;
+    return drafts.some((d, i) => {
+      const s = saved[i];
+      return (
+        !s ||
+        d.originalId !== s.id ||
+        d.name !== s.name ||
+        d.color !== normalizeColor(s.color) ||
+        d.category !== s.category ||
+        d.isDefault !== s.isDefault
+      );
+    });
+  }, [drafts, list.statuses]);
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next && dirty && !save.isPending && !justSavedRef.current) {
+      if (!window.confirm('Discard unsaved status changes?')) return;
+    }
+    justSavedRef.current = false;
+    onOpenChange(next);
+  };
 
   const save = useMutation({
     mutationFn: async () => {
@@ -96,11 +129,15 @@ export function StatusManagerDialog({
         body,
       });
     },
-    onSuccess: () => {
+    onSuccess: (saved) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pmo.lists(projectSlug) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pmo.list(projectSlug, list.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pmo.tasks(projectSlug, list.id) });
       toast.show({ title: 'Statuses updated', tone: 'success' });
+      // Re-seed from the server response so the close below doesn't
+      // trip the discard-confirm on now-persisted drafts.
+      justSavedRef.current = true;
+      seedDrafts(saved.statuses);
       onOpenChange(false);
     },
     onError: (err: unknown) => {
@@ -145,7 +182,7 @@ export function StatusManagerDialog({
   const showMoveSelector = removedExistingIds.length > 0;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent size="lg">
         <div className="space-y-1">
           <DialogTitle>Manage statuses</DialogTitle>
@@ -198,7 +235,7 @@ export function StatusManagerDialog({
         ) : null}
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={() => save.mutate()} loading={save.isPending}>

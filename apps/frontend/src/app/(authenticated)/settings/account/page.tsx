@@ -1,16 +1,17 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { BadgeCheck, LoaderCircle, Mail, Smartphone } from 'lucide-react';
-import { api } from '@/lib/api/client';
+import { api, apiBeacon } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
+import { useSaveSurface } from '@/lib/save-coordinator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldHelp, Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast';
 
 interface MeAccount {
@@ -39,15 +40,35 @@ export default function AccountSettingsPage() {
     onSuccess: () => {
       setCurrent('');
       setNext('');
+      saveSurface.markSaved();
       show({ title: 'Password updated', tone: 'success' });
     },
-    onError: (err) =>
+    onError: (err) => {
+      saveSurface.markError(err instanceof Error ? err.message : 'Change failed');
       show({
         title: 'Change failed',
         description: err instanceof Error ? err.message : 'Unknown error.',
         tone: 'danger',
-      }),
+      });
+    },
   });
+
+  // ─── SaveCoordinator: warn when a half-typed password change would be lost ───
+  const dirty = current !== '' || next !== '';
+  const flushNow = useCallback(() => {
+    if (current && next.length >= 6) {
+      apiBeacon(
+        apiPaths.auth.passwordChange(),
+        { currentPassword: current, newPassword: next },
+        'POST',
+      );
+    }
+  }, [current, next]);
+  const saveSurface = useSaveSurface({ surfaceId: 'settings-account', flushNow });
+  useEffect(() => {
+    if (dirty) saveSurface.markDirty();
+    else saveSurface.markSaved();
+  }, [dirty, saveSurface]);
 
   // ─── Email verification ───
   const resendVerification = useMutation({
@@ -151,6 +172,7 @@ export default function AccountSettingsPage() {
               <Input
                 className="w-[220px]"
                 placeholder="+15551234567"
+                aria-label="Phone number"
                 value={phone}
                 disabled={codeSent}
                 onChange={(e) => setPhone(e.target.value)}
@@ -171,6 +193,7 @@ export default function AccountSettingsPage() {
                     inputMode="numeric"
                     maxLength={6}
                     placeholder="Code"
+                    aria-label="Verification code"
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                   />
@@ -194,7 +217,13 @@ export default function AccountSettingsPage() {
       <Card>
         <CardBody>
           <CardTitle>Password</CardTitle>
-          <div className="mt-4 flex flex-col gap-3">
+          <form
+            className="mt-4 flex flex-col gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              changePassword.mutate();
+            }}
+          >
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="ac-current">Current password</Label>
               <Input
@@ -214,22 +243,20 @@ export default function AccountSettingsPage() {
                 value={next}
                 onChange={(e) => setNext(e.target.value)}
               />
+              <FieldHelp>At least 6 characters.</FieldHelp>
             </div>
             <div className="flex justify-end">
               <Button
+                type="submit"
                 size="sm"
-                onClick={() => changePassword.mutate()}
-                disabled={!current || next.length < 6 || changePassword.isPending}
+                loading={changePassword.isPending}
+                disabled={!current || next.length < 6}
               >
-                {changePassword.isPending ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
-                ) : (
-                  <BadgeCheck className="h-4 w-4" strokeWidth={2.25} />
-                )}
+                <BadgeCheck className="h-4 w-4" strokeWidth={2.25} />
                 Change password
               </Button>
             </div>
-          </div>
+          </form>
         </CardBody>
       </Card>
     </div>

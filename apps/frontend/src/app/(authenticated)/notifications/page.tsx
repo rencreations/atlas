@@ -8,13 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Container } from '@/components/layout/container';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
+import { useToast } from '@/components/ui/toast';
+import { usePageTitle } from '@/lib/page-title';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import type { NotificationItem, Paginated } from '@/lib/types';
 import { cn, formatRelative } from '@/lib/utils';
 
 export default function NotificationsPage() {
+  usePageTitle('Notifications');
   const qc = useQueryClient();
+  const { show } = useToast();
   const [page, setPage] = React.useState(1);
 
   const list = useQuery({
@@ -25,11 +30,15 @@ export default function NotificationsPage() {
   const markAll = useMutation({
     mutationFn: () => api(apiPaths.markAllRead(), { method: 'POST' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+    onError: () =>
+      show({ tone: 'danger', title: 'Could not mark all as read', description: 'Try again in a moment.' }),
   });
 
   const markOne = useMutation({
     mutationFn: (id: string) => api(apiPaths.markRead(id), { method: 'PATCH' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+    onError: (err) =>
+      show({ tone: 'danger', title: 'Could not mark as read', description: (err as Error).message }),
   });
 
   return (
@@ -47,7 +56,13 @@ export default function NotificationsPage() {
         </Button>
       </header>
 
-      {list.isLoading ? (
+      {list.isError ? (
+        <ErrorState
+          title="Couldn't load notifications"
+          message="Something went wrong while fetching your notifications. Check your connection and try again."
+          onRetry={() => list.refetch()}
+        />
+      ) : list.isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-20 rounded-lg" />

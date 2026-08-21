@@ -51,7 +51,7 @@ export function VoiceConnectedPanel() {
                 className="inline-flex items-center gap-1 rounded-full bg-brand-red-strong px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white"
                 title={`Recording started by ${state.recording.startedByName}`}
               >
-                <CircleDot className="h-2 w-2 animate-pulse" strokeWidth={3} />
+                <CircleDot className="h-2 w-2 animate-pulse" strokeWidth={2.25} />
                 REC
               </span>
             ) : null}

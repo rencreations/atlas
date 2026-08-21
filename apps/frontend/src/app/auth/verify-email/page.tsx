@@ -1,24 +1,42 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
+import { LoadingShell } from '@/components/auth/loading-shell';
 import { apiPaths } from '@/lib/api/paths';
+import { usePageTitle } from '@/lib/page-title';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 
 /** Landing page for email verification links. */
 export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<LoadingShell />}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
+function VerifyEmailContent() {
+  usePageTitle('Verify your email');
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const [state, setState] = useState<'loading' | 'done' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const attempted = useRef(false);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (attempted.current || !token) return;
+    // Missing token: never leave a spinner — the link is just incomplete.
+    if (!token) {
+      setError('This link is missing its token — use the full link from your email.');
+      setState('error');
+      return;
+    }
+    if (attempted.current) return;
     attempted.current = true;
     (async () => {
       try {
@@ -39,6 +57,10 @@ export default function VerifyEmailPage() {
     })();
   }, [token]);
 
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+
   if (state === 'done') {
     return (
       <AuthShell
@@ -57,8 +79,18 @@ export default function VerifyEmailPage() {
       footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
     >
       {state === 'error' ? (
-        <div className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13.5px] text-ink">
+        <div
+          ref={errorRef}
+          role="alert"
+          tabIndex={-1}
+          className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13.5px] text-ink"
+        >
           {error}
+          <span className="mt-2 block">
+            <Link href="/login" className="font-medium text-brand-blue hover:underline">
+              Go to sign-in
+            </Link>
+          </span>
         </div>
       ) : (
         <div className="flex justify-center py-2">

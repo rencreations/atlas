@@ -13,6 +13,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ref={ref}
       type={type}
       data-invalid={invalid ? 'true' : undefined}
+      aria-invalid={invalid ? true : undefined}
       className={cn(
         'h-10 w-full rounded bg-surface px-3.5 text-[15px] text-ink',
         'border border-line placeholder:text-ink-4',

@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LoaderCircle, Upload } from 'lucide-react';
-import { api, uploadToPresigned } from '@/lib/api/client';
+import { api, apiBeacon, uploadToPresigned } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
+import { useSaveSurface } from '@/lib/save-coordinator';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardTitle } from '@/components/ui/card';
@@ -34,6 +35,7 @@ export default function ProfileSettingsPage() {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [hydratedFor, setHydratedFor] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   useEffect(() => {
     if (me && hydratedFor !== me.id) {
       setName(me.name);
@@ -41,6 +43,20 @@ export default function ProfileSettingsPage() {
       setHydratedFor(me.id);
     }
   }, [me, hydratedFor]);
+
+  // ─── SaveCoordinator: warn + flush on tab close / route change ───
+  const dirty = me ? name !== me.name || bio !== (me.bio ?? '') : false;
+  const flushNow = useCallback(() => {
+    if (me && (name !== me.name || bio !== (me.bio ?? ''))) {
+      apiBeacon(apiPaths.me(), { name, bio }, 'PATCH');
+    }
+  }, [me, name, bio]);
+  const saveSurface = useSaveSurface({ surfaceId: 'settings-profile', flushNow });
+  useEffect(() => {
+    if (!me) return;
+    if (dirty) saveSurface.markDirty();
+    else saveSurface.markSaved();
+  }, [me, dirty, saveSurface]);
 
   const save = useMutation({
     mutationFn: () =>
@@ -50,9 +66,11 @@ export default function ProfileSettingsPage() {
       }),
     onSuccess: (updated) => {
       queryClient.setQueryData(queryKeys.me, updated);
+      saveSurface.markSaved();
       show({ title: 'Profile saved', tone: 'success' });
     },
     onError: (err) => {
+      saveSurface.markError(err instanceof Error ? err.message : 'Save failed');
       show({
         title: 'Save failed',
         description: err instanceof Error ? err.message : 'Unknown error.',
@@ -63,6 +81,7 @@ export default function ProfileSettingsPage() {
 
   const uploadAvatar = useCallback(
     async (file: File) => {
+      setUploading(true);
       try {
         const presign = await api<{ uploadUrl: string; expiresIn: number }>(
           apiPaths.meAvatarPresign(),
@@ -86,6 +105,8 @@ export default function ProfileSettingsPage() {
             err instanceof Error ? err.message : 'Check the storage configuration in godmode.',
           tone: 'danger',
         });
+      } finally {
+        setUploading(false);
       }
     },
     [queryClient, show],
@@ -123,9 +144,15 @@ export default function ProfileSettingsPage() {
                     e.target.value = '';
                   }}
                 />
-                <Button variant="secondary" size="sm" onClick={() => fileInput.current?.click()}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => fileInput.current?.click()}
+                  disabled={uploading}
+                  loading={uploading}
+                >
                   <Upload className="h-4 w-4" strokeWidth={2.25} />
-                  Upload picture
+                  {uploading ? 'Uploading…' : 'Upload picture'}
                 </Button>
               </div>
             </div>
@@ -136,7 +163,13 @@ export default function ProfileSettingsPage() {
       <Card>
         <CardBody>
           <CardTitle>About you</CardTitle>
-          <div className="mt-4 flex flex-col gap-4">
+          <form
+            className="mt-4 flex flex-col gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              save.mutate();
+            }}
+          >
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="pf-name">Display name</Label>
               <Input id="pf-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
@@ -154,17 +187,15 @@ export default function ProfileSettingsPage() {
             </div>
             <div className="flex justify-end">
               <Button
+                type="submit"
                 size="sm"
-                onClick={() => save.mutate()}
-                disabled={save.isPending || name === me.name || bio === (me.bio ?? '')}
+                loading={save.isPending}
+                disabled={name === me.name && bio === (me.bio ?? '')}
               >
-                {save.isPending ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
-                ) : null}
                 Save profile
               </Button>
             </div>
-          </div>
+          </form>
         </CardBody>
       </Card>
     </div>

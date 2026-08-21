@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -117,23 +118,58 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
         {isAdmin ? <CreateChannelButton scope={{ kind: 'global' }} /> : null}
       </div>
       <ul className="space-y-0.5 px-2">
-        {globalChannels.map((c) => (
-          <ChannelRow
-            key={c.id}
-            channel={c}
-            href={channelHref({ kind: 'global' }, c.id)}
-            active={c.id === activeChannelId}
-          />
-        ))}
+        {globalChannelsQuery.isLoading ? (
+          <li className="space-y-0.5">
+            <div className="h-8 animate-pulse rounded bg-surface-muted" />
+            <div className="h-8 animate-pulse rounded bg-surface-muted" />
+          </li>
+        ) : globalChannelsQuery.isError ? (
+          <li className="px-2 py-1.5 text-[12px] text-brand-red">
+            Couldn&apos;t load workspace channels.{' '}
+            <button
+              type="button"
+              className="underline underline-offset-2"
+              onClick={() => void globalChannelsQuery.refetch()}
+            >
+              Try again
+            </button>
+          </li>
+        ) : (
+          globalChannels.map((c) => (
+            <ChannelRow
+              key={c.id}
+              channel={c}
+              href={channelHref({ kind: 'global' }, c.id)}
+              active={c.id === activeChannelId}
+            />
+          ))
+        )}
       </ul>
-      {voiceEnabled && lobbyChannels.length > 0 ? (
-        <ul className="mt-0.5 space-y-0.5 px-2">
-          {lobbyChannels.map((c) => (
-            <li key={c.id}>
-              <VoiceChannelRow channel={c} href={`/voice/${c.id}`} canManage={isAdmin} />
-            </li>
-          ))}
-        </ul>
+      {voiceEnabled ? (
+        lobbyQuery.isLoading ? (
+          <ul className="mt-0.5 space-y-0.5 px-2">
+            <li className="h-8 animate-pulse rounded bg-surface-muted" />
+          </ul>
+        ) : lobbyQuery.isError ? (
+          <div className="mt-0.5 px-3 py-1.5 text-[12px] text-brand-red">
+            Couldn&apos;t load voice channels.{' '}
+            <button
+              type="button"
+              className="underline underline-offset-2"
+              onClick={() => void lobbyQuery.refetch()}
+            >
+              Try again
+            </button>
+          </div>
+        ) : lobbyChannels.length > 0 ? (
+          <ul className="mt-0.5 space-y-0.5 px-2">
+            {lobbyChannels.map((c) => (
+              <li key={c.id}>
+                <VoiceChannelRow channel={c} href={`/voice/${c.id}`} canManage={isAdmin} />
+              </li>
+            ))}
+          </ul>
+        ) : null
       ) : null}
     </div>
   );
@@ -220,24 +256,27 @@ function ProjectSection({
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 pb-3">
-        <ul className="space-y-0.5">
-          {active.map((c) => (
-            <ChannelRow
-              key={c.id}
-              channel={c}
-              href={channelHref({ kind: 'project', slug: projectSlug }, c.id)}
-              active={c.id === activeChannelId}
-            />
-          ))}
-        </ul>
-
-        {archived.length > 0 ? (
+        {channelsQuery.isLoading ? (
+          <ul className="space-y-0.5">
+            <li className="h-8 animate-pulse rounded bg-surface-muted" />
+            <li className="h-8 animate-pulse rounded bg-surface-muted" />
+            <li className="h-8 animate-pulse rounded bg-surface-muted" />
+          </ul>
+        ) : channelsQuery.isError ? (
+          <div className="px-2 py-1.5 text-[12px] text-brand-red">
+            Couldn&apos;t load channels.{' '}
+            <button
+              type="button"
+              className="underline underline-offset-2"
+              onClick={() => void channelsQuery.refetch()}
+            >
+              Try again
+            </button>
+          </div>
+        ) : (
           <>
-            <div className="mt-4 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
-              Archived
-            </div>
-            <ul className="mt-1 space-y-0.5">
-              {archived.map((c) => (
+            <ul className="space-y-0.5">
+              {active.map((c) => (
                 <ChannelRow
                   key={c.id}
                   channel={c}
@@ -246,37 +285,68 @@ function ProjectSection({
                 />
               ))}
             </ul>
-          </>
-        ) : null}
 
-        {voiceEnabled ? (
-          <>
-            <div className="mt-4 flex items-center justify-between gap-2 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
-              <span>Voice</span>
-              {canManage ? (
-                <CreateVoiceChannelButton projectSlugOrId={projectSlug} />
-              ) : null}
-            </div>
-            {voiceChannels.length > 0 ? (
-              <ul className="mt-1 space-y-0.5">
-                {voiceChannels.map((c) => (
-                  <li key={c.id}>
-                    <VoiceChannelRow
+            {archived.length > 0 ? (
+              <>
+                <div className="mt-4 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
+                  Archived
+                </div>
+                <ul className="mt-1 space-y-0.5">
+                  {archived.map((c) => (
+                    <ChannelRow
+                      key={c.id}
                       channel={c}
-                      href={`/projects/${projectSlug}/voice/${c.id}`}
-                      canManage={canManage}
-                      projectSlugOrId={projectSlug}
+                      href={channelHref({ kind: 'project', slug: projectSlug }, c.id)}
+                      active={c.id === activeChannelId}
                     />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="mt-1 px-2 py-1.5 text-[11px] text-ink-3">
-                {canManage ? 'No voice channels yet. Click + to add one.' : 'No voice channels yet.'}
-              </div>
-            )}
+                  ))}
+                </ul>
+              </>
+            ) : null}
+
+            {voiceEnabled ? (
+              <>
+                <div className="mt-4 flex items-center justify-between gap-2 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
+                  <span>Voice</span>
+                  {canManage ? (
+                    <CreateVoiceChannelButton projectSlugOrId={projectSlug} />
+                  ) : null}
+                </div>
+                {voiceChannelsQuery.isLoading ? (
+                  <div className="mt-1 h-8 animate-pulse rounded bg-surface-muted" />
+                ) : voiceChannelsQuery.isError ? (
+                  <div className="mt-1 px-2 py-1.5 text-[12px] text-brand-red">
+                    Couldn&apos;t load voice channels.{' '}
+                    <button
+                      type="button"
+                      className="underline underline-offset-2"
+                      onClick={() => void voiceChannelsQuery.refetch()}
+                    >
+                      Try again
+                    </button>
+                  </div>
+                ) : voiceChannels.length > 0 ? (
+                  <ul className="mt-1 space-y-0.5">
+                    {voiceChannels.map((c) => (
+                      <li key={c.id}>
+                        <VoiceChannelRow
+                          channel={c}
+                          href={`/projects/${projectSlug}/voice/${c.id}`}
+                          canManage={canManage}
+                          projectSlugOrId={projectSlug}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="mt-1 px-2 py-1.5 text-[11px] text-ink-3">
+                    {canManage ? 'No voice channels yet. Click + to add one.' : 'No voice channels yet.'}
+                  </div>
+                )}
+              </>
+            ) : null}
           </>
-        ) : null}
+        )}
       </nav>
     </>
   );
@@ -351,9 +421,9 @@ function CreateChannelButton({ scope }: { scope: ChatScope }) {
         </button>
       </DialogTrigger>
       <DialogContent size="sm">
-        <h2 className="font-display text-h3 text-ink">
+        <DialogTitle className="font-display text-h3 text-ink">
           {scope.kind === 'project' ? 'New channel' : 'New workspace channel'}
-        </h2>
+        </DialogTitle>
         <p className="mt-1 text-[13px] text-ink-3">
           {scope.kind === 'project'
             ? 'Letters, numbers, hyphens and underscores. Lowercase recommended.'

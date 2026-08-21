@@ -190,7 +190,7 @@ export function TaskRow({
         />
 
         {completed ? (
-          <CheckCircle2 className="h-4 w-4 text-brand-green" strokeWidth={2.5} />
+          <CheckCircle2 className="h-4 w-4 text-brand-green" strokeWidth={2.25} />
         ) : null}
 
         {canEdit ? (

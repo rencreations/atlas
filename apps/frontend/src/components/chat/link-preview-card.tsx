@@ -17,6 +17,7 @@ export function LinkPreviewCard({
   preview: ChatLinkPreview;
   onRemove?: () => void;
 }) {
+  const [imageBroken, setImageBroken] = React.useState(false);
   const host = (() => {
     try {
       return new URL(preview.url).hostname;
@@ -27,13 +28,14 @@ export function LinkPreviewCard({
 
   return (
     <div className="relative flex gap-3 rounded-lg border border-line bg-surface p-2 text-[13px]">
-      {preview.imageUrl ? (
+      {preview.imageUrl && !imageBroken ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={preview.imageUrl}
           alt=""
           className="h-14 w-20 shrink-0 rounded object-cover"
           loading="lazy"
+          onError={() => setImageBroken(true)}
         />
       ) : (
         <div className="grid h-14 w-20 shrink-0 place-items-center rounded bg-surface-muted text-ink-3">

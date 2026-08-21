@@ -1,38 +1,44 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
+import { usePageTitle } from '@/lib/page-title';
 import type { CollaborationRole, Tag } from '@/lib/types';
 import { Container } from '@/components/layout/container';
+import { ErrorState } from '@/components/ui/error-state';
 import { NewProjectWizard } from '@/components/projects/new/wizard';
 
 export default function NewProjectPage() {
-  const [grouped, setGrouped] = useState<{ category: string; items: Tag[] }[] | null>(null);
-  const [roles, setRoles] = useState<CollaborationRole[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  usePageTitle('New project');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [tagsData, rolesData] = await Promise.all([
-          api<{ category: string; items: Tag[] }[]>(apiPaths.tagsGrouped()),
-          api<CollaborationRole[]>(apiPaths.collaborationRoles()),
-        ]);
-        setGrouped(tagsData);
-        setRoles(rolesData);
-      } catch (err) {
-        console.error('Failed to fetch project data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const grouped = useQuery({
+    queryKey: queryKeys.tagsGrouped,
+    queryFn: () => api<{ category: string; items: Tag[] }[]>(apiPaths.tagsGrouped()),
+  });
+  const roles = useQuery({
+    queryKey: queryKeys.collaborationRoles,
+    queryFn: () => api<CollaborationRole[]>(apiPaths.collaborationRoles()),
+  });
 
-    fetchData();
-  }, []);
+  if (grouped.isError || roles.isError) {
+    return (
+      <Container size="lg" className="py-12">
+        <ErrorState
+          page
+          title="Couldn't load the project form"
+          message="Something went wrong while fetching tags and collaboration roles. Check your connection and try again."
+          onRetry={() => {
+            grouped.refetch();
+            roles.refetch();
+          }}
+        />
+      </Container>
+    );
+  }
 
-  if (loading || !grouped || !roles) {
+  if (grouped.isLoading || roles.isLoading || !grouped.data || !roles.data) {
     return (
       <Container size="lg" className="py-12">
         <div className="h-40 animate-pulse rounded bg-line" />
@@ -51,7 +57,7 @@ export default function NewProjectPage() {
           discover and request to contribute.
         </p>
       </div>
-      <NewProjectWizard groupedTags={grouped} collaborationRoles={roles} />
+      <NewProjectWizard groupedTags={grouped.data} collaborationRoles={roles.data} />
     </Container>
   );
 }

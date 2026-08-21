@@ -42,7 +42,7 @@ export function PriorityChip({
       aria-label={`Priority: ${TASK_PRIORITY_LABEL[priority]}`}
       title={TASK_PRIORITY_LABEL[priority]}
     >
-      <Icon className={iconSize} strokeWidth={2.5} />
+      <Icon className={iconSize} strokeWidth={2.25} />
     </span>
   );
 }

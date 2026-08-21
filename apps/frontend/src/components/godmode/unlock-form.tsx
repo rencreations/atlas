@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { KeyRound, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { godmodeFetch, godmodePaths, storeGodmodeToken } from '@/lib/godmode/client';
+import { usePageTitle } from '@/lib/page-title';
 
 interface UnlockResult {
   token: string;
@@ -14,6 +15,7 @@ interface UnlockResult {
 }
 
 export function UnlockForm({ onUnlocked }: { onUnlocked: (token: string) => void }) {
+  usePageTitle('Godmode');
   const [passphrase, setPassphrase] = useState('');
   const [totp, setTotp] = useState('');
   const [factors, setFactors] = useState<{ totpEnabled: boolean; passkeyEnabled: boolean } | null>(
@@ -21,6 +23,11 @@ export function UnlockForm({ onUnlocked }: { onUnlocked: (token: string) => void
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
 
   useEffect(() => {
     godmodeFetch<{ totpEnabled: boolean; passkeyEnabled: boolean }>(
@@ -124,7 +131,12 @@ export function UnlockForm({ onUnlocked }: { onUnlocked: (token: string) => void
         ) : null}
 
         {error ? (
-          <div className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink">
+          <div
+            ref={errorRef}
+            role="alert"
+            tabIndex={-1}
+            className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink"
+          >
             {error}
           </div>
         ) : null}

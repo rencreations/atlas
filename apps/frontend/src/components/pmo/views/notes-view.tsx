@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ErrorState } from '@/components/ui/error-state';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import type { ProjectNote, ProjectNoteTreeItem, SessionUser } from '@/lib/types';
@@ -161,6 +162,15 @@ export function NotesView({ projectSlug }: { projectSlug: string }) {
         <div className="flex-1 overflow-auto p-2">
           {notesQuery.isLoading ? (
             <TreeSkeleton />
+          ) : notesQuery.isError ? (
+            <div className="p-2">
+              <ErrorState
+                title="Couldn't load pages"
+                message="We couldn't fetch this project's notes."
+                onRetry={() => void notesQuery.refetch()}
+                className="border-0 bg-transparent p-4"
+              />
+            </div>
           ) : tree.length === 0 ? (
             <button
               type="button"

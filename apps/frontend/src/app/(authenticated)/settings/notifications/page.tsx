@@ -128,6 +128,12 @@ export default function NotificationSettingsPage() {
       qc.invalidateQueries({ queryKey: ['notifications', 'devices'] });
       show({ title: 'Device removed', tone: 'success' });
     },
+    onError: (err) =>
+      show({
+        title: 'Couldn’t remove device',
+        description: err instanceof Error ? err.message : 'Unknown error.',
+        tone: 'danger',
+      }),
   });
 
   const reenableBanner = () => {
@@ -212,7 +218,9 @@ export default function NotificationSettingsPage() {
       <Card className="p-5">
         <div className="flex items-baseline justify-between">
           <div>
-            <h2 className="text-[15px] font-medium text-ink">Master push toggle</h2>
+            <h2 id="master-push-toggle-label" className="text-[15px] font-medium text-ink">
+              Master push toggle
+            </h2>
             <p className="mt-1 text-[13px] text-ink-2">
               When off, in-app notifications keep working but Atlas won’t send any browser
               notifications regardless of the per-type toggles below.
@@ -222,6 +230,7 @@ export default function NotificationSettingsPage() {
             checked={!!prefs?.pushEnabled}
             disabled={!prefs || patchPrefs.isPending}
             onCheckedChange={(v) => patchPrefs.mutate({ pushEnabled: v })}
+            aria-labelledby="master-push-toggle-label"
           />
         </div>
       </Card>
@@ -235,7 +244,9 @@ export default function NotificationSettingsPage() {
               {section.toggles.map((t) => (
                 <li key={t.key} className="flex items-center justify-between gap-4 py-3">
                   <div className="min-w-0">
-                    <p className="text-[14px] text-ink">{t.label}</p>
+                    <p id={`notif-toggle-${t.key}`} className="text-[14px] text-ink">
+                      {t.label}
+                    </p>
                     {t.hint ? (
                       <p className="mt-0.5 text-[12px] text-ink-3">{t.hint}</p>
                     ) : null}
@@ -244,6 +255,7 @@ export default function NotificationSettingsPage() {
                     checked={!!prefs && prefs[t.key]}
                     disabled={!prefs || patchPrefs.isPending}
                     onCheckedChange={(v) => patchPrefs.mutate({ [t.key]: v })}
+                    aria-labelledby={`notif-toggle-${t.key}`}
                   />
                 </li>
               ))}
@@ -263,6 +275,10 @@ export default function NotificationSettingsPage() {
             <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.25} />
             <span className="text-[13px]">Loading…</span>
           </div>
+        ) : devicesQuery.isError ? (
+          <p role="alert" className="mt-4 text-[13px] text-brand-red">
+            Couldn’t load your devices. Refresh to try again.
+          </p>
         ) : devices.length === 0 ? (
           <p className="mt-4 text-[13px] text-ink-3">No devices subscribed yet.</p>
         ) : (

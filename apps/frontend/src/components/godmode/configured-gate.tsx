@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { LoaderCircle } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { ShieldCheck } from 'lucide-react';
 import { ShapeSignature } from '@/components/brand/shape-signature';
 import { Wordmark } from '@/components/brand/wordmark';
+import { LoadingShell } from '@/components/auth/loading-shell';
 import { apiPaths } from '@/lib/api/paths';
 
 interface PublicConfig {
@@ -22,7 +23,6 @@ const EXEMPT_PATHS = ['/godmode', '/health', '/login'];
 export function ConfiguredGate({ children }: { children: React.ReactNode }) {
   const [configured, setConfigured] = useState<boolean | null>(null);
   const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
@@ -34,7 +34,13 @@ export function ConfiguredGate({ children }: { children: React.ReactNode }) {
 
   const exempt = EXEMPT_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
-  if (configured === null) return null; // resolve fast; never flash a wrong state
+  if (configured === null) {
+    // While resolving: exempt paths (login, godmode, health) render their
+    // children immediately — never flash the setup screen at them — and
+    // everything else shows the loading shell instead of a blank page.
+    if (exempt) return <>{children}</>;
+    return <LoadingShell />;
+  }
   if (configured || exempt) return <>{children}</>;
 
   return (
@@ -55,7 +61,7 @@ export function ConfiguredGate({ children }: { children: React.ReactNode }) {
           href="/godmode"
           className="mt-6 inline-flex h-10 items-center gap-2 rounded bg-brand-blue-strong px-5 text-[14px] font-medium text-white transition-opacity duration-120 hover:opacity-90"
         >
-          <LoaderCircle className="h-4 w-4" strokeWidth={2.25} />
+          <ShieldCheck className="h-4 w-4" strokeWidth={2.25} />
           Open godmode setup
         </a>
         <p className="mt-4 text-[13px] text-ink-3">

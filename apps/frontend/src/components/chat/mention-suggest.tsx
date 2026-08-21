@@ -52,7 +52,7 @@ export const MentionSuggest = React.forwardRef<MentionSuggestHandle, Props>(func
     placeholderData: (prev) => prev,
   });
 
-  const members = query.data ?? [];
+  const members = React.useMemo(() => query.data ?? [], [query.data]);
 
   const commit = React.useCallback(
     (m: ChatMember) => {
@@ -103,10 +103,18 @@ export const MentionSuggest = React.forwardRef<MentionSuggestHandle, Props>(func
     <div
       className="absolute bottom-full left-2 z-20 mb-1 w-[260px] overflow-hidden rounded-lg border border-line bg-surface shadow-2"
       role="listbox"
+      aria-label="Member suggestions"
+      aria-activedescendant={
+        members[activeIndex] ? `mention-option-${members[activeIndex].id}` : undefined
+      }
     >
       {members.length === 0 ? (
         <div className="px-3 py-2 text-[12px] text-ink-3">
-          {query.isLoading ? 'Searching…' : 'No matches'}
+          {query.isLoading
+            ? 'Searching…'
+            : query.isError
+              ? "Couldn't search members"
+              : 'No matches'}
         </div>
       ) : (
         <ul className="max-h-[240px] overflow-y-auto py-1">
@@ -114,6 +122,9 @@ export const MentionSuggest = React.forwardRef<MentionSuggestHandle, Props>(func
             <li key={m.id}>
               <button
                 type="button"
+                role="option"
+                aria-selected={i === activeIndex}
+                id={`mention-option-${m.id}`}
                 onMouseEnter={() => setActiveIndex(i)}
                 onClick={() => commit(m)}
                 className={cn(

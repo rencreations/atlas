@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { LoaderCircle } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
@@ -8,14 +8,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiPaths } from '@/lib/api/paths';
+import { usePageTitle } from '@/lib/page-title';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 
 export default function ForgotPasswordPage() {
+  usePageTitle('Reset password');
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
 
   const submit = useCallback(async () => {
     setBusy(true);
@@ -45,7 +52,10 @@ export default function ForgotPasswordPage() {
       footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
     >
       {sent ? (
-        <div className="rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-3 text-[13.5px] text-ink">
+        <div
+          role="status"
+          className="rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-3 text-[13.5px] text-ink"
+        >
           If an account exists for <span className="font-medium">{email}</span>, a reset link is
           on its way. It expires in 30 minutes.
         </div>
@@ -58,13 +68,25 @@ export default function ForgotPasswordPage() {
           className="flex flex-col gap-4"
         >
           {error ? (
-            <div className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink">
+            <div
+              ref={errorRef}
+              role="alert"
+              tabIndex={-1}
+              className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink"
+            >
               {error}
             </div>
           ) : null}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="fp-email">Email</Label>
-            <Input id="fp-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              id="fp-email"
+              type="email"
+              autoComplete="email"
+              invalid={Boolean(error)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <Button type="submit" disabled={!email || busy} size="lg" className="w-full">
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}

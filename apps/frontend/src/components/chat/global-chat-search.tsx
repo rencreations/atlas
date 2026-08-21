@@ -85,9 +85,13 @@ export function GlobalChatSearch({ trigger, open: controlledOpen, onOpenChange }
             <div className="grid h-32 place-items-center text-ink-3">
               <Loader2 className="h-4 w-4 animate-spin" />
             </div>
+          ) : query.isError ? (
+            <div className="px-3 py-6 text-center text-[13px] text-brand-red">
+              Search failed. Check your connection and try again.
+            </div>
           ) : grouped.length === 0 ? (
             <div className="px-3 py-6 text-center text-[13px] text-ink-3">
-              No matches across {''}your projects.
+              No matches across your projects.
             </div>
           ) : (
             <ul className="space-y-3">

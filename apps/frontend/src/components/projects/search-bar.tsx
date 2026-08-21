@@ -1,19 +1,27 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function GlobalSearchBar({ className }: { className?: string }) {
   const router = useRouter();
-  const [value, setValue] = React.useState('');
+  const params = useSearchParams();
+  const q = params.get('q') ?? '';
+  const [value, setValue] = React.useState(q);
+
+  // Keep the input in sync with ?q= (back/forward, cleared filters,
+  // dashboard "View all" navigation that drops the param).
+  React.useEffect(() => {
+    setValue(q);
+  }, [q]);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const q = value.trim();
-    if (!q) return;
-    router.push(`/projects?q=${encodeURIComponent(q)}` as never);
+    const query = value.trim();
+    if (!query) return;
+    router.push(`/projects?q=${encodeURIComponent(query)}` as never);
   }
 
   return (

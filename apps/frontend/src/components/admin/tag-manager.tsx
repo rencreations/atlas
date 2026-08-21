@@ -134,12 +134,18 @@ function TagDialog({
         <DialogTitle>{tag ? 'Edit tag' : 'New tag'}</DialogTitle>
         <div className="mt-4 space-y-3">
           <div>
-            <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={48} />
+            <Label htmlFor="tag-name">Name</Label>
+            <Input
+              id="tag-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={48}
+            />
           </div>
           <div>
-            <Label>Category</Label>
+            <Label htmlFor="tag-category">Category</Label>
             <Input
+              id="tag-category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="Phase, Stack, Domain…"

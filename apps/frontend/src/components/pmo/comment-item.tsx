@@ -8,6 +8,13 @@ import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import {
@@ -41,6 +48,7 @@ export function CommentItem({
   const toast = useToast();
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(comment.markdown);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
   React.useEffect(() => setDraft(comment.markdown), [comment.markdown]);
 
   const isAuthor = currentUser?.id === comment.author.id;
@@ -118,7 +126,7 @@ export function CommentItem({
             />
             <div className="flex gap-2">
               <Button size="sm" onClick={() => save.mutate()} loading={save.isPending}>
-                <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> Save
+                <Check className="h-3.5 w-3.5" strokeWidth={2.25} /> Save
               </Button>
               <Button
                 size="sm"
@@ -128,7 +136,7 @@ export function CommentItem({
                   setEditing(false);
                 }}
               >
-                <X className="h-3.5 w-3.5" strokeWidth={2.5} /> Cancel
+                <X className="h-3.5 w-3.5" strokeWidth={2.25} /> Cancel
               </Button>
             </div>
           </div>
@@ -144,7 +152,7 @@ export function CommentItem({
       </div>
 
       {!editing && !isDeleted ? (
-        <div className="flex items-start gap-1 opacity-0 group-hover/comment:opacity-100 transition-opacity duration-120 ease-out-soft">
+        <div className="flex items-start gap-1 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-120 ease-out-soft">
           {onReply ? (
             <button
               type="button"
@@ -173,11 +181,7 @@ export function CommentItem({
                     <Pencil className="h-4 w-4" strokeWidth={2.25} /> Edit
                   </DropdownMenuItem>
                 ) : null}
-                <DropdownMenuItem
-                  onSelect={() => {
-                    if (confirm('Delete this comment?')) remove.mutate();
-                  }}
-                >
+                <DropdownMenuItem onSelect={() => setDeleteOpen(true)}>
                   <Trash2 className="h-4 w-4" strokeWidth={2.25} /> Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -185,6 +189,30 @@ export function CommentItem({
           ) : null}
         </div>
       ) : null}
+
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent size="sm">
+          <DialogTitle>Delete comment?</DialogTitle>
+          <DialogDescription>
+            This removes the comment for everyone. This can&apos;t be undone.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={remove.isPending}
+              onClick={() => {
+                setDeleteOpen(false);
+                remove.mutate();
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

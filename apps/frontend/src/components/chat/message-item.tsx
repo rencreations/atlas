@@ -8,6 +8,13 @@ import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/lib/types';
 import { AttachmentRenderer } from './attachment-renderer';
@@ -31,6 +38,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(message.markdown);
   const [forwardOpen, setForwardOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
   // Anchored popovers inside the hover action bar must keep the bar in DOM
   // while they're open — otherwise the trigger gets display:none on mouse-
   // leave and Radix re-anchors the popover to a zero-size box (visible
@@ -232,7 +240,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
         <div
           className={cn(
             'absolute right-2 top-0 gap-0.5 rounded border border-line bg-surface p-0.5 shadow-1',
-            menuOpen ? 'flex' : 'hidden group-hover:flex',
+            menuOpen ? 'flex' : 'hidden group-hover:flex group-focus-within:flex',
           )}
         >
           <ReactionPicker
@@ -259,12 +267,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
             />
           ) : null}
           {canMod ? (
-            <IconAction
-              title="Delete"
-              onClick={() => {
-                if (confirm('Delete this message?')) deleteMutation.mutate();
-              }}
-            >
+            <IconAction title="Delete" onClick={() => setDeleteOpen(true)}>
               <Trash2 className="h-3.5 w-3.5 text-brand-red" strokeWidth={2.25} />
             </IconAction>
           ) : null}
@@ -276,6 +279,29 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
         onClose={() => setForwardOpen(false)}
         message={message}
       />
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent size="sm">
+          <DialogTitle>Delete message?</DialogTitle>
+          <DialogDescription>
+            This removes the message for everyone in the channel. This can&apos;t be undone.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={deleteMutation.isPending}
+              onClick={() => {
+                setDeleteOpen(false);
+                deleteMutation.mutate();
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </li>
   );
 }

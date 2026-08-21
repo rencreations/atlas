@@ -160,7 +160,7 @@ export function ListView({
                         'h-3.5 w-3.5 transition-transform duration-120 ease-out-soft',
                         collapsed && '-rotate-90',
                       )}
-                      strokeWidth={2.5}
+                      strokeWidth={2.25}
                     />
                   </button>
                   <StatusDot status={status} />

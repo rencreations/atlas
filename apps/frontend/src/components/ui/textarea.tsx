@@ -13,6 +13,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       ref={ref}
       rows={rows}
       data-invalid={invalid ? 'true' : undefined}
+      aria-invalid={invalid ? true : undefined}
       className={cn(
         'w-full resize-y rounded bg-surface px-3.5 py-2.5 text-[15px] text-ink',
         'border border-line placeholder:text-ink-4',

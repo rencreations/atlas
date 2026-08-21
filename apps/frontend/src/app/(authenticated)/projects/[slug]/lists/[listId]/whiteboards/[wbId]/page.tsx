@@ -10,6 +10,7 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { isPmoEnabled } from '@/lib/hooks/use-pmo-enabled';
+import { ErrorState } from '@/components/ui/error-state';
 import type { SessionUser } from '@/lib/types';
 
 const WhiteboardCanvas = dynamic(
@@ -46,7 +47,15 @@ export default function WhiteboardPage() {
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2.25} /> Back to whiteboards
       </Link>
-      {me.data ? (
+      {me.isError ? (
+        <div className="flex flex-1 items-center justify-center">
+          <ErrorState
+            title="Couldn't load your profile"
+            message="We couldn't load your user profile. Check your connection and try again."
+            onRetry={() => void me.refetch()}
+          />
+        </div>
+      ) : me.data ? (
         <WhiteboardCanvas projectSlug={slug} wbId={wbId} user={me.data} />
       ) : (
         <div className="flex flex-1 items-center justify-center text-ink-3">

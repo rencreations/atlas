@@ -3,10 +3,17 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Menu, Plus } from 'lucide-react';
 import { Wordmark } from '@/components/brand/wordmark';
 import { ShapeSignature } from '@/components/brand/shape-signature';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ChatNavButton } from '@/components/chat/chat-nav-button';
 import { NotificationBell } from './notification-bell';
 import { UserMenu } from './user-menu';
@@ -71,6 +78,39 @@ export function Header({ user }: { user?: SessionUser | null }) {
             );
           })}
         </nav>
+
+        {/* Mobile navigation — replaces the hidden md:flex nav below md. */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Open navigation menu">
+                <Menu className="h-5 w-5" strokeWidth={2.25} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[220px]">
+              {NAV.map((link) => {
+                const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                return (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link
+                      href={link.href as never}
+                      className={cn(active ? 'text-brand-blue' : 'text-ink')}
+                    >
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={'/projects/new' as never}>
+                  <Plus className="h-4 w-4" strokeWidth={2.25} />
+                  New project
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         <div className="ml-auto flex items-center gap-2">
           <Button asChild size="sm" className="hidden sm:inline-flex">

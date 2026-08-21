@@ -1,51 +1,50 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
+import { usePageTitle } from '@/lib/page-title';
 import type { CollaborationRole, Paginated, ProjectCard, Tag } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { ProjectCard as ProjectCardView } from '@/components/projects/project-card';
 import { GlobalSearchBar } from '@/components/projects/search-bar';
 import { FilterPanel } from '@/components/projects/filter-panel';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
 import { Button } from '@/components/ui/button';
 
-interface PageProps {
-  searchParams: Promise<{
-    q?: string;
-    phase?: string;
-    tagIds?: string;
-    recruitingFor?: string;
-    bookmarkedOnly?: string;
-    page?: string;
-    sort?: string;
-  }>;
-}
+// Dashboard "View all" links arrive as ?row=<key>; map each row key onto
+// the browse filters this page already supports, keeping the same URL
+// conventions as the filter panel. Rows with no equivalent get no link
+// on the dashboard side, so anything unlisted here is ignored.
+const ROW_FILTERS: Record<string, { phase?: string[] }> = {
+  shipped: { phase: ['SHIPPED'] },
+};
 
 export default function ProjectsBrowsePage() {
+  usePageTitle('Browse projects');
+
   const searchParams = useSearchParams();
-  const [data, setData] = useState<Paginated<ProjectCard> | null>(null);
-  const [grouped, setGrouped] = useState<{ category: string; items: Tag[] }[] | null>(null);
-  const [roles, setRoles] = useState<CollaborationRole[] | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const q = searchParams.get('q') || undefined;
-  const phase = searchParams.get('phase') ? searchParams.get('phase')!.split(',') : undefined;
+  const row = searchParams.get('row');
+  const rowFilters = row ? ROW_FILTERS[row] : undefined;
+  const phase = rowFilters?.phase ?? (searchParams.get('phase') ? searchParams.get('phase')!.split(',') : undefined);
   const tagIds = searchParams.get('tagIds') ? searchParams.get('tagIds')!.split(',') : undefined;
   const recruitingFor = searchParams.get('recruitingFor') || undefined;
   const bookmarkedOnly = searchParams.get('bookmarkedOnly') === 'true';
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
   const sort = searchParams.get('sort') || undefined;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const path = apiPaths.projects({
+  const projects = useQuery({
+    queryKey: queryKeys.projects({ q, phase, tagIds, recruitingFor, bookmarkedOnly, page, sort }),
+    queryFn: () =>
+      api<Paginated<ProjectCard>>(
+        apiPaths.projects({
           q,
           phase,
           tagIds,
@@ -53,28 +52,19 @@ export default function ProjectsBrowsePage() {
           bookmarkedOnly,
           page,
           sort,
-        });
+        }),
+      ),
+  });
+  const grouped = useQuery({
+    queryKey: queryKeys.tagsGrouped,
+    queryFn: () => api<{ category: string; items: Tag[] }[]>(apiPaths.tagsGrouped()),
+  });
+  const roles = useQuery({
+    queryKey: queryKeys.collaborationRoles,
+    queryFn: () => api<CollaborationRole[]>(apiPaths.collaborationRoles()),
+  });
 
-        const [projectsData, tagsData, rolesData] = await Promise.all([
-          api<Paginated<ProjectCard>>(path),
-          api<{ category: string; items: Tag[] }[]>(apiPaths.tagsGrouped()),
-          api<CollaborationRole[]>(apiPaths.collaborationRoles()),
-        ]);
-
-        setData(projectsData);
-        setGrouped(tagsData);
-        setRoles(rolesData);
-      } catch (err) {
-        console.error('Failed to fetch projects:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [q, phase, tagIds, recruitingFor, bookmarkedOnly, page, sort]);
-
-  if (loading || !data || !grouped || !roles) {
+  if (projects.isLoading || grouped.isLoading || roles.isLoading || !grouped.data || !roles.data) {
     return (
       <Container size="2xl" className="space-y-8 py-12">
         <div className="h-40 animate-pulse rounded bg-line" />
@@ -82,7 +72,24 @@ export default function ProjectsBrowsePage() {
     );
   }
 
-  const totalPages = data.meta.totalPages;
+  if (projects.isError || grouped.isError || roles.isError || !projects.data) {
+    return (
+      <Container size="2xl" className="space-y-8 py-12">
+        <ErrorState
+          page
+          title="Couldn't load projects"
+          message="Something went wrong while fetching projects. Check your connection and try again."
+          onRetry={() => {
+            projects.refetch();
+            grouped.refetch();
+            roles.refetch();
+          }}
+        />
+      </Container>
+    );
+  }
+
+  const totalPages = projects.data.meta.totalPages;
 
   return (
     <Container size="2xl" className="space-y-8 py-12">
@@ -99,10 +106,10 @@ export default function ProjectsBrowsePage() {
         <div className="flex-1">
           <GlobalSearchBar />
         </div>
-        <FilterPanel groupedTags={grouped} collaborationRoles={roles} />
+        <FilterPanel groupedTags={grouped.data} collaborationRoles={roles.data} />
       </div>
 
-      {data.items.length === 0 ? (
+      {projects.data.items.length === 0 ? (
         <EmptyState
           title="No projects match those filters."
           description="Try removing a filter or starting a new project of your own."
@@ -123,7 +130,7 @@ export default function ProjectsBrowsePage() {
       ) : (
         <>
           <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-10 xl:grid-cols-4">
-            {data.items.map((p) => (
+            {projects.data.items.map((p) => (
               <ProjectCardView key={p.id} project={p} static />
             ))}
           </div>

@@ -9,6 +9,13 @@ import { queryKeys } from '@/lib/api/queries';
 import { getStoredSession } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -143,6 +150,7 @@ function ClipTile({
   onPlay: () => void;
 }) {
   const queryClient = useQueryClient();
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
   const deleteMutation = useMutation({
     mutationFn: () => api(apiPaths.voice.soundboardClip(clip.id), { method: 'DELETE' }),
     onSuccess: () => {
@@ -186,14 +194,37 @@ function ClipTile({
       {isAdmin ? (
         <button
           type="button"
-          onClick={() => deleteMutation.mutate()}
-          className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-red-strong hover:text-white group-hover/clip:opacity-100"
+          onClick={() => setDeleteOpen(true)}
+          className="absolute right-1 top-1 inline-grid h-5 w-5 place-items-center rounded text-ink-3 opacity-0 transition-opacity hover:bg-brand-red-strong hover:text-white group-hover/clip:opacity-100 focus-visible:opacity-100"
           aria-label="Delete clip"
           title="Delete clip"
         >
           <Trash2 className="h-3 w-3" strokeWidth={2.25} />
         </button>
       ) : null}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent size="sm">
+          <DialogTitle>Delete “{clip.name}”?</DialogTitle>
+          <DialogDescription>
+            This removes the clip from the soundboard for everyone. This can&apos;t be undone.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={deleteMutation.isPending}
+              onClick={() => {
+                setDeleteOpen(false);
+                deleteMutation.mutate();
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -59,6 +59,17 @@ export function ActivityFeed({
             <div key={i} className="h-5 animate-pulse rounded bg-line/60" />
           ))}
         </div>
+      ) : activity.isError ? (
+        <p className="text-[12px] text-brand-red">
+          Couldn&apos;t load activity.{' '}
+          <button
+            type="button"
+            className="underline underline-offset-2 hover:no-underline"
+            onClick={() => void activity.refetch()}
+          >
+            Try again
+          </button>
+        </p>
       ) : items.length === 0 ? (
         <p className="text-[12px] text-ink-3">No activity yet.</p>
       ) : (

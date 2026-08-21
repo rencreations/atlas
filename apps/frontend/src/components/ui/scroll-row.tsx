@@ -13,9 +13,21 @@ interface Props {
 /** Horizontal scroll row with arrow controls and snap points (Netflix-style). */
 export function ScrollRow({ children, className, ariaLabel }: Props) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const [reduceMotion, setReduceMotion] = React.useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+
+  React.useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   const scrollBy = (delta: number) => {
-    ref.current?.scrollBy({ left: delta, behavior: 'smooth' });
+    ref.current?.scrollBy({ left: delta, behavior: reduceMotion ? 'auto' : 'smooth' });
   };
 
   return (
@@ -24,7 +36,7 @@ export function ScrollRow({ children, className, ariaLabel }: Props) {
         ref={ref}
         role="region"
         aria-label={ariaLabel}
-        className="scroll-hidden flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1"
+        className="scroll-hidden flex snap-x snap-mandatory gap-4 overflow-x-auto pb-1"
       >
         {children}
       </div>
@@ -36,7 +48,8 @@ export function ScrollRow({ children, className, ariaLabel }: Props) {
         className={cn(
           'absolute left-0 top-1/2 z-10 hidden h-10 w-10 -translate-x-3 -translate-y-1/2',
           'place-items-center rounded-full bg-surface text-ink shadow-2 transition-opacity duration-200',
-          'opacity-0 group-hover/row:opacity-100 hover:opacity-100',
+          'opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 hover:opacity-100 focus-visible:opacity-100',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
           'md:grid',
         )}
       >
@@ -49,7 +62,8 @@ export function ScrollRow({ children, className, ariaLabel }: Props) {
         className={cn(
           'absolute right-0 top-1/2 z-10 hidden h-10 w-10 translate-x-3 -translate-y-1/2',
           'place-items-center rounded-full bg-surface text-ink shadow-2 transition-opacity duration-200',
-          'opacity-0 group-hover/row:opacity-100 hover:opacity-100',
+          'opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 hover:opacity-100 focus-visible:opacity-100',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
           'md:grid',
         )}
       >

@@ -279,6 +279,7 @@ function MicTestSection() {
   const [testing, setTesting] = React.useState(false);
   const [loopback, setLoopback] = React.useState(false);
   const [level, setLevel] = React.useState(0);
+  const [testError, setTestError] = React.useState<string | null>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
   const audioCtxRef = React.useRef<AudioContext | null>(null);
   const rafRef = React.useRef<number | null>(null);
@@ -305,6 +306,7 @@ function MicTestSection() {
   }, []);
 
   const start = React.useCallback(async () => {
+    setTestError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -342,8 +344,16 @@ function MicTestSection() {
       }
       setTesting(true);
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn('Mic test failed:', err);
+      const denied =
+        err instanceof DOMException &&
+        (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
+      setTestError(
+        denied
+          ? 'Microphone permission denied — allow access in your browser, then try again.'
+          : err instanceof Error
+            ? `Couldn't start the mic test: ${err.message}`
+            : "Couldn't start the mic test.",
+      );
     }
   }, [prefs.micDeviceId, prefs.noiseSuppression, prefs.echoCancellation, prefs.autoGainControl, loopback]);
 
@@ -360,12 +370,12 @@ function MicTestSection() {
         >
           {testing ? (
             <>
-              <Square className="mr-2 h-3.5 w-3.5" strokeWidth={2.5} />
+              <Square className="mr-2 h-3.5 w-3.5" strokeWidth={2.25} />
               Stop test
             </>
           ) : (
             <>
-              <Mic className="mr-2 h-3.5 w-3.5" strokeWidth={2.5} />
+              <Mic className="mr-2 h-3.5 w-3.5" strokeWidth={2.25} />
               Start test
             </>
           )}
@@ -383,18 +393,24 @@ function MicTestSection() {
 
       <div className="h-3 w-full overflow-hidden rounded-full bg-surface-muted">
         <div
-          className="h-full transition-all duration-75 ease-out"
+          className={cn(
+            'h-full transition-all duration-75 ease-out',
+            level > 0.7
+              ? 'bg-brand-red'
+              : level > 0.4
+                ? 'bg-brand-green'
+                : 'bg-brand-blue',
+          )}
           style={{
             width: `${Math.round(level * 100)}%`,
-            background:
-              level > 0.7
-                ? '#e53e3e'
-                : level > 0.4
-                  ? '#48bb78'
-                  : '#3182ce',
           }}
         />
       </div>
+      {testError ? (
+        <p className="text-[11px] text-brand-red" role="alert">
+          {testError}
+        </p>
+      ) : null}
       <p className="text-[11px] text-ink-3">
         {testing
           ? 'Speak normally. If the bar moves, your mic is working.'

@@ -78,7 +78,7 @@ export function VoiceLayout({
               className="inline-flex items-center gap-1 rounded-full bg-brand-red-strong px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white"
               title={`Recording started by ${voiceState.recording?.startedByName ?? 'a moderator'}`}
             >
-              <CircleDot className="h-2.5 w-2.5 animate-pulse" strokeWidth={3} />
+              <CircleDot className="h-2.5 w-2.5 animate-pulse" strokeWidth={2.25} />
               REC
             </span>
           ) : null}

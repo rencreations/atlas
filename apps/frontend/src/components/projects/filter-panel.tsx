@@ -122,7 +122,9 @@ export function FilterPanel({ groupedTags, collaborationRoles }: Props) {
                       return (
                         <button
                           key={t.id}
+                          type="button"
                           onClick={() => toggleTag(t.id)}
+                          aria-pressed={active}
                           className={cn(
                             'inline-flex h-7 items-center rounded-full px-3 text-[12px] font-medium transition-colors',
                             active
@@ -144,13 +146,42 @@ export function FilterPanel({ groupedTags, collaborationRoles }: Props) {
             <h4 className="mb-2 text-[12px] font-medium uppercase tracking-[0.08em] text-ink-3">
               Recruiting for
             </h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+            {/* The browse API takes a single role (collaborationRoles has),
+                so this is a radio group — not multi-select. */}
+            <div
+              role="radiogroup"
+              aria-label="Recruiting for"
+              className="grid grid-cols-2 gap-x-3 gap-y-2"
+            >
               {collaborationRoles.map((r) => (
-                <label key={r.id} className="inline-flex cursor-pointer items-center gap-2">
-                  <Checkbox
+                <label
+                  key={r.id}
+                  className="inline-flex cursor-pointer items-center gap-2"
+                >
+                  <input
+                    type="radio"
+                    name="recruiting-for"
+                    role="radio"
+                    aria-checked={recruitingFor === r.name}
                     checked={recruitingFor === r.name}
-                    onCheckedChange={(c) => set('recruitingFor', c ? r.name : null)}
+                    onChange={() => set('recruitingFor', r.name)}
+                    className="peer sr-only"
                   />
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'inline-grid h-5 w-5 shrink-0 place-items-center rounded-full',
+                      'border-[1.5px] bg-surface transition-colors duration-120 ease-out-soft',
+                      recruitingFor === r.name
+                        ? 'border-brand-blue-strong'
+                        : 'border-line-strong',
+                      'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus',
+                    )}
+                  >
+                    {recruitingFor === r.name ? (
+                      <span className="h-2 w-2 rounded-full bg-brand-blue-strong" />
+                    ) : null}
+                  </span>
                   <span className="text-[13px] text-ink">{r.name}</span>
                 </label>
               ))}

@@ -17,6 +17,14 @@ import {
 import { cn } from '@/lib/utils';
 import { useVoice, type VoiceParticipantView } from '@/lib/voice/voice-provider';
 import type { VoiceChannelWithRoster } from '@/lib/voice/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   participant: VoiceParticipantView;
@@ -61,6 +69,7 @@ export function ParticipantMenu({
   currentChannelId,
 }: Props) {
   const { state, actions } = useVoice();
+  const [kickOpen, setKickOpen] = React.useState(false);
 
   const isLocal = participant.isLocal;
   const isLocalMuted = state.localMuted.has(participant.identity);
@@ -239,7 +248,7 @@ export function ParticipantMenu({
                 </>
               ) : null}
               <DropdownMenuItem
-                onSelect={() => void actions.moderationKick(participant.identity)}
+                onSelect={() => setKickOpen(true)}
                 className="gap-2 text-[13px] text-brand-red focus:text-brand-red"
               >
                 <X className="h-3.5 w-3.5" strokeWidth={2.25} />
@@ -249,6 +258,30 @@ export function ParticipantMenu({
           ) : null}
         </DropdownMenuContent>
       </div>
+
+      <Dialog open={kickOpen} onOpenChange={setKickOpen}>
+        <DialogContent size="sm">
+          <DialogTitle>Disconnect {participant.name}?</DialogTitle>
+          <DialogDescription>
+            They&apos;ll be removed from this voice channel immediately and can rejoin on their own.
+          </DialogDescription>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setKickOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              onClick={() => {
+                setKickOpen(false);
+                void actions.moderationKick(participant.identity);
+              }}
+            >
+              Disconnect
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DropdownMenu>
   );
 }

@@ -1,9 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { ImagePlus, Loader2, Trash2, GripVertical, Video } from 'lucide-react';
+import { ChevronDown, ChevronUp, GripVertical, ImagePlus, Loader2, Trash2, Video } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
-import { Reorder, useDragControls } from 'framer-motion';
+import { Reorder, useDragControls, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { api, uploadToPresigned } from '@/lib/api/client';
@@ -102,6 +102,19 @@ export function MediaUpload({ projectId, items, onChange, maxItems = 10 }: Props
     reorder.mutate(latest.current.map((m) => m.id));
   };
 
+  // Keyboard path: swap adjacent items and commit immediately, mirroring the
+  // drag-and-drop commit so both flows persist the same way.
+  const move = (id: string, dir: -1 | 1) => {
+    const current = latest.current;
+    const i = current.findIndex((m) => m.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= current.length) return;
+    const next = [...current];
+    [next[i], next[j]] = [next[j], next[i]];
+    handleReorder(next);
+    commitReorder();
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
@@ -155,6 +168,10 @@ export function MediaUpload({ projectId, items, onChange, maxItems = 10 }: Props
               key={item.id}
               item={item}
               idx={idx}
+              isFirst={idx === 0}
+              isLast={idx === items.length - 1}
+              onMoveUp={() => move(item.id, -1)}
+              onMoveDown={() => move(item.id, 1)}
               onCommit={commitReorder}
               onRemove={() => remove.mutate(item.id)}
               isRemoving={remove.isPending && remove.variables === item.id}
@@ -169,17 +186,27 @@ export function MediaUpload({ projectId, items, onChange, maxItems = 10 }: Props
 function ReorderableRow({
   item,
   idx,
+  isFirst,
+  isLast,
+  onMoveUp,
+  onMoveDown,
   onRemove,
   onCommit,
   isRemoving,
 }: {
   item: ProjectMedia;
   idx: number;
+  isFirst: boolean;
+  isLast: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   onRemove: () => void;
   onCommit: () => void;
   isRemoving: boolean;
 }) {
   const controls = useDragControls();
+  const prefersReducedMotion = useReducedMotion();
+  const label = item.url.split('/').pop() ?? 'media';
   return (
     <Reorder.Item
       value={item}
@@ -187,10 +214,36 @@ function ReorderableRow({
       dragControls={controls}
       onDragEnd={onCommit}
       className="list-none"
-      whileDrag={{ scale: 1.01, boxShadow: '0 24px 60px -20px rgba(14,17,22,0.18)', zIndex: 20 }}
+      whileDrag={
+        prefersReducedMotion
+          ? { zIndex: 20 }
+          : { scale: 1.01, boxShadow: '0 24px 60px -20px rgba(14,17,22,0.18)', zIndex: 20 }
+      }
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
-      <article className="group relative flex items-center gap-3 rounded-lg border border-line bg-surface p-2">
+      <article className="group relative flex items-center gap-2 rounded-lg border border-line bg-surface p-2">
+        <div className="flex flex-col gap-0.5">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Move ${label} up`}
+            disabled={isFirst}
+            onClick={onMoveUp}
+          >
+            <ChevronUp className="h-4 w-4" strokeWidth={2.25} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Move ${label} down`}
+            disabled={isLast}
+            onClick={onMoveDown}
+          >
+            <ChevronDown className="h-4 w-4" strokeWidth={2.25} />
+          </Button>
+        </div>
         <button
           type="button"
           aria-label="Drag to reorder"
