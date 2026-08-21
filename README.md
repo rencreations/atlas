@@ -11,6 +11,11 @@ replaces the usual stack of project-management and communication tools:
   collaborative notes and whiteboards, files, dependencies, undo/redo.
 - **Voice** — Discord-style voice/video rooms with screen share, powered
   by LiveKit.
+- **Theming** — 24 themes, each with light and dark palettes. Every user
+  picks their own in Settings → Appearance; the superadmin sets the
+  instance default (and can lock it) in godmode. All palettes are WCAG
+  2.1 contrast-audited, and the logo, patterns, and accents re-skin with
+  the theme.
 
 Atlas is licensed under the **GNU Affero General Public License v3.0**.
 Self-host it on your own infrastructure, configure it from your browser,

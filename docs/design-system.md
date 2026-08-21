@@ -1,10 +1,7 @@
 # Atlas design system
 
-The visual identity is locked into design tokens in
-[`tailwind.config.ts`](../tailwind.config.ts). Components consume tokens —
-never literals. This page is the human-readable reference.
-
-<img src="screenshots/main-header.png" alt="Atlas header showing the wordmark, navigation, search, and user menu" width="100%">
+The visual identity is locked into design tokens. Components consume
+tokens — never literals. This page is the human-readable reference.
 
 ## The five laws
 
@@ -22,25 +19,74 @@ never literals. This page is the human-readable reference.
 5. **Pattern as accent, never wallpaper.** Corners and dadoes only — the
    pattern is a signature, not a texture.
 
-## Color
+## Themes
 
-| Token | Hex | Use |
+Atlas ships **24 themes, each with a light and a dark palette** (48
+palettes). A theme is a full token set defined once in
+`src/lib/themes/registry.ts` — the single source of truth. Generated CSS
+(`src/app/themes.generated.css`, emitted by `pnpm themes:generate`) maps
+each palette onto `html[data-theme="<id>"]` and
+`html[data-theme="<id>"].dark`, so switching themes re-skins the entire
+app — surfaces, ink, brand accents, the wordmark, the shape signature,
+and the corner patterns — without touching component code.
+
+How a visitor's theme resolves:
+
+1. Godmode setting `appearance.defaultTheme` (superadmin-chosen) applies
+   to anonymous visitors and users who have not picked a theme.
+2. Signed-in users pick a theme in **Settings → Appearance**; the choice
+   is stored on their user record (`themeId` / `themeMode`) and mirrored
+   in localStorage so the next page load paints before hydration.
+3. `appearance.allowUserThemes = off` in godmode locks everyone to the
+   instance default.
+4. An inline bootstrap script in the root layout applies the mirrored
+   theme before first paint (no flash).
+
+The catalog ids must stay in sync with the backend contract at
+`apps/backend/src/modules/settings/theme-ids.ts` (godmode enum +
+`GET /public-config`), which owns the labels; the frontend owns the
+palettes and falls back to `atlas` for unknown ids.
+
+### Token contract
+
+Each palette defines, per mode:
+
+| Tier | Tokens | Role |
 |---|---|---|
-| `brand.blue` | `#3a6dc5` | Primary actions, links, focus ring |
-| `brand.yellow` | `#f7bf33` | Highlights, warm accents |
-| `brand.red` | `#f94141` | Destructive, alerts |
-| `brand.green` | `#0f8657` | Success, growth |
-| `brand.blue-50` | `#ecf1fa` | Tinted blue surfaces |
-| `brand.yellow-50` | `#fef6e0` | Tinted yellow surfaces |
-| `brand.red-50` | `#fee5e5` | Tinted red surfaces |
-| `brand.green-50` | `#e2f1ea` | Tinted green surfaces |
-| `brand.yellow-ink` | `#8a6d18` | Readable text on yellow tints |
-| `ink` | `#0e1116` | Primary text |
-| `ink-2` / `ink-3` / `ink-4` | `#3b4150` / `#6b7280` / `#9aa1ad` | Secondary → quaternary text |
-| `line` / `line-strong` | `#ececea` / `#d8d8d2` | Hairlines and borders |
-| `focus` | `#3a6dc5` | Keyboard focus outline |
+| Core | `--bg`, `--surface`, `--surface-muted`, `--surface-inverse` | Page, cards, muted fills, inverse chips (always dark chips with white text — used by tooltips and inverse buttons) |
+| Ink | `--ink`, `--ink-2`, `--ink-3`, `--ink-4` | Text ramp, darkest → lightest (light mode) / lightest → darkest (dark mode). Every tier holds **4.5:1** on every surface it renders on |
+| Brand text | `--brand-blue/yellow/red/green` | Links, icons, text accents — 4.5:1 on the surfaces they sit on |
+| Brand fills | `--brand-*-strong` | Filled buttons/badges — must hold **white text at 4.5:1 in both modes** (equal to the brand color in light mode; a deeper shade in dark mode) |
+| Yellow text | `--brand-yellow-fg` | Text on yellow fills (yellow is bright in both modes) |
+| Tints | `--brand-*-50`, `--brand-yellow-ink` | Pastel chips (light) / deep chips (dark); brand text and ink-3 both hold 4.5:1 on them |
+| Vivid | `--brand-*-vivid` | The decorative brand signature — wordmark letters, shape mark, corner pattern. Exempt from text contrast |
+| Support | `--line`, `--line-strong`, `--focus`, `--shimmer`, `--shadow-1…3` | Hairlines, focus ring (3:1), skeleton shimmer, elevation |
 
-Light mode only — there is deliberately no dark theme today.
+The atlas palette is also emitted onto bare `:root` / `.dark` as the
+no-JS fallback.
+
+### Compliance
+
+Two gates enforce contrast:
+
+- `pnpm themes:check` — a static WCAG 2.1 audit of every palette pair
+  (text ≥ 4.5:1, UI ≥ 3:1, fills ≥ 4.5:1). Fails the build on any
+  violation.
+- `pnpm test --project=themes` (Playwright) — applies every theme × mode,
+  asserts the computed colors match the registry and the wordmark
+  re-skins, and runs **axe-core** scans (including color-contrast) on the
+  login surface for all 48 palettes plus authenticated scans of the
+  for-me, appearance, and chat pages.
+
+### Adding a theme
+
+1. Add a `theme(...)` entry to `src/lib/themes/registry.ts` with the
+   light and dark seeds (the builder derives tints, lines, shadows,
+   ink-4, and yellow-fg).
+2. Mirror the id + label in `apps/backend/src/modules/settings/theme-ids.ts`.
+3. `pnpm themes:generate && pnpm themes:check` — fix any flagged pairs
+   (darken the brand color or the ink tier; do not lower the thresholds).
+4. Run the Playwright theme matrix.
 
 ## Typography
 
@@ -88,337 +134,12 @@ Micro-interactions use `120–200`; entrances `320`; celebratory moments `520+`.
   textarea, toast, tooltip. Build features by composing these; never reach
   for raw Radix in feature code.
 - **Brand** (`src/components/brand/`) — `Wordmark`, `ShapeSignature`,
-  `PatternCorner`, `PatternDado`.
+  `PatternCorner`, `PatternDado` — all driven by the vivid tokens, so the
+  brand re-skins with the active theme. The static favicon and metadata
+  images (`icon.svg`, `brand-logo.ts`) keep the default atlas palette:
+  they are instance identity, not user preference.
 
 ## Voice & tone in UI copy
 
 Short, confident, lowercase-friendly. Empty states explain the next action
 ("Start a project", "Invite your first contributor") rather than apologize.
-
-## Rollout checklist
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Operational notes
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Verification steps
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Performance considerations
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Security notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Tuning guidance
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Security notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Migration notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Rollout checklist
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Capacity notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Capacity notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Common failure modes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Common failure modes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Migration notes
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Security notes
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Capacity notes
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Troubleshooting
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Rollout checklist
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Security notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Rollout checklist
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Migration notes
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Verification steps
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Operational notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Performance considerations
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Performance considerations
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Verification steps
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Migration notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Rollout checklist
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Rollout checklist
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Known edge cases
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Backward compatibility
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Performance considerations
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Tuning guidance
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Common failure modes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Operational notes
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Backward compatibility
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Known edge cases
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Known edge cases
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Migration notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Tuning guidance
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Backward compatibility
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Common failure modes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Tuning guidance
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Capacity notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Capacity notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Migration notes
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Security notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Security notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Operational notes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Migration notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Troubleshooting
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Verification steps
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Verification steps
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Verification steps
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Security notes
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Migration notes
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-## Capacity notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Known edge cases
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Operational notes
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Common failure modes
-
-The happy path is well covered; the cases below are the ones that historically bit us. Each entry links to the issue that motivated the fix.
-
-## Tuning guidance
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.
-
-## Verification steps
-
-Keep these values in sync across environments. Drift here has caused staging-only failures that were hard to reproduce later.
-
-## Troubleshooting
-
-This section summarizes the behavior observed in staging and the limits we set accordingly. Adjust the defaults only after the corresponding metric has been in place for at least one full release cycle.
-
-If you touch this area, run the checks listed below and watch the dashboard for the first hour after deploy.

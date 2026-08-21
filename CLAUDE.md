@@ -69,12 +69,15 @@ Consequences:
 - `experimental.typedRoutes` is **on** (`next.config.mjs`). Dynamic hrefs the type-checker can't statically prove sometimes need `as never` — copy that pattern, don't fight it.
 - `outputFileTracingRoot` is set to the workspace root (monorepo standalone tracing).
 
-### Design system — non-negotiable
+### Design system & theming — non-negotiable
 
 - **Use design tokens, not literals.** `tailwind.config.ts` defines all colors, type ramps, radii, shadows, motion durations and easings. Never hand-roll hex values or custom transitions.
 - **One leading brand color per surface.** The only place all four appear together is inside the geometric pattern (`<PatternCorner>` / `<PatternDado>` in `components/brand/`).
 - **Stroke icons only.** Lucide, `strokeWidth={2.25}`.
 - **Restrained motion.** `prefers-reduced-motion` is respected via `globals.css`.
+- **24 themes × light/dark.** The single source of truth is `src/lib/themes/registry.ts`; generated CSS lives in `src/app/themes.generated.css` (edit the registry, run `pnpm themes:generate`). Tokens apply via `html[data-theme="<id>"]` + `.dark`; `ThemeProvider` (`src/lib/theme.tsx`) resolves user record → godmode `appearance.*` default → local mirror. The theme id contract is duplicated in `apps/backend/src/modules/settings/theme-ids.ts` — keep both lists in sync.
+- **Token roles:** `--brand-*-strong` = button fills (white text ≥ 4.5:1 both modes), `--brand-*-vivid` = decorative brand mark, `--brand-yellow-fg` = text on yellow fills, `--surface-inverse` = always a dark chip with white text.
+- **Contrast gates:** `pnpm themes:check` (static WCAG audit, fails the build) and the Playwright `themes` project (per-palette application + axe-core scans, runs against localhost by default). Never lower the thresholds to make a palette pass — fix the palette.
 
 ### Environment
 
