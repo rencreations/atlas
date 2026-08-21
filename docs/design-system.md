@@ -139,10 +139,9 @@ Micro-interactions use `120–200`; entrances `320`; celebratory moments `520+`.
   brand re-skins with the active theme as one hue. The static favicon and
   metadata images (`icon.svg`, `brand-logo.ts`) keep the default atlas
   primary: they are instance identity, not user preference.
-- **Footer** (`src/components/layout/footer.tsx`) — an oversized ATLAS
-  wordmark whose letters emerge one by one on scroll, followed by the
-  essential links only (GitHub, Terms, Privacy, Status). No columns, no
-  rainbow strip.
+- **No footer.** Atlas deliberately ships without a page footer — the
+  header and in-app navigation carry the essential links (legal pages are
+  reachable from Settings → Privacy and /legal/terms, /legal/privacy).
 
 ## Voice & tone in UI copy
 

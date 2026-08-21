@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getStoredSession } from '@/lib/auth-client';
 import { sanitizeReturnTo } from '@/lib/auth-redirect';
 import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { NotificationsClient } from '@/components/notifications/notifications-client';
 import { VoiceConnectedPanel } from '@/components/voice/voice-connected-panel';
 import { SaveCoordinatorBeforeUnload } from '@/lib/save-coordinator';
@@ -61,7 +60,6 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     <div className="flex min-h-svh flex-col">
       <Header user={session.user} />
       <main className="flex-1">{children}</main>
-      <Footer />
       <VoiceConnectedPanel />
       <NotificationsClient />
       <SaveCoordinatorBeforeUnload />
