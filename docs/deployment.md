@@ -79,13 +79,11 @@ The frontend mirrors `PMO_ENABLED` / `VOICE_ENABLED` with `NEXT_PUBLIC_PMO_ENABL
 ## Checklist for a fresh environment
 
 1. PostgreSQL reachable; `DATABASE_URL` set.
-2. S3 bucket + credentials; `AWS_*` and `AWS_S3_PUBLIC_BASE_URL` set; bucket CORS allows browser `PUT` from your app origin.
-3. Keycloak realm + client; `KEYCLOAK_*` set; frontend gets the matching public client config.
-4. `N8N_WEBHOOK_SECRET` shared with your n8n instance (or leave n8n unreachable — deliveries are logged and retried).
-5. `cp .env.example .env`, fill secrets, `docker compose up -d`.
-6. Seed once: `pnpm prisma:seed`.
-7. Log in with the `BOOTSTRAP_ADMIN_EMAIL` account — it becomes the first admin.
-8. Flip feature flags as the sidecars come online.
+2. `INTERNAL_JWT_SECRET` (64 hex chars) and `GODMODE_PASSPHRASE` set — these are the only required secrets besides the database.
+3. `cp .env.example .env`, fill secrets, `docker compose up -d` (the API auto-runs `prisma migrate deploy`).
+4. Seed once: `pnpm prisma:seed` (tags, collaboration roles, permission catalog, role templates).
+5. Open `http://<host>:3001/godmode`, unlock with the passphrase, and finish the onboarding wizard: create the superadmin account, set the site name + instance URL, pick sign-in methods, and configure providers (email, SMS, storage, OAuth/SSO) with the in-page tutorials.
+6. Everything else is optional and configured from godmode without redeploys: S3 (bucket CORS must allow browser `PUT` from the app origin), n8n webhook secret, Keycloak/OIDC/SAML, VAPID keys, feature flags.
 
 ## Tuning guidance
 

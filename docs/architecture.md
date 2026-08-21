@@ -22,8 +22,10 @@ Environment variables are validated at boot (`config/`); a missing required vari
 | Session | Global auth guard, `@Public()` opt-out | `401` |
 | Project role | `ProjectRoleGuard` + `@RequireProjectRole(…)` — `PROJECT_MANAGER` vs `CONTRIBUTOR` | `403` |
 | Visibility | `PUBLIC` projects readable by anyone signed in; `PRIVATE` members-only | `404`-style hiding |
-| Admin | `isAdmin` flag checks on curation/config endpoints | `403` |
-| Feature flags | `PmoFeatureFlagGuard` / `VoiceFeatureFlagGuard` consult `PMO_ENABLED` / `VOICE_ENABLED` | `503` while disabled |
+| Permissions | `PermissionsGuard` + `@RequirePermissions(…)` — role-based permission codes (`Role.permissions` → `UserRole` grants; admins/superadmins pass automatically) | `403` |
+| Admin (legacy) | `AdminGuard` checks the `isAdmin` flag, the denormalized mirror of the admin/superadmin roles | `403` |
+| Godmode | `GodmodeGuard` + `X-Godmode-Token` (passphrase unlock + optional TOTP/passkey) | `401` |
+| Feature flags | `PmoFeatureFlagGuard` / `VoiceFeatureFlagGuard` consult `PMO_ENABLED` / `VOICE_ENABLED` (env or godmode setting) | `503` while disabled |
 
 The feature-flag guards are what make "dark shipping" possible: the modules load, migrations apply, but every route answers `503` until the deployment flips the flag.
 

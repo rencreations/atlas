@@ -41,18 +41,18 @@ A thin client over the backend at `NEXT_PUBLIC_API_URL`
 
 ### Auth — read this before touching anything session-related
 
-1. `/login` builds a Keycloak OAuth URL client-side via `buildKeycloakAuthUrl()` in `src/lib/auth-client.ts` and redirects there.
-2. Keycloak returns to `src/app/api/auth/callback/route.ts`, which exchanges the code for tokens, extracts identity claims from the ID token (falling back to `/userinfo`), and POSTs them to the **backend's** `/auth/login`. The backend returns a `sessionId` + user blob.
-3. The route hands the session blob back to the SPA by redirecting to `/?session=<json>`. `src/lib/hooks/use-auth-callback.ts` parses it from the URL and calls `storeSession()` to put it in **localStorage** (keys: `atlas_session`, `atlas_tokens`).
-4. Every API call sends `Authorization: Bearer <sessionId>` — the backend, not the frontend, validates sessions.
-5. Route protection is **client-side only**: `src/app/(authenticated)/layout.tsx` reads `getStoredSession()` and `router.push('/login')` via `useEffect` if missing. `src/middleware.ts` is a no-op pass-through despite its name.
+1. The login page (`/login`) fetches `GET /public-config` and renders whichever sign-in methods the instance enables: email+password, magic link, phone OTP, the instance passphrase, OAuth provider buttons, and OIDC/SAML SSO. All method config lives in **godmode** (`/godmode`, backed by `GodmodeModule` + `SettingsService`).
+2. Local methods POST directly to backend endpoints (`/auth/login/password`, `/auth/magic-link/*`, `/auth/phone/otp/*`, `/auth/login/passphrase`, `/auth/register`). OAuth/OIDC/SAML flows run entirely on the backend (`/auth/oauth/:provider/start` → provider → `/auth/oauth/:provider/callback`), which then redirects to `/?session=<json>`. `src/lib/hooks/use-auth-callback.ts` parses that blob and calls `storeSession()` to put it in **localStorage** (keys: `atlas_session`, `atlas_tokens`).
+3. The legacy Keycloak-only flow (`/api/auth/callback` → `POST /auth/login` with Keycloak tokens) still exists for old deployments but is not the primary path; Keycloak is now also available as a godmode-configured OAuth provider.
+4. Every API call sends `Authorization: Bearer <sessionId>` — the backend validates the opaque DB session. Route protection is **client-side only**: `src/app/(authenticated)/layout.tsx` redirects to `/login` when no session. `src/middleware.ts` is a no-op pass-through.
+5. Godmode has its own auth: `POST /godmode/unlock` with the `.env` `GODMODE_PASSPHRASE` (+ optional TOTP/passkey second factor) issues a token sent as `X-Godmode-Token`. It is NOT the user session guard.
 
 Consequences:
 
-- **There is no Auth.js / NextAuth.** Don't import from `next-auth` even though it's still in `package.json` — it's dead weight pending removal.
-- **There are no httpOnly cookies.** Session lives in `localStorage`, accessible only to client code.
-- **`src/lib/api/server.ts` is partially broken by design today.** It calls `getSessionId()` from `auth-client.ts`, which is gated on `typeof window !== 'undefined'` and therefore returns `null` whenever it runs on the server. Any RSC fetch through `api()` / `apiGet()` will go out unauthenticated and the backend will 401.
-- **Prefer client fetching (`@/lib/api/client` + TanStack Query)** for any data that needs the user's session.
+- **There is no Auth.js / NextAuth.** It was removed from `package.json`; never import it.
+- **There are no httpOnly cookies.** Sessions live in `localStorage`, accessible only to client code.
+- **`src/lib/api/server.ts` is partially broken by design today.** It calls `getSessionId()` from `auth-client.ts`, which is window-gated and returns `null` on the server — RSC fetches go out unauthenticated. Prefer client fetching (`@/lib/api/client` + TanStack Query).
+- **Every login endpoint must go through `AuthService.issueSession()`** so the frontend receives one consistent `{ sessionId, expiresAt, user }` shape.
 
 ### Data layer
 
@@ -86,9 +86,11 @@ NestJS 10 with 15 feature modules under `src/modules/`, namespaced config in
 `src/config/`, and a lazy-connect PrismaService in `src/prisma/`.
 
 - **Path alias** `@/*` → `src/*` (resolved by `tsc-alias` at build).
-- **Auth** — `passport-custom` strategy (historically named `JwtStrategy`) looks up opaque session UUIDs in the DB per request; Keycloak tokens are only consumed at `POST /auth/login`.
-- **Feature flags** — `PMO_ENABLED` / `VOICE_ENABLED` gate whole modules; both default off and the API must boot fine with them off. New env vars land in the root `.env.example` with safe defaults and a comment.
-- **Migrations** — one consolidated migration lives at `apps/backend/prisma/migrations/0_init/`. It is the dependency-ordered single source; keep future migrations **additive** (production auto-runs `migrate deploy` on boot). Regenerate the client with `pnpm --filter @atlas/backend prisma:generate` after schema changes.
+- **Auth** — `passport-custom` strategy (historically named `JwtStrategy`) looks up opaque session UUIDs in the DB per request. Sign-in methods (local, OTP, magic link, OAuth, OIDC, SAML) live in the `auth` module and are enabled/configured via godmode; `IdentityService` links providers per user.
+- **Settings** — `SettingsService` (global) resolves dotted keys: DB `AppSetting` → registry default → legacy env fallback; secrets are AES-256-GCM encrypted. Add new godmode settings to `settings-registry.ts` — no migration needed.
+- **RBAC** — role-based: `Role` rows hold permission codes (catalog seeded in `seed.ts`); `UserRole` grants; `User.isAdmin` is the denormalized mirror of the admin/superadmin roles. `@RequirePermissions(...)` + `PermissionsGuard` for fine-grained checks; `AdminGuard` remains for legacy endpoints.
+- **Feature flags** — `PMO_ENABLED` / `VOICE_ENABLED` gate whole modules (also toggleable in godmode → Modules); both default off and the API must boot fine with them off. New env vars land in the root `.env.example` with safe defaults and a comment.
+- **Migrations** — `0_init` is the consolidated dependency-ordered base; `1_godmode_selfhost` and `2_multi_auth` extend it. Keep future migrations **additive** (production auto-runs `migrate deploy` on boot). Regenerate the client with `pnpm --filter @atlas/backend prisma:generate` after schema changes.
 - **Sidecars** — `services/livekit/livekit.yaml` (SFU config) and `services/y-websocket/` (Yjs relay, own image) are part of the root `docker-compose.yml`; the backend boots without them.
 
 ## Deploy
