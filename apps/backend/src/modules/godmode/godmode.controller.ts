@@ -52,7 +52,36 @@ export class GodmodeController {
   @Post('unlock')
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   unlock(@Body() dto: UnlockDto) {
-    return this.godmode.unlock(dto.passphrase, dto.totp);
+    return this.godmode.unlock(
+      dto.passphrase,
+      dto.totp,
+      dto.passkey as { challenge: string; response: never } | undefined,
+    );
+  }
+
+  /** Second-factor methods available at unlock time. */
+  @Public()
+  @Get('unlock/factors')
+  async unlockFactors() {
+    const totpEnabled = await this.settings.get<boolean>('godmode.totp.enabled');
+    const passkeyEnabled = await this.godmode.hasPasskeys();
+    return { totpEnabled, passkeyEnabled };
+  }
+
+  /** Begin a passkey second-factor assertion (used at unlock). */
+  @Public()
+  @Post('2fa/passkey/authenticate/options')
+  async passkeyAuthOptions() {
+    return this.godmode.passkeyAuthenticationOptions();
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Get('2fa/status')
+  async twoFactorStatus() {
+    return {
+      totpEnabled: await this.settings.get<boolean>('godmode.totp.enabled'),
+      passkeys: await this.godmode.listPasskeys(),
+    };
   }
 
   /** Validate the current godmode token without side effects. */
@@ -206,6 +235,30 @@ export class GodmodeController {
   async disableTotp() {
     await this.godmode.disableTotp();
     return { enabled: false };
+  }
+
+  // ─── Passkeys (WebAuthn) ───────────────────────────────────────────
+
+  @UseGuards(GodmodeGuard)
+  @Post('2fa/passkey/register/options')
+  passkeyRegisterOptions() {
+    return this.godmode.passkeyRegistrationOptions();
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Post('2fa/passkey/register/verify')
+  passkeyRegisterVerify(@Body() dto: { challenge: string; response: unknown }) {
+    return this.godmode.verifyPasskeyRegistration(
+      dto.challenge,
+      dto.response as never,
+    );
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Delete('2fa/passkey/:id')
+  async deletePasskey(@Param('id') id: string) {
+    await this.godmode.deletePasskey(id);
+    return { ok: true };
   }
 
   // ─── Logout ────────────────────────────────────────────────────────

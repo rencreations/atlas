@@ -12,6 +12,15 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+export class PasskeyAssertionDto {
+  @IsString()
+  @IsNotEmpty()
+  challenge!: string;
+
+  @Allow()
+  response!: unknown;
+}
+
 export class UnlockDto {
   @IsString()
   @IsNotEmpty()
@@ -21,6 +30,12 @@ export class UnlockDto {
   @IsOptional()
   @IsString()
   totp?: string;
+
+  /** Alternative second factor: a verified passkey assertion. */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PasskeyAssertionDto)
+  passkey?: PasskeyAssertionDto;
 }
 
 export class UpdateSettingDto {

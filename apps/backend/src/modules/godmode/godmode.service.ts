@@ -1,10 +1,15 @@
 import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import type {
+  AuthenticationResponseJSON,
+  RegistrationResponseJSON,
+} from '@simplewebauthn/server';
 import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { generateTotpSecret, totpAuthUrl, verifyTotpToken } from './totp.util';
+import { WebauthnService } from './webauthn.service';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -23,6 +28,7 @@ export class GodmodeService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
+    private readonly webauthn: WebauthnService,
   ) {}
 
   private hashToken(token: string): string {
@@ -42,6 +48,7 @@ export class GodmodeService {
   async unlock(
     passphrase: string,
     totp?: string,
+    passkey?: { challenge: string; response: AuthenticationResponseJSON },
   ): Promise<GodmodeSessionInfo & { configured: boolean }> {
     const expected = this.config.get<string>('godmode.passphrase', '');
     if (!expected) {
@@ -53,17 +60,29 @@ export class GodmodeService {
       throw new UnauthorizedException('Incorrect passphrase.');
     }
 
-    const totpEnabled = await this.settings.get<boolean>('godmode.totp.enabled');
+    // Second factor: TOTP and/or passkeys, whichever the operator set up.
+    const [totpEnabled, passkeyEnabled] = await Promise.all([
+      this.settings.get<boolean>('godmode.totp.enabled'),
+      this.webauthn.isEnabled(),
+    ]);
+    const secondFactor = totpEnabled || passkeyEnabled;
     let totpVerified = false;
-    if (totpEnabled) {
-      if (!totp) {
-        throw new UnauthorizedException('TOTP code required.');
+    let passkeyVerified = false;
+    if (secondFactor) {
+      if (totpEnabled && totp) {
+        const secret = await this.settings.get<string>('godmode.totp.secret');
+        if (!secret || !this.verifyTotp(secret, totp)) {
+          throw new UnauthorizedException('Invalid TOTP code.');
+        }
+        totpVerified = true;
+      } else if (passkeyEnabled && passkey) {
+        await this.webauthn.verifyAuthentication(passkey.challenge, passkey.response);
+        passkeyVerified = true;
+      } else {
+        throw new UnauthorizedException(
+          passkeyEnabled ? 'Second factor required: TOTP code or passkey.' : 'TOTP code required.',
+        );
       }
-      const secret = await this.settings.get<string>('godmode.totp.secret');
-      if (!secret || !this.verifyTotp(secret, totp)) {
-        throw new UnauthorizedException('Invalid TOTP code.');
-      }
-      totpVerified = true;
     }
 
     const ttlMinutes = await this.settings.get<number>('godmode.sessionTtlMinutes');
@@ -74,7 +93,7 @@ export class GodmodeService {
       data: {
         tokenHash: this.hashToken(token),
         expiresAt,
-        metadata: { method: 'passphrase', totp: totpVerified },
+        metadata: { method: 'passphrase', totp: totpVerified, passkey: passkeyVerified },
       },
     });
 
@@ -84,7 +103,7 @@ export class GodmodeService {
       id: session.id,
       token,
       expiresAt,
-      metadata: { totp: totpVerified },
+      metadata: { totp: totpVerified, passkey: passkeyVerified },
       configured: await this.settings.isConfigured(),
     };
   }
@@ -144,6 +163,32 @@ export class GodmodeService {
 
   private verifyTotp(secret: string, code: string): boolean {
     return verifyTotpToken(secret, code);
+  }
+
+  // ─── Passkeys (delegated to WebauthnService) ───────────────────────
+
+  hasPasskeys(): Promise<boolean> {
+    return this.webauthn.isEnabled();
+  }
+
+  listPasskeys() {
+    return this.webauthn.listPasskeys();
+  }
+
+  deletePasskey(id: string): Promise<void> {
+    return this.webauthn.deletePasskey(id);
+  }
+
+  passkeyRegistrationOptions() {
+    return this.webauthn.registrationOptions();
+  }
+
+  verifyPasskeyRegistration(challenge: string, response: RegistrationResponseJSON) {
+    return this.webauthn.verifyRegistration(challenge, response);
+  }
+
+  passkeyAuthenticationOptions() {
+    return this.webauthn.authenticationOptions();
   }
 
   // ─── Onboarding user creation ──────────────────────────────────────
