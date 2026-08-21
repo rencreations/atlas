@@ -18,6 +18,8 @@ export const apiPaths = {
     passwordChange: () => '/auth/password/change',
     emailVerify: () => '/auth/email/verify',
     emailVerifyResend: () => '/auth/email/verify/resend',
+    phoneVerifyRequest: () => '/auth/phone/verify',
+    phoneVerifyConfirm: () => '/auth/phone/verify/confirm',
     oauthCallbacks: () => '/auth/oauth-callbacks',
     oauthStart: (provider: string) => `/auth/oauth/${provider}/start`,
     oidcStart: () => '/auth/oidc/start',
@@ -60,6 +62,8 @@ export const apiPaths = {
   adminFeatureFlag: (key: string) => `/admin/feature-flags/${encodeURIComponent(key)}`,
 
   me: () => '/users/me',
+  meAvatarPresign: () => '/users/me/avatar/presign',
+  meConsent: () => '/users/me/consent',
   dashboard: () => '/users/me/dashboard',
   bookmarks: () => '/users/me/bookmarks',
   bookmark: (projectId: string) => `/users/me/bookmarks/${projectId}`,

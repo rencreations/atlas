@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google';
 import { Providers } from './providers';
 import { MaintenanceBanner } from '@/components/feature-flags/maintenance-banner';
 import { ConfiguredGate } from '@/components/godmode/configured-gate';
+import { ThemeProvider } from '@/lib/theme';
 import './globals.css';
 
 const bricolage = Bricolage_Grotesque({
@@ -48,11 +49,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${bricolage.variable} ${geist.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-white antialiased">
-        <Providers>
-          <MaintenanceBanner />
-          <ConfiguredGate>{children}</ConfiguredGate>
-        </Providers>
+      <body className="bg-bg antialiased">
+        <ThemeProvider>
+          <Providers>
+            <MaintenanceBanner />
+            <ConfiguredGate>{children}</ConfiguredGate>
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,36 +1,41 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  // Class-based dark mode: ThemeProvider toggles `.dark` on <html>.
+  darkMode: ['class'],
   content: ['./src/**/*.{ts,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
-        bg: '#ffffff',
-        surface: '#ffffff',
-        'surface-muted': '#f7f7f5',
-        'surface-inverse': '#0e1116',
+        // Tokens reference CSS variables so the `.dark` class (see
+        // globals.css) can re-theme the whole app without touching
+        // component code.
+        bg: 'rgb(var(--bg) / <alpha-value>)',
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        'surface-muted': 'rgb(var(--surface-muted) / <alpha-value>)',
+        'surface-inverse': 'rgb(var(--surface-inverse) / <alpha-value>)',
         ink: {
-          DEFAULT: '#0e1116',
-          2: '#3b4150',
-          3: '#6b7280',
-          4: '#9aa1ad',
+          DEFAULT: 'rgb(var(--ink) / <alpha-value>)',
+          2: 'rgb(var(--ink-2) / <alpha-value>)',
+          3: 'rgb(var(--ink-3) / <alpha-value>)',
+          4: 'rgb(var(--ink-4) / <alpha-value>)',
         },
         line: {
-          DEFAULT: '#ececea',
-          strong: '#d8d8d2',
+          DEFAULT: 'rgb(var(--line) / <alpha-value>)',
+          strong: 'rgb(var(--line-strong) / <alpha-value>)',
         },
         brand: {
-          blue: '#3a6dc5',
-          yellow: '#f7bf33',
-          red: '#f94141',
-          green: '#0f8657',
-          'blue-50': '#ecf1fa',
-          'yellow-50': '#fef6e0',
-          'red-50': '#fee5e5',
-          'green-50': '#e2f1ea',
-          'yellow-ink': '#8a6d18',
+          blue: 'rgb(var(--brand-blue) / <alpha-value>)',
+          yellow: 'rgb(var(--brand-yellow) / <alpha-value>)',
+          red: 'rgb(var(--brand-red) / <alpha-value>)',
+          green: 'rgb(var(--brand-green) / <alpha-value>)',
+          'blue-50': 'rgb(var(--brand-blue-50) / <alpha-value>)',
+          'yellow-50': 'rgb(var(--brand-yellow-50) / <alpha-value>)',
+          'red-50': 'rgb(var(--brand-red-50) / <alpha-value>)',
+          'green-50': 'rgb(var(--brand-green-50) / <alpha-value>)',
+          'yellow-ink': 'rgb(var(--brand-yellow-ink) / <alpha-value>)',
         },
-        focus: '#3a6dc5',
+        focus: 'rgb(var(--focus) / <alpha-value>)',
       },
       fontFamily: {
         display: [
@@ -78,9 +83,9 @@ const config: Config = {
         xl: '28px',
       },
       boxShadow: {
-        '1': '0 1px 2px rgba(14,17,22,0.04), 0 1px 1px rgba(14,17,22,0.03)',
-        '2': '0 6px 24px -8px rgba(14,17,22,0.10), 0 2px 6px -2px rgba(14,17,22,0.05)',
-        '3': '0 24px 60px -20px rgba(14,17,22,0.18), 0 4px 12px -4px rgba(14,17,22,0.06)',
+        '1': 'var(--shadow-1)',
+        '2': 'var(--shadow-2)',
+        '3': 'var(--shadow-3)',
       },
       transitionTimingFunction: {
         'out-soft': 'cubic-bezier(0.22, 1, 0.36, 1)',

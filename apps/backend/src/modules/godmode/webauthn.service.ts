@@ -133,16 +133,16 @@ export class WebauthnService {
       throw new UnauthorizedException('Passkey registration failed.');
     }
     const { registrationInfo } = verification;
-    if (!registrationInfo) throw new UnauthorizedException('Passkey registration failed.');
+    if (!registrationInfo?.credential) {
+      throw new UnauthorizedException('Passkey registration failed.');
+    }
 
     await this.prisma.godmodePasskey.create({
       data: {
-        credentialId: registrationInfo.credentialID,
-        publicKey: Buffer.from(registrationInfo.credentialPublicKey),
-        counter: BigInt(registrationInfo.counter),
-        transports: registrationInfo.credentialDeviceType
-          ? []
-          : [],
+        credentialId: registrationInfo.credential.id,
+        publicKey: Buffer.from(registrationInfo.credential.publicKey),
+        counter: BigInt(registrationInfo.credential.counter),
+        transports: registrationInfo.credential.transports ?? [],
         name: 'Security key',
       },
     });

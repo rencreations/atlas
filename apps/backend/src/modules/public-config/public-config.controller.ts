@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
@@ -28,6 +28,16 @@ export class PublicConfigController {
     private readonly settings: SettingsService,
     private readonly config: ConfigService,
   ) {}
+
+  @Public()
+  @Get('legal/:page')
+  async legal(@Param('page') page: string) {
+    const key = page === 'terms' ? 'legal.termsText' : page === 'privacy' ? 'legal.privacyText' : null;
+    if (!key) throw new NotFoundException('Unknown legal page.');
+    const text = await this.settings.get<string>(key);
+    if (!text) throw new NotFoundException('This legal page has not been published on this instance.');
+    return { page, text };
+  }
 
   @Public()
   @Get()
@@ -128,6 +138,11 @@ export class PublicConfigController {
       features: {
         gifs: !!(tenorKey || giphyKey),
         push: !!vapidPublicKey,
+      },
+      legal: {
+        requireConsent: await this.settings.get<boolean>('legal.requireConsent'),
+        terms: !!(await this.settings.get<string>('legal.termsText')),
+        privacy: !!(await this.settings.get<string>('legal.privacyText')),
       },
     };
   }

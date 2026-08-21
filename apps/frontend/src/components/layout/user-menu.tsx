@@ -23,7 +23,6 @@ export function UserMenu({ isAdmin }: Props) {
   const router = useRouter();
   const session = getStoredSession();
   const user = session?.user;
-  const accountUrl = process.env.NEXT_PUBLIC_KEYCLOAK_ACCOUNT_URL;
 
   const handleLogout = async () => {
     try {
@@ -60,19 +59,17 @@ export function UserMenu({ isAdmin }: Props) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={'/me/notifications' as never}>
+          <Link href={'/settings' as never}>
+            <Settings className="h-4 w-4 text-ink-2" strokeWidth={2.25} />
+            Settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={'/settings/notifications' as never}>
             <Bell className="h-4 w-4 text-ink-2" strokeWidth={2.25} />
             Notification settings
           </Link>
         </DropdownMenuItem>
-        {accountUrl ? (
-          <DropdownMenuItem asChild>
-            <a href={accountUrl} target="_blank" rel="noreferrer">
-              <Settings className="h-4 w-4 text-ink-2" strokeWidth={2.25} />
-              Account settings
-            </a>
-          </DropdownMenuItem>
-        ) : null}
         {isAdmin ? (
           <DropdownMenuItem asChild>
             <Link href={'/admin' as never}>

@@ -961,4 +961,5 @@ export interface PublicConfig {
   };
   modules: { pmo: boolean; voice: boolean };
   features: { gifs: boolean; push: boolean };
+  legal: { requireConsent: boolean; terms: boolean; privacy: boolean };
 }

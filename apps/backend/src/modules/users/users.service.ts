@@ -6,9 +6,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { randomUUID } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { SettingsService } from '@/modules/settings/settings.service';
+import { S3Service } from '@/modules/media/s3.service';
 import { UpdateMeDto } from './dto/update-me.dto';
 
 const PUBLIC_USER_SELECT = {
@@ -16,6 +18,7 @@ const PUBLIC_USER_SELECT = {
   email: true,
   name: true,
   avatarUrl: true,
+  avatarS3Key: true,
   bio: true,
   isAdmin: true,
   createdAt: true,
@@ -26,23 +29,74 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
+    private readonly s3: S3Service,
   ) {}
 
   async getMe(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: { ...PUBLIC_USER_SELECT, lastLoginAt: true },
+      select: {
+        ...PUBLIC_USER_SELECT,
+        lastLoginAt: true,
+        phone: true,
+        phoneVerified: true,
+        emailVerified: true,
+        theme: true,
+        consentAcceptedAt: true,
+        passwordChangedAt: true,
+        userRoles: { include: { role: { select: { id: true, code: true, name: true } } } },
+      },
     });
     if (!user) throw new NotFoundException('User not found.');
-    return user;
+    const { avatarS3Key, ...rest } = user;
+    return {
+      ...rest,
+      // The user-uploaded avatar wins; the stored URL is the SSO/Gravatar
+      // fallback underneath it.
+      avatarUrl: avatarS3Key ? this.s3.publicUrlFor(avatarS3Key) : user.avatarUrl,
+    };
   }
 
   async updateMe(id: string, dto: UpdateMeDto) {
-    return this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data: dto,
-      select: PUBLIC_USER_SELECT,
+      select: { ...PUBLIC_USER_SELECT, lastLoginAt: true, theme: true },
     });
+    const { avatarS3Key, ...rest } = user;
+    return {
+      ...rest,
+      avatarUrl: avatarS3Key ? this.s3.publicUrlFor(avatarS3Key) : user.avatarUrl,
+    };
+  }
+
+  /** Presigned upload URL for the user's avatar. */
+  async avatarPresign(userId: string, contentType: string, contentLength?: number) {
+    const key = `avatars/${userId}/${Date.now()}-${randomUUID().slice(0, 8)}${this.extensionFor(contentType)}`;
+    return this.s3.presignPut({ key, contentType, contentLength: contentLength ?? 0 });
+  }
+
+  async recordConsent(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { consentAcceptedAt: new Date() },
+    });
+    return { acceptedAt: new Date() };
+  }
+
+  private extensionFor(mime: string): string {
+    switch (mime) {
+      case 'image/jpeg':
+        return '.jpg';
+      case 'image/png':
+        return '.png';
+      case 'image/webp':
+        return '.webp';
+      case 'image/gif':
+        return '.gif';
+      default:
+        return '';
+    }
   }
 
   async listUsers(opts: { search?: string; page?: number; pageSize?: number }) {

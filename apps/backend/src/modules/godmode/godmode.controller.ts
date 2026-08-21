@@ -210,14 +210,6 @@ export class GodmodeController {
   // ─── Godmode 2FA ───────────────────────────────────────────────────
 
   @UseGuards(GodmodeGuard)
-  @Get('2fa/status')
-  async twoFactorStatus() {
-    return {
-      totpEnabled: await this.settings.get<boolean>('godmode.totp.enabled'),
-    };
-  }
-
-  @UseGuards(GodmodeGuard)
   @Post('2fa/totp/setup')
   async setupTotp() {
     return this.godmode.generateTotpSecret();

@@ -15,7 +15,7 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { SetAdminDto } from './dto/set-admin.dto';
-import { UpdateMeDto } from './dto/update-me.dto';
+import { AvatarPresignDto, ConsentDto, UpdateMeDto } from './dto/update-me.dto';
 import { UsersService } from './users.service';
 
 @ApiBearerAuth()
@@ -32,6 +32,18 @@ export class UsersController {
   @Patch('me')
   updateMe(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateMeDto) {
     return this.users.updateMe(user.id, dto);
+  }
+
+  /** Presigned upload URL for the user's avatar. */
+  @Post('me/avatar/presign')
+  avatarPresign(@CurrentUser() user: AuthenticatedUser, @Body() dto: AvatarPresignDto) {
+    return this.users.avatarPresign(user.id, dto.contentType, dto.contentLength);
+  }
+
+  /** Record consent to the current terms/privacy. */
+  @Post('me/consent')
+  recordConsent(@CurrentUser() user: AuthenticatedUser, @Body() _dto: ConsentDto) {
+    return this.users.recordConsent(user.id);
   }
 
   @Get('me/dashboard')

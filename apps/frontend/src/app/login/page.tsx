@@ -55,6 +55,7 @@ const FALLBACK_CONFIG: PublicConfig = {
   },
   modules: { pmo: false, voice: false },
   features: { gifs: false, push: false },
+  legal: { requireConsent: false, terms: false, privacy: false },
 };
 
 async function loadPublicConfig(): Promise<PublicConfig> {

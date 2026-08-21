@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateMeDto {
   @IsOptional()
@@ -10,8 +10,30 @@ export class UpdateMeDto {
   @IsString()
   @MaxLength(120)
   name?: string;
+
+  /** UI theme preference: light | dark | system. */
+  @IsOptional()
+  @IsIn(['light', 'dark', 'system'])
+  theme?: string;
+
+  /** S3 object key of the user-uploaded avatar. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  avatarS3Key?: string;
 }
 
-// Deliberately conservative here; tighten once notifications inbox pagination has data behind it
+export class AvatarPresignDto {
+  @IsString()
+  @MaxLength(100)
+  contentType!: string;
 
-// Careful: changing this interacts with feature flag rollout checklist
+  @IsOptional()
+  contentLength?: number;
+}
+
+export class ConsentDto {
+  /** Marks the user as having accepted the current terms/privacy. */
+  @IsOptional()
+  accepted?: boolean;
+}
