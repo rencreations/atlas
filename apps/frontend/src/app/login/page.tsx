@@ -5,6 +5,7 @@ import { Wordmark } from '@/components/brand/wordmark';
 import { PatternCorner } from '@/components/brand/pattern-corner';
 import { ShapeSignature } from '@/components/brand/shape-signature';
 import { LoginClient } from '@/components/auth/login-client';
+import type { PublicConfig } from '@/lib/types';
 
 interface PageProps {
   searchParams: Promise<{
@@ -20,19 +21,58 @@ const ERROR_HINTS: Record<string, string> = {
   session_creation_failed:
     'The Atlas API rejected the /auth/login request — usually a database problem (missing Session table, broken migration) or the API process is down. Check the API logs.',
   missing_identity_claims:
-    'The Keycloak ID token had no sub or email claim. In the Keycloak admin, open the atlas-web client (or the email/profile client scopes) and confirm the email and profile mappers are enabled and added to the ID token.',
+    'The identity provider returned no usable identity claims. Check the provider configuration in godmode.',
   token_exchange_failed:
-    'Keycloak refused to exchange the authorization code. Check that the client secret is correct and that the redirect URI matches exactly.',
+    'The identity provider refused to exchange the authorization code. Check that the client secret is correct and that the redirect URI matches exactly.',
   missing_parameters:
-    'The redirect from Keycloak was missing required parameters. Re-initiate the sign-in.',
+    'The redirect from the identity provider was missing required parameters. Re-initiate the sign-in.',
   missing_api_url: 'NEXT_PUBLIC_API_URL is not configured for the frontend.',
   invalid_session_data: 'The session blob returned by the callback could not be parsed. Sign in again.',
   internal_error: 'An unexpected error occurred. Check the frontend server logs.',
+  oauth_failed: 'Social sign-in failed. See the detail below.',
 };
+
+const FALLBACK_CONFIG: PublicConfig = {
+  configured: true,
+  site: { name: 'Atlas', description: '' },
+  registration: {
+    enabled: false,
+    inviteRequired: true,
+    defaultRole: 'member',
+    requireEmailVerification: false,
+  },
+  authMethods: {
+    password: { enabled: true, label: 'Email & password' },
+    magicLink: { enabled: false, label: 'Magic link' },
+    phone: { enabled: false, otpEnabled: false, label: 'Phone' },
+    passphrase: { enabled: false, label: 'Passphrase' },
+  },
+  oauthProviders: [],
+  oauthCallbacks: {},
+  sso: {
+    oidc: { enabled: false, label: 'Single sign-on' },
+    saml: { enabled: false, label: 'Company SSO' },
+  },
+  modules: { pmo: false, voice: false },
+  features: { gifs: false, push: false },
+};
+
+async function loadPublicConfig(): Promise<PublicConfig> {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+  try {
+    const res = await fetch(`${base}/public-config`, { cache: 'no-store' });
+    if (res.ok) return (await res.json()) as PublicConfig;
+  } catch {
+    // API down → fall back to the password-only surface; the API error
+    // will surface on submit.
+  }
+  return FALLBACK_CONFIG;
+}
 
 export default async function LoginPage({ searchParams }: PageProps) {
   const session = getStoredSession();
   const params = await searchParams;
+  const config = await loadPublicConfig();
 
   // If already logged in, redirect to the requested page (or dashboard).
   // NOTE: this server-side branch is currently dead — getStoredSession()
@@ -59,7 +99,8 @@ export default async function LoginPage({ searchParams }: PageProps) {
             Welcome back
           </h1>
           <p className="mt-2 text-body-sm text-ink-2">
-            Sign in to discover, manage, and contribute to Shirasaka Ren projects.
+            {config.site.description ||
+              'Sign in to discover, manage, and contribute to projects.'}
           </p>
 
           {params.reason === 'session-expired' ? (
@@ -85,16 +126,11 @@ export default async function LoginPage({ searchParams }: PageProps) {
             </div>
           ) : null}
 
-          <LoginClient callbackUrl={params.callbackUrl} />
-
-          <p className="mt-6 text-[13px] text-ink-3">
-            You will be redirected to{' '}
-            <span className="font-medium text-ink-2">iam.labmgm.org</span> for authentication.
-          </p>
+          <LoginClient config={config} callbackUrl={params.callbackUrl} />
         </div>
 
         <p className="mt-6 text-center text-[13px] text-ink-3">
-          Shirasaka Ren · Internal Service
+          {config.site.name} · Self-hosted Atlas
         </p>
       </div>
     </main>

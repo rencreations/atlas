@@ -935,3 +935,30 @@ export interface FeatureFlag {
 
 /// The public evaluated flag map served at GET /feature-flags.
 export type FeatureFlagMap = Record<string, boolean>;
+
+// ─── Self-host public config (GET /public-config) ─────────────────────────
+
+export interface PublicConfig {
+  configured: boolean;
+  site: { name: string; description: string };
+  registration: {
+    enabled: boolean;
+    inviteRequired: boolean;
+    defaultRole: string;
+    requireEmailVerification: boolean;
+  };
+  authMethods: {
+    password: { enabled: boolean; label: string };
+    magicLink: { enabled: boolean; label: string };
+    phone: { enabled: boolean; otpEnabled: boolean; label: string };
+    passphrase: { enabled: boolean; label: string };
+  };
+  oauthProviders: { id: string; label: string }[];
+  oauthCallbacks: Record<string, string>;
+  sso: {
+    oidc: { enabled: boolean; label: string };
+    saml: { enabled: boolean; label: string };
+  };
+  modules: { pmo: boolean; voice: boolean };
+  features: { gifs: boolean; push: boolean };
+}
