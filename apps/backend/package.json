@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "Atlas \u2014 project portfolio API for Shirasaka Ren",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "engines": {
     "node": ">=20.11.0",
     "pnpm": ">=8"

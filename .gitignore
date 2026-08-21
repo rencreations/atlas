@@ -50,3 +50,6 @@ next-env.d.ts
 tests/.auth/
 test-results/
 playwright-report/
+
+# npm (this is a pnpm repo)
+package-lock.json
