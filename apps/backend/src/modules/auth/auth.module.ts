@@ -13,6 +13,7 @@ import { OAuthService } from './oauth.service';
 import { OIDCService } from './oidc.service';
 import { SamlService } from './saml.service';
 import { OAuthController } from './oauth.controller';
+import { PermissionsGuard } from './guards/permissions.guard';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt', session: false })],
@@ -29,7 +30,8 @@ import { OAuthController } from './oauth.controller';
     OAuthService,
     OIDCService,
     SamlService,
+    PermissionsGuard,
   ],
-  exports: [AuthService, SessionService, KeycloakTokenService, IdentityService],
+  exports: [AuthService, SessionService, KeycloakTokenService, IdentityService, PermissionsGuard],
 })
 export class AuthModule {}

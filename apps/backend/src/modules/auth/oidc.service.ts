@@ -115,7 +115,7 @@ export class OIDCService {
     }
 
     const claims = response.claims();
-    if (!claims.sub) throw new UnauthorizedException('Missing subject in OIDC tokens.');
+    if (!claims?.sub) throw new UnauthorizedException('Missing subject in OIDC tokens.');
 
     let userinfo: Record<string, unknown> = claims;
     try {

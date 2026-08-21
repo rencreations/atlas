@@ -1,7 +1,14 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
+import { SettingsService } from '@/modules/settings/settings.service';
 import { UpdateMeDto } from './dto/update-me.dto';
 
 const PUBLIC_USER_SELECT = {
@@ -18,7 +25,7 @@ const PUBLIC_USER_SELECT = {
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
+    private readonly settings: SettingsService,
   ) {}
 
   async getMe(id: string) {
@@ -72,24 +79,112 @@ export class UsersService {
     };
   }
 
+  /**
+   * Grant/revoke the admin role (legacy endpoint kept for the admin
+   * console). Admin status is now role-based — the boolean flag is the
+   * denormalized mirror.
+   */
   async setAdmin(actorId: string, targetId: string, isAdmin: boolean) {
     if (actorId === targetId) {
       throw new ForbiddenException('Admins cannot change their own admin status.');
     }
-    const bootstrapEmail = this.config.getOrThrow<string>('bootstrap.adminEmail').toLowerCase();
     const target = await this.prisma.user.findUnique({
       where: { id: targetId },
-      select: { id: true, email: true },
+      select: { id: true },
     });
     if (!target) throw new NotFoundException('User not found.');
-    if (!isAdmin && target.email.toLowerCase() === bootstrapEmail) {
-      throw new ForbiddenException('Cannot revoke admin from the bootstrap admin.');
+
+    const adminRole = await this.prisma.role.findUnique({ where: { code: 'admin' } });
+    if (!adminRole) throw new NotFoundException('Admin role template is missing — run the seed.');
+
+    if (isAdmin) {
+      await this.prisma.userRole.upsert({
+        where: { userId_roleId: { userId: targetId, roleId: adminRole.id } },
+        create: { userId: targetId, roleId: adminRole.id, grantedById: actorId },
+        update: {},
+      });
+    } else {
+      await this.prisma.userRole.deleteMany({
+        where: { userId: targetId, roleId: adminRole.id },
+      });
     }
+
     return this.prisma.user.update({
       where: { id: targetId },
       data: { isAdmin },
       select: PUBLIC_USER_SELECT,
     });
+  }
+
+  /** Create a user from the admin console with a role grant. */
+  async createUser(
+    dto: { email: string; name: string; password?: string; roleCode?: string },
+    actorId: string,
+  ) {
+    const email = dto.email.toLowerCase().trim();
+    if (await this.prisma.user.findUnique({ where: { email } })) {
+      throw new ConflictException('A user with that email already exists.');
+    }
+    const roleCode = dto.roleCode ?? 'member';
+    const role = await this.prisma.role.findUnique({ where: { code: roleCode } });
+    if (!role) throw new BadRequestException(`Unknown role: ${roleCode}`);
+
+    if (dto.password && dto.password.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters.');
+    }
+
+    return this.prisma.user.create({
+      data: {
+        email,
+        name: dto.name || email.split('@')[0],
+        emailVerified: true,
+        isAdmin: roleCode === 'admin' || roleCode === 'superadmin',
+        identities: { create: { provider: 'password', providerId: email } },
+        ...(dto.password
+          ? {
+              passwordCredential: {
+                create: {
+                  passwordHash: await bcrypt.hash(dto.password, 12),
+                  // Best practice: admin-provisioned accounts must change
+                  // the password on first login.
+                  mustChange: true,
+                },
+              },
+            }
+          : {}),
+        userRoles: { create: { roleId: role.id, grantedById: actorId } },
+      },
+      select: PUBLIC_USER_SELECT,
+    });
+  }
+
+  /** Admin-initiated password reset: sets a fresh password with mustChange. */
+  async adminResetPassword(targetId: string, newPassword: string) {
+    if (newPassword.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters.');
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { id: targetId },
+      include: { passwordCredential: true },
+    });
+    if (!user) throw new NotFoundException('User not found.');
+    if (!user.passwordCredential) {
+      throw new BadRequestException('This account has no local password (external identity only).');
+    }
+    await this.prisma.passwordCredential.update({
+      where: { userId: targetId },
+      data: { passwordHash: await bcrypt.hash(newPassword, 12), mustChange: true },
+    });
+    return { ok: true };
+  }
+
+  /** Roles held by a user (permission-relevant). */
+  async listRoles(userId: string) {
+    const grants = await this.prisma.userRole.findMany({
+      where: { userId },
+      include: { role: { select: { id: true, code: true, name: true, permissions: true } } },
+    });
+    return grants.map((g) => g.role);
   }
 
   async addBookmark(userId: string, projectId: string) {
@@ -217,7 +312,7 @@ export class UsersService {
    * PMO is disabled so the dashboard widget simply renders nothing.
    */
   private async getMyOpenTasks(userId: string) {
-    if (!this.config.get<boolean>('pmo.enabled')) return [];
+    if (!(await this.settings.get<boolean>('modules.pmo.enabled'))) return [];
     const tasks = await this.prisma.task.findMany({
       where: {
         deletedAt: null,

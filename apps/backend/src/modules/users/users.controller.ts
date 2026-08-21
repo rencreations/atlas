@@ -69,6 +69,33 @@ export class UsersController {
     return this.users.listUsers({ search, page, pageSize });
   }
 
+  @Get('me/roles')
+  myRoles(@CurrentUser() user: AuthenticatedUser) {
+    return this.users.listRoles(user.id);
+  }
+
+  /** Create a user from the admin console (role-based grant). */
+  @Post()
+  @UseGuards(AdminGuard)
+  createUser(@CurrentUser() actor: AuthenticatedUser, @Body() dto: {
+    email: string;
+    name: string;
+    password?: string;
+    roleCode?: string;
+  }) {
+    return this.users.createUser(dto, actor.id);
+  }
+
+  /** Admin-initiated password reset with forced change on next login. */
+  @Post(':id/password/reset')
+  @UseGuards(AdminGuard)
+  adminResetPassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: { newPassword: string },
+  ) {
+    return this.users.adminResetPassword(id, dto.newPassword);
+  }
+
   @Patch(':id/admin')
   @UseGuards(AdminGuard)
   setAdmin(

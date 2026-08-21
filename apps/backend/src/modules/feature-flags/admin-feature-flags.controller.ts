@@ -2,14 +2,16 @@ import { Body, Controller, Delete, Get, Param, Put, UseGuards } from '@nestjs/co
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
-import { AdminGuard } from '../auth/guards/admin.guard';
+import { RequirePermissions } from '@/common/decorators/require-permissions.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { FeatureFlagsService } from './feature-flags.service';
 import { UpsertFeatureFlagDto } from './dto/upsert-feature-flag.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth()
 @Controller('admin/feature-flags')
-@UseGuards(AdminGuard)
+@UseGuards(PermissionsGuard)
+@RequirePermissions('flags.manage')
 export class AdminFeatureFlagsController {
   constructor(private readonly flags: FeatureFlagsService) {}
 

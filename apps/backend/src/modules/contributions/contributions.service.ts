@@ -74,7 +74,7 @@ export class ContributionsService {
       applicant: { id: applicant.id, name: applicant.name, email: applicant.email },
       role: dto.role,
       message: dto.message,
-      adminEmails: this.config.get<string[]>('bootstrap.adminNotificationEmails') ?? [],
+      adminEmails: await this.adminEmails(),
       projectManagerEmails: await this.pmEmails(project.id),
     });
 
@@ -235,5 +235,18 @@ export class ContributionsService {
       include: { user: { select: { email: true } } },
     });
     return pms.map((m) => m.user.email);
+  }
+
+  /** Admins = users with the admin/superadmin roles (env list as legacy fallback). */
+  private async adminEmails(): Promise<string[]> {
+    const admins = await this.prisma.user.findMany({
+      where: {
+        userRoles: { some: { role: { code: { in: ['admin', 'superadmin'] } } } },
+      },
+      select: { email: true },
+    });
+    const fromRoles = admins.map((u) => u.email);
+    const fromEnv = this.config.get<string[]>('bootstrap.adminNotificationEmails') ?? [];
+    return [...new Set([...fromRoles, ...fromEnv])];
   }
 }

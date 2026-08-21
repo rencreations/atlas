@@ -46,7 +46,6 @@ export default () => ({
   bootstrap: {
     // Legacy env seeding kept as an optional fallback; primary admin
     // assignment is role-based via godmode (see the godmode module).
-    adminEmail: process.env.BOOTSTRAP_ADMIN_EMAIL ?? '',
     adminNotificationEmails: (process.env.ADMIN_NOTIFICATION_EMAILS ?? '')
       .split(',')
       .map((s) => s.trim())
