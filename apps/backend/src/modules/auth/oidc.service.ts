@@ -1,12 +1,25 @@
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as oidc from 'openid-client';
+import type * as oidc from 'openid-client';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { ExternalProfile, IdentityService, SessionUser } from './identity.service';
 
 interface OidcState {
   nonce: string;
   state: string;
+}
+
+type OidcModule = typeof oidc;
+
+// openid-client v6 ships ESM-only. This app compiles to CommonJS, and
+// TypeScript's `module: commonjs` target downlevels `import()` to a
+// `require()` call — which throws ERR_REQUIRE_ESM on this package just
+// like a static import would. Routing through `Function` hides the
+// `import()` from that downleveling so it runs as a real dynamic import.
+let oidcModulePromise: Promise<OidcModule> | null = null;
+function loadOidc(): Promise<OidcModule> {
+  oidcModulePromise ??= new Function('return import("openid-client")')() as Promise<OidcModule>;
+  return oidcModulePromise;
 }
 
 /**
@@ -57,6 +70,7 @@ export class OIDCService {
       );
     }
     try {
+      const oidc = await loadOidc();
       const configuration = await oidc.discovery(
         new URL(issuerUrl),
         clientId,
@@ -80,6 +94,7 @@ export class OIDCService {
 
   async start(callbackUrl?: string): Promise<string> {
     const configuration = await this.configuration();
+    const oidc = await loadOidc();
     const state = oidc.randomState();
     const nonce = oidc.randomNonce();
     const url = oidc.buildAuthorizationUrl(configuration, {
@@ -98,6 +113,7 @@ export class OIDCService {
    */
   async handleCallback(reqUrl: string): Promise<{ user: SessionUser; returnTo: string | null }> {
     const configuration = await this.configuration();
+    const oidc = await loadOidc();
     const currentUrl = new URL(reqUrl, this.backendBaseUrl());
     if (currentUrl.searchParams.has('error')) {
       throw new BadRequestException(
