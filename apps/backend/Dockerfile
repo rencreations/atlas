@@ -5,6 +5,10 @@ ARG NODE_VERSION=20.18.0
 FROM node:${NODE_VERSION}-alpine AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
+# Recent pnpm versions prompt for confirmation before `pnpm prune --prod`
+# blows away and reinstalls node_modules. There's no stdin in a Docker
+# build, so without this the build hangs forever waiting for an answer.
+ENV CI=true
 RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.13.1 --activate
 RUN apk add --no-cache openssl libc6-compat
 WORKDIR /app
