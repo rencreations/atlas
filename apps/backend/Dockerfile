@@ -47,14 +47,20 @@ ARG BUILD_TIME=""
 ENV GIT_SHA=$GIT_SHA
 ENV BUILD_TIME=$BUILD_TIME
 
+# Workspace-root node_modules holds the real pnpm content store; the CLI
+# bins (prisma included) only get symlinked into apps/backend's own
+# node_modules, not hoisted to the root. Those symlinks are relative, so
+# apps/backend/node_modules has to stay at its original nesting depth
+# under /app for them to still resolve — flattening it breaks them.
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/apps/backend/dist ./dist
-COPY --from=build /app/apps/backend/prisma ./prisma
-COPY --from=build /app/apps/backend/package.json ./package.json
+COPY --from=build /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=build /app/apps/backend/dist ./apps/backend/dist
+COPY --from=build /app/apps/backend/prisma ./apps/backend/prisma
+COPY --from=build /app/apps/backend/package.json ./apps/backend/package.json
 
 # Run migrations before booting the server. Idempotent on subsequent boots.
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "cd apps/backend && node_modules/.bin/prisma migrate deploy && node dist/main.js"]
 
 EXPOSE 3000
 
