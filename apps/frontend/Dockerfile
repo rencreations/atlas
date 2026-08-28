@@ -87,14 +87,18 @@ ENV GIT_SHA=$GIT_SHA
 ENV BUILD_TIME=$BUILD_TIME
 ENV APP_VERSION=$APP_VERSION
 
-# Copy the Next.js standalone output. The `.next/standalone` includes a tiny
-# server.js plus only the dependencies actually needed at runtime.
+# Copy the Next.js standalone output. Because next.config.mjs sets
+# outputFileTracingRoot to the monorepo root (two levels up from
+# apps/frontend), Next nests the traced output at the app's relative path
+# from that root instead of at the standalone folder's top level — so
+# server.js lands at .next/standalone/apps/frontend/server.js, not
+# .next/standalone/server.js. static/public must follow the same nesting.
 COPY --from=build /app/apps/frontend/.next/standalone ./
-COPY --from=build /app/apps/frontend/.next/static ./.next/static
-COPY --from=build /app/apps/frontend/public ./public
+COPY --from=build /app/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=build /app/apps/frontend/public ./apps/frontend/public
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "server.js"]
+CMD ["node", "apps/frontend/server.js"]
 EXPOSE 3001
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
