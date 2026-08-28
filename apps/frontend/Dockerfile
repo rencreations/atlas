@@ -5,7 +5,7 @@ ARG NODE_VERSION=20.19.0
 FROM node:${NODE_VERSION}-alpine AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
-RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
+RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.13.1 --activate
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
