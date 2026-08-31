@@ -45,6 +45,8 @@ interface Section {
   label: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   groups?: string[]; // settings groups rendered by this section
+  /** Keys inside those groups that another panel owns. */
+  excludeKeys?: string[];
 }
 
 const SECTIONS: Section[] = [
@@ -66,8 +68,17 @@ const SECTIONS: Section[] = [
   { id: 'security', label: 'Godmode security', icon: Fingerprint },
   // `system` and `godmode` used to have no section at all, which left
   // system.instanceUrl (referenced by onboarding) and the godmode session
-  // TTL unreachable from the UI.
-  { id: 'advanced', label: 'Advanced', icon: ServerCog, groups: ['system', 'godmode'] },
+  // TTL unreachable from the UI. TOTP is deliberately excluded: Godmode
+  // security owns the enrolment flow, and toggling `totp.enabled` or
+  // editing the raw secret from a generic editor can desync or disable
+  // 2FA without ever verifying a code.
+  {
+    id: 'advanced',
+    label: 'Advanced',
+    icon: ServerCog,
+    groups: ['system', 'godmode'],
+    excludeKeys: ['godmode.totp.enabled', 'godmode.totp.secret'],
+  },
 ];
 
 export function GodmodeShell({
@@ -151,8 +162,9 @@ export function GodmodeShell({
   }, [onExpired]);
 
   const active = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0];
+  const excluded = new Set(active.excludeKeys ?? []);
   const groupItems = (active.groups ?? [])
-    .map((g) => (settings?.items ?? []).filter((i) => i.group === g))
+    .map((g) => (settings?.items ?? []).filter((i) => i.group === g && !excluded.has(i.key)))
     .flat();
 
   return (
