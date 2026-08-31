@@ -25,6 +25,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node --transpile-only prisma/seed.ts",
+    "prisma:seed:demo": "ts-node --transpile-only prisma/demo-seed.ts",
     "prepare": "husky install || true",
     "dev": "nest start --watch"
   },

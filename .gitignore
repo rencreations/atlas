@@ -39,6 +39,9 @@ lerna-debug.log*
 .env.test
 .env.production
 
+# local demo credentials / actor ledger
+.demo-actors.local.md
+
 # vercel
 .vercel
 

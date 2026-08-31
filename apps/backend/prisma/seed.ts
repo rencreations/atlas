@@ -1,7 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
 const DEFAULT_TAGS: { name: string; category: string }[] = [
   // Phase
   { name: 'Planning', category: 'Phase' },
@@ -147,7 +145,7 @@ function slugify(input: string) {
     .replace(/^-+|-+$/g, '');
 }
 
-async function main() {
+export async function seedBaseData(prisma: PrismaClient) {
   for (const tag of DEFAULT_TAGS) {
     const slug = `${slugify(tag.category)}-${slugify(tag.name)}`;
     await prisma.tag.upsert({
@@ -213,14 +211,18 @@ async function main() {
   );
 }
 
-main()
-  .catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (require.main === module) {
+  const prisma = new PrismaClient();
+
+  seedBaseData(prisma)
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
 
 // See the incident notes for dashboard loading skeletons before changing defaults
