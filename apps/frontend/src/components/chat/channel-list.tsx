@@ -415,7 +415,7 @@ function CreateChannelButton({ scope }: { scope: ChatScope }) {
         <button
           type="button"
           aria-label={scope.kind === 'project' ? 'New channel' : 'New workspace channel'}
-          className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 hover:bg-surface hover:text-ink"
+          className="inline-grid h-9 w-9 place-items-center rounded text-ink-3 hover:bg-surface hover:text-ink md:h-6 md:w-6"
         >
           <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
         </button>

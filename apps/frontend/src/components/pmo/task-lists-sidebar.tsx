@@ -53,7 +53,7 @@ export function TaskListsSidebar({
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="inline-grid h-7 w-7 place-items-center rounded text-ink-3 transition-colors duration-120 ease-out-soft hover:bg-surface-muted hover:text-ink"
+            className="inline-grid h-9 w-9 place-items-center rounded text-ink-3 transition-colors duration-120 ease-out-soft hover:bg-surface-muted hover:text-ink md:h-7 md:w-7"
             aria-label="Create task list"
             title="Create task list"
           >
@@ -191,8 +191,11 @@ function ListSidebarRow({
             <button
               type="button"
               className={cn(
-                'absolute right-1 top-1/2 -translate-y-1/2 inline-grid h-7 w-7 place-items-center rounded',
-                'text-ink-3 opacity-0 group-hover:opacity-100 hover:bg-line transition-opacity duration-120 ease-out-soft',
+                'absolute right-1 top-1/2 -translate-y-1/2 inline-grid h-9 w-9 place-items-center rounded md:h-7 md:w-7',
+                // Was hover-only: invisible to keyboard users and unreachable
+                // on touch, where there is no hover at all.
+                'text-ink-3 opacity-100 hover:bg-line transition-opacity duration-120 ease-out-soft',
+                'md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100',
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
               )}
               aria-label="List settings"
