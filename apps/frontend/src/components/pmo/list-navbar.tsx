@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { LucideIcon } from './lucide-icon';
 import { AddTabDialog } from './add-tab-dialog';
 
@@ -164,6 +165,7 @@ function ReorderableTab({
   const dragControls = useDragControls();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const confirm = useConfirm();
   const del = useMutation({
     mutationFn: () =>
       api(apiPaths.pmo.lists.deleteTab(projectSlug, listId, tab.id), { method: 'DELETE' }),
@@ -204,7 +206,14 @@ function ReorderableTab({
         <button
           type="button"
           onClick={() => {
-            if (window.confirm(`Remove the “${tab.label}” tab?`)) del.mutate();
+            void (async () => {
+              const ok = await confirm({
+                title: `Remove the “${tab.label}” tab?`,
+                description: 'The tab and its layout are removed for everyone on this list.',
+                confirmLabel: 'Remove tab',
+              });
+              if (ok) del.mutate();
+            })();
           }}
           className={cn(
             'absolute -right-1 top-1/2 -translate-y-1/2 inline-grid h-5 w-5 place-items-center rounded',

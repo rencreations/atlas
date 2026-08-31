@@ -165,9 +165,9 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
             <FieldHelp error={titleError ?? undefined}>A short, memorable name.</FieldHelp>
           </div>
           <div>
-            <Label>Phase</Label>
+            <Label htmlFor="pm-phase">Phase</Label>
             <Select value={phase} onValueChange={(v) => setPhase(v as ProjectPhase)}>
-              <SelectTrigger>
+              <SelectTrigger id="pm-phase">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -308,9 +308,9 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
       <Section title="Visibility & links">
         <div className="space-y-4">
           <div>
-            <Label>Visibility</Label>
+            <Label htmlFor="pm-visibility">Visibility</Label>
             <Select value={visibility} onValueChange={(v) => setVisibility(v as ProjectVisibility)}>
-              <SelectTrigger>
+              <SelectTrigger id="pm-visibility">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

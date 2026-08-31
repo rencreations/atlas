@@ -6,15 +6,24 @@ import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
 import type { GodmodeRole, GodmodeUser } from '@/lib/godmode/types';
 
-export function UsersPanel() {
+export function UsersPanel({ configured = true }: { configured?: boolean }) {
   const { show } = useToast();
+  const confirm = useConfirm();
   const [users, setUsers] = useState<GodmodeUser[]>([]);
   const [roles, setRoles] = useState<GodmodeRole[]>([]);
   const [q, setQ] = useState('');
@@ -39,7 +48,11 @@ export function UsersPanel() {
       setUsers(u);
       setRoles(r);
     } catch (err) {
-      show({ title: 'Load failed', description: String(err), tone: 'danger' });
+      show({
+          title: 'Could not load users',
+          description: err instanceof Error ? err.message : 'Unknown error.',
+          tone: 'danger',
+        });
     } finally {
       setLoading(false);
     }
@@ -73,6 +86,17 @@ export function UsersPanel() {
   const toggleRole = useCallback(
     async (user: GodmodeUser, roleCode: string) => {
       const has = user.userRoles.some((ur) => ur.role.code === roleCode);
+      if (has) {
+        const ok = await confirm({
+          title: `Revoke “${roleCode}” from ${user.name}?`,
+          description:
+            roleCode === 'superadmin'
+              ? 'They lose full control of this instance, including godmode-granted permissions. You can grant it again later.'
+              : 'They lose every permission this role grants. You can grant it again later.',
+          confirmLabel: 'Revoke role',
+        });
+        if (!ok) return;
+      }
       try {
         if (has) {
           await godmodeFetch(godmodePaths.revokeRole(user.id, roleCode), { method: 'DELETE' });
@@ -91,7 +115,7 @@ export function UsersPanel() {
         });
       }
     },
-    [load, show],
+    [confirm, load, show],
   );
 
   const issueInvite = useCallback(async () => {
@@ -102,7 +126,11 @@ export function UsersPanel() {
       });
       setInviteCode(res.code);
     } catch (err) {
-      show({ title: 'Invite failed', description: String(err), tone: 'danger' });
+      show({
+        title: 'Could not create an invite',
+        description: err instanceof Error ? err.message : 'Unknown error.',
+        tone: 'danger',
+      });
     }
   }, [show]);
 
@@ -177,20 +205,12 @@ export function UsersPanel() {
                 <div className="truncate text-[12px] text-ink-3">{user.email}</div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                {roles
-                  .filter((r) => !user.userRoles.some((ur) => ur.role.code === r.code))
-                  .slice(0, 3)
-                  .map((role) => (
-                    <Button
-                      key={role.id}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => void toggleRole(user, role.code)}
-                    >
-                      <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
-                      {role.name}
-                    </Button>
-                  ))}
+                <GrantRoleMenu
+                  roles={roles.filter(
+                    (r) => !user.userRoles.some((ur) => ur.role.code === r.code),
+                  )}
+                  onGrant={(code) => void toggleRole(user, code)}
+                />
                 {user.userRoles.map((ur) => (
                   <Button
                     key={ur.id}
@@ -210,6 +230,7 @@ export function UsersPanel() {
 
       {creating ? (
         <CreateUserDialog
+          configured={configured}
           roles={roles}
           onClose={() => setCreating(false)}
           onSubmit={(data) => void createUser(data)}
@@ -219,11 +240,48 @@ export function UsersPanel() {
   );
 }
 
+/**
+ * Grant menu for the roles a user does not have yet. This used to render
+ * the first three grantable roles as inline buttons, which made the
+ * remaining roles impossible to grant from the UI once a user held three.
+ */
+function GrantRoleMenu({
+  roles,
+  onGrant,
+}: {
+  roles: GodmodeRole[];
+  onGrant: (roleCode: string) => void;
+}) {
+  if (roles.length === 0) return null;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
+          Grant role
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Grant a role</DropdownMenuLabel>
+        {roles.map((role) => (
+          <DropdownMenuItem key={role.id} onSelect={() => onGrant(role.code)}>
+            {role.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function CreateUserDialog({
+  configured,
   roles,
   onClose,
   onSubmit,
 }: {
+  /** Before onboarding completes the backend forces the first account to
+   *  superadmin and skips the forced password change. */
+  configured: boolean;
   roles: GodmodeRole[];
   onClose: () => void;
   onSubmit: (data: { email: string; name: string; password: string; roleCode: string }) => void;
@@ -236,10 +294,11 @@ function CreateUserDialog({
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent size="sm">
-        <DialogTitle>Add user</DialogTitle>
+        <DialogTitle>{configured ? 'Add user' : 'Create the superadmin account'}</DialogTitle>
         <DialogDescription>
-          Creates an account the user signs into with email + password. They will be asked to
-          change the password on first login.
+          {configured
+            ? 'Creates an account they sign into with email + password. Whether they must change it on first login follows the Sessions policy.'
+            : 'This first account owns the instance: it is always created as superadmin, with the password you set here and no forced change on first login.'}
         </DialogDescription>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
@@ -260,7 +319,7 @@ function CreateUserDialog({
               placeholder="At least 6 characters"
             />
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className={configured ? 'flex flex-col gap-1.5' : 'hidden'}>
             <Label htmlFor="cu-role">Role</Label>
             <Select value={roleCode} onValueChange={setRoleCode}>
               <SelectTrigger id="cu-role">
@@ -282,9 +341,11 @@ function CreateUserDialog({
           </Button>
           <Button
             disabled={!email || !name || password.length < 6}
-            onClick={() => onSubmit({ email, name, password, roleCode })}
+            onClick={() =>
+              onSubmit({ email, name, password, roleCode: configured ? roleCode : 'superadmin' })
+            }
           >
-            Create user
+            {configured ? 'Create user' : 'Create superadmin'}
           </Button>
         </DialogFooter>
       </DialogContent>

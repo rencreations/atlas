@@ -197,7 +197,15 @@ export default function ProjectDetailPage() {
           </aside>
         </div>
 
-        <MediaHero media={project.media} title={project.title} />
+        <MediaHero
+          media={project.media}
+          title={project.title}
+          manageHref={
+            isInsider(project) && project.access.isManager
+              ? `/projects/${project.slug}/manage`
+              : undefined
+          }
+        />
 
         <div className="grid gap-10 lg:grid-cols-12">
           <article className="lg:col-span-8">

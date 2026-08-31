@@ -1,7 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src"
+    "rootDir": "src",
+    // Keep the incremental buildinfo inside dist/ so nest-cli's
+    // `deleteOutDir` wipes it together with the emitted output. Left
+    // outside dist/, a stale buildinfo convinces tsc everything is
+    // up to date after dist was deleted, and it emits nothing at all —
+    // leaving "Cannot find module dist/main" with a green compile log.
+    "tsBuildInfoFile": "./dist/tsconfig.build.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts"

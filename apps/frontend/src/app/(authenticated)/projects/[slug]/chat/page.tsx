@@ -8,6 +8,7 @@ import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { Container } from '@/components/layout/container';
 import type { ChatChannel } from '@/lib/types';
+import { usePageTitle } from '@/lib/page-title';
 
 /**
  * Project-chat entry point. Resolves the channel list client-side
@@ -16,6 +17,7 @@ import type { ChatChannel } from '@/lib/types';
  * non-archived channel if for some reason #general is missing.
  */
 export default function ProjectChatIndexPage() {
+  usePageTitle('Chat');
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;

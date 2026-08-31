@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { Lock, Monitor, ShieldCheck, SlidersHorizontal, User as UserIcon } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { cn } from '@/lib/utils';
-import { usePageTitle } from '@/lib/page-title';
 
 const SECTIONS = [
   { id: 'profile', label: 'Profile', icon: UserIcon, href: '/settings/profile' },
@@ -16,7 +15,6 @@ const SECTIONS = [
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-  usePageTitle('Settings');
   const pathname = usePathname();
 
   return (

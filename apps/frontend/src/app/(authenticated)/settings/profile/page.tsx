@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import type { SessionUser } from '@/lib/types';
+import { usePageTitle } from '@/lib/page-title';
 
 interface MeProfile extends SessionUser {
   bio: string | null;
@@ -23,6 +24,7 @@ interface MeProfile extends SessionUser {
 }
 
 export default function ProfileSettingsPage() {
+  usePageTitle('Profile');
   const { show } = useToast();
   const queryClient = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);

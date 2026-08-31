@@ -194,7 +194,7 @@ function DevicesSection() {
       <h3 className="text-sm font-semibold text-ink-1">Devices</h3>
 
       <div className="space-y-1.5">
-        <Label>Microphone</Label>
+        <Label htmlFor="voice-mic">Microphone</Label>
         <Select
           value={prefs.micDeviceId ?? 'default'}
           onValueChange={(v) => {
@@ -203,7 +203,7 @@ function DevicesSection() {
             if (id) void actions.switchMicDevice(id);
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger id="voice-mic">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -218,7 +218,7 @@ function DevicesSection() {
       </div>
 
       <div className="space-y-1.5">
-        <Label>Camera</Label>
+        <Label htmlFor="voice-camera">Camera</Label>
         <Select
           value={prefs.cameraDeviceId ?? 'default'}
           onValueChange={(v) => {
@@ -227,7 +227,7 @@ function DevicesSection() {
             if (id) void actions.switchCameraDevice(id);
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger id="voice-camera">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -242,7 +242,7 @@ function DevicesSection() {
       </div>
 
       <div className="space-y-1.5">
-        <Label>Speakers (output)</Label>
+        <Label htmlFor="voice-output">Speakers (output)</Label>
         <Select
           value={prefs.outputDeviceId ?? 'default'}
           onValueChange={(v) => {
@@ -251,7 +251,7 @@ function DevicesSection() {
             if (id) void actions.switchOutputDevice(id);
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger id="voice-output">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

@@ -344,9 +344,9 @@ function BasicInfoStep({
       </div>
 
       <div>
-        <Label>Current phase</Label>
+        <Label htmlFor="np-phase">Current phase</Label>
         <Select value={form.phase} onValueChange={(v) => update('phase', v as ProjectPhase)}>
-          <SelectTrigger>
+          <SelectTrigger id="np-phase">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

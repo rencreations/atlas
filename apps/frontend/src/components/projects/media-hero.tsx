@@ -2,18 +2,44 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight, ImagePlus, Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ProjectMedia } from '@/lib/types';
 
-export function MediaHero({ media, title }: { media: ProjectMedia[]; title: string }) {
+export function MediaHero({
+  media,
+  title,
+  manageHref,
+}: {
+  media: ProjectMedia[];
+  title: string;
+  /** When the viewer can edit the project, the empty state offers a way in.
+   *  Everyone else gets nothing rather than a placeholder. */
+  manageHref?: string;
+}) {
   const items = media.length > 0 ? media : null;
   const [idx, setIdx] = React.useState(0);
 
   if (!items) {
+    // A full 16/9 grey box used to sit here, pushing the project's actual
+    // content below the fold to say nothing.
+    if (!manageHref) return null;
     return (
-      <div className="aspect-[16/9] w-full overflow-hidden rounded-xl bg-surface-muted">
-        <div className="flex h-full items-center justify-center text-ink-4">No media yet</div>
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-dashed border-line-strong bg-surface-muted/40 px-5 py-4">
+        <div className="flex items-start gap-3">
+          <ImagePlus className="mt-0.5 h-5 w-5 shrink-0 text-ink-3" strokeWidth={2.25} />
+          <div>
+            <p className="text-[14px] font-medium text-ink">Add screenshots or a demo video</p>
+            <p className="mt-0.5 text-[13px] text-ink-3">
+              Projects with media stand out in the discover feed.
+            </p>
+          </div>
+        </div>
+        <Button asChild variant="secondary" size="sm">
+          <Link href={manageHref as never}>Add media</Link>
+        </Button>
       </div>
     );
   }

@@ -37,14 +37,18 @@ function initialEditorValue(item: GodmodeSettingItem): EditorValue {
 export function SettingsEditor({
   items,
   onDirtyChange,
+  advancedByDefault = false,
 }: {
   items: GodmodeSettingItem[];
   /** Fired when the set of unsaved edits becomes non-empty / empty. */
   onDirtyChange?: (dirty: boolean) => void;
+  /** Sections that exist to expose advanced knobs (e.g. Advanced) start
+   *  expanded — otherwise they would render as an empty panel. */
+  advancedByDefault?: boolean;
 }) {
   const { show } = useToast();
   const [values, setValues] = useState<Record<string, EditorValue>>({});
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(advancedByDefault);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {

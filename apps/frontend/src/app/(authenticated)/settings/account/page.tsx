@@ -13,6 +13,7 @@ import { Card, CardBody, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { FieldHelp, Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast';
+import { usePageTitle } from '@/lib/page-title';
 
 interface MeAccount {
   email: string;
@@ -22,6 +23,7 @@ interface MeAccount {
 }
 
 export default function AccountSettingsPage() {
+  usePageTitle('Account & security');
   const { show } = useToast();
   const { data: me } = useQuery({
     queryKey: queryKeys.me,

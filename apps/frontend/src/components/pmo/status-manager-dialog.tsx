@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { cn } from '@/lib/utils';
 import type { TaskList, TaskStatusCategory } from '@/lib/types';
 import { ColorPicker, pmoBgClass } from './color-picker';
@@ -52,6 +53,7 @@ export function StatusManagerDialog({
 }) {
   const queryClient = useQueryClient();
   const toast = useToast();
+  const confirm = useConfirm();
   const [drafts, setDrafts] = React.useState<Draft[]>([]);
   const [moveTo, setMoveTo] = React.useState<string>('');
   const nextTmpId = React.useRef(0);
@@ -100,8 +102,20 @@ export function StatusManagerDialog({
   }, [drafts, list.statuses]);
 
   const handleOpenChange = (next: boolean) => {
+    // The dialog is controlled by the parent, so simply not calling
+    // onOpenChange keeps it open while the async confirm is answered.
     if (!next && dirty && !save.isPending && !justSavedRef.current) {
-      if (!window.confirm('Discard unsaved status changes?')) return;
+      void (async () => {
+        const ok = await confirm({
+          title: 'Discard unsaved status changes?',
+          description: 'Your edits to this list’s statuses will be lost.',
+          confirmLabel: 'Discard changes',
+        });
+        if (!ok) return;
+        justSavedRef.current = false;
+        onOpenChange(false);
+      })();
+      return;
     }
     justSavedRef.current = false;
     onOpenChange(next);

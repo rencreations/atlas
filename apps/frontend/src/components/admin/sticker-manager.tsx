@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, uploadToPresigned } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { Button } from '@/components/ui/button';
+import { useConfirm } from '@/components/ui/confirm';
 import {
   Dialog,
   DialogContent,
@@ -180,6 +181,7 @@ function CreatePackButton() {
 
 function PackPanel({ pack }: { pack: AdminStickerPack }) {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [pendingNames, setPendingNames] = React.useState<string[]>([]);
@@ -332,7 +334,14 @@ function PackPanel({ pack }: { pack: AdminStickerPack }) {
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm(`Delete sticker "${s.name}"?`)) deleteStickerMutation.mutate(s.id);
+                  void (async () => {
+                    const ok = await confirm({
+                      title: `Delete “${s.name}”?`,
+                      description: 'The sticker is removed from the pack for everyone.',
+                      confirmLabel: 'Delete sticker',
+                    });
+                    if (ok) deleteStickerMutation.mutate(s.id);
+                  })();
                 }}
                 aria-label="Delete sticker"
                 className="absolute right-1 top-1 hidden h-5 w-5 place-items-center rounded-full bg-surface/90 text-ink-3 shadow-1 hover:text-brand-red group-hover:grid"

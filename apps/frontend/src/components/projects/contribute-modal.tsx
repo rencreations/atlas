@@ -191,12 +191,14 @@ function ModalBody({
       </div>
 
       <div>
-        <Label required>Which division/role do you want to apply for?</Label>
+        <Label required htmlFor="contrib-role">
+          Which division/role do you want to apply for?
+        </Label>
         <Select
           value={role}
           onValueChange={(v) => form.setValue('role', v, { shouldValidate: true })}
         >
-          <SelectTrigger>
+          <SelectTrigger id="contrib-role">
             <SelectValue placeholder="Pick a role" />
           </SelectTrigger>
           <SelectContent>

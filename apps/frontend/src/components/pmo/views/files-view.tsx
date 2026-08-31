@@ -42,6 +42,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { bytesHuman, cn } from '@/lib/utils';
 import type { ProjectFile, ProjectFilesResponse } from '@/lib/types';
 
@@ -55,6 +56,7 @@ const errMessage = (err: unknown) =>
 export function FilesView({ projectSlug }: { projectSlug: string }) {
   const queryClient = useQueryClient();
   const { show } = useToast();
+  const confirm = useConfirm();
 
   const [folderId, setFolderId] = React.useState<string | null>(null);
   const [renaming, setRenaming] = React.useState<ProjectFile | null>(null);
@@ -118,14 +120,26 @@ export function FilesView({ projectSlug }: { projectSlug: string }) {
   });
 
   const removeFile = async (item: ProjectFile) => {
-    if (!window.confirm(`Delete ${item.isFolder ? 'folder' : 'file'} “${item.name}”?`)) return;
+    const ok = await confirm({
+      title: `Delete ${item.isFolder ? 'folder' : 'file'} “${item.name}”?`,
+      description: item.isFolder
+        ? 'The folder is removed for everyone.'
+        : 'The file is removed for everyone. This cannot be undone.',
+      confirmLabel: item.isFolder ? 'Delete folder' : 'Delete file',
+    });
+    if (!ok) return;
     try {
       await api(apiPaths.pmo.files.remove(projectSlug, item.id), { method: 'DELETE' });
       invalidate();
     } catch (err) {
       // A non-empty folder is rejected with 400 until force=1 is passed.
       if (isApiError(err) && err.status === 400 && item.isFolder) {
-        if (window.confirm(`“${item.name}” isn’t empty. Delete it and everything inside?`)) {
+        const forceOk = await confirm({
+          title: `“${item.name}” isn’t empty`,
+          description: 'Delete the folder and everything inside it? This cannot be undone.',
+          confirmLabel: 'Delete everything',
+        });
+        if (forceOk) {
           try {
             await api(apiPaths.pmo.files.remove(projectSlug, item.id, true), { method: 'DELETE' });
             invalidate();

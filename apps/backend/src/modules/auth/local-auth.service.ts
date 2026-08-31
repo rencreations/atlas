@@ -133,6 +133,7 @@ export class LocalAuthService {
     password: string;
     name: string;
     inviteCode?: string;
+    acceptedTerms?: boolean;
   }): Promise<{ user: SessionUser; emailVerificationSent: boolean }> {
     if (!(await this.settings.get<boolean>('registration.enabled'))) {
       throw new ForbiddenException('Self-registration is disabled on this instance.');
@@ -160,7 +161,14 @@ export class LocalAuthService {
     const defaultRole = await this.prisma.role.findUnique({
       where: { code: defaultRoleCode },
     });
+    // `legal.requireConsent` used to be recorded as accepted for everyone
+    // without ever asking, which made the stored consent timestamp a lie.
     const requireConsent = await this.settings.get<boolean>('legal.requireConsent');
+    if (requireConsent && !dto.acceptedTerms) {
+      throw new BadRequestException(
+        'You must accept the terms of service and privacy policy to create an account.',
+      );
+    }
 
     const user = await this.prisma.user.create({
       data: {

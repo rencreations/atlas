@@ -1,11 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  AtSign,
-  BadgeCheck,
   Fingerprint,
   Globe,
+  HardDrive,
   KeyRound,
   LayoutGrid,
   Link2,
@@ -13,29 +13,32 @@ import {
   LogOut,
   Mail,
   MessageSquareText,
+  Palette,
   Plug,
   Rocket,
-  Settings2,
+  ServerCog,
   ShieldCheck,
   Timer,
   UserPlus,
   Users,
+  Webhook,
 } from 'lucide-react';
 import { Wordmark } from '@/components/brand/wordmark';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import {
   clearGodmodeToken,
   GodmodeError,
   godmodeFetch,
   godmodePaths,
 } from '@/lib/godmode/client';
-import type { GodmodeSettingsView, GodmodeUser } from '@/lib/godmode/types';
+import type { GodmodeSettingsView } from '@/lib/godmode/types';
 import { SettingsEditor } from './settings-editor';
 import { UsersPanel } from './users-panel';
 import { RolesPanel } from './roles-panel';
 import { SecurityPanel } from './security-panel';
+import { SetupOverview } from './setup-overview';
 
 interface Section {
   id: string;
@@ -54,12 +57,17 @@ const SECTIONS: Section[] = [
   { id: 'sms', label: 'SMS / OTP', icon: MessageSquareText, groups: ['sms'] },
   { id: 'oauth', label: 'OAuth providers', icon: Plug, groups: ['oauth'] },
   { id: 'sso', label: 'SSO (OIDC / SAML)', icon: Link2, groups: ['sso'] },
-  { id: 'storage', label: 'Storage', icon: AtSign, groups: ['storage'] },
-  { id: 'integrations', label: 'Integrations', icon: Plug, groups: ['integrations'] },
+  { id: 'storage', label: 'Storage', icon: HardDrive, groups: ['storage'] },
+  { id: 'integrations', label: 'Integrations', icon: Webhook, groups: ['integrations'] },
+  { id: 'appearance', label: 'Appearance', icon: Palette, groups: ['appearance'] },
   { id: 'modules', label: 'Modules', icon: Rocket, groups: ['modules'] },
   { id: 'users', label: 'Users & invites', icon: Users },
   { id: 'roles', label: 'Roles & permissions', icon: ShieldCheck },
   { id: 'security', label: 'Godmode security', icon: Fingerprint },
+  // `system` and `godmode` used to have no section at all, which left
+  // system.instanceUrl (referenced by onboarding) and the godmode session
+  // TTL unreachable from the UI.
+  { id: 'advanced', label: 'Advanced', icon: ServerCog, groups: ['system', 'godmode'] },
 ];
 
 export function GodmodeShell({
@@ -70,16 +78,46 @@ export function GodmodeShell({
   onExpired: () => void;
 }) {
   const { show } = useToast();
-  const [section, setSection] = useState('overview');
+  const confirm = useConfirm();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [settings, setSettings] = useState<GodmodeSettingsView | null>(null);
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState(false);
+  const [completing, setCompleting] = useState(false);
+
+  // The section lives in the URL so godmode panels can be linked to and
+  // the browser Back button steps between them instead of leaving godmode.
+  const requested = searchParams.get('section') ?? 'overview';
+  const section = SECTIONS.some((s) => s.id === requested) ? requested : 'overview';
+
+  const applySection = useCallback(
+    (next: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === 'overview') params.delete('section');
+      else params.set('section', next);
+      const qs = params.toString();
+      router.replace(`/godmode${qs ? `?${qs}` : ''}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const navigate = (next: string) => {
-    if (dirty && next !== section) {
-      if (!window.confirm('Discard unsaved changes?')) return;
+    if (next === section) return;
+    if (dirty) {
+      void (async () => {
+        const ok = await confirm({
+          title: 'Discard unsaved changes?',
+          description: 'The edits you made in this panel have not been saved yet.',
+          confirmLabel: 'Discard changes',
+        });
+        if (!ok) return;
+        setDirty(false);
+        applySection(next);
+      })();
+      return;
     }
-    setSection(next);
+    applySection(next);
   };
 
   const load = useCallback(async () => {
@@ -92,7 +130,11 @@ export function GodmodeShell({
         onExpired();
         return;
       }
-      show({ title: 'Failed to load settings', description: String(err), tone: 'danger' });
+      show({
+        title: 'Could not load settings',
+        description: err instanceof Error ? err.message : 'Unknown error.',
+        tone: 'danger',
+      });
     } finally {
       setLoading(false);
     }
@@ -160,24 +202,47 @@ export function GodmodeShell({
           </div>
         ) : (
           <>
-            {!settings?.configured ? <OnboardingBanner /> : null}
             <HeaderFor section={active} configured={settings?.configured ?? false} />
 
             {section === 'overview' && settings ? (
-              <OverviewSection
+              <SetupOverview
                 settings={settings}
                 onNavigate={navigate}
-                onComplete={async () => {
-                  await godmodeFetch(godmodePaths.onboardingComplete(), { method: 'POST' });
-                  await load();
-                  show({ title: 'Instance configured', description: 'Atlas is ready.', tone: 'success' });
+                completing={completing}
+                onComplete={() => {
+                  void (async () => {
+                    setCompleting(true);
+                    try {
+                      await godmodeFetch(godmodePaths.onboardingComplete(), { method: 'POST' });
+                      await load();
+                      show({
+                        title: 'Atlas is live',
+                        description: 'People can sign in now.',
+                        tone: 'success',
+                      });
+                    } catch (err) {
+                      show({
+                        title: 'Could not finish setup',
+                        description: err instanceof Error ? err.message : 'Unknown error.',
+                        tone: 'danger',
+                      });
+                    } finally {
+                      setCompleting(false);
+                    }
+                  })();
                 }}
               />
             ) : null}
             {active.groups ? (
-              <SettingsEditor items={groupItems} onDirtyChange={setDirty} />
+              <SettingsEditor
+                items={groupItems}
+                onDirtyChange={setDirty}
+                advancedByDefault={active.id === 'advanced'}
+              />
             ) : null}
-            {section === 'users' ? <UsersPanel /> : null}
+            {section === 'users' ? (
+              <UsersPanel configured={settings?.configured ?? false} />
+            ) : null}
             {section === 'roles' ? <RolesPanel /> : null}
             {section === 'security' ? <SecurityPanel /> : null}
           </>
@@ -191,164 +256,26 @@ function HeaderFor({ section, configured }: { section: Section; configured: bool
   const Icon = section.icon;
   return (
     <div className="mb-8">
+      {/* The eyebrow used to repeat the h1 verbatim on every panel. */}
       <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
-        <span className="text-eyebrow uppercase text-brand-blue">{section.label}</span>
+        <Icon className="h-5 w-5 text-brand-blue" strokeWidth={2.25} />
+        <h1 className="font-display text-display-lg tracking-[-0.02em] text-ink">
+          {section.label}
+        </h1>
       </div>
-      <h1 className="mt-2 font-display text-display-lg tracking-[-0.02em] text-ink">
-        {section.label}
-      </h1>
       <p className="mt-1 text-body-sm text-ink-2">
         {section.id === 'overview'
           ? 'Instance-wide configuration. Changes apply immediately — no redeploy.'
           : 'These settings live in the database and apply immediately.'}
       </p>
-      {section.id === 'overview' && !configured ? (
+      {/* On Overview the progress card already says this; elsewhere it is a
+          useful reminder that the app is still gated. */}
+      {section.id !== 'overview' && !configured ? (
         <div className="mt-3 rounded border border-brand-yellow bg-brand-yellow-50 px-4 py-2 text-[13px] text-brand-yellow-ink">
-          This instance is not configured yet. Every other page shows a setup screen until
-          onboarding completes.
+          Setup is not finished — Atlas still shows the setup screen to everyone. Return to
+          Overview to finish.
         </div>
       ) : null}
-    </div>
-  );
-}
-
-function OnboardingBanner() {
-  return (
-    <div className="mb-6 flex items-center gap-3 rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-3 text-[13.5px] text-ink">
-      <BadgeCheck className="h-4 w-4 shrink-0 text-brand-blue" strokeWidth={2.25} />
-      <span>
-        First-time setup in progress. Follow the steps on the Overview page, then mark the
-        instance as configured.
-      </span>
-    </div>
-  );
-}
-
-const OVERVIEW_STEPS: {
-  id: string;
-  title: string;
-  description: string;
-  action: { label: string; section: string };
-}[] = [
-  {
-    id: 'account',
-    title: 'Create the superadmin account',
-    description:
-      'The first account you create is the instance owner. You will sign into Atlas with it using email + password.',
-    action: { label: 'Create superadmin', section: 'users' },
-  },
-  {
-    id: 'site',
-    title: 'Set the site name and instance URL',
-    description:
-      'The instance URL is where users reach Atlas — it is used for magic links, OAuth callbacks, and SAML endpoints.',
-    action: { label: 'Open site settings', section: 'site' },
-  },
-  {
-    id: 'auth',
-    title: 'Pick sign-in methods',
-    description:
-      'Enable email + password, magic links, phone OTP, the instance passphrase, and any OAuth providers.',
-    action: { label: 'Configure sign-in', section: 'auth' },
-  },
-  {
-    id: 'providers',
-    title: 'Configure email, SMS, and storage',
-    description:
-      'Email powers magic links and notifications. SMS powers phone OTP. Storage powers uploads.',
-    action: { label: 'Configure providers', section: 'email' },
-  },
-  {
-    id: 'modules',
-    title: 'Enable the modules you want',
-    description: 'Turn on the PMO (project management) and voice modules.',
-    action: { label: 'Toggle modules', section: 'modules' },
-  },
-];
-
-function OverviewSection({
-  settings,
-  onNavigate,
-  onComplete,
-}: {
-  settings: GodmodeSettingsView;
-  onNavigate: (section: string) => void;
-  onComplete: () => void;
-}) {
-  const [superadminExists, setSuperadminExists] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    godmodeFetch<GodmodeUser[]>(godmodePaths.users())
-      .then((users) => {
-        if (cancelled) return;
-        setSuperadminExists(
-          users.some((u) => u.userRoles.some((ur) => ur.role.code === 'superadmin')),
-        );
-      })
-      .catch(() => {
-        if (!cancelled) setSuperadminExists(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const siteConfigured = settings.items.some(
-    (i) => i.key === 'system.instanceUrl' && String(i.value ?? '').length > 0,
-  );
-  const canComplete = superadminExists === true && siteConfigured;
-
-  return (
-    <div className="flex flex-col gap-4">
-      {OVERVIEW_STEPS.map((step, idx) => (
-        <div
-          key={step.id}
-          className="flex items-start gap-4 rounded border border-line bg-surface p-5 shadow-1"
-        >
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-blue-50 font-display text-[13px] font-semibold text-brand-blue">
-            {idx + 1}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[14px] font-medium text-ink">{step.title}</div>
-            <p className="mt-1 text-[13px] text-ink-3">{step.description}</p>
-          </div>
-          <Button variant="secondary" size="sm" onClick={() => onNavigate(step.action.section)}>
-            {step.action.label}
-          </Button>
-        </div>
-      ))}
-
-      <div className="rounded border border-line bg-surface p-5 shadow-1">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="text-[14px] font-medium text-ink">Finish onboarding</div>
-            <p className="mt-1 max-w-[480px] text-[13px] text-ink-3">
-              Marks the instance as configured. Until then, every route shows the setup
-              screen with a link here. You can come back and change anything later.
-            </p>
-            {superadminExists === false ? (
-              <p className="mt-2 text-[12.5px] text-brand-red">
-                Create the superadmin account first — step 1 above.
-              </p>
-            ) : null}
-            {!siteConfigured ? (
-              <p className="mt-2 text-[12.5px] text-brand-red">
-                Set the instance URL in the Site settings first — step 2 above.
-              </p>
-            ) : null}
-          </div>
-          <Button
-            onClick={() => void onComplete()}
-            disabled={!canComplete || superadminExists === null}
-            loading={superadminExists === null}
-          >
-            <Settings2 className="h-4 w-4" strokeWidth={2.25} />
-            Complete setup
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }

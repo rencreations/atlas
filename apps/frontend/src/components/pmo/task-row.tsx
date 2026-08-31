@@ -15,6 +15,7 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import {
@@ -44,6 +45,7 @@ export function TaskRow({
 }) {
   const queryClient = useQueryClient();
   const toast = useToast();
+  const confirm = useConfirm();
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.pmo.tasks(projectSlug, list.id) });
@@ -218,9 +220,14 @@ export function TaskRow({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() => {
-                  if (confirm('Delete this task? This cannot be undone from the UI.')) {
-                    remove.mutate();
-                  }
+                  void (async () => {
+                    const ok = await confirm({
+                      title: `Delete ${task.key}?`,
+                      description: `“${task.title}” and its comments and activity are removed. This cannot be undone.`,
+                      confirmLabel: 'Delete task',
+                    });
+                    if (ok) remove.mutate();
+                  })();
                 }}
               >
                 <Trash2 className="h-4 w-4" strokeWidth={2.25} /> Delete
@@ -356,7 +363,7 @@ function PrioritySelect({
 }) {
   const [open, setOpen] = React.useState(false);
   if (!canEdit) {
-    return <PriorityChip priority={priority} />;
+    return <PriorityChip priority={priority} showNone />;
   }
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -366,7 +373,7 @@ function PrioritySelect({
           className="inline-flex items-center rounded p-1 hover:bg-line"
           aria-label={`Priority: ${TASK_PRIORITY_LABEL[priority]}`}
         >
-          <PriorityChip priority={priority} />
+          <PriorityChip priority={priority} showNone />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-44 p-1">
@@ -383,7 +390,7 @@ function PrioritySelect({
               p === priority ? 'bg-brand-blue-50' : 'hover:bg-surface-muted',
             )}
           >
-            <PriorityChip priority={p} />
+            <PriorityChip priority={p} showNone />
             <span>{TASK_PRIORITY_LABEL[p]}</span>
           </button>
         ))}

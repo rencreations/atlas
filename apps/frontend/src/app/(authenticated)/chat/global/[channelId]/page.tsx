@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { getStoredSession } from '@/lib/auth-client';
 import { ChatLayout } from '@/components/chat/chat-layout';
+import { usePageTitle } from '@/lib/page-title';
 
 /**
  * Workspace-global channel view (e.g. the workspace #general). Every
@@ -13,6 +14,7 @@ export default function GlobalChannelPage() {
   const params = useParams();
   const channelId = params.channelId as string;
   const session = getStoredSession();
+  usePageTitle('Workspace chat');
 
   if (!session) return null;
 

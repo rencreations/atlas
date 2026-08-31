@@ -7,6 +7,7 @@ import { LoaderCircle } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { ErrorState } from '@/components/ui/error-state';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/auth/password-input';
@@ -25,6 +26,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [invalid, setInvalid] = useState<string[]>([]);
@@ -55,7 +57,13 @@ export default function RegisterPage() {
       const res = await fetch(`${API_BASE}${apiPaths.auth.register()}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name, email, password, inviteCode: inviteCode || undefined }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          inviteCode: inviteCode || undefined,
+          ...(config?.legal.requireConsent ? { acceptedTerms } : {}),
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -76,7 +84,7 @@ export default function RegisterPage() {
       setInvalid(['reg-email', 'reg-password']);
       setBusy(false);
     }
-  }, [name, email, password, inviteCode, router]);
+  }, [name, email, password, inviteCode, acceptedTerms, config?.legal.requireConsent, router]);
 
   if (configFailed) {
     return (
@@ -189,11 +197,47 @@ export default function RegisterPage() {
             />
           </div>
         ) : null}
+        {config.legal.requireConsent ? (
+          <div className="flex items-start gap-2.5">
+            <Checkbox
+              id="reg-consent"
+              checked={acceptedTerms}
+              onCheckedChange={(next) => setAcceptedTerms(next === true)}
+              className="mt-0.5"
+            />
+            <Label htmlFor="reg-consent" className="text-[13px] font-normal leading-snug text-ink-2">
+              I accept the{' '}
+              {config.legal.terms ? (
+                <Link href={'/legal/terms' as never} className="text-brand-blue hover:underline">
+                  terms of service
+                </Link>
+              ) : (
+                'terms of service'
+              )}{' '}
+              and{' '}
+              {config.legal.privacy ? (
+                <Link href={'/legal/privacy' as never} className="text-brand-blue hover:underline">
+                  privacy policy
+                </Link>
+              ) : (
+                'privacy policy'
+              )}
+              .
+            </Label>
+          </div>
+        ) : null}
         <Button
           type="submit"
           size="lg"
           className="w-full"
-          disabled={!name || !email || password.length < 6 || (config.registration.inviteRequired && !inviteCode) || busy}
+          disabled={
+            !name ||
+            !email ||
+            password.length < 6 ||
+            (config.registration.inviteRequired && !inviteCode) ||
+            (config.legal.requireConsent && !acceptedTerms) ||
+            busy
+          }
         >
           {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
           Create account

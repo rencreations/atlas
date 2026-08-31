@@ -1,4 +1,13 @@
-import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 
 export class LoginPasswordDto {
   @IsEmail()
@@ -30,6 +39,12 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   inviteCode?: string;
+
+  /** Set by the register form when the instance requires accepting the
+   *  terms. Enforced server-side — see LocalAuthService.register. */
+  @IsOptional()
+  @IsBoolean()
+  acceptedTerms?: boolean;
 }
 
 export class MagicLinkRequestDto {

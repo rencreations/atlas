@@ -19,6 +19,7 @@ import { usePushPermission } from '@/lib/notifications/use-push-permission';
 import { clearEnablePromptDismissed } from '@/lib/notifications/permission';
 import { unsubscribePush } from '@/lib/notifications/push-subscription';
 import { formatRelative } from '@/lib/utils';
+import { usePageTitle } from '@/lib/page-title';
 
 /**
  * Grouping is intentionally coarse — each card collapses a related
@@ -82,6 +83,7 @@ const SECTIONS: ToggleSection[] = [
 ];
 
 export default function NotificationSettingsPage() {
+  usePageTitle('Notification settings');
   const qc = useQueryClient();
   const { show } = useToast();
   const { permission, refresh, enable, busy: enabling } = usePushPermission();

@@ -29,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { RichTextEditor } from '@/components/rich-text/editor';
 import type { SessionUser, Task, TaskList, TaskPriority, TaskStatus } from '@/lib/types';
 import { TASK_PRIORITY_LABEL, TASK_PRIORITY_ORDER } from '@/lib/types';
@@ -79,6 +80,7 @@ export function TaskModal({
   const router = useRouter();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const confirm = useConfirm();
 
   const task = useQuery({
     queryKey: queryKeys.pmo.taskByKey(projectSlug, taskKey),
@@ -163,9 +165,15 @@ export function TaskModal({
       onPatch={(body) => patch.mutate(body)}
       onArchive={() => archive.mutate()}
       onDelete={() => {
-        if (confirm('Delete this task? This cannot be undone from the UI.')) {
-          remove.mutate();
-        }
+        void (async () => {
+          const ok = await confirm({
+            title: task.data ? `Delete ${task.data.key}?` : 'Delete this task?',
+            description:
+              'The task and its comments and activity are removed. This cannot be undone.',
+            confirmLabel: 'Delete task',
+          });
+          if (ok) remove.mutate();
+        })();
       }}
       onClose={handleClose}
       registerPreClose={preCloseRef}
@@ -578,7 +586,7 @@ function PriorityPicker({
           className="flex w-full items-center gap-2 rounded px-1.5 py-1 hover:bg-surface-muted"
           aria-label={`Priority: ${TASK_PRIORITY_LABEL[priority]}`}
         >
-          <PriorityChip priority={priority} />
+          <PriorityChip priority={priority} showNone />
           <span className="text-ink">{TASK_PRIORITY_LABEL[priority]}</span>
         </button>
       </PopoverTrigger>
@@ -596,7 +604,7 @@ function PriorityPicker({
               p === priority ? 'bg-brand-blue-50' : 'hover:bg-surface-muted',
             )}
           >
-            <PriorityChip priority={p} />
+            <PriorityChip priority={p} showNone />
             <span>{TASK_PRIORITY_LABEL[p]}</span>
           </button>
         ))}

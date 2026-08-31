@@ -100,21 +100,27 @@ export function KanbanCard({ projectSlug, list, task, dragging, overlay }: Props
     return <div className="w-[280px]">{cardInner}</div>;
   }
 
-  // Wrap the card so the *entire* card is the drag handle, but the
-  // inner Link still navigates on a plain click. dnd-kit distinguishes
-  // drag vs click via the activationConstraint on the sensor.
+  // Pointer-drag from anywhere on the card, navigate on click. dnd-kit's
+  // `attributes` (role="button" + tabIndex) used to be spread on this
+  // wrapper, which nested an <a> inside a button — two interactive nodes,
+  // flagged by axe and confusing for screen readers. Spreading them onto
+  // the anchor instead made dnd-kit swallow the click, so the card stopped
+  // opening. Listeners alone on the wrapper keep both behaviours with the
+  // anchor as the single interactive element.
+  //
+  // Keyboard reordering would need its own focusable drag handle; Enter on
+  // the card opens the task instead.
   return (
     <div
       ref={sortable.setNodeRef}
       style={style}
-      {...sortable.attributes}
       {...sortable.listeners}
       className="cursor-grab"
     >
       <Link
         href={`/projects/${projectSlug}/lists/${list.id}/tasks/${task.key}` as never}
-        // Stop propagation so clicks don't trigger the sortable's pointer-down
-        // handlers (sensors already gate by distance, but this is belt-and-braces).
+        // Sensors gate drag vs click by distance; stopping propagation keeps
+        // a plain click from also reaching the sortable's handlers.
         onClick={(e) => e.stopPropagation()}
         className="block"
       >

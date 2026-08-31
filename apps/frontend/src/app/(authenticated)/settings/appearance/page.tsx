@@ -11,6 +11,7 @@ import { useTheme } from '@/lib/theme';
 import { DEFAULT_THEME_ID, THEMES, type RGB, type ThemeMode } from '@/lib/themes/registry';
 import type { MeProfile, PublicConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { usePageTitle } from '@/lib/page-title';
 
 const MODE_OPTIONS: {
   value: ThemeMode;
@@ -57,6 +58,7 @@ function ThemePreview({ id }: { id: string }) {
 }
 
 export default function AppearanceSettingsPage() {
+  usePageTitle('Appearance');
   const { themeId, mode, setThemeId, setMode, resetToDefault } = useTheme();
   const { show } = useToast();
   const queryClient = useQueryClient();

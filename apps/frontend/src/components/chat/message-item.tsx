@@ -90,7 +90,9 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
   const canEdit = isAuthor && !isDeleted && ageHrs < 24;
 
   return (
-    <li
+    // Rendered inside an <li> by MessageList — a nested <li> here would be
+    // invalid list markup.
+    <div
       className={cn(
         'group relative -mx-2 rounded px-2 py-1 transition-colors',
         // Subtle blue left rail + tinted background differentiate pinned
@@ -302,7 +304,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </li>
+    </div>
   );
 }
 

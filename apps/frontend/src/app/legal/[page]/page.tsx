@@ -51,7 +51,36 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
   } catch {
     // Treat as unpublished below.
   }
-  if (!text) notFound();
+  // An operator who hasn't written this document yet would otherwise serve
+  // the framework's bare 404 page, which looks like a broken deploy.
+  if (!text) {
+    return (
+      <main className="relative min-h-svh bg-surface px-6 py-12">
+        <PatternCorner position="top-right" size={2} cellSize={56} />
+        <div className="relative z-10 mx-auto w-full max-w-prose">
+          <div className="mb-8 flex items-center gap-3">
+            <ShapeSignature size={28} />
+            <Wordmark withSignature={false} className="text-[20px]" />
+          </div>
+          <span className="text-eyebrow uppercase text-brand-blue">Legal</span>
+          <h1 className="mt-2 font-display text-display-lg tracking-[-0.02em] text-ink">
+            {title}
+          </h1>
+          <p className="mt-3 text-body text-ink-2">
+            This instance hasn’t published {title.toLowerCase()} yet. An administrator can add
+            it in godmode under Site.
+          </p>
+          <Link
+            href="/"
+            className="mt-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-blue hover:underline"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
+            Back to Atlas
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="relative min-h-svh bg-surface px-6 py-12">

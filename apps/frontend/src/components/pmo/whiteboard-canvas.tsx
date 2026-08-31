@@ -18,6 +18,7 @@ import { useSaveSurface, SaveBadge } from '@/lib/save-coordinator';
 import { RevisionHistoryDrawer } from '@/components/pmo/revision-history-drawer';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { cn } from '@/lib/utils';
 import type { SessionUser, Whiteboard, YjsTokenResponse } from '@/lib/types';
 
@@ -31,6 +32,7 @@ export function WhiteboardCanvas({
   user: SessionUser;
 }) {
   const { show } = useToast();
+  const confirm = useConfirm();
   const apiRef = React.useRef<ExcalidrawApiLike | null>(null);
   const connRef = React.useRef<YjsConnection | null>(null);
   const bindingRef = React.useRef<ExcalidrawYjsBinding | null>(null);
@@ -265,7 +267,13 @@ export function WhiteboardCanvas({
         if (parsed.format !== 'mgm.whiteboard' || !Array.isArray(elements)) {
           throw new Error('Not a valid .mgm whiteboard file.');
         }
-        if (!window.confirm('Importing replaces the current whiteboard for everyone. Continue?')) {
+        const ok = await confirm({
+          title: 'Replace this whiteboard?',
+          description:
+            'Importing overwrites the current drawing for everyone in this whiteboard. This cannot be undone.',
+          confirmLabel: 'Replace whiteboard',
+        });
+        if (!ok) {
           return;
         }
         bindingRef.current?.replaceAll(elements);
@@ -275,7 +283,7 @@ export function WhiteboardCanvas({
         show({ tone: 'danger', title: 'Import failed', description: (err as Error).message });
       }
     },
-    [persistSnapshot, show],
+    [confirm, persistSnapshot, show],
   );
 
   if (tokenQuery.isLoading) {

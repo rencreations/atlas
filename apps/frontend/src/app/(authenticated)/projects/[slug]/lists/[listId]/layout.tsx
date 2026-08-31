@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Archive, Settings2 } from 'lucide-react';
 import { api } from '@/lib/api/client';
@@ -45,7 +45,34 @@ export default function TaskListLayout({
     queryFn: () => api<TaskList>(apiPaths.pmo.lists.one(slug, listId)),
   });
 
-  usePageTitle(list.data?.name ?? 'Task list');
+  // Every sub-view used to inherit just the list name, so Kanban, Timeline,
+  // Notes and the rest were indistinguishable in tabs and history.
+  const pathname = usePathname();
+  const viewLabel = React.useMemo(() => {
+    const base = `/projects/${slug}/lists/${listId}`;
+    const rest = pathname.startsWith(base) ? pathname.slice(base.length) : '';
+    const seg = rest.split('/').filter(Boolean);
+    if (seg.length === 0) return 'Overview';
+    const labels: Record<string, string> = {
+      list: 'List',
+      kanban: 'Kanban',
+      timeline: 'Timeline',
+      team: 'Team',
+      files: 'Files',
+      notes: 'Notes',
+      whiteboards: 'Whiteboards',
+      tasks: 'Task',
+      tabs: 'Tab',
+    };
+    const label = labels[seg[0]] ?? 'Overview';
+    // /tasks/<KEY> reads better as the task key itself.
+    if (seg[0] === 'tasks' && seg[1]) return decodeURIComponent(seg[1]);
+    return label;
+  }, [pathname, slug, listId]);
+
+  usePageTitle(
+    list.data?.name ? `${viewLabel} · ${list.data.name}` : `${viewLabel} · Task list`,
+  );
 
   if (!pmoEnabled) {
     return (

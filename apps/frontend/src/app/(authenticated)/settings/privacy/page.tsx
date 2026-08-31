@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
 import type { PublicConfig } from '@/lib/types';
+import { usePageTitle } from '@/lib/page-title';
 
 interface MeConsent {
   consentAcceptedAt: string | null;
@@ -19,6 +20,7 @@ interface MeConsent {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 
 export default function PrivacySettingsPage() {
+  usePageTitle('Privacy & data');
   const { show } = useToast();
   const queryClient = useQueryClient();
 

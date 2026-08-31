@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Reorder, useDragControls, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { api, uploadToPresigned } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { bytesHuman, cn } from '@/lib/utils';
@@ -29,6 +30,7 @@ interface Props {
 
 export function MediaUpload({ projectId, items, onChange, maxItems = 10 }: Props) {
   const { show } = useToast();
+  const confirm = useConfirm();
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   const upload = useMutation({
@@ -173,7 +175,16 @@ export function MediaUpload({ projectId, items, onChange, maxItems = 10 }: Props
               onMoveUp={() => move(item.id, -1)}
               onMoveDown={() => move(item.id, 1)}
               onCommit={commitReorder}
-              onRemove={() => remove.mutate(item.id)}
+              onRemove={() => {
+                void (async () => {
+                  const ok = await confirm({
+                    title: 'Remove this media item?',
+                    description: 'It is deleted from storage and from the project gallery.',
+                    confirmLabel: 'Remove',
+                  });
+                  if (ok) remove.mutate(item.id);
+                })();
+              }}
               isRemoving={remove.isPending && remove.variables === item.id}
             />
           ))}

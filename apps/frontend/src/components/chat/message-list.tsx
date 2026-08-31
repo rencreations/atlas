@@ -313,7 +313,7 @@ export function MessageList({
               return (
                 <React.Fragment key={m.id}>
                   {isFirstUnread ? <UnreadDivider channelId={channelId} /> : null}
-                  <div
+                  <li
                     id={`chat-msg-${m.id}`}
                     className={cn(isFirstUnread && 'pt-0.5')}
                   >
@@ -324,7 +324,7 @@ export function MessageList({
                       isManager={isManager}
                       onReply={onReply}
                     />
-                  </div>
+                  </li>
                 </React.Fragment>
               );
             })}

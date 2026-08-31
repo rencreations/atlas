@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { formatDueDate } from '@/components/pmo/date-picker-popover';
 import type { Whiteboard, WhiteboardListItem } from '@/lib/types';
 
@@ -25,6 +26,7 @@ export function WhiteboardsView({ projectSlug }: { projectSlug: string }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { show } = useToast();
+  const confirm = useConfirm();
 
   const wbHref = (wbId: string) =>
     `/projects/${projectSlug}/lists/${listId}/whiteboards/${wbId}`;
@@ -55,8 +57,13 @@ export function WhiteboardsView({ projectSlug }: { projectSlug: string }) {
       show({ tone: 'danger', title: 'Delete failed', description: (err as Error).message }),
   });
 
-  const handleDelete = (wb: WhiteboardListItem) => {
-    if (window.confirm(`Delete whiteboard “${wb.title}”?`)) remove.mutate(wb.id);
+  const handleDelete = async (wb: WhiteboardListItem) => {
+    const ok = await confirm({
+      title: `Delete “${wb.title}”?`,
+      description: 'The whiteboard and its drawing history are removed for everyone. This cannot be undone.',
+      confirmLabel: 'Delete whiteboard',
+    });
+    if (ok) remove.mutate(wb.id);
   };
 
   const items = q.data?.whiteboards ?? [];

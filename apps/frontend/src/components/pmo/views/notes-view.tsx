@@ -33,6 +33,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ErrorState } from '@/components/ui/error-state';
 import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm';
 import { cn } from '@/lib/utils';
 import type { ProjectNote, ProjectNoteTreeItem, SessionUser } from '@/lib/types';
 
@@ -72,6 +73,7 @@ function buildTree(notes: ProjectNoteTreeItem[]): NoteNode[] {
 export function NotesView({ projectSlug }: { projectSlug: string }) {
   const queryClient = useQueryClient();
   const { show } = useToast();
+  const confirm = useConfirm();
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [renaming, setRenaming] = React.useState<ProjectNoteTreeItem | null>(null);
 
@@ -132,12 +134,16 @@ export function NotesView({ projectSlug }: { projectSlug: string }) {
       show({ tone: 'danger', title: 'Delete failed', description: (err as Error).message }),
   });
 
-  const handleDelete = (node: ProjectNoteTreeItem) => {
+  const handleDelete = async (node: ProjectNoteTreeItem) => {
     const hasChildren = notes.some((n) => n.parentNoteId === node.id);
-    const msg = hasChildren
-      ? `Delete “${node.title}” and all its sub-pages?`
-      : `Delete “${node.title}”?`;
-    if (window.confirm(msg)) removeNote.mutate(node.id);
+    const ok = await confirm({
+      title: `Delete “${node.title}”?`,
+      description: hasChildren
+        ? 'This note and all of its sub-pages are removed for everyone. This cannot be undone.'
+        : 'This note is removed for everyone. This cannot be undone.',
+      confirmLabel: hasChildren ? 'Delete note and sub-pages' : 'Delete note',
+    });
+    if (ok) removeNote.mutate(node.id);
   };
 
   return (

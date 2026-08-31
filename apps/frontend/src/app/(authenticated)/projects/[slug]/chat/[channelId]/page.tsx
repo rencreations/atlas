@@ -9,6 +9,7 @@ import { queryKeys } from '@/lib/api/queries';
 import { getStoredSession } from '@/lib/auth-client';
 import type { ProjectDetail } from '@/lib/types';
 import { ChatLayout } from '@/components/chat/chat-layout';
+import { usePageTitle } from '@/lib/page-title';
 
 /**
  * The actual chat view. Guards access client-side by reading
@@ -29,6 +30,7 @@ export default function ProjectChannelPage() {
   });
 
   const project = projectQuery.data;
+  usePageTitle(project ? `Chat · ${project.title}` : 'Chat');
 
   React.useEffect(() => {
     if (!project) return;

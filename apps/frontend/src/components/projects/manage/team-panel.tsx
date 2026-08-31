@@ -147,7 +147,7 @@ function MemberRow({
           onValueChange={(v) => onChangeRole(v as ProjectRole)}
           disabled={isOwner || isUpdating}
         >
-          <SelectTrigger className="h-9 w-[180px]">
+          <SelectTrigger className="h-9 w-[180px]" aria-label={`Project role for ${member.user.name}`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -360,9 +360,11 @@ function InviteDialog({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label required>Role</Label>
+              <Label required htmlFor="invite-role">
+                Role
+              </Label>
               <Select value={role} onValueChange={(v) => setRole(v as ProjectRole)}>
-                <SelectTrigger>
+                <SelectTrigger id="invite-role">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
