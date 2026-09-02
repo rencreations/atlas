@@ -136,7 +136,7 @@ function MemberCard({ member, accent }: { member: TeamMember; accent: 'manager' 
             <div className="flex items-center gap-1.5">
               <span className="truncate font-medium text-ink">{member.user.name}</span>
               {member.isOwner ? (
-                <span title="Project owner" aria-label="Project owner">
+                <span title="Project owner" aria-label="Project owner" role="img">
                   <Crown
                     className="h-3.5 w-3.5 text-brand-yellow-ink"
                     strokeWidth={2.5}

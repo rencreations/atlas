@@ -106,7 +106,7 @@ export function NotificationBell() {
         <button
           aria-label={`Notifications${count ? ` (${count} unread)` : ''}`}
           className={cn(
-            'relative inline-grid h-10 w-10 place-items-center rounded text-ink',
+            'relative inline-grid h-9 w-9 place-items-center rounded text-ink md:h-10 md:w-10',
             'hover:bg-surface-muted',
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
           )}

@@ -24,7 +24,7 @@ export function ProjectRow({ label, description, items, viewAllHref }: Props) {
         {viewAllHref ? (
           <Link
             href={viewAllHref as never}
-            className="group inline-flex items-center gap-1 text-[14px] font-medium text-brand-blue"
+            className="group -my-2 inline-flex items-center gap-1 py-2 text-[14px] font-medium text-brand-blue"
           >
             View all
             <ArrowRight

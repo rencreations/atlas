@@ -162,7 +162,18 @@ export function ChatNavButton() {
           </ul>
         )}
       </PopoverContent>
-      <GlobalChatSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      <GlobalChatSearch
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        // The default labelled trigger overflows the header below xl, so
+        // render a compact icon button that gains its label at xl+.
+        trigger={
+          <Button size="sm" variant="ghost" aria-label="Search chats" className="px-2 xl:px-3">
+            <Search className="h-4 w-4" strokeWidth={2.25} />
+            <span className="hidden xl:inline">Search chats</span>
+          </Button>
+        }
+      />
     </Popover>
   );
 }

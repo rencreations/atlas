@@ -72,7 +72,7 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
           </p>
           <Link
             href="/"
-            className="mt-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-blue hover:underline"
+            className="mt-6 inline-flex items-center gap-1.5 py-2 text-[13px] font-medium text-brand-blue hover:underline"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
             Back to Atlas

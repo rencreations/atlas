@@ -343,7 +343,7 @@ export function LoginClient({
               <Label htmlFor="login-password">Password</Label>
               <Link
                 href={'/auth/forgot-password' as never}
-                className="text-[12px] font-medium text-brand-blue hover:underline"
+                className="-my-2 inline-block py-2 text-[12px] font-medium text-brand-blue hover:underline"
               >
                 Forgot password?
               </Link>
@@ -625,7 +625,10 @@ export function LoginClient({
       {config.registration.enabled && view === 'password' ? (
         <p className="mt-5 text-center text-[13px] text-ink-3">
           New here?{' '}
-          <Link href={'/register' as never} className="font-medium text-brand-blue hover:underline">
+          <Link
+            href={'/register' as never}
+            className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline"
+          >
             Create an account
           </Link>
         </p>

@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
     <AuthShell
       title="Reset your password"
       subtitle="We'll email you a link that lets you choose a new password."
-      footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+      footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
     >
       {sent ? (
         <div

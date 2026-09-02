@@ -66,7 +66,7 @@ function VerifyEmailContent() {
       <AuthShell
         title="Email verified"
         subtitle="Your email address is confirmed. You can sign in now."
-        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Go to sign-in</Link>}
+        footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Go to sign-in</Link>}
       >
         <div />
       </AuthShell>
@@ -76,7 +76,7 @@ function VerifyEmailContent() {
   return (
     <AuthShell
       title="Verifying your email…"
-      footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+      footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
     >
       {state === 'error' ? (
         <div
@@ -87,7 +87,7 @@ function VerifyEmailContent() {
         >
           {error}
           <span className="mt-2 block">
-            <Link href="/login" className="font-medium text-brand-blue hover:underline">
+            <Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">
               Go to sign-in
             </Link>
           </span>

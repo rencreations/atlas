@@ -75,7 +75,7 @@ function MagicLinkContent() {
   return (
     <AuthShell
       title="Signing you in…"
-      footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+      footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
     >
       {error ? (
         <div
@@ -86,7 +86,7 @@ function MagicLinkContent() {
         >
           {error}
           <span className="mt-2 block">
-            <Link href="/login" className="font-medium text-brand-blue hover:underline">
+            <Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">
               Go to sign-in
             </Link>
           </span>

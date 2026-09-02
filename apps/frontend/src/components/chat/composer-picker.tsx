@@ -47,7 +47,7 @@ export function ComposerPicker({ onEmojiPick, onGifPick, onStickerPick, onAfterC
       }}
     >
       <PopoverTrigger asChild>
-        <Button size="icon-sm" variant="ghost" aria-label="Emoji, GIF, sticker">
+        <Button size="icon-sm" variant="ghost" aria-label="Emoji, GIF, sticker" className="shrink-0">
           <Smile className="h-4 w-4" strokeWidth={2.25} />
         </Button>
       </PopoverTrigger>

@@ -122,7 +122,7 @@ export default function RegisterPage() {
     return (
       <AuthShell
         title="Create an account"
-        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+        footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
       >
         <ErrorState
           title="Couldn't load sign-up settings"
@@ -148,7 +148,7 @@ export default function RegisterPage() {
       <AuthShell
         title="Registration is closed"
         subtitle="This instance does not allow self-registration. Ask an admin for an invite or an account."
-        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+        footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
       >
         <div />
       </AuthShell>
@@ -162,7 +162,7 @@ export default function RegisterPage() {
       <AuthShell
         title="Enter your invite code"
         subtitle="This instance requires an invite code to create an account. Ask an admin if you don't have one."
-        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Already have an account? Sign in</Link>}
+        footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Already have an account? Sign in</Link>}
       >
         <form
           onSubmit={(e) => {
@@ -210,7 +210,7 @@ export default function RegisterPage() {
     <AuthShell
       title="Create an account"
       subtitle={config.site.description || undefined}
-      footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Already have an account? Sign in</Link>}
+      footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Already have an account? Sign in</Link>}
     >
       <form
         onSubmit={(e) => {

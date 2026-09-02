@@ -129,10 +129,14 @@ export function DiscoveryHero({ items }: { items: ProjectCardData[] }) {
                       key={p.id}
                       onClick={() => setIdx(i)}
                       aria-label={`Show ${p.title}`}
-                      className={`h-1 flex-1 rounded-full transition-colors ${
-                        i === idx ? 'bg-ink' : 'bg-line'
-                      }`}
-                    />
+                      className="group/dot flex h-6 flex-1 items-center"
+                    >
+                      <span
+                        className={`block h-1 w-full rounded-full transition-colors ${
+                          i === idx ? 'bg-ink' : 'bg-line group-hover/dot:bg-ink-2'
+                        }`}
+                      />
+                    </button>
                   ))}
                 </div>
                 <button

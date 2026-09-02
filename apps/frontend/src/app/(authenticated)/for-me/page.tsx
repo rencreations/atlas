@@ -131,7 +131,7 @@ export default function ForMePage() {
                                 href={
                                   `/projects/${a.task.project.slug}/lists/${a.task.taskList.id}/tasks/${a.task.key}` as never
                                 }
-                                className="ml-1 font-medium text-brand-blue hover:underline"
+                                className="-my-2 ml-1 inline-block py-2 font-medium text-brand-blue hover:underline"
                               >
                                 {a.task.key}
                               </Link>

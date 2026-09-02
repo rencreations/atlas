@@ -53,7 +53,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
       )}
     >
       <div className="container-x mx-auto flex h-14 max-w-[1360px] items-center gap-6 md:h-16">
-        <Link href={'/dashboard' as never} className="flex items-center gap-2">
+        <Link href={'/dashboard' as never} aria-label="Atlas home" className="flex items-center gap-2">
           <ShapeSignature size={24} />
           <Wordmark withSignature={false} className="hidden text-[18px] sm:inline-flex" />
         </Link>
@@ -113,13 +113,16 @@ export function Header({ user }: { user?: SessionUser | null }) {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button asChild size="sm" className="hidden sm:inline-flex">
+          {/* Labelled controls need lg+; below that they collapse to icons
+              so the header never overflows (the hamburger menu already
+              carries New project on mobile). */}
+          <Button asChild size="sm" className="hidden lg:inline-flex">
             <Link href={'/projects/new' as never}>
               <Plus className="h-4 w-4" strokeWidth={2.25} />
               New project
             </Link>
           </Button>
-          <Button asChild size="icon-sm" variant="ghost" className="sm:hidden">
+          <Button asChild size="icon-sm" variant="ghost" className="lg:hidden">
             <Link href={'/projects/new' as never} aria-label="New project">
               <Plus className="h-4 w-4" strokeWidth={2.25} />
             </Link>

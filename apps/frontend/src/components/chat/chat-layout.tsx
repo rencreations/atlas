@@ -91,7 +91,7 @@ export function ChatLayout({
           {scope.kind === 'project' ? (
             <Link
               href={`/projects/${scope.slug}` as never}
-              className="inline-flex items-center gap-1 text-[12px] text-ink-3 hover:text-ink"
+              className="-my-2 inline-flex items-center gap-1 py-2 text-[12px] text-ink-3 hover:text-ink"
             >
               <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
               Project
@@ -99,7 +99,7 @@ export function ChatLayout({
           ) : (
             <Link
               href={'/chat' as never}
-              className="inline-flex items-center gap-1 text-[12px] text-ink-3 hover:text-ink"
+              className="-my-2 inline-flex items-center gap-1 py-2 text-[12px] text-ink-3 hover:text-ink"
             >
               <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
               Chat

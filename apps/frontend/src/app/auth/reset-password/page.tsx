@@ -63,7 +63,7 @@ function ResetPasswordContent() {
     return (
       <AuthShell
         title="Reset your password"
-        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+        footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
       >
         <ErrorState
           title="This link is missing its token"
@@ -78,7 +78,7 @@ function ResetPasswordContent() {
       <AuthShell
         title="Password updated"
         subtitle="Sign in with your new password."
-        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Go to sign-in</Link>}
+        footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Go to sign-in</Link>}
       >
         <div />
       </AuthShell>
@@ -89,7 +89,7 @@ function ResetPasswordContent() {
     <AuthShell
       title="Choose a new password"
       subtitle="This link expires in 30 minutes."
-      footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
+      footer={<Link href="/login" className="-my-2 inline-block py-2 font-medium text-brand-blue hover:underline">Back to sign-in</Link>}
     >
       <form
         onSubmit={(e) => {

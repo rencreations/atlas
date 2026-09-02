@@ -446,6 +446,7 @@ export function MessageComposer({
           variant="ghost"
           onClick={() => fileInputRef.current?.click()}
           aria-label="Attach file"
+          className="shrink-0"
         >
           <Paperclip className="h-4 w-4" strokeWidth={2.25} />
         </Button>
@@ -467,7 +468,7 @@ export function MessageComposer({
           // sends the message instead of reopening this picker.
           onAfterClose={() => textareaRef.current?.focus()}
         />
-        <div className="relative flex-1">
+        <div className="relative min-w-0 flex-1">
           <MentionSuggest
             ref={mentionRef}
             value={draft}
@@ -494,6 +495,7 @@ export function MessageComposer({
           onClick={submit}
           disabled={!hasContent || !ready || overLimit || sendMutation.isPending}
           aria-label="Send message"
+          className="shrink-0"
         >
           <Send className="h-4 w-4" strokeWidth={2.25} />
         </Button>

@@ -150,7 +150,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
               </div>
               {(params.error_detail || !ERROR_HINTS[params.error]) ? (
                 <details className="mt-2">
-                  <summary className="cursor-pointer text-[12px] font-medium text-ink-3 hover:text-ink">
+                  <summary className="-my-1.5 inline-block cursor-pointer py-1.5 text-[12px] font-medium text-ink-3 hover:text-ink">
                     Technical details
                   </summary>
                   {!ERROR_HINTS[params.error] ? (
