@@ -345,6 +345,15 @@ function BlockNoteEditor({
   // `initialContent` already populated.
   const isLoading = status === 'connecting';
   const [historyOpen, setHistoryOpen] = React.useState(false);
+  const editorSurfaceRef = React.useRef<HTMLDivElement>(null);
+
+  // BlockNote's contenteditable ships without an accessible name; label it
+  // once the editor renders (axe aria-input-field-name).
+  React.useEffect(() => {
+    if (isLoading) return;
+    const el = editorSurfaceRef.current?.querySelector('.tiptap[contenteditable]');
+    el?.setAttribute('aria-label', 'Note editor');
+  }, [isLoading]);
 
   // Roll the BlockNote editor's content to a snapshot loaded from the
   // History drawer. For collaborative docs this mutates the bound Yjs
@@ -380,7 +389,10 @@ function BlockNoteEditor({
           <Clock className="h-3.5 w-3.5" strokeWidth={2.25} /> History
         </Button>
       </div>
-      <div className="relative flex-1 overflow-auto rounded-lg border border-line bg-surface">
+      <div
+        ref={editorSurfaceRef}
+        className="relative flex-1 overflow-auto rounded-lg border border-line bg-surface"
+      >
         <BlockNoteView
           editor={editor}
           theme="light"

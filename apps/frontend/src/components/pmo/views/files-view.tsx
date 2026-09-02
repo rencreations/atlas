@@ -454,29 +454,14 @@ function FileCard({
     <li>
       <div
         draggable
-        tabIndex={0}
-        role="button"
-        aria-label={item.isFolder ? `Open folder ${item.name}` : `Open file ${item.name}`}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         onDoubleClick={onOpen}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onOpen();
-          }
-        }}
-        onClick={(e) => {
-          // Keyboard activation (detail === 0) and touch taps open on
-          // single click; mouse keeps dblclick so drag-selecting a
-          // selection box doesn't fire accidental opens.
-          if (e.detail === 0 || window.matchMedia('(pointer: coarse)').matches) onOpen();
-        }}
         className={cn(
-          'group relative flex h-full cursor-pointer flex-col gap-2 rounded-lg border border-line bg-surface p-3',
+          'group relative flex h-full flex-col gap-2 rounded-lg border border-line bg-surface p-3',
           'transition-shadow duration-120 ease-out-soft hover:shadow-2',
           isDropTarget && item.isFolder && 'border-brand-blue ring-2 ring-brand-blue/30',
         )}
@@ -492,9 +477,14 @@ function FileCard({
           />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-medium text-ink" title={item.name}>
+          <button
+            type="button"
+            onClick={onOpen}
+            aria-label={item.isFolder ? `Open folder ${item.name}` : `Open file ${item.name}`}
+            className="block max-w-full truncate text-left text-[13px] font-medium text-ink hover:text-brand-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
             {item.name}
-          </p>
+          </button>
           <p className="truncate text-[11px] text-ink-3">
             {item.isFolder ? 'Folder' : `${item.mime ?? 'file'} · ${bytesHuman(item.bytes ?? 0)}`}
           </p>
