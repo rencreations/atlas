@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Fingerprint,
@@ -162,10 +162,17 @@ export function GodmodeShell({
   }, [onExpired]);
 
   const active = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0];
-  const excluded = new Set(active.excludeKeys ?? []);
-  const groupItems = (active.groups ?? [])
-    .map((g) => (settings?.items ?? []).filter((i) => i.group === g && !excluded.has(i.key)))
-    .flat();
+  // Stable identity matters: SettingsEditor resets its local edits when the
+  // items array it receives changes. Building this inline gave it a fresh
+  // array on every render, so each keystroke re-ran the reset and reverted
+  // the field (the Save button flashed for one frame). Memoize so identity
+  // only changes when the section or the fetched settings actually change.
+  const groupItems = useMemo(() => {
+    const excluded = new Set(active.excludeKeys ?? []);
+    return (active.groups ?? [])
+      .map((g) => (settings?.items ?? []).filter((i) => i.group === g && !excluded.has(i.key)))
+      .flat();
+  }, [active, settings]);
 
   return (
     <div className="mx-auto grid min-h-svh w-full max-w-[1360px] grid-cols-1 gap-0 md:grid-cols-[260px_1fr]">
@@ -249,6 +256,7 @@ export function GodmodeShell({
               <SettingsEditor
                 items={groupItems}
                 onDirtyChange={setDirty}
+                onSaved={() => void load()}
                 advancedByDefault={active.id === 'advanced'}
               />
             ) : null}

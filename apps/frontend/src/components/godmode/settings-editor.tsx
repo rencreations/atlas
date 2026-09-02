@@ -37,11 +37,14 @@ function initialEditorValue(item: GodmodeSettingItem): EditorValue {
 export function SettingsEditor({
   items,
   onDirtyChange,
+  onSaved,
   advancedByDefault = false,
 }: {
   items: GodmodeSettingItem[];
   /** Fired when the set of unsaved edits becomes non-empty / empty. */
   onDirtyChange?: (dirty: boolean) => void;
+  /** Fired after settings were saved successfully (lets the host refresh). */
+  onSaved?: () => void;
   /** Sections that exist to expose advanced knobs (e.g. Advanced) start
    *  expanded — otherwise they would render as an empty panel. */
   advancedByDefault?: boolean;
@@ -51,11 +54,18 @@ export function SettingsEditor({
   const [showAdvanced, setShowAdvanced] = useState(advancedByDefault);
   const [saving, setSaving] = useState(false);
 
+  // Re-initialize only when the settings content actually changes. The host
+  // hands us a new `items` array identity on every render, so keying this
+  // effect on `items` directly wiped all edits on each keystroke (the value
+  // snapped back and the Save button flashed). Compare the serialized
+  // content instead so identical data never resets the form.
+  const itemsSignature = useMemo(() => JSON.stringify(items), [items]);
   useEffect(() => {
     const next: Record<string, EditorValue> = {};
     for (const item of items) next[item.key] = initialEditorValue(item);
     setValues(next);
-  }, [items]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsSignature]);
 
   const dirtyCount = Object.values(values).filter((v) => v.dirty).length;
   useEffect(() => {
@@ -120,6 +130,9 @@ export function SettingsEditor({
         return next;
       });
       show({ title: 'Saved', description: `${changed.length} setting(s) updated.`, tone: 'success' });
+      // The host still holds the pre-save settings snapshot; have it refetch
+      // so switching panels (which re-initializes the editor) shows server truth.
+      onSaved?.();
     } catch (err) {
       show({
         title: 'Save failed',
@@ -129,7 +142,7 @@ export function SettingsEditor({
     } finally {
       setSaving(false);
     }
-  }, [values, items, show]);
+  }, [values, items, show, onSaved]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -310,6 +323,7 @@ function SettingControl({
         placeholder={item.secretSet ? '•••••••• (set — leave blank to keep)' : 'Not set'}
         onChange={(e) => onChange(e.target.value)}
         autoComplete="new-password"
+        aria-label={item.label}
       />
     );
   }
@@ -319,6 +333,7 @@ function SettingControl({
       className="w-[280px]"
       value={String(entry.value)}
       onChange={(e) => onChange(e.target.value)}
+      aria-label={item.label}
     />
   );
 }
