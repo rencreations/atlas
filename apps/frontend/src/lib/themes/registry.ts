@@ -1,12 +1,12 @@
 /**
- * The Atlas theme catalog — the single source of truth for every theme.
+ * The Atlas theme catalog, the single source of truth for every theme.
  *
  * Each theme is a full token set for light and dark mode. Tokens are the
  * same CSS variables `globals.css` and `tailwind.config.ts` consume, so
  * switching a theme re-skins the entire app (including the wordmark,
  * signature, and corner patterns) without touching component code.
  *
- * Generated CSS lives in `src/app/themes.generated.css` — after editing
+ * Generated CSS lives in `src/app/themes.generated.css`, after editing
  * this file run `pnpm themes:generate`. Compliance is enforced by
  * `pnpm themes:check` (WCAG 2.1 contrast) and the Playwright theme matrix.
  *
@@ -14,14 +14,14 @@
  *  - Core:    bg, surface, surfaceMuted, surfaceInverse, ink 1-4, line,
  *             lineStrong, focus, shimmer.
  *  - Brand:   blue/yellow/red/green (text, icons, links), their -50 tints,
- *             `strong` variants (button fills in dark mode — must hold
+ *             `strong` variants (button fills in dark mode, must hold
  *             white text at ≥ 4.5:1) and `yellowInk` (readable text on
  *             the yellow tint). All branding (wordmark, mark, patterns)
  *             renders in the single primary color `brandBlue`.
  *
  * The theme id list must stay in sync with the backend catalog at
  * `apps/backend/src/modules/settings/theme-ids.ts` (godmode enum +
- * public-config) — the backend validates ids, the frontend owns the
+ * public-config), the backend validates ids, the frontend owns the
  * palettes.
  */
 
@@ -165,7 +165,7 @@ function palette(seed: ThemeSeed, mode: 'light' | 'dark'): ThemePalette {
   const ink = seed.ink;
   // ink-3 sits on brand tints too (descriptions inside selected rows), and
   // the tints are dimmer than plain surfaces in light mode / brighter than
-  // surfaces in dark mode — pull it toward ink (light) / ink-2 (dark) so
+  // surfaces in dark mode, pull it toward ink (light) / ink-2 (dark) so
   // it holds 4.5:1 everywhere.
   const ink3 =
     mode === 'light' ? mix(seed.ink3, seed.ink, 0.12) : mix(seed.ink3, seed.ink2, 0.4);
@@ -242,7 +242,7 @@ export const THEMES: ThemeDefinition[] = [
   theme(
     'atlas',
     'Atlas Blue',
-    'The original Atlas palette — calm, neutral, and dependable.',
+    'The original Atlas palette, calm, neutral, and dependable.',
     {
       bg: [255, 255, 255],
       surface: [255, 255, 255],
@@ -281,7 +281,7 @@ export const THEMES: ThemeDefinition[] = [
   theme(
     'ocean',
     'Deep Ocean',
-    'Teal depths with coral accents — calm water, warm light.',
+    'Teal depths with coral accents, calm water, warm light.',
     {
       bg: [248, 252, 252],
       surface: [255, 255, 255],
@@ -632,7 +632,7 @@ export const THEMES: ThemeDefinition[] = [
   theme(
     'ice',
     'Glacier',
-    'Icy cyan with arctic gold — crisp and cold.',
+    'Icy cyan with arctic gold, crisp and cold.',
     {
       bg: [245, 251, 252],
       surface: [255, 255, 255],
@@ -671,7 +671,7 @@ export const THEMES: ThemeDefinition[] = [
   theme(
     'mint',
     'Mint',
-    'Fresh mint and citrus — bright and clean.',
+    'Fresh mint and citrus, bright and clean.',
     {
       bg: [245, 252, 249],
       surface: [255, 255, 255],
@@ -1100,7 +1100,7 @@ export const THEMES: ThemeDefinition[] = [
   theme(
     'noir',
     'Noir',
-    'Permanent dark — an AMOLED-first palette in both modes.',
+    'Permanent dark, an AMOLED-first palette in both modes.',
     {
       bg: [8, 9, 12],
       surface: [14, 16, 20],
@@ -1140,7 +1140,7 @@ export const THEMES: ThemeDefinition[] = [
   theme(
     'paper',
     'Paper',
-    'Warm paper and sepia ink — easy on the eyes.',
+    'Warm paper and sepia ink, easy on the eyes.',
     {
       bg: [250, 246, 236],
       surface: [253, 250, 243],

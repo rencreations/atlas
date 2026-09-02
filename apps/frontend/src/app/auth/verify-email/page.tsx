@@ -30,9 +30,9 @@ function VerifyEmailContent() {
   const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Missing token: never leave a spinner — the link is just incomplete.
+    // Missing token: never leave a spinner, the link is just incomplete.
     if (!token) {
-      setError('This link is missing its token — use the full link from your email.');
+      setError('This link is missing its token, use the full link from your email.');
       setState('error');
       return;
     }

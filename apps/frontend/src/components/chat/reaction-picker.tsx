@@ -5,7 +5,7 @@ import { SmilePlus, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
-// Lazy-load — same picker the composer uses, ~600KB. Don't punish every
+// Lazy-load, same picker the composer uses, ~600KB. Don't punish every
 // hover with that bundle.
 const EmojiPicker = React.lazy(() => import('emoji-picker-react'));
 
@@ -16,7 +16,7 @@ const QUICK_REACTIONS = ['👍', '❤️', '🎉', '🚀', '😂', '👀'];
 interface Props {
   onPick: (emoji: string) => void;
   /** Reported to the parent so it can keep the hover-bar pinned open while
-   *  the popover is mounted — otherwise the trigger loses its bounding box
+   *  the popover is mounted, otherwise the trigger loses its bounding box
    *  the moment the cursor leaves the message row and Radix re-anchors the
    *  popover, causing the flicker / jump the user reported. */
   onOpenChange?: (open: boolean) => void;

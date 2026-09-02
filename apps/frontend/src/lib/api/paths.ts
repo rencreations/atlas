@@ -56,7 +56,7 @@ export const apiPaths = {
     passkeyDelete: (id: string) => `/godmode/2fa/passkey/${id}`,
   },
 
-  // Feature flags — public evaluated map + admin CRUD.
+  // Feature flags, public evaluated map + admin CRUD.
   featureFlags: () => '/feature-flags',
   adminFeatureFlags: () => '/admin/feature-flags',
   adminFeatureFlag: (key: string) => `/admin/feature-flags/${encodeURIComponent(key)}`,
@@ -144,7 +144,7 @@ export const apiPaths = {
     unarchiveGlobalChannel: (channelId: string) =>
       `/chat/global/channels/${channelId}/unarchive`,
     globalMembers: (q?: string) => `/chat/global/members${q ? `?q=${encodeURIComponent(q)}` : ''}`,
-    // Channel-id-keyed routes — work for any channel the caller can
+    // Channel-id-keyed routes, work for any channel the caller can
     // access (global channels, lobby voice threads, project channels).
     channelMessages: (channelId: string, cursor?: string, limit?: number) => {
       const qs = new URLSearchParams();
@@ -364,12 +364,12 @@ export const apiPaths = {
     lobbyChannel: (channelId: string) => `/voice/lobby/channels/${channelId}`,
     join: (channelId: string) => `/voice/channels/${channelId}/join`,
     leave: (channelId: string) => `/voice/channels/${channelId}/leave`,
-    /** GET — resolve the paired ChatChannel id for a voice channel's text thread. */
+    /** GET, resolve the paired ChatChannel id for a voice channel's text thread. */
     thread: (channelId: string) => `/voice/channels/${channelId}/thread`,
     moderateMute: (channelId: string) => `/voice/channels/${channelId}/moderate/mute`,
     moderateKick: (channelId: string) => `/voice/channels/${channelId}/moderate/kick`,
     moderateMove: (channelId: string) => `/voice/channels/${channelId}/moderate/move`,
-    /** Phase 8 — stage channel actions. */
+    /** Phase 8, stage channel actions. */
     handRaise: (channelId: string) => `/voice/channels/${channelId}/hand/raise`,
     handLower: (channelId: string) => `/voice/channels/${channelId}/hand/lower`,
     handQueue: (channelId: string) => `/voice/channels/${channelId}/hand/queue`,

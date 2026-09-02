@@ -8,7 +8,7 @@ export interface SurfaceState {
   status: SaveStatus;
   lastSavedAt: number | null;
   lastError: string | null;
-  // Synchronous flush — must use sendBeacon / fetch keepalive so the
+  // Synchronous flush, must use sendBeacon / fetch keepalive so the
   // request survives page unload. Optional: surfaces with nothing to
   // flush can omit it.
   flushNow?: () => void;

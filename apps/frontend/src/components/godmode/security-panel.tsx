@@ -48,7 +48,7 @@ export function SecurityPanel() {
 
   useEffect(() => {
     void load();
-    // The session lifetime is a settings value, not a 2FA value — read it
+    // The session lifetime is a settings value, not a 2FA value, read it
     // from the settings registry so we can render it read-only.
     godmodeFetch<GodmodeSettingsView>(godmodePaths.settings())
       .then((view) => {

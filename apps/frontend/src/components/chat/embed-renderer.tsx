@@ -5,7 +5,7 @@ import { Image as ImageIcon } from 'lucide-react';
 
 /**
  * Detects bare URLs to YouTube / Vimeo / Tenor / Giphy in the message
- * markdown and returns an iframe (video) or img (gif) — mirroring
+ * markdown and returns an iframe (video) or img (gif), mirroring
  * Discord's auto-embed behaviour. Returns null when the URL doesn't
  * match a known provider so the caller can fall back to rendering it
  * as a plain link.
@@ -48,7 +48,7 @@ export function EmbedFor({ url }: { url: string }) {
 }
 
 /** GIF embed with a graceful fallback when the image fails to load
- *  (dead Tenor/Giphy CDN link) — swap to an icon + host link instead
+ *  (dead Tenor/Giphy CDN link), swap to an icon + host link instead
  *  of leaving a broken-image box in the stream. */
 function GifEmbed({ url, src }: { url: string; src: string }) {
   const [broken, setBroken] = React.useState(false);
@@ -134,7 +134,7 @@ function detect(raw: string): Detected | null {
   ) {
     return { kind: 'gif', id: raw, previewUrl: raw };
   }
-  // Tenor view pages — fall back to the bare URL, we can't extract a
+  // Tenor view pages, fall back to the bare URL, we can't extract a
   // preview without an API call. Returning null lets the link preview
   // server fetch handle these.
 

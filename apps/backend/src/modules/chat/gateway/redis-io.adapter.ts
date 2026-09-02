@@ -10,7 +10,7 @@ import type { ServerOptions } from 'socket.io';
  * and broadcasts via Redis pub/sub.
  *
  * If `pub` or `sub` is null (REDIS_URL unset), we fall back to the
- * vanilla IoAdapter — sockets still work on a single instance, just
+ * vanilla IoAdapter, sockets still work on a single instance, just
  * without cross-instance fanout. Boot succeeds either way.
  */
 export class RedisIoAdapter extends IoAdapter {
@@ -32,7 +32,7 @@ export class RedisIoAdapter extends IoAdapter {
       (server as any).adapter(adapter);
       this.logger.log('socket.io Redis adapter enabled');
     } else {
-      this.logger.warn('socket.io running without Redis adapter — single-instance only');
+      this.logger.warn('socket.io running without Redis adapter, single-instance only');
     }
     return server;
   }

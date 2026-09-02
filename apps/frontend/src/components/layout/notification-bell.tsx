@@ -24,7 +24,7 @@ export function NotificationBell() {
   const { show } = useToast();
   // Live-invalidated by NotificationsClient on socket events, so we
   // don't need to poll. Keep a long staleTime so route changes don't
-  // re-fetch — the socket is the source of truth.
+  // re-fetch, the socket is the source of truth.
   const unread = useQuery({
     queryKey: ['notifications', 'unread'],
     queryFn: () => api<{ unread: number }>(apiPaths.unreadCount()),

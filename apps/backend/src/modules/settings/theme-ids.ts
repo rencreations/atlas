@@ -3,7 +3,7 @@
  * enum, UpdateMeDto validation, and GET /public-config.
  *
  * The palettes themselves live in the frontend at
- * `apps/frontend/src/lib/themes/registry.ts` — keep this list in sync
+ * `apps/frontend/src/lib/themes/registry.ts`, keep this list in sync
  * with that file (the frontend owns the tokens; the backend owns the
  * contract). The frontend falls back to `atlas` for unknown ids.
  */

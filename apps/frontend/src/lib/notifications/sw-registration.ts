@@ -6,7 +6,7 @@
  *
  * Registration is best-effort: if the browser doesn't support service
  * workers (private mode in some browsers, certain embedded webviews)
- * we just no-op and the rest of the app continues unaffected — push
+ * we just no-op and the rest of the app continues unaffected, push
  * silently degrades to in-app delivery only.
  */
 
@@ -15,7 +15,7 @@ const SW_URL = '/sw.js';
 let registrationPromise: Promise<ServiceWorkerRegistration | null> | null = null;
 
 /**
- * Registers /sw.js at scope `/`. Idempotent — repeated calls return the
+ * Registers /sw.js at scope `/`. Idempotent, repeated calls return the
  * same promise, so it's safe to call from any layout/component.
  */
 export function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
@@ -63,7 +63,7 @@ export function onNotificationClick(
 }
 
 /**
- * Subscribe to the SW's quick-reply-sent channel — fires when a user
+ * Subscribe to the SW's quick-reply-sent channel, fires when a user
  * submits an inline reply from the OS notification banner and the
  * backend POST succeeded. The page uses this to refresh the relevant
  * chat thread immediately so the sent message lands without a polling

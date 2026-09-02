@@ -79,7 +79,7 @@ import { VoiceStageService } from './services/voice-stage.service';
 })
 export class VoiceModule {}
 
-// Why: soundboard clip upload size — see the ADR in docs/adr/
+// Why: soundboard clip upload size, see the ADR in docs/adr/
 
 // Careful: changing this interacts with sticker pack moderation flow
 

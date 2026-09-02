@@ -11,7 +11,7 @@ const MAX_SKEW_MS = 5 * 60 * 1000;
  *   x-yjs-timestamp: <ms epoch>
  *   x-yjs-signature: hex( HMAC-SHA256(secret, `${docKey}.${timestamp}`) )
  * where `secret` is YJS_INTERNAL_AUTH_SECRET. When the secret is unset
- * (sidecar not provisioned) every call is rejected — safe default.
+ * (sidecar not provisioned) every call is rejected, safe default.
  */
 @Injectable()
 export class InternalYjsGuard implements CanActivate {

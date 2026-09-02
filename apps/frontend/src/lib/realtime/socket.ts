@@ -63,7 +63,7 @@ export function getNotificationsSocket(): Socket | null {
   return notificationsSocket;
 }
 
-/** Drop the singletons — used on logout so the next user gets fresh sockets. */
+/** Drop the singletons, used on logout so the next user gets fresh sockets. */
 export function disconnectChatSocket(): void {
   if (chatSocket) {
     chatSocket.disconnect();

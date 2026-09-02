@@ -9,7 +9,7 @@ import { PrismaService } from '@/prisma/prisma.service';
  * Project-scoped member search for @mention autocomplete in the chat
  * composer. Returns insiders only (project members + the project
  * owner) so a typo can't surface a user who has no access to the
- * channel — Atlas's notification ACL also enforces this on send.
+ * channel, Atlas's notification ACL also enforces this on send.
  *
  * Lives under `/projects/:slugOrId/chat/members` to keep the chat
  * namespace cohesive and so the existing access guard can stay in

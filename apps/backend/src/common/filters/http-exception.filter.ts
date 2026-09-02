@@ -82,7 +82,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (status >= 500) {
       // Report only real server errors to Sentry/GlitchTip (no-op without DSN).
-      // Response shape is unchanged — this is purely observability.
+      // Response shape is unchanged, this is purely observability.
       Sentry.captureException(exception);
       this.logger.error(
         `${request.method} ${request.url} → ${status} ${error}`,

@@ -81,7 +81,7 @@ export interface VoiceParticipantView {
   cameraTrack: RemoteVideoTrack | LocalVideoTrack | null;
   /** Screen-share video track. */
   screenShareTrack: RemoteVideoTrack | LocalVideoTrack | null;
-  /** Screen-share audio (browser tab capture audio) — Chromium only. */
+  /** Screen-share audio (browser tab capture audio), Chromium only. */
   screenShareAudioTrack: RemoteAudioTrack | LocalAudioTrack | null;
 }
 
@@ -114,24 +114,24 @@ export interface VoiceState {
   preferences: VoiceUserPreferences | null;
   /**
    * Per-participant local volume (0-2, 1 = unity). Phase 5. Applied
-   * client-side via LiveKit RemoteAudioTrack.setVolume() — never
+   * client-side via LiveKit RemoteAudioTrack.setVolume(), never
    * affects what other peers hear. Identity → volume.
    */
   localVolume: Map<string, number>;
-  /** Phase 5 — set of identities the local user has personally muted. */
+  /** Phase 5, set of identities the local user has personally muted. */
   localMuted: Set<string>;
-  /** Phase 6 — soundboard output volume (0-2, 1 = unity). */
+  /** Phase 6, soundboard output volume (0-2, 1 = unity). */
   soundboardVolume: number;
-  /** Phase 6 — clip id currently playing, null when nothing is. */
+  /** Phase 6, clip id currently playing, null when nothing is. */
   soundboardPlayingClipId: string | null;
   /**
-   * Phase 7 — LiveKit Participant.connectionQuality for the local
+   * Phase 7, LiveKit Participant.connectionQuality for the local
    * user. 'excellent' | 'good' | 'poor' | 'unknown'. Drives the
    * wifi-bar indicator in the persistent panel.
    */
   connectionQuality: 'excellent' | 'good' | 'poor' | 'unknown';
   /**
-   * Phase 7 — active recording for the current channel, when one
+   * Phase 7, active recording for the current channel, when one
    * exists. null when nothing is being recorded.
    */
   recording: {
@@ -140,11 +140,11 @@ export interface VoiceState {
     startedByName: string;
     startedAt: number;
   } | null;
-  /** Phase 8 — kind of the current channel ('STANDARD' or 'STAGE'). */
+  /** Phase 8, kind of the current channel ('STANDARD' or 'STAGE'). */
   channelKind: 'STANDARD' | 'STAGE';
-  /** Phase 8 — local user's stage role (always SPEAKER in STANDARD). */
+  /** Phase 8, local user's stage role (always SPEAKER in STANDARD). */
   stageRole: 'SPEAKER' | 'AUDIENCE';
-  /** Phase 8 — true while the local user has a raised hand. */
+  /** Phase 8, true while the local user has a raised hand. */
   handRaised: boolean;
   ping: number | null;
   error: string | null;
@@ -267,7 +267,7 @@ function pickPublicationAudioTrack(
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const enabled = isVoiceEnabled();
   const roomRef = useRef<Room | null>(null);
-  // Phase 7 — chimes pull their on/off from preferences, but room
+  // Phase 7, chimes pull their on/off from preferences, but room
   // event handlers are registered once at connect time. Keep a ref so
   // the handlers see the latest pref without re-binding.
   const roomPrefsRef = useRef<VoiceUserPreferences | null>(null);
@@ -367,7 +367,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       const outputs = all.filter((d) => d.kind === 'audiooutput');
       setState((prev) => ({ ...prev, devices: { mics, cameras, outputs } }));
     } catch {
-      // Permissions denied — leave devices empty; pickers stay hidden.
+      // Permissions denied, leave devices empty; pickers stay hidden.
     }
   }, []);
 
@@ -453,7 +453,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
       room
         .on(RoomEvent.ParticipantConnected, () => {
-          // Chime — guarded by saved pref + only after we've finished
+          // Chime, guarded by saved pref + only after we've finished
           // the initial connect. We use a ref because state.preferences
           // can change between events.
           const p = roomPrefsRef.current;
@@ -486,7 +486,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           RoomEvent.ConnectionQualityChanged,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (quality: any, participant: any) => {
-            // Only act on the local participant — peers' quality is
+            // Only act on the local participant, peers' quality is
             // less actionable for the UI.
             if (participant?.identity !== room.localParticipant.identity) return;
             const q: 'excellent' | 'good' | 'poor' | 'unknown' =
@@ -574,11 +574,11 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     try {
       await room.localParticipant.setMicrophoneEnabled(enableMic);
     } catch (err) {
-      // The device never changed — leave the mic toggle where it was
+      // The device never changed, leave the mic toggle where it was
       // instead of flipping optimistically.
       if (isNotAllowedError(err)) {
         patch({
-          error: 'Microphone permission denied — allow it in your browser and retry.',
+          error: 'Microphone permission denied, allow it in your browser and retry.',
         });
       } else {
         patch({ error: (err as Error).message ?? 'Could not toggle your microphone.' });
@@ -586,7 +586,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       return;
     }
     patch({ micMuted: !enableMic, deafened: !enableMic ? state.deafened : false });
-    // Phase 7 — local feedback chime, prefs-gated.
+    // Phase 7, local feedback chime, prefs-gated.
     if (state.preferences?.soundsEnabled !== false) {
       if (enableMic) playUnmuteChime();
       else playMuteChime();
@@ -608,10 +608,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         patch({ deafened: false, micMuted: false });
       }
     } catch (err) {
-      // Leave the deafen toggle where it was — the device never changed.
+      // Leave the deafen toggle where it was, the device never changed.
       if (isNotAllowedError(err)) {
         patch({
-          error: 'Microphone permission denied — allow it in your browser and retry.',
+          error: 'Microphone permission denied, allow it in your browser and retry.',
         });
       } else {
         patch({ error: (err as Error).message ?? 'Could not toggle your microphone.' });
@@ -626,10 +626,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       try {
         await room.switchActiveDevice('audioinput', deviceId);
       } catch (err) {
-        // Keep the previous device selected — the switch never happened.
+        // Keep the previous device selected, the switch never happened.
         if (isNotAllowedError(err)) {
           patch({
-            error: 'Microphone permission denied — allow it in your browser and retry.',
+            error: 'Microphone permission denied, allow it in your browser and retry.',
           });
         } else {
           patch({ error: (err as Error).message ?? 'Could not switch your microphone.' });
@@ -699,7 +699,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         patch({ screenSharing: enable });
         refreshParticipants(room);
       } catch (err) {
-        // User cancelled the OS picker — not an error worth surfacing.
+        // User cancelled the OS picker, not an error worth surfacing.
         const msg = (err as Error).message ?? '';
         if (!/Permission denied|cancel/i.test(msg)) {
           patch({ error: msg || 'Screen share failed.' });
@@ -753,7 +753,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
             try {
               (track as RemoteAudioTrack).setVolume(vol);
             } catch {
-              // Track gone — ignore
+              // Track gone, ignore
             }
           }
         }
@@ -764,7 +764,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
   const setLocalVolume = useCallback<VoiceActions['setLocalVolume']>(
     (identity, volume) => {
-      // Clamp to [0, 2] — 2 = doubled output.
+      // Clamp to [0, 2], 2 = doubled output.
       const clamped = Math.max(0, Math.min(2, volume));
       setState((prev) => {
         const next = new Map(prev.localVolume);
@@ -1009,7 +1009,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       const ref = await ensureSoundboardPipeline();
       if (!ref) return;
 
-      // Stop any clip already playing — soundboards are mono-voice.
+      // Stop any clip already playing, soundboards are mono-voice.
       stopActiveSoundboard();
 
       let buffer = ref.bufferCache.get(clip.id);
@@ -1044,7 +1044,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       try {
         source.start();
       } catch {
-        // Source already started or context suspended — try resuming.
+        // Source already started or context suspended, try resuming.
         try {
           await ref.ctx.resume();
           source.start();
@@ -1100,7 +1100,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         cameraDeviceId: prefs.cameraDeviceId,
       }));
     } catch {
-      // Best-effort — settings dialog will show defaults until the
+      // Best-effort, settings dialog will show defaults until the
       // backend is reachable.
     }
   }, [enabled]);
@@ -1249,7 +1249,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   // LiveKit exposes RTT to the SFU on Room.engine.client.rtt (number,
   // ms) once the data channel is open. We sample it every 3s while
   // connected and write to state.ping. Skips when no room or
-  // disconnected — the value is cleared by initialState on teardown.
+  // disconnected, the value is cleared by initialState on teardown.
   useEffect(() => {
     if (state.connectionState !== 'connected') return;
     const room = roomRef.current;
@@ -1374,13 +1374,13 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         clearTimeout(releaseTimer);
         releaseTimer = null;
       }
-      // Don't unmute if user is deafened — deafen wins.
+      // Don't unmute if user is deafened, deafen wins.
       if (state.deafened) return;
       try {
         await room.localParticipant.setMicrophoneEnabled(true);
         setState((prev) => ({ ...prev, micMuted: false, pttActive: true }));
       } catch {
-        // ignore — mic permission probably denied
+        // ignore, mic permission probably denied
       }
     };
 

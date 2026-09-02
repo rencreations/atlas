@@ -21,7 +21,7 @@ import type { AdminStickerPack, StickerPresignResponse } from '@/lib/types';
 /**
  * Admin sticker library. Pack list on the left, sticker grid for the
  * selected pack on the right. Upload via drop zone, click-to-pick, or
- * paste-image. Reuses the chat S3 plumbing — uploads land under
+ * paste-image. Reuses the chat S3 plumbing, uploads land under
  * `stickers/{packId}/...` so they're cleanly separated from project
  * media and chat attachments.
  *

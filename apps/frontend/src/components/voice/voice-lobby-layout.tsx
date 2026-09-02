@@ -33,7 +33,7 @@ export function VoiceLobbyLayout({ channelId, channelName, channelTopic }: Props
   const session = getStoredSession();
   const isAdmin = session?.user.isAdmin === true;
   const queryClient = useQueryClient();
-  // Collapsible per-channel text thread (§10) — same default as the
+  // Collapsible per-channel text thread (§10), same default as the
   // per-project layout: open on wide viewports, closed on narrow ones.
   const [chatOpen, setChatOpen] = React.useState(false);
   React.useEffect(() => {

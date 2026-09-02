@@ -28,7 +28,7 @@ export const DialogContent = React.forwardRef<
       />
       {/* Viewport-sized scrollable wrapper. Flex centering keeps the dialog
           centered when its content fits, and lets the wrapper itself scroll
-          when content is taller than the viewport — works at any browser
+          when content is taller than the viewport, works at any browser
           zoom because it uses only percentages, no vh/svh/dvh calc. */}
       <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain">
         <div className="flex min-h-full items-center justify-center p-4">

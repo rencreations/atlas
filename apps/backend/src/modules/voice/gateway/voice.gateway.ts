@@ -22,7 +22,7 @@ import { WsSessionGuard } from '@/modules/chat/gateway/ws-session.guard';
  *   - Rooms: `project:{id}` (channel-list updates) + `channel:{id}`
  *     (in-room events) + `voice-lobby` (workspace lobby list updates).
  *
- * Note: the *audio media* doesn't ride this WebSocket at all — that's
+ * Note: the *audio media* doesn't ride this WebSocket at all, that's
  * LiveKit's own WSS signaling on /livekit/. This gateway only carries
  * Atlas-side metadata: who's in which channel, channel CRUD fanout,
  * etc.
@@ -147,7 +147,7 @@ export class VoiceGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
    * channel-list sidebar showing speaking halos on tiles without a
    * full Room connection) can react.
    *
-   * This is intentionally a low-trust, fire-and-forget event — we
+   * This is intentionally a low-trust, fire-and-forget event, we
    * don't validate that the user is actually in the channel. The
    * worst-case is a malicious user emitting fake speaker updates,
    * which is harmless (visual indicator only; the actual audio is
@@ -161,7 +161,7 @@ export class VoiceGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   ): Promise<void> {
     const user = socket.data.user as AuthenticatedUser;
     if (!body?.channelId || !Array.isArray(body.speakers)) return;
-    // Broadcast to other clients in this channel — not back to the
+    // Broadcast to other clients in this channel, not back to the
     // sender. The sender already knows it's speaking.
     socket.to(`channel:${body.channelId}`).emit('voice.speaker.update', {
       channelId: body.channelId,

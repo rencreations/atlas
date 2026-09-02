@@ -18,11 +18,11 @@ interface PageProps {
 }
 
 /** User-facing explanations for known error codes. Keep these free of
- *  operator jargon — raw codes live behind the "Technical details"
+ *  operator jargon, raw codes live behind the "Technical details"
  *  disclosure instead. */
 const ERROR_HINTS: Record<string, string> = {
   session_creation_failed:
-    "We couldn't start your session. The sign-in service didn't respond — please try again in a moment.",
+    "We couldn't start your session. The sign-in service didn't respond, please try again in a moment.",
   missing_identity_claims:
     "The identity provider didn't return any profile information. Try a different sign-in method.",
   token_exchange_failed:
@@ -90,8 +90,8 @@ export default async function LoginPage({ searchParams }: PageProps) {
   const config = await loadPublicConfig();
 
   // If already logged in, redirect to the requested page (or dashboard).
-  // NOTE: this server-side branch is currently dead — getStoredSession()
-  // is window-gated and always returns null on the server — but the
+  // NOTE: this server-side branch is currently dead, getStoredSession()
+  // is window-gated and always returns null on the server, but the
   // callbackUrl is sanitized anyway so it stays safe if a server-side
   // session source ever lands.
   if (session) {
@@ -132,7 +132,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
               className="mt-5 rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-3 text-[13px] text-ink"
             >
               <div className="font-medium text-brand-blue">
-                Check your email — we sent a verification link
+                Check your email, we sent a verification link
               </div>
               <p className="mt-1 text-ink-2">
                 Follow the link to confirm your address, then sign in.

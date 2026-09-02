@@ -50,7 +50,7 @@ export function WhiteboardCanvas({
   });
   const wsBase = getYjsWsUrl() || tokenQuery.data?.wsUrl || '';
 
-  // Stored sceneSnapshot JSON projection — fetched for auto-recovery
+  // Stored sceneSnapshot JSON projection, fetched for auto-recovery
   // when the Yjs binary state is empty but the projection has the
   // user's saved scene. See the recovery effect below.
   const whiteboardQuery = useQuery({
@@ -63,7 +63,7 @@ export function WhiteboardCanvas({
   React.useEffect(() => {
     return () => {
       // Flush whatever the user just drew via keepalive fetch BEFORE
-      // we tear down the Yjs binding — otherwise the pending 2s
+      // we tear down the Yjs binding, otherwise the pending 2s
       // debounce gets clipped and the scene is lost.
       clearTimeout(saveTimer.current);
       flushScene('beacon');
@@ -157,7 +157,7 @@ export function WhiteboardCanvas({
     try {
       binding.replaceAll(savedElements);
     } catch {
-      // ignore — leave canvas blank rather than crash
+      // ignore, leave canvas blank rather than crash
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run-once recovery
   }, [synced, whiteboardQuery.data]);
@@ -195,7 +195,7 @@ export function WhiteboardCanvas({
           save.markError(err instanceof Error ? err.message : 'Save failed');
         });
     },
-    // `save` intentionally excluded — identity stable, see note-editor.tsx.
+    // `save` intentionally excluded, identity stable, see note-editor.tsx.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [projectSlug, wbId],
   );
@@ -216,7 +216,7 @@ export function WhiteboardCanvas({
       clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => flushScene('async'), 2000);
     },
-    // `save`'s identity is stable across renders — intentionally omitted.
+    // `save`'s identity is stable across renders, intentionally omitted.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [flushScene],
   );

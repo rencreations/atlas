@@ -86,7 +86,7 @@ export function VoiceRoom({
     );
   }
 
-  // The user is already in a different channel — gate the switch
+  // The user is already in a different channel, gate the switch
   // behind an explicit click.
   if (state.channelId && state.channelId !== channelId) {
     return (
@@ -101,7 +101,7 @@ export function VoiceRoom({
     );
   }
 
-  // Phase 8 — stage channels get their own layout (speakers + audience).
+  // Phase 8, stage channels get their own layout (speakers + audience).
   if (state.channelKind === 'STAGE' && state.channelId === channelId) {
     return (
       <StageRoom

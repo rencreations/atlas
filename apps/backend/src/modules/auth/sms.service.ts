@@ -39,7 +39,7 @@ export class SmsService {
       this.settings.get<string>('sms.twilio.from'),
     ]);
     if (!accountSid || !authToken) {
-      this.logger.warn('Twilio credentials missing — falling back to console.');
+      this.logger.warn('Twilio credentials missing, falling back to console.');
       return this.sendSmsFallback(to, text);
     }
     const res = await fetch(
@@ -65,7 +65,7 @@ export class SmsService {
       this.settings.get<string>('sms.vonage.from'),
     ]);
     if (!apiKey || !apiSecret) {
-      this.logger.warn('Vonage credentials missing — falling back to console.');
+      this.logger.warn('Vonage credentials missing, falling back to console.');
       return this.sendSmsFallback(to, text);
     }
     const res = await fetch('https://rest.nexmo.com/sms/json', {
@@ -91,7 +91,7 @@ export class SmsService {
       this.settings.get<string>('sms.infobip.from'),
     ]);
     if (!apiKey) {
-      this.logger.warn('Infobip API key missing — falling back to console.');
+      this.logger.warn('Infobip API key missing, falling back to console.');
       return this.sendSmsFallback(to, text);
     }
     const res = await fetch(
@@ -120,7 +120,7 @@ export class SmsService {
       this.settings.get<string>('sms.sinch.from'),
     ]);
     if (!apiToken || !servicePlanId) {
-      this.logger.warn('Sinch credentials missing — falling back to console.');
+      this.logger.warn('Sinch credentials missing, falling back to console.');
       return this.sendSmsFallback(to, text);
     }
     const res = await fetch(`https://sms.api.sinch.com/xms/v1/${servicePlanId}/batches`, {
@@ -147,7 +147,7 @@ export class SmsService {
       this.settings.get<string>('sms.messagebird.from'),
     ]);
     if (!apiKey) {
-      this.logger.warn('MessageBird API key missing — falling back to console.');
+      this.logger.warn('MessageBird API key missing, falling back to console.');
       return this.sendSmsFallback(to, text);
     }
     const res = await fetch('https://rest.messagebird.com/messages', {

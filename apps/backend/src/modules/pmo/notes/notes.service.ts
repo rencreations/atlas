@@ -32,7 +32,7 @@ export class NotesService {
     this.maxNotes = config.get<number>('pmo.maxNotesPerProject') ?? 500;
   }
 
-  /** Flat list of note metadata (no content) — the frontend nests it into a tree. */
+  /** Flat list of note metadata (no content), the frontend nests it into a tree. */
   async list(projectId: string) {
     const notes = await this.prisma.projectNote.findMany({
       where: { projectId, deletedAt: null },
@@ -140,7 +140,7 @@ export class NotesService {
     return this.prisma.projectNote.update({ where: { id: noteId }, data });
   }
 
-  /** History tab listing — newest first, with author name when known. */
+  /** History tab listing, newest first, with author name when known. */
   async listRevisions(projectId: string, noteId: string, take = 100) {
     await this.get(projectId, noteId);
     return this.prisma.noteRevision.findMany({
@@ -169,7 +169,7 @@ export class NotesService {
   /** Roll the live contentSnapshot back to a chosen revision. Records a
    *  NEW revision so the rollback itself is undoable via "restore the
    *  most recent pre-rollback revision". Note: this writes the JSON
-   *  projection only — collaborative Yjs state continues from wherever
+   *  projection only, collaborative Yjs state continues from wherever
    *  it is, which for single-user notes converges immediately and for
    *  multi-user notes converges on next snapshot. */
   async restoreRevision(projectId: string, noteId: string, revisionId: string, actorId: string) {

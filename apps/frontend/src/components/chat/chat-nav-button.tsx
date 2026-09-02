@@ -18,7 +18,7 @@ import { GlobalChatSearch } from './global-chat-search';
  * dive straight into a conversation without going through the project page.
  *
  * Falls back to silent (no badge, no fetch on render) for users with no
- * projects — endpoint returns an empty list and that's it.
+ * projects, endpoint returns an empty list and that's it.
  */
 export function ChatNavButton() {
   const [open, setOpen] = React.useState(false);

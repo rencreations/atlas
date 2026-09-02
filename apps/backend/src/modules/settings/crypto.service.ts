@@ -7,7 +7,7 @@ const PREFIX = 'enc:v1:';
 /**
  * AES-256-GCM encryption for godmode secret settings.
  * The key is derived (SHA-256) from INTERNAL_JWT_SECRET, so secrets at
- * rest are recoverable from .env alone — backups stay portable between
+ * rest are recoverable from .env alone, backups stay portable between
  * hosts as long as the same .env is used.
  */
 @Injectable()

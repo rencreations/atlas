@@ -12,7 +12,7 @@
  *      can't accidentally inherit a stale sessionId.
  *   2. Clearing browser cookies / site data wipes both.
  *
- * Only the sessionId is stored — not the user object or the Keycloak
+ * Only the sessionId is stored, not the user object or the Keycloak
  * tokens. That keeps the SW's blast radius minimal: a leaked SW can
  * only impersonate the current session, not derive long-lived refresh
  * material.

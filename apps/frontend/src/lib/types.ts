@@ -1,5 +1,5 @@
 // Shared types mirroring the backend Prisma schema. Update both when the
-// schema changes — they are not auto-generated.
+// schema changes, they are not auto-generated.
 
 export type ProjectPhase =
   | 'IDEA'
@@ -41,7 +41,7 @@ export type NotificationType =
 
 /**
  * Per-user notification preferences (Phase 4). Mirrors the backend's
- * `NotificationPreference` Prisma model 1:1 — every boolean here maps
+ * `NotificationPreference` Prisma model 1:1, every boolean here maps
  * to a column the controller's `PATCH /notifications/preferences`
  * route accepts.
  */
@@ -117,7 +117,7 @@ export interface SessionUser {
   isAdmin: boolean;
 }
 
-/** GET /users/me — the signed-in user's own profile. */
+/** GET /users/me, the signed-in user's own profile. */
 export interface MeProfile {
   id: string;
   email: string;
@@ -502,7 +502,7 @@ export interface ChatSearchHit {
   projectTitle: string | null;
   authorId: string;
   authorName: string;
-  /** Snippet with `<mark>` wrappers — sanitised by the renderer. */
+  /** Snippet with `<mark>` wrappers, sanitised by the renderer. */
   snippet: string;
   rank: number;
   createdAt: string;
@@ -703,7 +703,7 @@ export interface Whiteboard extends WhiteboardListItem {
   deletedAt: string | null;
 }
 
-/** A node in the project Notes tree (metadata only — content lives in Yjs). */
+/** A node in the project Notes tree (metadata only, content lives in Yjs). */
 export interface ProjectNoteTreeItem {
   id: string;
   projectId: string;
@@ -737,7 +737,7 @@ export interface ProjectFileUploader {
   avatarUrl: string | null;
 }
 
-/** A node in the project Files tree — either a folder or an uploaded file. */
+/** A node in the project Files tree, either a folder or an uploaded file. */
 export interface ProjectFile {
   id: string;
   projectId: string;

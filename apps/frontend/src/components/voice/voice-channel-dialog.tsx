@@ -36,13 +36,13 @@ import type {
  * On submit, calls POST or PATCH against the appropriate endpoint and
  * invalidates the relevant TanStack Query. The realtime gateway also
  * fires voice.channel.created/updated, but invalidating is the
- * authoritative cache update — the socket events are a UI hint for
+ * authoritative cache update, the socket events are a UI hint for
  * OTHER tabs / other users.
  */
 interface BaseProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Per-project slug — if omitted, the dialog uses the lobby endpoints. */
+  /** Per-project slug, if omitted, the dialog uses the lobby endpoints. */
   projectSlugOrId?: string;
 }
 
@@ -191,9 +191,9 @@ export function VoiceChannelDialog(props: Props) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="STANDARD">Standard — everyone speaks</SelectItem>
+                  <SelectItem value="STANDARD">Standard, everyone speaks</SelectItem>
                   <SelectItem value="STAGE">
-                    Stage — speakers + audience (mods promote raised hands)
+                    Stage, speakers + audience (mods promote raised hands)
                   </SelectItem>
                 </SelectContent>
               </Select>

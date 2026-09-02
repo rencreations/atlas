@@ -17,7 +17,7 @@ export interface VoiceParticipantPublic {
   mutedByMod: boolean;
   /** Phase 8 */
   role?: VoiceParticipantRole;
-  /** Phase 8 — ISO timestamp if hand currently raised, null otherwise. */
+  /** Phase 8, ISO timestamp if hand currently raised, null otherwise. */
   handRaisedAt?: string | null;
   user: {
     id: string;
@@ -26,7 +26,7 @@ export interface VoiceParticipantPublic {
   };
 }
 
-/** Phase 8 — entry in the hand-raise queue. */
+/** Phase 8, entry in the hand-raise queue. */
 export interface StageHandQueueEntry {
   userId: string;
   handRaisedAt: string;
@@ -46,7 +46,7 @@ export interface VoiceChannelPublic {
   /** null = unlimited */
   userLimit: number | null;
   audioQuality: VoiceAudioQuality;
-  /** Phase 8 — STANDARD (open mic) or STAGE. */
+  /** Phase 8, STANDARD (open mic) or STAGE. */
   kind: VoiceChannelKind;
   isDefault: boolean;
   sortIndex: number;
@@ -80,7 +80,7 @@ export interface VoiceJoinEnvelope {
     id: string;
     name: string;
     audioQuality: VoiceAudioQuality;
-    /** Phase 8 — server tells us the kind so client can render the right layout. */
+    /** Phase 8, server tells us the kind so client can render the right layout. */
     kind?: VoiceChannelKind;
   };
 }
@@ -105,7 +105,7 @@ export interface VoiceUserPreferences {
   shortcutMute: string | null;
   shortcutDeafen: string | null;
   shortcutDisconnect: string | null;
-  /** Phase 7 — join/leave/mute chimes. Defaults true. */
+  /** Phase 7, join/leave/mute chimes. Defaults true. */
   soundsEnabled: boolean;
   createdAt: string;
   updatedAt: string;

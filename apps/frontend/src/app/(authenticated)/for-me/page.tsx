@@ -67,7 +67,7 @@ export default function ForMePage() {
             {greeting()}
             {firstName ? `, ${firstName}` : ''}
           </h1>
-          <p className="text-body-sm text-ink-3">{today} — here&apos;s what needs you.</p>
+          <p className="text-body-sm text-ink-3">{today}, here&apos;s what needs you.</p>
         </div>
       </div>
 
@@ -225,7 +225,7 @@ export default function ForMePage() {
                         <Sparkles className="h-4 w-4 shrink-0 text-brand-yellow" strokeWidth={2.25} />
                         <span className="min-w-0">
                           <span className="block truncate text-[14px] text-ink">
-                            Pending request — {r.project.title}
+                            Pending request, {r.project.title}
                           </span>
                           <span className="block text-[12.5px] text-ink-3">for {r.role}</span>
                         </span>

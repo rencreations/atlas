@@ -59,7 +59,7 @@ export function MediaHero({
           <Image
             key={active.id}
             src={active.url}
-            alt={`${title} — image ${idx + 1}`}
+            alt={`${title}, image ${idx + 1}`}
             fill
             sizes="(max-width: 1024px) 100vw, 1100px"
             className="object-cover"

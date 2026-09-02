@@ -30,7 +30,7 @@ const schema = z
   .object({
     role: z.string().min(1, 'Pick a role you want to contribute as.'),
     customRole: z.string().optional(),
-    message: z.string().min(20, 'Tell the team a bit about why — at least 20 characters.').max(2000),
+    message: z.string().min(20, 'Tell the team a bit about why, at least 20 characters.').max(2000),
   })
   .refine(
     (v) => v.role !== OTHER || (v.customRole && v.customRole.trim().length >= 2),
@@ -125,7 +125,7 @@ function ModalBody({
         <DialogTitle className="mt-4">Request sent</DialogTitle>
         <DialogDescription>
           The project manager will review your request and get back to you. You&apos;ll see a
-          notification when there&apos;s an update — and you can withdraw the request anytime
+          notification when there&apos;s an update, and you can withdraw the request anytime
           from your dashboard.
         </DialogDescription>
         <DialogFooter className="mt-6 sm:justify-center">

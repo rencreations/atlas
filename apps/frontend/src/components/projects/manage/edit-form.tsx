@@ -314,8 +314,8 @@ export function EditProjectForm({ project, groupedTags, collaborationRoles }: Pr
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PUBLIC">Public — visible to all members</SelectItem>
-                <SelectItem value="PRIVATE">Private — team only</SelectItem>
+                <SelectItem value="PUBLIC">Public, visible to all members</SelectItem>
+                <SelectItem value="PRIVATE">Private, team only</SelectItem>
               </SelectContent>
             </Select>
           </div>

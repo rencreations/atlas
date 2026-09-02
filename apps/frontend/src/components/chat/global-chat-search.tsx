@@ -15,7 +15,7 @@ import type { ChatSearchHit, ChatSearchResponse } from '@/lib/types';
 interface Props {
   /** When provided, replaces the default trigger. */
   trigger?: React.ReactNode;
-  /** External open control — used to wire ⌘K from the navbar shortcut. */
+  /** External open control, used to wire ⌘K from the navbar shortcut. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }

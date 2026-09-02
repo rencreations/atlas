@@ -93,7 +93,7 @@ export class ProjectsService {
           createdById: user.id,
         },
       });
-      // Auto-create the default voice channel — gated by the feature
+      // Auto-create the default voice channel, gated by the feature
       // flag so VOICE_ENABLED=false makes new projects identical to
       // pre-voice projects (no orphan VoiceChannel rows).
       if (this.config.get<boolean>('voice.enabled', false)) {

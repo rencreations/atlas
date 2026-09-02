@@ -15,7 +15,7 @@ import { ChatRealtimePublisher } from './services/chat-realtime.publisher';
 /**
  * Id-keyed message operations. These don't carry a project slug in the
  * path because the message itself encodes which channel (and therefore
- * which project — or the workspace-global scope when projectId is null)
+ * which project, or the workspace-global scope when projectId is null)
  * it lives in; ChatChannelAccessService resolves access from the row.
  * On global channels every authenticated user is an insider and admins
  * are the managers/moderators.

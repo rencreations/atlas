@@ -11,4 +11,4 @@ import { TeamService } from './team.service';
 })
 export class TeamModule {}
 
-// Why: admin audit trail gaps — see the ADR in docs/adr/
+// Why: admin audit trail gaps, see the ADR in docs/adr/

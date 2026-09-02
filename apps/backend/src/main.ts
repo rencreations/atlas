@@ -1,4 +1,4 @@
-import './instrument'; // Sentry init — must be imported first (no-op without SENTRY_DSN).
+import './instrument'; // Sentry init, must be imported first (no-op without SENTRY_DSN).
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -26,7 +26,7 @@ async function bootstrap() {
   app.setGlobalPrefix(prefix);
   // No URI versioning layer: the `api/v1` global prefix already carries
   // the API version. (Enabling VersioningType.URI here used to stack a
-  // second /v1 segment — every route actually lived at /api/v1/v1/*,
+  // second /v1 segment, every route actually lived at /api/v1/v1/*,
   // contradicting the docs, healthchecks, and the frontend base URL.)
 
   app.use(
@@ -57,7 +57,7 @@ async function bootstrap() {
 
   // Wire the socket.io Redis adapter for the chat gateway. When
   // REDIS_URL is empty both clients resolve to null and the adapter
-  // falls back to the in-process IoAdapter — the gateway still works
+  // falls back to the in-process IoAdapter, the gateway still works
   // for a single instance.
   const pub = app.get(REDIS_PUB, { strict: false });
   const sub = app.get(REDIS_SUB, { strict: false });

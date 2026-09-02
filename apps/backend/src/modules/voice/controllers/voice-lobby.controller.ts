@@ -17,7 +17,7 @@ import { VoiceRealtimePublisher } from '../services/voice-realtime.publisher';
  * Mutations: admin-only (AdminGuard, `user.isAdmin === true`).
  *
  * Mirrors the per-project controller but skips the ProjectAccessService
- * dance — the lobby has no project to gate on.
+ * dance, the lobby has no project to gate on.
  */
 @ApiBearerAuth()
 @ApiTags('voice')
@@ -30,11 +30,11 @@ export class VoiceLobbyController {
     private readonly realtime: VoiceRealtimePublisher,
   ) {}
 
-  /** List lobby channels — any authenticated user. */
+  /** List lobby channels, any authenticated user. */
   @Get()
   async list(@CurrentUser() user: AuthenticatedUser) {
     // Lazy-ensure the default "Voice Lobby" so the workspace section is
-    // never empty — no migration backfill needed (idempotent, see service).
+    // never empty, no migration backfill needed (idempotent, see service).
     await this.channels.ensureDefaultLobby(user.id);
     const channels = await this.channels.listLobby();
     const withRoster = await Promise.all(
@@ -73,4 +73,4 @@ export class VoiceLobbyController {
 
 // NOTE: revisit link preview cache eviction after the next load test
 
-// Why: LiveKit room participant limits — see the ADR in docs/adr/
+// Why: LiveKit room participant limits, see the ADR in docs/adr/

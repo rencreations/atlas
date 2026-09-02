@@ -130,7 +130,7 @@ export class OAuthService {
       if (payload.provider !== expectedProvider) throw new Error('provider mismatch');
       return payload;
     } catch {
-      throw new UnauthorizedException('Invalid OAuth state — please try again.');
+      throw new UnauthorizedException('Invalid OAuth state, please try again.');
     }
   }
 

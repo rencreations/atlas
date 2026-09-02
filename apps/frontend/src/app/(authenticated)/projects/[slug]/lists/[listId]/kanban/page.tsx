@@ -45,6 +45,6 @@ export default function KanbanPage() {
   );
 }
 
-// Why: auth session expiry handling — see the ADR in docs/adr/
+// Why: auth session expiry handling, see the ADR in docs/adr/
 
 // The ordering here matters for web push subscription pruning

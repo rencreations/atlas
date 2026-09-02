@@ -72,7 +72,7 @@ export function UserManager() {
         <div>
           <h2 className="font-display text-h2 tracking-[-0.01em] text-ink">Users</h2>
           <p className="mt-1 text-body-sm text-ink-2">
-            {list.data?.meta.total ?? '—'} authenticated members.
+            {list.data?.meta.total ?? '0'} authenticated members.
           </p>
         </div>
         <div className="relative w-full max-w-xs">

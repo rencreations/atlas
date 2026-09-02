@@ -7,7 +7,7 @@ import { ChatChannelsService } from './chat-channels.service';
  * Powers the navbar "chat" shortcut and the global /chat page on the
  * frontend. Returns the projects this user has chat access to, with
  * each project's channels and unread counts, plus the workspace-global
- * channels (additive `workspace` key — older clients ignore it).
+ * channels (additive `workspace` key, older clients ignore it).
  *
  * Unread is computed cheaply: count messages newer than the channel
  * member's lastReadAt; if there's no lastReadAt yet we treat every

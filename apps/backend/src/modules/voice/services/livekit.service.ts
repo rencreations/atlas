@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config';
  * The actual `livekit-server-sdk` import is deferred until the first call
  * that needs it. This means a backend image that hasn't yet had `pnpm
  * install` run with the new dep on it will still start as long as
- * VOICE_ENABLED stays false — the require() never fires.
+ * VOICE_ENABLED stays false, the require() never fires.
  */
 @Injectable()
 export class LivekitService {
@@ -27,7 +27,7 @@ export class LivekitService {
 
   // SDK types are intentionally `any` in Phase 0: we want this file to
   // type-check before livekit-server-sdk is installed in any environment
-  // (lockfile regen is gated on the user — see PMO_HANDOVER deploy notes).
+  // (lockfile regen is gated on the user, see PMO_HANDOVER deploy notes).
   // Phase 1, when the SDK is universally installed and we add the gateway
   // + join controller, will tighten these to the real types.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -162,7 +162,7 @@ export class LivekitService {
   /**
    * Start a room composite egress (mixed audio + video) and upload the
    * result to S3. Audio-only is selected via `audioOnly: true` in
-   * options — useful when the channel hasn't enabled video.
+   * options, useful when the channel hasn't enabled video.
    *
    * Caller is responsible for the gate (mod-only) and for persisting
    * the returned egressId. We pass S3 credentials in the request so
@@ -186,7 +186,7 @@ export class LivekitService {
 
     // LiveKit's request shape (livekit-server-sdk v2): a layout name,
     // a file output, and an upload destination. We choose 'grid-light'
-    // for the room composite layout — the visual default in LiveKit's
+    // for the room composite layout, the visual default in LiveKit's
     // egress template that fits most calls.
     const fileOutput = {
       fileType: sdk.EncodedFileType?.MP4 ?? 1, // MP4 = 1 in the enum

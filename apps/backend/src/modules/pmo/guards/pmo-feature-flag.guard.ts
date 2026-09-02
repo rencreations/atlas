@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 /**
  * Global kill switch for the entire PMO module. When PMO_ENABLED is false
- * every PMO route 404s — the feature is invisible to clients and old API
+ * every PMO route 404s, the feature is invisible to clients and old API
  * consumers see no change. Apply at the controller class level on every
  * PMO controller as it's introduced (Phases 1+).
  */

@@ -1,8 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Check, LoaderCircle, RotateCcw } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Check, FileText, LoaderCircle, RotateCcw, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -29,6 +37,9 @@ function initialEditorValue(item: GodmodeSettingItem): EditorValue {
   return { value: String(item.value ?? item.defaultValue ?? ''), dirty: false };
 }
 
+// Long-form documents get a dedicated editor instead of a one-line input.
+const LEGAL_DOC_KEYS = new Set(['legal.termsText', 'legal.privacyText']);
+
 /**
  * Generic settings renderer driven by the godmode settings registry.
  * Renders every registry item type (boolean switch, text, secret,
@@ -38,20 +49,15 @@ export function SettingsEditor({
   items,
   onDirtyChange,
   onSaved,
-  advancedByDefault = false,
 }: {
   items: GodmodeSettingItem[];
   /** Fired when the set of unsaved edits becomes non-empty / empty. */
   onDirtyChange?: (dirty: boolean) => void;
   /** Fired after settings were saved successfully (lets the host refresh). */
   onSaved?: () => void;
-  /** Sections that exist to expose advanced knobs (e.g. Advanced) start
-   *  expanded — otherwise they would render as an empty panel. */
-  advancedByDefault?: boolean;
 }) {
   const { show } = useToast();
   const [values, setValues] = useState<Record<string, EditorValue>>({});
-  const [showAdvanced, setShowAdvanced] = useState(advancedByDefault);
   const [saving, setSaving] = useState(false);
 
   // Re-initialize only when the settings content actually changes. The host
@@ -72,11 +78,6 @@ export function SettingsEditor({
     onDirtyChange?.(dirtyCount > 0);
   }, [dirtyCount, onDirtyChange]);
 
-  const visible = useMemo(
-    () => items.filter((i) => showAdvanced || !i.advanced),
-    [items, showAdvanced],
-  );
-
   const set = useCallback((key: string, value: EditorValue['value']) => {
     setValues((prev) => ({ ...prev, [key]: { value, dirty: true } }));
   }, []);
@@ -91,7 +92,7 @@ export function SettingsEditor({
     }
   }
 
-  const hasInvalidJson = visible.some(
+  const hasInvalidJson = items.some(
     (i) => i.type === 'json' && !isValidJson(String(values[i.key]?.value ?? '')),
   );
 
@@ -99,7 +100,7 @@ export function SettingsEditor({
     const itemByKey = new Map(items.map((i) => [i.key, i]));
     const changed = Object.entries(values)
       .filter(([, v]) => v.dirty)
-      // An emptied number field stays '' until a value is typed — skip it
+      // An emptied number field stays '' until a value is typed, skip it
       // rather than sending 0 or an empty string to a numeric setting.
       .filter(([key, v]) => {
         const item = itemByKey.get(key);
@@ -146,15 +147,7 @@ export function SettingsEditor({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-caption text-ink-3">
-          <Switch
-            checked={showAdvanced}
-            onCheckedChange={setShowAdvanced}
-            aria-label="Show advanced settings"
-          />
-          Show advanced settings
-        </label>
+      <div className="flex min-h-9 items-center justify-end">
         {dirtyCount > 0 ? (
           <Button size="sm" onClick={() => void save()} disabled={saving || hasInvalidJson}>
             {saving ? (
@@ -167,7 +160,7 @@ export function SettingsEditor({
         ) : null}
       </div>
 
-      {visible.map((item) => {
+      {items.map((item) => {
         const entry = values[item.key];
         if (!entry) return null;
         return (
@@ -208,7 +201,7 @@ export function SettingsEditor({
         );
       })}
 
-      {visible.length === 0 ? (
+      {items.length === 0 ? (
         <div className="rounded border border-line bg-surface p-8 text-center text-[14px] text-ink-3 shadow-1">
           No settings in this group.
         </div>
@@ -218,7 +211,7 @@ export function SettingsEditor({
         <div className="sticky bottom-4 flex items-center justify-end gap-2">
           {hasInvalidJson ? (
             <span className="mr-auto text-[12px] text-brand-red">
-              Some JSON fields don&apos;t parse — fix them before saving.
+              Some JSON fields don&apos;t parse, fix them before saving.
             </span>
           ) : null}
           <Button variant="secondary" size="sm" onClick={() => {
@@ -255,6 +248,10 @@ function SettingControl({
   jsonValid: boolean;
   onChange: (value: EditorValue['value']) => void;
 }) {
+  if (LEGAL_DOC_KEYS.has(item.key)) {
+    return <LegalDocControl item={item} entry={entry} onChange={onChange} />;
+  }
+
   if (item.type === 'boolean') {
     return (
       <Switch
@@ -308,7 +305,7 @@ function SettingControl({
           onChange={(e) => onChange(e.target.value)}
         />
         {!jsonValid ? (
-          <span className="text-[12px] text-brand-red">Invalid JSON — fix before saving.</span>
+          <span className="text-[12px] text-brand-red">Invalid JSON, fix before saving.</span>
         ) : null}
       </div>
     );
@@ -320,7 +317,7 @@ function SettingControl({
         type="password"
         className="w-[280px]"
         value={String(entry.value)}
-        placeholder={item.secretSet ? '•••••••• (set — leave blank to keep)' : 'Not set'}
+        placeholder={item.secretSet ? '•••••••• (set, leave blank to keep)' : 'Not set'}
         onChange={(e) => onChange(e.target.value)}
         autoComplete="new-password"
         aria-label={item.label}
@@ -335,5 +332,109 @@ function SettingControl({
       onChange={(e) => onChange(e.target.value)}
       aria-label={item.label}
     />
+  );
+}
+
+/**
+ * Long-form Markdown documents (terms, privacy) get a Configure button
+ * instead of a cramped one-line input. The dialog offers a large editor
+ * and a Markdown file upload; Apply stages the text into the form, where
+ * it joins the other pending changes until Save is pressed.
+ */
+function LegalDocControl({
+  item,
+  entry,
+  onChange,
+}: {
+  item: GodmodeSettingItem;
+  entry: EditorValue;
+  onChange: (value: EditorValue['value']) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const value = String(entry.value);
+
+  const openEditor = () => {
+    setDraft(value);
+    setOpen(true);
+  };
+
+  return (
+    <div className="flex w-[280px] flex-col gap-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <Button variant="secondary" size="sm" onClick={openEditor}>
+          <FileText className="h-4 w-4" strokeWidth={2.25} />
+          Configure
+        </Button>
+        <span className="text-[11px] text-ink-4">
+          {value ? `${value.length.toLocaleString()} characters` : 'Not set'}
+        </span>
+      </div>
+      {value ? (
+        <p className="line-clamp-2 text-[11px] leading-4 text-ink-4">
+          {value.replace(/\s+/g, ' ').trim().slice(0, 160)}
+        </p>
+      ) : null}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent size="lg" className="w-[calc(100%-2rem)]">
+          <DialogTitle>{item.label}</DialogTitle>
+          <DialogDescription>
+            {item.description} Paste the document below, or upload a Markdown file.
+          </DialogDescription>
+          <Textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={18}
+            className="mt-5 min-h-[340px] w-full font-normal text-[13px]"
+            aria-label={`${item.label} markdown`}
+            placeholder={'# ' + item.label + '\n\nWrite the document in Markdown.'}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".md,.markdown,text/markdown,text/plain"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                void file
+                  .text()
+                  .then(setDraft)
+                  .catch(() => undefined);
+              }
+              e.target.value = '';
+            }}
+          />
+          <DialogFooter className="mt-5">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="mr-auto"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-4 w-4" strokeWidth={2.25} />
+              Upload .md file
+            </Button>
+            <DialogClose asChild>
+              <Button variant="ghost" size="sm">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              size="sm"
+              onClick={() => {
+                onChange(draft);
+                setOpen(false);
+              }}
+            >
+              <Check className="h-4 w-4" strokeWidth={2.25} />
+              Apply
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

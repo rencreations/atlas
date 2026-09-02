@@ -41,7 +41,7 @@ export class RegisterDto {
   inviteCode?: string;
 
   /** Set by the register form when the instance requires accepting the
-   *  terms. Enforced server-side — see LocalAuthService.register. */
+   *  terms. Enforced server-side, see LocalAuthService.register. */
   @IsOptional()
   @IsBoolean()
   acceptedTerms?: boolean;

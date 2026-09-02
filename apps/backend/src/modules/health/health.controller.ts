@@ -25,7 +25,7 @@ export class HealthController {
    * (production safety: existing deploys boot unchanged) and as
    * `down` if it's configured but unreachable. Neither state causes
    * a 503 so Watchtower / orchestrators don't restart-loop the
-   * container if Redis is briefly out — chat features just degrade.
+   * container if Redis is briefly out, chat features just degrade.
    */
   @Public()
   @Get()
@@ -43,7 +43,7 @@ export class HealthController {
       () => this.s3.isHealthy('s3'),
       async (): Promise<HealthIndicatorResult> => {
         // When Redis isn't configured, report 'up' with mode:'disabled'
-        // — semantically "the container is fine, chat realtime is
+        //, semantically "the container is fine, chat realtime is
         // simply turned off". Reporting 'down' here would have Gatus
         // flag the deploy as unhealthy on every existing env that
         // hasn't set REDIS_URL yet.

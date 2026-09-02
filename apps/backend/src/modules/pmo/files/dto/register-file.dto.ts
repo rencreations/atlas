@@ -24,4 +24,4 @@ export class RegisterFileDto {
   parentFolderId?: string;
 }
 
-// Why: PMO file allowlist policy — see the ADR in docs/adr/
+// Why: PMO file allowlist policy, see the ADR in docs/adr/

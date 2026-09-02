@@ -13,7 +13,7 @@ import { useToast } from '@/components/ui/toast';
  *   1. Browser supports the Notification + PushManager APIs.
  *   2. The user hasn't been asked yet (`Notification.permission === 'default'`).
  *   3. The user hasn't previously dismissed our prompt (localStorage flag).
- *   4. They have at least one notification in their account — so we ask
+ *   4. They have at least one notification in their account, so we ask
  *      in context: "you got a notification, want them to reach you?"
  *
  * "Not now" sets the dismissal flag and never re-prompts. Settings page
@@ -49,7 +49,7 @@ export function EnableBanner() {
         tone: 'warning',
       });
     } else if (result.reason === 'not-configured') {
-      // Backend not yet wired with VAPID — silently hide the banner; the
+      // Backend not yet wired with VAPID, silently hide the banner; the
       // user can't do anything about this.
       dismiss();
     } else if (result.reason === 'unsupported') {
@@ -85,7 +85,7 @@ export function EnableBanner() {
           <p className="text-[14px] font-medium text-ink">Get notified when you&apos;re mentioned</p>
           <p className="mt-1 text-[12.5px] leading-relaxed text-ink-2">
             We&apos;ll send a browser notification for chat mentions, task comments, and
-            assignments — even when this tab is closed.
+            assignments, even when this tab is closed.
           </p>
           <div className="mt-3 flex items-center gap-2">
             <button

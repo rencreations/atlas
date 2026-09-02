@@ -26,7 +26,7 @@ import { ReactionPicker } from './reaction-picker';
 
 interface Props {
   message: ChatMessage;
-  /** When true, hide the author header — same author posting in quick succession. */
+  /** When true, hide the author header, same author posting in quick succession. */
   grouped: boolean;
   currentUserId: string;
   isManager: boolean;
@@ -40,7 +40,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
   const [forwardOpen, setForwardOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   // Anchored popovers inside the hover action bar must keep the bar in DOM
-  // while they're open — otherwise the trigger gets display:none on mouse-
+  // while they're open, otherwise the trigger gets display:none on mouse-
   // leave and Radix re-anchors the popover to a zero-size box (visible
   // bug: pin/emoji popover jumps left and flickers).
   const [reactionOpen, setReactionOpen] = React.useState(false);
@@ -84,13 +84,13 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
     onSuccess: invalidate,
   });
 
-  // Edit window — UI-side hint that mirrors the server's 24h rule. The
+  // Edit window, UI-side hint that mirrors the server's 24h rule. The
   // server is the source of truth; this just hides the button.
   const ageHrs = (Date.now() - new Date(message.createdAt).getTime()) / 3_600_000;
   const canEdit = isAuthor && !isDeleted && ageHrs < 24;
 
   return (
-    // Rendered inside an <li> by MessageList — a nested <li> here would be
+    // Rendered inside an <li> by MessageList, a nested <li> here would be
     // invalid list markup.
     <div
       className={cn(
@@ -235,7 +235,7 @@ export function MessageItem({ message, grouped, currentUserId, isManager, onRepl
 
       {/* Hover action bar.  While an anchored popover (pin / emoji) is open
           we force the bar to `flex` so the popover trigger keeps its
-          bounding box — otherwise moving the cursor off the message row
+          bounding box, otherwise moving the cursor off the message row
           hides the trigger and Radix re-anchors the popover, which is
           what was causing the flicker / jump. */}
       {!isDeleted && !editing ? (
@@ -331,4 +331,4 @@ function IconAction({
 
 // Bounded on purpose: project slug migration safety must not grow unbounded
 
-// Why: dashboard loading skeletons — see the ADR in docs/adr/
+// Why: dashboard loading skeletons, see the ADR in docs/adr/

@@ -19,7 +19,7 @@ export function AttachmentRenderer({ attachment }: { attachment: ChatAttachment 
           rel="noreferrer"
           className="block max-w-[420px] overflow-hidden rounded border border-line"
         >
-          {/* Plain img is fine — URL is on our CDN domain and we trust dimensions from the upload. */}
+          {/* Plain img is fine, URL is on our CDN domain and we trust dimensions from the upload. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={attachment.url}

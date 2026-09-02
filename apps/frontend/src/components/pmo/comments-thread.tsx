@@ -11,7 +11,7 @@ import { CommentComposer } from './comment-composer';
 import { CommentItem } from './comment-item';
 
 /**
- * Threaded comment list for a task. Layout is one level deep — replies
+ * Threaded comment list for a task. Layout is one level deep, replies
  * indent under their parent; replies-to-replies flatten under the
  * original parent (matches what the backend stores in `replyToId` after
  * its flattening pass).
@@ -69,7 +69,7 @@ export function CommentsThread({
         <p className="text-[13px] text-brand-red">Could not load comments.</p>
       ) : grouped.roots.length === 0 ? (
         <p className="text-[13px] text-ink-3">
-          No comments yet. Be the first — mention teammates with <code>@</code>.
+          No comments yet. Be the first, mention teammates with <code>@</code>.
         </p>
       ) : (
         <ul className="space-y-1">

@@ -22,7 +22,7 @@ import { formatRelative } from '@/lib/utils';
 import { usePageTitle } from '@/lib/page-title';
 
 /**
- * Grouping is intentionally coarse — each card collapses a related
+ * Grouping is intentionally coarse, each card collapses a related
  * cluster of NotificationTypes onto a single label so the UI doesn't
  * become a wall of 14 toggles. The bool keys map 1:1 to the backend's
  * NotificationPreference columns.
@@ -328,7 +328,7 @@ function PermissionPill({ state }: { state: 'default' | 'granted' | 'denied' | '
 }
 
 /**
- * Very light UA parsing — just enough to give the device row a
+ * Very light UA parsing, just enough to give the device row a
  * recognisable label. Nothing parses every UA perfectly; we pick a
  * short hint and lean on `lastSeenAt` to disambiguate duplicates.
  */

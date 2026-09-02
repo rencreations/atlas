@@ -83,7 +83,7 @@ export class OAuthController {
     }
   }
 
-  /** Apple uses response_mode=form_post — the code arrives in a POST body. */
+  /** Apple uses response_mode=form_post, the code arrives in a POST body. */
   @Post('oauth/:provider/callback')
   @ApiOperation({ summary: 'OAuth2 callback (form_post providers, e.g. Apple)' })
   async oauthCallbackPost(

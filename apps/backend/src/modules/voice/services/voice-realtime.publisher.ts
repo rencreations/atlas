@@ -4,13 +4,13 @@ import type { VoiceChannelPublic } from './voice-channels.service';
 
 /**
  * Central emit point for voice realtime events. All mutation services
- * call this — never `gateway.server.emit` directly — so the wire shape
+ * call this, never `gateway.server.emit` directly, so the wire shape
  * is defined in one place. Mirrors ChatRealtimePublisher.
  *
  * Room conventions:
- *   project:{id}    — project-level fanout (channel.* + lobby occupancy)
- *   channel:{id}    — per-room events (participant.joined/left, speaker.update)
- *   voice-lobby     — workspace-wide lobby channel-list updates
+ *   project:{id}   , project-level fanout (channel.* + lobby occupancy)
+ *   channel:{id}   , per-room events (participant.joined/left, speaker.update)
+ *   voice-lobby    , workspace-wide lobby channel-list updates
  */
 @Injectable()
 export class VoiceRealtimePublisher {
@@ -104,7 +104,7 @@ export class VoiceRealtimePublisher {
   /**
    * Screen-share lifecycle, derived from LiveKit's track_published /
    * track_unpublished webhooks. Used by the sidebar to badge channels
-   * where someone is sharing — clients in the room see this directly
+   * where someone is sharing, clients in the room see this directly
    * via their LiveKit Room events and don't need the fanout.
    */
   screenShareState(channelId: string, payload: { userId: string; active: boolean }): void {
@@ -164,7 +164,7 @@ export class VoiceRealtimePublisher {
   /**
    * Mod moved a participant to a different channel. The TARGET user
    * gets a personally-addressed event with the minted LiveKit token
-   * for the destination room — the client connects without an extra
+   * for the destination room, the client connects without an extra
    * REST roundtrip.
    */
   moderationMove(
@@ -188,7 +188,7 @@ export class VoiceRealtimePublisher {
       targetUserId: payload.targetUserId,
       byUserId: payload.byUserId,
     });
-    // Personally-addressed event with the JWT — only the targeted
+    // Personally-addressed event with the JWT, only the targeted
     // user's sockets see this.
     this.emit(this.userRoom(payload.targetUserId), 'voice.moved-or-kicked', {
       kind: 'moved',

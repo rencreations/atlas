@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-// Never cache — this must reflect the running build at request time.
+// Never cache, this must reflect the running build at request time.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 

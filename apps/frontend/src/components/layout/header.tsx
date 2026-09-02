@@ -79,7 +79,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
           })}
         </nav>
 
-        {/* Mobile navigation — replaces the hidden md:flex nav below md. */}
+        {/* Mobile navigation, replaces the hidden md:flex nav below md. */}
         <div className="md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

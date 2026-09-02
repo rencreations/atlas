@@ -18,7 +18,7 @@ import { TaskModal } from '@/components/pmo/task-modal';
  * Radix Dialog overlay so the underlying view stays visible behind it.
  *
  * Closing the modal calls `router.back()` to return to the prior view
- * without changing the route stack — the URL flips back from
+ * without changing the route stack, the URL flips back from
  * `…/tasks/FE-3` to `…/list`.
  */
 export default function TaskModalInterceptingPage() {

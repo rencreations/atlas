@@ -13,7 +13,7 @@ import { usePageTitle } from '@/lib/page-title';
 
 /**
  * The actual chat view. Guards access client-side by reading
- * `project.access.isInsider` — viewers/guests are redirected back to
+ * `project.access.isInsider`, viewers/guests are redirected back to
  * the project page so chat URLs are never reachable by them.
  */
 export default function ProjectChannelPage() {
@@ -57,4 +57,4 @@ export default function ProjectChannelPage() {
   );
 }
 
-// Why: e2e flakiness triage — see the ADR in docs/adr/
+// Why: e2e flakiness triage, see the ADR in docs/adr/

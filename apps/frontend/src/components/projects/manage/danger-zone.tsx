@@ -65,7 +65,7 @@ export function DangerZone({ project }: { project: ProjectDetailInsider }) {
           </h3>
           <p className="mt-1 text-[13px] text-ink-2">
             {project.archivedAt
-              ? 'Returns the project to active status — it will appear in browse and discovery again.'
+              ? 'Returns the project to active status, it will appear in browse and discovery again.'
               : 'Hides the project from active discovery without deleting it. You can unarchive any time.'}
           </p>
           <Button

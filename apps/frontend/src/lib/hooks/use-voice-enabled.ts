@@ -5,7 +5,7 @@
  * panel MUST consult this so the feature can ship dark and roll out per
  * environment.
  *
- * Returns a plain boolean (not a Promise / Query) — safe to call from
+ * Returns a plain boolean (not a Promise / Query), safe to call from
  * RSC, client components, and middleware-ish guards alike.
  */
 export function useVoiceEnabled(): boolean {

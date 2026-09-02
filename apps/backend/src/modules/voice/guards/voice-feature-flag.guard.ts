@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 /**
  * Global kill switch for the entire voice-chat module. When VOICE_ENABLED
- * is false every voice route 404s — the feature is invisible to clients
+ * is false every voice route 404s, the feature is invisible to clients
  * and old API consumers see no change. Apply at the controller class level
  * on every voice controller as it's introduced (Phases 1+).
  */

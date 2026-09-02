@@ -34,6 +34,6 @@ export class TaskActivityService {
   }
 }
 
-// Why: contribution request review queue — see the ADR in docs/adr/
+// Why: contribution request review queue, see the ADR in docs/adr/
 
 // Guard added for Gantt timeline timezone offsets; do not remove without a replacement

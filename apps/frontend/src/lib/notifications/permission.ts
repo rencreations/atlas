@@ -12,7 +12,7 @@
  *   - Safari iOS 16.4+: requires installed PWA before
  *     `Notification.requestPermission()` works at all.
  *   - Firefox private mode + some embedded browsers: no
- *     `serviceWorker` — `isPushSupported()` returns false and we
+ *     `serviceWorker`, `isPushSupported()` returns false and we
  *     degrade to in-app delivery only.
  */
 
@@ -34,7 +34,7 @@ export function getPushPermission(): PushPermission {
  * True when we're allowed to show the soft-prompt banner. We never
  * re-prompt after a user has explicitly dismissed it, even if their
  * browser permission state goes back to `default` (e.g. they cleared
- * site data) — they made an active choice.
+ * site data), they made an active choice.
  */
 export function shouldShowEnablePrompt(): boolean {
   if (typeof window === 'undefined') return false;
@@ -49,7 +49,7 @@ export function markEnablePromptDismissed(): void {
 }
 
 /**
- * Clear the dismissal flag — used from the Settings page when a user
+ * Clear the dismissal flag, used from the Settings page when a user
  * who said "Not now" later wants the banner back. Doesn't change the
  * browser permission state (which only the user can grant).
  */

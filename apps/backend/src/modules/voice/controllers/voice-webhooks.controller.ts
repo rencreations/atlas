@@ -76,7 +76,7 @@ export class VoiceWebhooksController {
   ): Promise<{ ok: boolean }> {
     // LiveKit sends Content-Type: application/webhook+json and signs the
     // SHA256 of the body in the Authorization header (JWT). We have to
-    // re-serialize the body Nest already parsed — the SDK accepts that
+    // re-serialize the body Nest already parsed, the SDK accepts that
     // shape because it just SHA's the string. If the global pipe didn't
     // mangle field names (it doesn't for raw body access), this works.
     const rawBody = JSON.stringify(req.body);
@@ -100,7 +100,7 @@ export class VoiceWebhooksController {
           const channelId = roomName.startsWith('voice:') ? roomName.slice('voice:'.length) : null;
           if (channelId) {
             // We don't have projectId here without an extra query; fan
-            // out to both rooms (lobby + project) — the unused one is
+            // out to both rooms (lobby + project), the unused one is
             // a no-op for clients not subscribed.
             this.realtime.participantLeft(channelId, null, { userId: identity });
           }
@@ -114,7 +114,7 @@ export class VoiceWebhooksController {
       }
       case 'track_published':
       case 'track_unpublished': {
-        // Only fan out screen-share lifecycle — camera/mic are already
+        // Only fan out screen-share lifecycle, camera/mic are already
         // observed inline by every LiveKit client in the room.
         if (!roomName || !identity) break;
         const source = (event.track?.source ?? '').toUpperCase();
@@ -133,7 +133,7 @@ export class VoiceWebhooksController {
         if (!egressId) break;
         const status = (event.egressInfo?.status ?? '').toUpperCase();
         // EGRESS_ACTIVE = the recording is actually rolling. Treat
-        // STARTING the same way for the UI's purposes — the row was
+        // STARTING the same way for the UI's purposes, the row was
         // PENDING before the worker picked it up.
         if (status === 'EGRESS_ACTIVE' || status === 'EGRESS_STARTING') {
           await this.recording.onEgressStarted(egressId);

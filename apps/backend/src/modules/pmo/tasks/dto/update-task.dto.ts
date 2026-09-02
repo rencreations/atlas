@@ -18,7 +18,7 @@ import { TaskPriority } from '@prisma/client';
 /**
  * Partial task patch. All fields optional. `description` is forwarded
  * verbatim to the DB (Tiptap JSON document). `null` on date fields
- * clears them; `undefined` leaves them alone — class-transformer
+ * clears them; `undefined` leaves them alone, class-transformer
  * preserves the distinction.
  */
 export class UpdateTaskDto {

@@ -246,7 +246,7 @@ function ModalBody({
     lastDescriptionRef.current = task.description;
   }, [task.description]);
   const descriptionTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Latest pending JSON — captured on every keystroke so the
+  // Latest pending JSON, captured on every keystroke so the
   // beforeunload / unmount flush can send the freshest version.
   const pendingDescription = React.useRef<object | null>(null);
   const surfaceId = `task:${task.id}`;

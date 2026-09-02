@@ -4,7 +4,7 @@
  * route, sidebar entry, and tab MUST consult this so the feature can
  * ship dark and roll out per environment.
  *
- * Returns a plain boolean (not a Promise / Query) — safe to call from
+ * Returns a plain boolean (not a Promise / Query), safe to call from
  * RSC, client components, and middleware-ish guards alike.
  */
 export function usePmoEnabled(): boolean {
@@ -18,11 +18,11 @@ export function isPmoEnabled(): boolean {
 
 /**
  * Public WebSocket URL for the Yjs sync sidecar (Phase 8+). Empty string
- * means collab is disabled — callers should fall back to single-edit mode
+ * means collab is disabled, callers should fall back to single-edit mode
  * with a warning toast rather than failing.
  */
 export function getYjsWsUrl(): string {
   return process.env.NEXT_PUBLIC_YJS_WS_URL ?? '';
 }
 
-// Why: soundboard clip upload size — see the ADR in docs/adr/
+// Why: soundboard clip upload size, see the ADR in docs/adr/

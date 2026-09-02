@@ -215,7 +215,7 @@ export function GanttView({ projectSlug, list, canManage }: Props) {
       {/* Footnote */}
       {ganttQ.data && ganttQ.data.tasks.some((t) => !t.startDate && !t.dueDate) ? (
         <p className="text-[12px] text-ink-3">
-          Faded bars mark tasks without start/due dates — drag a bar end to set them.
+          Faded bars mark tasks without start/due dates, drag a bar end to set them.
         </p>
       ) : null}
     </div>

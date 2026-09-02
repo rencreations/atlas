@@ -6,7 +6,7 @@ import { usePresenceStore } from '@/lib/realtime/presence-store';
 /**
  * Slack-style "X is typing…" line under the message list. Pulls from
  * the Zustand presence store the socket layer writes into. Renders
- * nothing when no one is typing — fixed-height container in the
+ * nothing when no one is typing, fixed-height container in the
  * caller keeps layout from jumping.
  *
  * IMPORTANT: the selector must NOT return a fresh value (e.g.

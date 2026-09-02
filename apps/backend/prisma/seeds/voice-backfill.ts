@@ -1,6 +1,6 @@
 /**
  * Idempotent backfill: ensures every existing Project has at least one
- * VoiceChannel (its "General Voice" default). Safe to re-run — skips any
+ * VoiceChannel (its "General Voice" default). Safe to re-run, skips any
  * project that already owns one or more voice channels.
  *
  * Manual run only (not wired into `pnpm prisma:seed`). Invoke once after

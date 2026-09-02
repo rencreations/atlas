@@ -13,7 +13,7 @@ export interface PushPayload {
   /// Used by the SW to group/replace prior notifications from the same thread.
   /// Always set on chat events so multiple messages collapse to one banner.
   tag?: string;
-  /// Database id of the persisted Notification — round-tripped by quick-reply
+  /// Database id of the persisted Notification, round-tripped by quick-reply
   /// so the SW can call POST /notifications/:id/quick-reply.
   notificationId?: string;
   /// Discriminator the SW reads to decide whether to attach a reply action.
@@ -24,14 +24,14 @@ export interface PushPayload {
 }
 
 /**
- * Fire-and-forget Web Push delivery. Never throws — the originating
+ * Fire-and-forget Web Push delivery. Never throws, the originating
  * mutation must complete even if every push fails. Dead endpoints
  * (404/410) are deleted so the user's subscription list self-prunes.
  *
  * Configuration is fully optional: when any VAPID env var is empty,
  * `isConfigured` is false and `dispatchToUser` becomes a no-op so
  * containers boot unchanged before keys are provisioned. This is what
- * makes the rollout safe — push lights up the moment env is filled in
+ * makes the rollout safe, push lights up the moment env is filled in
  * on the server, without any code change.
  */
 @Injectable()
@@ -57,7 +57,7 @@ export class PushDispatchService implements OnModuleInit {
       this.configured = true;
       this.logger.log('Web Push configured');
     } else {
-      this.logger.log('Web Push not configured (VAPID_* env empty) — dispatch is a no-op');
+      this.logger.log('Web Push not configured (VAPID_* env empty), dispatch is a no-op');
     }
   }
 
@@ -71,7 +71,7 @@ export class PushDispatchService implements OnModuleInit {
 
   /**
    * Send a push to every active subscription for `userId`. Resolves once
-   * all attempts have settled. Never rejects — failures are logged and
+   * all attempts have settled. Never rejects, failures are logged and
    * dead subscriptions are removed.
    */
   async dispatchToUser(userId: string, payload: PushPayload): Promise<void> {

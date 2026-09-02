@@ -147,7 +147,7 @@ export class GodmodeService {
 
   async enableTotp(secret: string, code: string): Promise<void> {
     if (!verifyTotpToken(secret, code)) {
-      throw new UnauthorizedException('Invalid TOTP code — try again.');
+      throw new UnauthorizedException('Invalid TOTP code, try again.');
     }
     await this.settings.set('godmode.totp.secret', secret);
     await this.settings.set('godmode.totp.enabled', true);
@@ -220,7 +220,7 @@ export class GodmodeService {
 
   /**
    * Create a user account from godmode. Before onboarding completes, only
-   * the first superadmin account may be created — that account becomes the
+   * the first superadmin account may be created, that account becomes the
    * instance owner.
    */
   async createUser(dto: {

@@ -8,7 +8,7 @@ import { NotificationsService } from './notifications.service';
 import { PushDispatchService } from './push-dispatch.service';
 
 /**
- * Notifications module — owns:
+ * Notifications module, owns:
  *  - Persisted Notification rows (DB source of truth for the bell).
  *  - `/notifications` socket.io namespace for live in-app delivery.
  *  - PushSubscription registry + Web Push dispatch (VAPID-keyed; no-op

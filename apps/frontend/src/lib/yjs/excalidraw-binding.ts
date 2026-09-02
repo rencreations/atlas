@@ -29,7 +29,7 @@ export interface ExcalidrawApiLike {
 }
 
 export interface BindingUser {
-  /// Session user id — carried in awareness so the y-websocket sidecar
+  /// Session user id, carried in awareness so the y-websocket sidecar
   /// can attribute the next snapshot revision to a real User row (PR2).
   id: string;
   name: string;
@@ -96,7 +96,7 @@ export class ExcalidrawYjsBinding {
     }, this);
   }
 
-  /** Replace the whole document (used by `.mgm` import — overwrites for everyone). */
+  /** Replace the whole document (used by `.mgm` import, overwrites for everyone). */
   replaceAll(elements: readonly ExElement[]): void {
     this.doc.transact(() => {
       this.yElements.clear();

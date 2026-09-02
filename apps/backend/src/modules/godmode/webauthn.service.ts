@@ -77,10 +77,10 @@ export class WebauthnService {
 
   private take(challenge: string): PendingChallenge {
     const entry = this.pending.get(challenge);
-    if (!entry) throw new UnauthorizedException('Passkey challenge expired — try again.');
+    if (!entry) throw new UnauthorizedException('Passkey challenge expired, try again.');
     if (entry.expiresAt < Date.now()) {
       this.pending.delete(challenge);
-      throw new UnauthorizedException('Passkey challenge expired — try again.');
+      throw new UnauthorizedException('Passkey challenge expired, try again.');
     }
     this.pending.delete(challenge);
     return entry;

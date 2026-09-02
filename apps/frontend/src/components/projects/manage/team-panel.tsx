@@ -275,7 +275,7 @@ function InviteDialog({
         <DialogTitle>Invite a teammate</DialogTitle>
         <DialogDescription>
           They&apos;ll get a notification and join the team after accepting. You can also
-          pre-fill their contribution title — Backend Engineer, Designer, whatever fits.
+          pre-fill their contribution title, Backend Engineer, Designer, whatever fits.
         </DialogDescription>
 
         <div className="mt-5 space-y-4">
@@ -324,7 +324,7 @@ function InviteDialog({
                       <div className="px-3 py-3 text-[13px] text-ink-3">Searching…</div>
                     ) : userSearch.isError ? (
                       <div className="px-3 py-3 text-[13px] text-brand-red">
-                        Search failed — try again.
+                        Search failed, try again.
                       </div>
                     ) : suggestions.length === 0 ? (
                       <div className="px-3 py-3 text-[13px] text-ink-3">No matches.</div>

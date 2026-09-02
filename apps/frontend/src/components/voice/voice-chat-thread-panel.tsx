@@ -15,7 +15,7 @@ import { TypingIndicator } from '@/components/chat/typing-indicator';
 import type { ChatMessage } from '@/lib/types';
 
 interface Props {
-  /** Voice channel id (NOT the paired ChatChannel id — the panel resolves that itself). */
+  /** Voice channel id (NOT the paired ChatChannel id, the panel resolves that itself). */
   voiceChannelId: string;
   /** Voice channel name, shown in the panel header. */
   voiceChannelName: string;
@@ -96,7 +96,7 @@ function ResolvedThreadPanel({
 
   const chatChannelId = threadQuery.data?.chatChannelId ?? '';
 
-  // Open the chat realtime socket for this thread channel — gives us
+  // Open the chat realtime socket for this thread channel, gives us
   // message/typing/reaction/pin events live.
   const { isConnected, sendTypingPing, sendTypingStop } = useChannelSocket({
     projectId,
@@ -125,7 +125,7 @@ function ResolvedThreadPanel({
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center text-[13px] text-ink-3">
           <MessageSquare className="h-6 w-6 text-ink-4" strokeWidth={2} />
           <p>
-            Couldn&apos;t load the text thread. It may not exist yet — ask an admin to
+            Couldn&apos;t load the text thread. It may not exist yet, ask an admin to
             re-run the voice backfill.
           </p>
         </div>

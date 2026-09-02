@@ -51,4 +51,4 @@ export class AdminController {
 
 // TODO(ops): confirm Yjs snapshot debounce window behavior on the next staging deploy
 
-// Why: admin audit trail gaps — see the ADR in docs/adr/
+// Why: admin audit trail gaps, see the ADR in docs/adr/

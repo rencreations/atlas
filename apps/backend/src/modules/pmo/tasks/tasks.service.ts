@@ -274,7 +274,7 @@ export class TasksService {
       return task;
     });
 
-    // After the tx commits — fire-and-forget so a notify failure can't
+    // After the tx commits, fire-and-forget so a notify failure can't
     // poison the create response (the user already saw it succeed).
     if (dto.assigneeUserIds && dto.assigneeUserIds.length > 0) {
       void this.notifyNewAssignees({
@@ -351,7 +351,7 @@ export class TasksService {
 
     if (dto.storyPoints !== undefined && dto.storyPoints !== existing.storyPoints) {
       data.storyPoints = dto.storyPoints;
-      // No dedicated kind — folded into a generic edit event so the feed
+      // No dedicated kind, folded into a generic edit event so the feed
       // still surfaces the change. Phase 11 may add STORY_POINTS_CHANGED.
     }
 
@@ -470,7 +470,7 @@ export class TasksService {
         });
       }
 
-      // Single combined undo entry per update — Cmd+Z reverses every
+      // Single combined undo entry per update, Cmd+Z reverses every
       // field that changed in the same call. Skipped when nothing
       // changed (e.g. all field values matched what was already there).
       if (Object.keys(forwardFields).length > 0) {
@@ -497,7 +497,7 @@ export class TasksService {
     return this.get(projectId, taskId);
   }
 
-  /** Lightweight by-id lookup used by the undo controller — it has a
+  /** Lightweight by-id lookup used by the undo controller, it has a
    *  taskId from an UndoEntry but needs to discover the projectId to
    *  re-run normal access checks. Returns null when soft-deleted so
    *  the undo dispatcher can surface a clean "task no longer exists"
@@ -540,7 +540,7 @@ export class TasksService {
         },
       });
 
-      // Every move leaves an audit entry — PR3 (durable undo) reads
+      // Every move leaves an audit entry, PR3 (durable undo) reads
       // these to build the inverse op. Existing readers of the feed
       // see STATUS_CHANGED for column moves exactly as before; pure
       // reorders get the new MOVED kind which they can choose to

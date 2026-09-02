@@ -107,7 +107,7 @@ export function isOverdue(iso: string | null, completed: boolean): boolean {
 
 /**
  * Parse a date string ("YYYY-MM-DD" or an ISO datetime) into a LOCAL
- * Date. Date-only strings must NOT go through `new Date(iso)` — that
+ * Date. Date-only strings must NOT go through `new Date(iso)`, that
  * treats them as UTC midnight, which shifts the day back by one in
  * negative-offset timezones and breaks "Today" / overdue logic.
  */

@@ -92,7 +92,7 @@ export function UnlockForm({ onUnlocked }: { onUnlocked: (token: string) => void
       <p className="mt-2 text-body-sm text-ink-2">
         Enter the passphrase from <span className="font-mono text-[13px]">.env</span>{' '}
         (<span className="font-mono text-[13px]">GODMODE_PASSPHRASE</span>). This is the
-        superadmin control plane — everything on the instance can be changed from here.
+        superadmin control plane, everything on the instance can be changed from here.
       </p>
 
       <div className="mt-6 flex flex-col gap-4">

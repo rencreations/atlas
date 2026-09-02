@@ -7,7 +7,7 @@ import type { Namespace } from 'socket.io';
  * publish calls are silent no-ops so REST + push delivery keep working.
  *
  * Room convention:
- *   user:{userId} — every socket connected by that user
+ *   user:{userId}, every socket connected by that user
  */
 @Injectable()
 export class NotificationsRealtimePublisher {

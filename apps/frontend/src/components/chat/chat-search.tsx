@@ -23,7 +23,7 @@ interface Props {
  * Channel-local search in the chat header. The popover is rendered in
  * a Radix portal so it sits above every other header control (the
  * previous absolute-positioned version collided with the navbar
- * buttons). Click outside or hit Escape to close — Radix handles both.
+ * buttons). Click outside or hit Escape to close, Radix handles both.
  *
  * The snippet HTML comes from server-side ts_headline with
  * <mark>…</mark> wrappers; rendered through a tight sanitiser that
@@ -32,7 +32,7 @@ interface Props {
 export function ChatSearch({ chatScope, projectId, channelId }: Props) {
   const [open, setOpen] = React.useState(false);
   const [q, setQ] = React.useState('');
-  // Global channels have no project to widen into — their second chip
+  // Global channels have no project to widen into, their second chip
   // searches everything the user can see ('global' API scope) instead.
   const isGlobalChannel = chatScope.kind === 'global';
   const [scope, setScope] = React.useState<'channel' | 'project' | 'global'>('channel');
@@ -191,7 +191,7 @@ interface SearchHitRowProps {
 }
 
 export function SearchHitRow({ hit, onPick, showProject }: SearchHitRowProps) {
-  // The hit itself knows where it lives — global-channel hits have no
+  // The hit itself knows where it lives, global-channel hits have no
   // projectSlug and route to /chat/global/… instead.
   return (
     <li>

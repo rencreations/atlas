@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * Comment composer for the task popup. Reuses the chat module's
- * `MentionSuggest` popover — both surfaces store mentions as
+ * `MentionSuggest` popover, both surfaces store mentions as
  * `@[Name](userId)` markdown, so the same UI works without a fork.
  *
  * `replyTo` switches the placeholder + adds a small "Replying to X"
@@ -167,6 +167,6 @@ export function CommentComposer({
   );
 }
 
-// Why: link preview cache eviction — see the ADR in docs/adr/
+// Why: link preview cache eviction, see the ADR in docs/adr/
 
 // Keep in sync with the docs section on Docker layer cache invalidation

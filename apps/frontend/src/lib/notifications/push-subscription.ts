@@ -79,7 +79,7 @@ export async function subscribePush(): Promise<SubscribeResult | SubscribeFailur
   try {
     // The Push API typings narrow `applicationServerKey` to BufferSource
     // backed by an `ArrayBuffer` specifically; `Uint8Array<ArrayBufferLike>`
-    // from atob's output trips that. The runtime accepts it fine — cast.
+    // from atob's output trips that. The runtime accepts it fine, cast.
     sub =
       (await reg.pushManager.getSubscription()) ??
       (await reg.pushManager.subscribe({

@@ -4,15 +4,15 @@ import Redis, { type Redis as RedisClient } from 'ioredis';
 
 /**
  * Two ioredis connections are exposed:
- *   REDIS_PUB  — used by the app for normal commands AND as the socket.io
+ *   REDIS_PUB , used by the app for normal commands AND as the socket.io
  *                adapter's publisher.
- *   REDIS_SUB  — dedicated subscriber connection (socket.io adapter
+ *   REDIS_SUB , dedicated subscriber connection (socket.io adapter
  *                requirement; subscriber connections in Redis can't
  *                run regular commands so we keep it separate).
  *
  * When `REDIS_URL` is empty (e.g. existing prod environments that
  * haven't been upgraded), BOTH providers resolve to `null`. Consumers
- * MUST check for null and gracefully degrade — see ChatPresenceService
+ * MUST check for null and gracefully degrade, see ChatPresenceService
  * and ChatTypingService for the fallback pattern. The container boots
  * either way; chat REST endpoints stay functional, only the live
  * features (presence, typing, multi-instance fanout) are disabled.
@@ -54,7 +54,7 @@ function makeClient(url: string, role: 'pub' | 'sub'): RedisClient {
       useFactory: (config: ConfigService): RedisClient | null => {
         const url = config.get<string>('redis.url');
         if (!url) {
-          logger.warn('REDIS_URL is unset — chat sockets / presence / typing will be disabled.');
+          logger.warn('REDIS_URL is unset, chat sockets / presence / typing will be disabled.');
           return null;
         }
         return makeClient(url, 'pub');

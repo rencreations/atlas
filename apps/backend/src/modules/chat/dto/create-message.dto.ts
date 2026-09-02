@@ -88,7 +88,7 @@ export class CreateMessageDto {
   /**
    * GFM markdown source. Server stores it as-is; the renderer sanitizes
    * at read time. A message must have either text or at least one
-   * attachment — empty is rejected by the service.
+   * attachment, empty is rejected by the service.
    */
   @IsString()
   @MaxLength(8000)
@@ -107,7 +107,7 @@ export class CreateMessageDto {
 
   /**
    * Open Graph previews the sender resolved client-side. Kept distinct
-   * from `attachments` because they aren't S3 uploads — they describe
+   * from `attachments` because they aren't S3 uploads, they describe
    * an inline URL in the markdown that the recipient should render as
    * a card. Capped at 4 to discourage spam.
    */

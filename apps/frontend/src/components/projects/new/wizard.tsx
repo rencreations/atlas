@@ -148,7 +148,7 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
           });
         }
       } catch (err) {
-        // The project row already exists — a media failure here would
+        // The project row already exists, a media failure here would
         // orphan it. Compensate with a DELETE so a retry never creates
         // a duplicate project.
         const message = err instanceof Error ? err.message : 'Upload failed';
@@ -171,7 +171,7 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
           router.push(`/projects/${project.slug}` as never);
           throw new Error('MEDIA_UPLOAD_FAILED_NO_ROLLBACK');
         }
-        throw new Error(`Media upload failed — the empty project was rolled back. ${message}`);
+        throw new Error(`Media upload failed, the empty project was rolled back. ${message}`);
       }
 
       return project;
@@ -196,7 +196,7 @@ export function NewProjectWizard({ groupedTags, collaborationRoles }: WizardProp
   }
 
   function handleCancel() {
-    // Cancel always lands on the discovery home — router.back() could
+    // Cancel always lands on the discovery home, router.back() could
     // dump the user off-site (direct landing) or on an unrelated page.
     if (dirty) setDiscardOpen(true);
     else router.push('/dashboard' as never);
@@ -281,7 +281,7 @@ function useStepErrors(form: FormState, step: number) {
   }
   if (step === 1) {
     if (form.media.length === 0) {
-      errors.media = 'Add at least one image or video — the first one becomes the thumbnail.';
+      errors.media = 'Add at least one image or video, the first one becomes the thumbnail.';
     }
   }
   if (step === 2) {
@@ -317,7 +317,7 @@ function BasicInfoStep({
         <Input
           id="title"
           maxLength={120}
-          placeholder="Atlas Garden — interactive plant catalog"
+          placeholder="Atlas Garden, interactive plant catalog"
           value={form.title}
           onChange={(e) => update('title', e.target.value)}
           invalid={!!errors.title}
@@ -670,7 +670,7 @@ function SettingsStep({
           >
             <EyeOff className="h-5 w-5 text-ink-2" strokeWidth={2.25} />
             <div>
-              <div className="text-[14px] font-medium text-ink">Private — team only</div>
+              <div className="text-[14px] font-medium text-ink">Private, team only</div>
               <p className="mt-0.5 text-[12px] text-ink-2">
                 Only invited members can see this project.
               </p>

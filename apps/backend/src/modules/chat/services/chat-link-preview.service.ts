@@ -39,7 +39,7 @@ const GIF_HOSTS = new Set([
 /**
  * Open Graph link preview with two-level cache (Redis L1, Postgres L2)
  * and an SSRF guard. Only HTTP(S) URLs that resolve to public IPs are
- * fetched — anything pointing at private / loopback / link-local space
+ * fetched, anything pointing at private / loopback / link-local space
  * is rejected before any outbound request happens.
  *
  * Cache key: sha256 of the canonicalised URL. Redis TTL is
@@ -91,7 +91,7 @@ export class ChatLinkPreviewService {
       return out;
     }
 
-    // Fast paths for known providers — skip the OG fetch entirely.
+    // Fast paths for known providers, skip the OG fetch entirely.
     if (GIF_HOSTS.has(host)) {
       const out: LinkPreviewResult = { url, kind: 'gif', imageUrl: url, cached: false };
       await this.persist(hash, out);

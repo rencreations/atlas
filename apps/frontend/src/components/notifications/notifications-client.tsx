@@ -25,7 +25,7 @@ interface ServerNotification {
 
 /**
  * Page-level glue mounted once in the authenticated layout. Owns:
- *   1. Service worker registration (idempotent — registers /sw.js on
+ *   1. Service worker registration (idempotent, registers /sw.js on
  *      every authenticated page load; the SW handles updates itself).
  *   2. Realtime `/notifications` socket. On `notification:new` we both
  *      invalidate the bell's TanStack Query cache (instant badge +
@@ -66,7 +66,7 @@ export function NotificationsClient() {
             new Notification(n.title, { body: n.body, icon: '/icon.svg', tag: `notif:${n.id}` });
           } catch {
             // Some browsers (notably Chrome ≥ 49) require Notifications
-            // to come from a service worker. That's fine — the SW has
+            // to come from a service worker. That's fine, the SW has
             // already shown the banner; the invalidate above keeps the
             // bell badge accurate.
           }
@@ -85,7 +85,7 @@ export function NotificationsClient() {
 
   React.useEffect(() => {
     const stop = onNotificationClick(({ link }) => {
-      // Internal links only — never let the SW navigate to an
+      // Internal links only, never let the SW navigate to an
       // arbitrary URL. The backend only emits links rooted at `/`.
       if (link.startsWith('/')) router.push(link as never);
     });

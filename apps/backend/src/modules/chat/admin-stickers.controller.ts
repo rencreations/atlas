@@ -23,7 +23,7 @@ import { ChatStickersService } from './services/chat-stickers.service';
 
 /**
  * Admin sticker library. Reuses AdminGuard so the same gate as
- * /admin/collaboration-roles applies. Operations are global — there
+ * /admin/collaboration-roles applies. Operations are global, there
  * are no per-project sticker libraries by design.
  */
 @ApiBearerAuth()

@@ -94,7 +94,7 @@ export function KanbanBoard({ projectSlug, list, canManage }: Props) {
   const save = useSaveSurface({
     surfaceId: `kanban:${list.id}`,
     // Kanban mutations are real PATCHes that have already been fired
-    // (or are about to be) — there is nothing to flush via beacon.
+    // (or are about to be), there is nothing to flush via beacon.
     // The surface registration still gates the beforeunload warning
     // while a move is in-flight.
     flushNow: () => {},
@@ -143,7 +143,7 @@ export function KanbanBoard({ projectSlug, list, canManage }: Props) {
     onSuccess: (returned, vars) => {
       // Merge the server's authoritative row into every cached page
       // for this list. We deliberately do NOT call invalidateQueries
-      // here — that triggers a refetch which can race against a
+      // here, that triggers a refetch which can race against a
       // subsequent in-flight move and snap the card back to a pre-
       // move state. setQueryData is idempotent and avoids the round
       // trip entirely.
@@ -157,7 +157,7 @@ export function KanbanBoard({ projectSlug, list, canManage }: Props) {
     },
     onError: (err: unknown, vars) => {
       pendingMoves.current.delete(vars.taskId);
-      // Roll back THIS task by refetching — only safe now that no
+      // Roll back THIS task by refetching, only safe now that no
       // other move is in flight for it.
       queryClient.invalidateQueries({ queryKey: tasksQueryKey });
       save.markError(err instanceof Error ? err.message : `Move failed`);

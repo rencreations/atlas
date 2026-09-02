@@ -40,7 +40,7 @@ export function PendingRequestsRow({ items }: { items: PendingRequest[] }) {
       <div>
         <h2 className="font-display text-h2 tracking-[-0.01em] text-ink">Pending requests</h2>
         <p className="mt-1 text-body-sm text-ink-2">
-          Waiting on the project manager — you can withdraw anytime.
+          Waiting on the project manager, you can withdraw anytime.
         </p>
       </div>
 

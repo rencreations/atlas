@@ -32,7 +32,7 @@ interface Props {
   onTyping?: () => void;
   /** Called when the user clears the draft or sends. */
   onTypingStop?: () => void;
-  /** Auto-focus the textarea on mount — used by the SW fallback when
+  /** Auto-focus the textarea on mount, used by the SW fallback when
    *  Atlas is opened from a notification without inline-reply support. */
   autoFocus?: boolean;
 }
@@ -55,14 +55,14 @@ const URL_REGEX = /https?:\/\/[^\s<>"']+/;
  * Composer with:
  *   - Plain markdown textarea (Enter sends, Shift+Enter newline)
  *   - Reply banner above input when replyTo is set
- *   - Attachment tray with drag-drop / paste-image / button — uses
+ *   - Attachment tray with drag-drop / paste-image / button, uses
  *     the chat-attachment presign endpoint and uploads to S3 directly
  *   - Paste-URL → server-side OG link preview as a removable card.
  *     Only fires on PASTE (per spec), not on typed URLs or edits.
  *   - Emoji / GIF / Sticker picker
  *
  * Send body is always `{ markdown, replyToId, attachments[] }`. The
- * link preview is a sender-side affordance only — its URL stays in
+ * link preview is a sender-side affordance only, its URL stays in
  * the markdown so the recipient gets a clickable link.
  */
 export function MessageComposer({
@@ -146,7 +146,7 @@ export function MessageComposer({
             })),
           // Send the resolved preview alongside the message so the
           // recipient renders the same card the sender saw. The URL
-          // stays in the markdown body — the renderer dedupes.
+          // stays in the markdown body, the renderer dedupes.
           linkPreviews: preview
             ? [
                 {
@@ -199,14 +199,14 @@ export function MessageComposer({
 
   // ─── Paste handler: image → upload, URL → preview ────────────────────
   const onPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    // Image paste — upload as attachment.
+    // Image paste, upload as attachment.
     const files = [...(e.clipboardData?.files ?? [])];
     if (files.length > 0) {
       e.preventDefault();
       for (const f of files) await uploadOne(f);
       return;
     }
-    // URL paste — debounce a link-preview fetch.
+    // URL paste, debounce a link-preview fetch.
     const text = e.clipboardData?.getData('text/plain') ?? '';
     const match = text.match(URL_REGEX);
     if (match) {
@@ -226,14 +226,14 @@ export function MessageComposer({
         method: 'POST',
         body: { url },
       });
-      // Only show meaningful previews — bare-link results are noise.
+      // Only show meaningful previews, bare-link results are noise.
       if (result.title || result.description || result.imageUrl) {
         setPreview(result);
       } else {
         setPreviewFailed(true);
       }
     } catch {
-      // Link stays in the text either way — surface the failure so the
+      // Link stays in the text either way, surface the failure so the
       // user knows the preview fetch didn't happen.
       setPreviewFailed(true);
     } finally {
@@ -322,7 +322,7 @@ export function MessageComposer({
     });
   };
 
-  // GIFs auto-send the moment they're picked — Slack/Discord pattern. We
+  // GIFs auto-send the moment they're picked, Slack/Discord pattern. We
   // don't touch the in-progress draft so the user doesn't lose typed text.
   const sendGifMutation = useMutation({
     mutationFn: (gif: ChatGif) =>
@@ -413,7 +413,7 @@ export function MessageComposer({
             <div className="flex items-center gap-2 rounded-lg border border-line bg-surface p-2 text-[12px] text-ink-3">
               <X className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
               <span className="flex-1">
-                Couldn&apos;t preview that link — it stays in your message.
+                Couldn&apos;t preview that link, it stays in your message.
               </span>
               <button
                 type="button"

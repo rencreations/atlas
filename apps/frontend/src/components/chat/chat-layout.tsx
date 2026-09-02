@@ -23,7 +23,7 @@ interface Props {
   scope: ChatScope;
   /** Project id for the socket room + project-wide search; null for global channels. */
   projectId: string | null;
-  /** Sidebar header title — the project title, unused for global scope. */
+  /** Sidebar header title, the project title, unused for global scope. */
   projectTitle?: string;
   channelId: string;
   currentUserId: string;
@@ -65,7 +65,7 @@ export function ChatLayout({
 
   const channel = channelsQuery.data?.find((c) => c.id === channelId);
 
-  // Open the live socket for this channel — pushes message / reaction /
+  // Open the live socket for this channel, pushes message / reaction /
   // typing events into the React Query cache and Zustand store so the
   // child components don't need any socket knowledge.
   const { isConnected, sendTypingPing, sendTypingStop } = useChannelSocket({

@@ -147,7 +147,7 @@ export function FilterPanel({ groupedTags, collaborationRoles }: Props) {
               Recruiting for
             </h4>
             {/* The browse API takes a single role (collaborationRoles has),
-                so this is a radio group — not multi-select. */}
+                so this is a radio group, not multi-select. */}
             <div
               role="radiogroup"
               aria-label="Recruiting for"
@@ -206,4 +206,4 @@ export function FilterPanel({ groupedTags, collaborationRoles }: Props) {
   );
 }
 
-// Why: dashboard loading skeletons — see the ADR in docs/adr/
+// Why: dashboard loading skeletons, see the ADR in docs/adr/

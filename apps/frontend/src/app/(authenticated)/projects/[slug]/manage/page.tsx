@@ -80,7 +80,7 @@ export default function ManageProjectPage() {
   }
 
   if (!data || !isInsider(data) || !data.access.isManager) {
-    // Redirect is in flight — keep the skeleton so there's no flash.
+    // Redirect is in flight, keep the skeleton so there's no flash.
     return (
       <Container size="2xl" className="space-y-8 py-10">
         <div className="h-40 animate-pulse rounded bg-line" />

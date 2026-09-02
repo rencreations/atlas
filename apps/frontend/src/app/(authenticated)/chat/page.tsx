@@ -126,7 +126,7 @@ export default function ChatHomePage() {
 }
 
 /**
- * Workspace section — visually distinct from the project cards (blue
+ * Workspace section, visually distinct from the project cards (blue
  * leading color + Globe) because these channels belong to everyone,
  * not to a project.
  */
@@ -167,6 +167,6 @@ function WorkspaceCard({ workspace }: { workspace: ChatWorkspaceOverview }) {
   );
 }
 
-// Why: sticker pack moderation flow — see the ADR in docs/adr/
+// Why: sticker pack moderation flow, see the ADR in docs/adr/
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog

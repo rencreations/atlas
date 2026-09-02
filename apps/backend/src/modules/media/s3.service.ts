@@ -36,7 +36,7 @@ export class S3Service {
       });
     } else {
       this.client = null;
-      this.logger.warn('S3 storage not configured — uploads disabled. Configure it in godmode.');
+      this.logger.warn('S3 storage not configured, uploads disabled. Configure it in godmode.');
     }
   }
 
@@ -85,7 +85,7 @@ export class S3Service {
 
   /**
    * Presigned GET URL for a stored object. Useful for download links
-   * that should expire (e.g. voice recordings — Phase 7).
+   * that should expire (e.g. voice recordings, Phase 7).
    * Default TTL is 5 minutes (`s3.presignTtl`).
    */
   async presignGet(key: string): Promise<{ downloadUrl: string; expiresIn: number }> {
@@ -106,7 +106,7 @@ export class S3Service {
     }
   }
 
-  /** Used by the health check — fast existence probe. */
+  /** Used by the health check, fast existence probe. */
   async ping(): Promise<boolean> {
     if (!this.client) return false;
     try {

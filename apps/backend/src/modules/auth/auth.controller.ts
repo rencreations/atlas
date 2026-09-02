@@ -69,12 +69,12 @@ export class AuthController {
         user = await this.authService.syncUserFromToken(claims);
       } else {
         if (verifyTokens) {
-          // Verification enabled but Keycloak not configured — reject
+          // Verification enabled but Keycloak not configured, reject
           // rather than fall back to trusting the client.
           throw new Error('Keycloak is not configured on this instance.');
         }
         this.logger.warn(
-          'AUTH_VERIFY_TOKENS=false — accepting unverified identity claims (emergency mode)',
+          'AUTH_VERIFY_TOKENS=false, accepting unverified identity claims (emergency mode)',
         );
         user = await this.authService.syncUserFromTokenData(dto);
       }

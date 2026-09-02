@@ -16,7 +16,7 @@
 export function computePosition(prev: number | undefined, next: number | undefined): number {
   if (prev === undefined && next === undefined) return 1;
   if (prev === undefined && next !== undefined) {
-    // First slot — half the next position, but never zero.
+    // First slot, half the next position, but never zero.
     return next > 0 ? next / 2 : 1;
   }
   if (prev !== undefined && next === undefined) {

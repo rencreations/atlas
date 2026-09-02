@@ -155,7 +155,7 @@ describe('KeycloakTokenService', () => {
       service.verifyLoginTokens({ accessToken: `${header}.${body}.` }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
 
-    // Throwaway HMAC key generated at runtime — proves the verifier rejects
+    // Throwaway HMAC key generated at runtime, proves the verifier rejects
     // HS* downgrades without embedding a literal secret in the test.
     const hmacKey = randomBytes(32).toString('hex');
     const hs256 = jwt.sign({ sub: 'user-123', aud: AUDIENCE }, hmacKey, {

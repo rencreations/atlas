@@ -35,13 +35,13 @@ export class WebhooksService {
     this.url = base ? `${base}${path.startsWith('/') ? path : `/${path}`}` : '';
     this.secret = config.get<string>('n8n.secret') ?? '';
     if (!this.url) {
-      this.logger.warn('Webhooks disabled — n8n not configured. Configure it in godmode.');
+      this.logger.warn('Webhooks disabled, n8n not configured. Configure it in godmode.');
     }
   }
 
   /**
    * Fire-and-forget dispatch to n8n. The webhook is logged in WebhookDelivery
-   * regardless of outcome. Failures are surfaced as warnings — they never
+   * regardless of outcome. Failures are surfaced as warnings, they never
    * block the user-facing request, since email is async UX anyway.
    */
   async dispatch<T>(event: AtlasWebhookEvent, data: T): Promise<void> {
@@ -55,7 +55,7 @@ export class WebhooksService {
     const signature = createHmac('sha256', this.secret).update(body).digest('hex');
 
     if (!this.url) {
-      this.logger.debug(`Skipping ${event} — webhooks not configured.`);
+      this.logger.debug(`Skipping ${event}, webhooks not configured.`);
       return;
     }
 

@@ -24,7 +24,7 @@ export class VoiceChannelsService {
 
   // ─── Public projection ──────────────────────────────────────────────
 
-  /** Columns returned to clients. Excludes nothing sensitive — voice
+  /** Columns returned to clients. Excludes nothing sensitive, voice
    *  channels are themselves non-sensitive metadata (the JWT mint is
    *  the secret-bearing step, gated separately). */
   private readonly publicSelect = {
@@ -178,7 +178,7 @@ export class VoiceChannelsService {
     } catch (err) {
       // Concurrent first-open: the loser's thread insert hits the
       // ChatChannel_global_name_key partial unique index. The winner's
-      // transaction has committed by then — read its link back.
+      // transaction has committed by then, read its link back.
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         const fresh = await this.prisma.voiceChannel.findUniqueOrThrow({
           where: { id: channelId },
@@ -240,7 +240,7 @@ export class VoiceChannelsService {
   /**
    * Create the paired chat thread for a voice channel. Naming is
    * deterministic (`voice:<vcId>`) so it can never collide with a
-   * user-named text channel — but it's also never user-visible because
+   * user-named text channel, but it's also never user-visible because
    * ChatChannelsService.list/listGlobal filter out isVoiceThread:true.
    * Lobby channels (projectId = null) get a workspace-global thread.
    */
@@ -329,7 +329,7 @@ export class VoiceChannelsService {
         createdById: args.createdById,
       },
     });
-    // Paired text thread — same projectId + isVoiceThread flag so the
+    // Paired text thread, same projectId + isVoiceThread flag so the
     // chat-channels list filter excludes it from the regular sidebar.
     const thread = await tx.chatChannel.create({
       data: {
@@ -348,7 +348,7 @@ export class VoiceChannelsService {
     return voiceChannel;
   }
 
-  /** Idempotent backfill — used by `prisma/seeds/voice-backfill.ts`. */
+  /** Idempotent backfill, used by `prisma/seeds/voice-backfill.ts`. */
   async ensureDefaultForExistingProjects(args: { systemUserId: string }) {
     const projects = await this.prisma.project.findMany({
       where: { deletedAt: null },
@@ -373,7 +373,7 @@ export class VoiceChannelsService {
   }
 
   /**
-   * Phase 4 backfill — find existing voice channels without a paired
+   * Phase 4 backfill, find existing voice channels without a paired
    * text thread and create one for each. Idempotent. Covers lobby
    * channels too since 13_workspace_global_chat made ChatChannel.projectId
    * nullable (their threads are workspace-global).

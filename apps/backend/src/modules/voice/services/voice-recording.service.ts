@@ -143,7 +143,7 @@ export class VoiceRecordingService {
 
   /**
    * Stop a recording. The DB transition to COMPLETED happens when the
-   * egress_ended webhook arrives — here we just request the stop and
+   * egress_ended webhook arrives, here we just request the stop and
    * mark the row so the UI hides the start button.
    */
   async stop(args: { channelId: string }) {
@@ -154,7 +154,7 @@ export class VoiceRecordingService {
     const ok = await this.livekit.stopEgress(active.egressId);
     if (!ok) {
       this.logger.warn(
-        `stopEgress returned false for ${active.egressId} — webhook should still close the row.`,
+        `stopEgress returned false for ${active.egressId}, webhook should still close the row.`,
       );
     }
     return { ok: true, recordingId: active.id };
@@ -250,4 +250,4 @@ export class VoiceRecordingService {
   }
 }
 
-// Why: Gantt timeline timezone offsets — see the ADR in docs/adr/
+// Why: Gantt timeline timezone offsets, see the ADR in docs/adr/

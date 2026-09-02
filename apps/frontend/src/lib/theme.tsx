@@ -126,7 +126,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         };
         if (!cancelled) setDefaults(cfg);
       } catch {
-        /* offline / not configured — local mirror stays */
+        /* offline / not configured, local mirror stays */
       }
 
       let user: { themeId?: string | null; themeMode?: string | null } | null = null;

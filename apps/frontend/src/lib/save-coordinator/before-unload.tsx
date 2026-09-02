@@ -11,12 +11,12 @@ const WARN_MSG =
  * events that signal "this page is going away" and flushes every
  * registered surface synchronously:
  *
- * - `visibilitychange === hidden` — fires on tab switch, OS-switch,
+ * - `visibilitychange === hidden`, fires on tab switch, OS-switch,
  *   pulled-down notification shade, and (most importantly) the
  *   first signal of an imminent close on mobile / iOS Safari.
  *   Strictly more reliable than `beforeunload`.
- * - `pagehide` — fires once on actual unload, including BFCache.
- * - `beforeunload` — only place where we can show the user a warning
+ * - `pagehide`, fires once on actual unload, including BFCache.
+ * - `beforeunload`, only place where we can show the user a warning
  *   modal asking "are you sure?".
  *
  * We flush on all three; the flushes are idempotent (the same PATCH

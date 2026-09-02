@@ -39,5 +39,5 @@ export async function api<T = unknown>(path: string, opts: FetchOptions = {}): P
   return (await res.json()) as T;
 }
 
-/** RSC-cached GET — dedupes per request. */
+/** RSC-cached GET, dedupes per request. */
 export const apiGet = cache(<T>(path: string) => api<T>(path));

@@ -139,7 +139,7 @@ export function AddTabDialog({
               value={label}
               maxLength={80}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="Figma — wireframes"
+              placeholder="Figma, wireframes"
             />
           </div>
 

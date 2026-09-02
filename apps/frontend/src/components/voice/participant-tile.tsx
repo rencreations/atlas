@@ -11,7 +11,7 @@ interface Props {
   participant: VoiceParticipantView;
   /** When true, the tile fills its container (used in the spotlight pane). */
   large?: boolean;
-  /** Click handler — typically toggles spotlight to this participant. */
+  /** Click handler, typically toggles spotlight to this participant. */
   onClick?: () => void;
   /** Right-click context menu wiring (Phase 5). When omitted, no menu. */
   canModerate?: boolean;
@@ -93,7 +93,7 @@ export function ParticipantTile({
       type="button"
       onClick={onClick}
       onContextMenu={(e) => {
-        // Tile menu — even non-mods see volume + local-mute + profile.
+        // Tile menu, even non-mods see volume + local-mute + profile.
         if (isLocal) return; // skip menu on self
         e.preventDefault();
         setMenuAnchor({ x: e.clientX, y: e.clientY });

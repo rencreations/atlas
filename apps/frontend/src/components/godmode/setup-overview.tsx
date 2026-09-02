@@ -87,7 +87,6 @@ export function SetupOverview({
   }, [settings]);
 
   const required: Step[] = useMemo(() => {
-    const siteName = str(settings, 'site.name');
     const instanceUrl = str(settings, 'system.instanceUrl');
     return [
       {
@@ -101,19 +100,19 @@ export function SetupOverview({
       },
       {
         id: 'identity',
-        title: 'Name the instance and set its public URL',
-        why: 'The name shows in the header and emails. The URL is what magic links, OAuth callbacks, and SSO redirects are built from — a wrong value breaks sign-in.',
-        hint: `Site → Site name. The URL lives in Advanced → Public instance URL${
+        title: 'Set the public URL',
+        why: 'Magic links, OAuth callbacks, and SSO redirects are all built from this URL. A wrong value breaks sign-in.',
+        hint: `Advanced → Public instance URL${
           instanceUrl ? '' : ' (it currently falls back to APP_BASE_URL from .env)'
         }.`,
-        done: Boolean(siteName) && Boolean(instanceUrl),
-        section: 'site',
-        cta: 'Set identity',
+        done: Boolean(instanceUrl),
+        section: 'advanced',
+        cta: 'Set URL',
       },
       {
         id: 'signin',
         title: 'Turn on at least one way to sign in',
-        why: 'Without a sign-in method nobody — including you — can reach the app.',
+        why: 'Without a sign-in method nobody, including you, can reach the app.',
         hint: 'Email + password is on by default and needs nothing else configured.',
         done: anySignInMethod(settings),
         section: 'auth',
@@ -159,7 +158,7 @@ export function SetupOverview({
         title: 'Decide who can join',
         why: bool(settings, 'registration.enabled')
           ? 'Self-registration is on.'
-          : 'Self-registration is off — you add people from Users & invites, or hand out invite codes.',
+          : 'Self-registration is off, you add people from Users & invites, or hand out invite codes.',
         done: true,
         section: 'registration',
         cta: 'Review policy',
@@ -238,7 +237,7 @@ export function SetupOverview({
       />
 
       <StepList
-        eyebrow="Recommended — you can do these later"
+        eyebrow="Recommended, you can do these later"
         steps={recommended}
         onNavigate={onNavigate}
       />
@@ -357,14 +356,14 @@ function ConfiguredOverview({
         <div>
           <div className="text-[14px] font-medium text-ink">This instance is live</div>
           <p className="mt-1 text-[13px] text-ink-2">
-            People can sign in. Every setting on the left applies immediately — no redeploy.
+            People can sign in. Every setting on the left applies immediately, no redeploy.
           </p>
         </div>
       </div>
 
       {remaining.length > 0 ? (
         <StepList
-          eyebrow={`Optional — ${remaining.length} left to polish`}
+          eyebrow={`Optional, ${remaining.length} left to polish`}
           steps={remaining}
           onNavigate={onNavigate}
         />

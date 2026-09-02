@@ -51,7 +51,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const show = React.useCallback((item: Omit<ToastItem, 'id'>) => {
     const id = Math.random().toString(36).slice(2);
     setItems((prev) => {
-      // Don't stack identical toasts (repeated saves/undoes) — keep the
+      // Don't stack identical toasts (repeated saves/undoes), keep the
       // existing one on screen instead.
       const tone = item.tone ?? 'neutral';
       if (prev.some((t) => t.title === item.title && (t.tone ?? 'neutral') === tone)) {

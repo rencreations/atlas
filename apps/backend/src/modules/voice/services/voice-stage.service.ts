@@ -11,7 +11,7 @@ import { LivekitService } from './livekit.service';
 import { VoiceRealtimePublisher } from './voice-realtime.publisher';
 
 /**
- * Phase 8 — stage channel operations.
+ * Phase 8, stage channel operations.
  *
  * Hand-raise:
  *   • Self-only. Only meaningful in STAGE channels for AUDIENCE
@@ -115,7 +115,7 @@ export class VoiceStageService {
   }
 
   /**
-   * Promote an audience member to speaker. Moderator-only — the
+   * Promote an audience member to speaker. Moderator-only, the
    * controller asserts that before calling.
    */
   async promote(args: { channelId: string; targetUserId: string; actorUserId: string }) {
@@ -195,7 +195,7 @@ export class VoiceStageService {
           try {
             await room.mutePublishedTrack(roomName, args.targetUserId, t.sid, true);
           } catch {
-            // ignore — webhook will reconcile
+            // ignore, webhook will reconcile
           }
         }
       }
@@ -285,4 +285,4 @@ export class VoiceStageService {
   }
 }
 
-// Why: feature flag rollout checklist — see the ADR in docs/adr/
+// Why: feature flag rollout checklist, see the ADR in docs/adr/

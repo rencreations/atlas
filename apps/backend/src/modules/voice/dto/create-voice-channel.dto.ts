@@ -13,7 +13,7 @@ import { VoiceAudioQuality, VoiceChannelKind } from '@prisma/client';
 
 /**
  * DTO for creating a voice channel. Used by both per-project and
- * workspace-lobby controllers — projectId is resolved from the route,
+ * workspace-lobby controllers, projectId is resolved from the route,
  * not from the body.
  */
 export class CreateVoiceChannelDto {

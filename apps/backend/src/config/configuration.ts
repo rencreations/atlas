@@ -13,7 +13,7 @@ export default () => ({
     url: process.env.DATABASE_URL!,
   },
   keycloak: {
-    // Optional since the self-host release — Keycloak is one auth method
+    // Optional since the self-host release, Keycloak is one auth method
     // among many, configured from godmode. Empty values disable it.
     baseUrl: process.env.KEYCLOAK_BASE_URL ?? '',
     realm: process.env.KEYCLOAK_REALM ?? '',
@@ -23,7 +23,7 @@ export default () => ({
     audience: process.env.KEYCLOAK_AUDIENCE ?? 'account',
   },
   godmode: {
-    // Control-plane passphrase. Required — see env.validation.ts.
+    // Control-plane passphrase. Required, see env.validation.ts.
     passphrase: process.env.GODMODE_PASSPHRASE ?? '',
   },
   auth: {
@@ -52,7 +52,7 @@ export default () => ({
       .filter(Boolean),
   },
   s3: {
-    // Optional at boot — storage is configured from godmode.
+    // Optional at boot, storage is configured from godmode.
     region: process.env.AWS_REGION ?? '',
     bucket: process.env.AWS_S3_BUCKET ?? '',
     publicBaseUrl: process.env.AWS_S3_PUBLIC_BASE_URL ?? '',
@@ -74,7 +74,7 @@ export default () => ({
       .map((s) => s.trim()),
   },
   n8n: {
-    // Optional at boot — configured from godmode.
+    // Optional at boot, configured from godmode.
     baseUrl: process.env.N8N_BASE_URL ?? '',
     webhookPath: process.env.N8N_WEBHOOK_PATH ?? '/webhook/atlas',
     secret: process.env.N8N_WEBHOOK_SECRET ?? '',

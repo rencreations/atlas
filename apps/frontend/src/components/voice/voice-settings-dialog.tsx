@@ -148,7 +148,7 @@ function InputModeSection() {
               <span className="font-mono">
                 {capturingKey
                   ? 'Press a key… (Esc to cancel)'
-                  : prefs.pttKey || 'Not set — click to bind'}
+                  : prefs.pttKey || 'Not set, click to bind'}
               </span>
               <span className="text-[11px] text-ink-3">Click to rebind</span>
             </button>
@@ -337,7 +337,7 @@ function MicTestSection() {
         rafRef.current = requestAnimationFrame(tick);
       };
       tick();
-      // Loopback playback (off by default — feedback risk on speakers).
+      // Loopback playback (off by default, feedback risk on speakers).
       if (loopback && audioElRef.current) {
         audioElRef.current.srcObject = stream;
         await audioElRef.current.play().catch(() => undefined);
@@ -349,7 +349,7 @@ function MicTestSection() {
         (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
       setTestError(
         denied
-          ? 'Microphone permission denied — allow access in your browser, then try again.'
+          ? 'Microphone permission denied, allow access in your browser, then try again.'
           : err instanceof Error
             ? `Couldn't start the mic test: ${err.message}`
             : "Couldn't start the mic test.",

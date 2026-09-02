@@ -41,7 +41,7 @@ interface Props {
  *     disconnect you. Continue?"
  *
  * The actual disconnect+join happens via VoiceRoom on mount of the
- * destination route — the dialog just gates the navigation. Discord
+ * destination route, the dialog just gates the navigation. Discord
  * does roughly this: clicking a different voice channel mid-call shows
  * a similar confirmation.
  */

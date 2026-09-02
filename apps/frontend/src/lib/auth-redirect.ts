@@ -9,7 +9,7 @@
  *   - not an /api route (those return JSON / redirects, not pages)
  *   - not /login itself (would loop)
  *
- * Returns the path unchanged when safe, otherwise null — callers fall
+ * Returns the path unchanged when safe, otherwise null, callers fall
  * back to their default destination ('/dashboard').
  */
 export function sanitizeReturnTo(raw: string | null | undefined): string | null {

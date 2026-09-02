@@ -29,7 +29,7 @@ export type PreferenceFlags = {
 
 /**
  * Map from NotificationType to the flag that gates it. Contribution
- * request lifecycle (3 types) share a single flag — users almost never
+ * request lifecycle (3 types) share a single flag, users almost never
  * want to mute one outcome without the others.
  */
 const prefField: Record<NotificationType, keyof PreferenceFlags> = {
@@ -60,7 +60,7 @@ export class NotificationPreferencesService {
   /**
    * Get the user's preferences row, lazily creating a defaults row on
    * the first read. The `upsert` keeps this idempotent across racing
-   * requests — `userId` is unique so a concurrent insert collapses to
+   * requests, `userId` is unique so a concurrent insert collapses to
    * an empty update.
    */
   async getOrCreate(userId: string) {

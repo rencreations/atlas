@@ -98,7 +98,7 @@ export class VoiceParticipantsService {
     }
 
     // userLimit gate. Counted BEFORE we insert so we don't have to
-    // roll back. Tolerates a small race in concurrent joins — at worst
+    // roll back. Tolerates a small race in concurrent joins, at worst
     // 1-2 users over the limit, which is fine for an MVP.
     if (channel.userLimit && channel.userLimit > 0) {
       const live = await this.countLive(channel.id);
@@ -176,7 +176,7 @@ export class VoiceParticipantsService {
   }
 
   /**
-   * Leave flow. Idempotent — marking a non-existent or already-left
+   * Leave flow. Idempotent, marking a non-existent or already-left
    * row is a no-op (we tolerate the client re-firing leave during
    * page-unload + disconnect events).
    */

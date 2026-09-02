@@ -14,7 +14,7 @@ export interface TaskMovedOp {
 export interface TaskUpdatedOp {
   taskId: string;
   /// Whitelist of reversible fields. The undo dispatcher only restores
-  /// these — irreversible side-effects (mentions, notifications) are
+  /// these, irreversible side-effects (mentions, notifications) are
   /// intentionally not undone. Field shapes match UpdateTaskDto so
   /// the dispatcher can hand the payload straight through.
   fields: {
@@ -46,7 +46,7 @@ interface RecordArgs {
  * existing transaction so the audit + reversal entry are atomic with
  * the state change. The HTTP endpoints in undo.controller call
  * `undoLast()` / `redoLast()` which dispatch the inverse / forward op
- * back through the regular service methods — there is no separate "raw
+ * back through the regular service methods, there is no separate "raw
  * patch" path that could bypass access checks or skip activity rows.
  */
 @Injectable()
@@ -105,7 +105,7 @@ export class UndoService {
   }
 
   /** Re-mark an entry as live (used when applying the inverse op
-   *  fails — we revert the undoneAt stamp so the user can try again). */
+   *  fails, we revert the undoneAt stamp so the user can try again). */
   async restoreEntry(entryId: string, fields: { undoneAt?: null; redoneAt?: null }) {
     await this.prisma.undoEntry.update({
       where: { id: entryId },
@@ -118,14 +118,14 @@ export class UndoService {
     throw new ConflictException(reason);
   }
 
-  /** Typed cast helpers — the JSON is opaque to Prisma. */
+  /** Typed cast helpers, the JSON is opaque to Prisma. */
   static asTaskMoved(op: Prisma.JsonValue): TaskMovedOp {
     if (!op || typeof op !== 'object' || Array.isArray(op)) {
-      throw new ConflictException('Couldn’t undo — entry payload is malformed.');
+      throw new ConflictException('Couldn’t undo, entry payload is malformed.');
     }
     const r = op as Record<string, unknown>;
     if (typeof r.taskId !== 'string' || typeof r.statusId !== 'string') {
-      throw new ConflictException('Couldn’t undo — entry payload is malformed.');
+      throw new ConflictException('Couldn’t undo, entry payload is malformed.');
     }
     return {
       taskId: r.taskId,
@@ -139,17 +139,17 @@ export class UndoService {
 
   static asTaskUpdated(op: Prisma.JsonValue): TaskUpdatedOp {
     if (!op || typeof op !== 'object' || Array.isArray(op)) {
-      throw new ConflictException('Couldn’t undo — entry payload is malformed.');
+      throw new ConflictException('Couldn’t undo, entry payload is malformed.');
     }
     const r = op as Record<string, unknown>;
     if (typeof r.taskId !== 'string' || typeof r.fields !== 'object') {
-      throw new ConflictException('Couldn’t undo — entry payload is malformed.');
+      throw new ConflictException('Couldn’t undo, entry payload is malformed.');
     }
     return { taskId: r.taskId, fields: r.fields as TaskUpdatedOp['fields'] };
   }
 
   // Helper used by the controller after a state-divergence dispatch
-  // fails — re-arm the entry so Cmd+Z can try again later.
+  // fails, re-arm the entry so Cmd+Z can try again later.
   async revertUndo(entry: { id: string; undoneAt: Date | null; redoneAt: Date | null }) {
     if (entry.redoneAt) {
       // we were redoing; revert that.
@@ -160,6 +160,6 @@ export class UndoService {
   }
 }
 
-// Why: Postgres full-text search tuning — see the ADR in docs/adr/
+// Why: Postgres full-text search tuning, see the ADR in docs/adr/
 
 // The ordering here matters for dashboard loading skeletons

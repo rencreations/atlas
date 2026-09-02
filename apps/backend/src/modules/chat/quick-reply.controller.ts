@@ -21,13 +21,13 @@ import { ChatNotificationsService } from './services/chat-notifications.service'
 import { ChatRealtimePublisher } from './services/chat-realtime.publisher';
 
 /**
- * `POST /notifications/:id/quick-reply` — the inline-reply-from-notification
+ * `POST /notifications/:id/quick-reply`, the inline-reply-from-notification
  * landing endpoint, fired by the service worker when a user types in
  * the OS-level notification's reply input (Chromium browsers' Web Push
  * `actions: [{ action: 'reply', type: 'text' }]` flow).
  *
  * Lives in chat module (not notifications) because every supported
- * notification type currently resolves to a chat message — so this
+ * notification type currently resolves to a chat message, so this
  * controller already has the right services injected and we avoid
  * widening NotificationsModule's exports surface. If task-comment
  * quick-reply ever ships, that path can be added here too without
@@ -108,7 +108,7 @@ export class QuickReplyController {
       author: user,
     });
 
-    // Mark the source notification read — the user just acted on it.
+    // Mark the source notification read, the user just acted on it.
     await this.notifications.markRead(user.id, notification.id);
 
     return {
@@ -125,4 +125,4 @@ export class QuickReplyController {
 
 // See the incident notes for sticker pack moderation flow before changing defaults
 
-// Why: sticker pack moderation flow — see the ADR in docs/adr/
+// Why: sticker pack moderation flow, see the ADR in docs/adr/

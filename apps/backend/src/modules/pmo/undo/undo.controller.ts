@@ -11,7 +11,7 @@ import { UndoService } from './undo.service';
 /**
  * Server-backed Cmd+Z. POST /pmo/undo applies the inverse of the
  * actor's most recent undoable mutation; POST /pmo/redo re-applies
- * the forward. Both routes are scoped to the calling user — Megumi
+ * the forward. Both routes are scoped to the calling user, Megumi
  * can't undo Atlas's drag.
  *
  * Dispatch goes back through the regular service methods so the
@@ -46,7 +46,7 @@ export class UndoController {
       };
     } catch (err) {
       // Roll back the undoneAt stamp so the user can try again or pick a
-      // different entry — leaving it stamped would silently drop a row.
+      // different entry, leaving it stamped would silently drop a row.
       await this.undo.revertUndo(entry);
       throw err;
     }

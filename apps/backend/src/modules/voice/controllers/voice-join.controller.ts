@@ -18,12 +18,12 @@ import { VoiceParticipantsService } from '../services/voice-participants.service
 import { VoiceRealtimePublisher } from '../services/voice-realtime.publisher';
 
 /**
- * Join / leave flow for a voice channel — applies to both per-project
+ * Join / leave flow for a voice channel, applies to both per-project
  * channels and workspace-lobby channels (projectId = null). Access:
  *   - Per-project channel → caller must be a project insider.
  *   - Lobby channel        → any authenticated Atlas user.
  *
- * The route is intentionally NOT nested under /projects/:slug — the
+ * The route is intentionally NOT nested under /projects/:slug, the
  * client only knows the channelId, and joining is a per-channel
  * operation. Access is resolved from the channel's own projectId.
  */
@@ -130,7 +130,7 @@ export class VoiceJoinController {
     let threadId = channel.textThreadId;
     if (!threadId) {
       if (channel.projectId) {
-        // Project channel pre-dating the Phase 4 backfill — the seed
+        // Project channel pre-dating the Phase 4 backfill, the seed
         // script handles these; don't create threads on the read path.
         throw new NotFoundException('No text thread for this voice channel.');
       }

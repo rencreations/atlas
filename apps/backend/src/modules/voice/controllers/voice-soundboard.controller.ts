@@ -12,7 +12,7 @@ import { VoiceSoundboardService } from '../services/voice-soundboard.service';
  *
  * Reads: any authenticated Atlas user (soundboard is universal).
  * Mutations: admin-only (AdminGuard). PMs intentionally cannot upload
- * — keeping the library curated. This matches the lobby controller's
+ *, keeping the library curated. This matches the lobby controller's
  * gating pattern.
  *
  * Playback is purely client-side: the frontend fetches the public

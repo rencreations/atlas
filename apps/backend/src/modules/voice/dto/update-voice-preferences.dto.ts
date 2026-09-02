@@ -12,7 +12,7 @@ import { VoiceInputMode } from '@prisma/client';
 
 /**
  * Partial update for the user's voice preferences. Every field is
- * optional — clients PATCH only what they're changing. The backend
+ * optional, clients PATCH only what they're changing. The backend
  * keeps unchanged fields at their current values.
  */
 export class UpdateVoicePreferencesDto {
@@ -92,4 +92,4 @@ export class UpdateVoicePreferencesDto {
   soundsEnabled?: boolean;
 }
 
-// Why: auth session expiry handling — see the ADR in docs/adr/
+// Why: auth session expiry handling, see the ADR in docs/adr/

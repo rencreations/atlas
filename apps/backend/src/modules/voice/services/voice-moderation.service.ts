@@ -54,7 +54,7 @@ export class VoiceModerationService {
 
     const roomName = LivekitService.roomNameForChannel(channel.id);
 
-    // Find the live participant row — that gives us the LiveKit
+    // Find the live participant row, that gives us the LiveKit
     // participant SID we need to address mute calls to. Identity in
     // LiveKit is the Atlas userId (set at JWT mint).
     const liveRow = await this.prisma.voiceParticipant.findFirst({
@@ -84,7 +84,7 @@ export class VoiceModerationService {
       muteableSources.has(typeof t.source === 'number' ? t.source : String(t.source ?? '')),
     );
     if (audioTracks.length === 0 && args.muted) {
-      // Nothing currently published to mute — still flag the DB row so
+      // Nothing currently published to mute, still flag the DB row so
       // that when the user next publishes a mic track LiveKit applies
       // the policy. (LiveKit doesn't auto-apply, but our flag tells
       // the next JWT mint to set canPublishSources accordingly.)
@@ -106,7 +106,7 @@ export class VoiceModerationService {
       data: { mutedByMod: args.muted },
     });
 
-    // Notify the channel — peers update the badge instantly.
+    // Notify the channel, peers update the badge instantly.
     this.realtime.moderationMute(channel.id, channel.projectId, {
       targetUserId: args.targetUserId,
       muted: args.muted,
@@ -186,7 +186,7 @@ export class VoiceModerationService {
     const source = await this.requireOpenChannel(args.sourceChannelId);
     const target = await this.requireOpenChannel(args.targetChannelId);
 
-    // Both must be in the same project (or both lobby) — see method
+    // Both must be in the same project (or both lobby), see method
     // doc comment.
     if (source.projectId !== target.projectId) {
       throw new ForbiddenException(
@@ -194,7 +194,7 @@ export class VoiceModerationService {
       );
     }
 
-    // userLimit gate — same rule as a regular join.
+    // userLimit gate, same rule as a regular join.
     if (target.userLimit && target.userLimit > 0) {
       const live = await this.participants.countLive(target.id);
       if (live >= target.userLimit) {

@@ -10,6 +10,6 @@ import { ProjectsService } from './projects.service';
 })
 export class ProjectsModule {}
 
-// Why: session idle timeout policy — see the ADR in docs/adr/
+// Why: session idle timeout policy, see the ADR in docs/adr/
 
 // NOTE: revisit project slug migration safety after the next load test

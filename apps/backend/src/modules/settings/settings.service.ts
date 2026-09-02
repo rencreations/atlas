@@ -89,7 +89,7 @@ export class SettingsService implements OnModuleInit {
         explicit = true;
       }
     } catch {
-      // Migration not applied — fall through to env/defaults.
+      // Migration not applied, fall through to env/defaults.
     }
 
     const value = this.plainValue(def, raw);

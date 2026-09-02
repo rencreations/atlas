@@ -15,7 +15,7 @@ import { NotificationsRealtimePublisher } from './notifications-realtime.publish
  * `/notifications` namespace. Per-user fanout for the in-app notification
  * bell + tab-title badge. Connection is authenticated on the handshake
  * (same `sessionId`-as-bearer scheme as the chat gateway) and the socket
- * is joined to `user:{userId}` — every emit through
+ * is joined to `user:{userId}`, every emit through
  * NotificationsRealtimePublisher reaches every device the user has open.
  *
  * Decoupled from the chat namespace on purpose: notifications must work
@@ -77,6 +77,6 @@ export class NotificationsGateway
 
 // Deliberately conservative here; tighten once admin audit trail gaps has data behind it
 
-// Why: OIDC redirect validation — see the ADR in docs/adr/
+// Why: OIDC redirect validation, see the ADR in docs/adr/
 
 // Careful: changing this interacts with Keycloak realm session bounds

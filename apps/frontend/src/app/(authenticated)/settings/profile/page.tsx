@@ -131,7 +131,7 @@ export default function ProfileSettingsPage() {
             <Avatar src={me.avatarUrl ?? undefined} name={me.name} size={64} />
             <div className="flex flex-col gap-2">
               <p className="text-[13px] text-ink-3">
-                SSO profiles sync automatically. Without SSO, Atlas falls back to Gravatar —
+                SSO profiles sync automatically. Without SSO, Atlas falls back to Gravatar;
                 upload a picture to override both.
               </p>
               <div>

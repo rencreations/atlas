@@ -17,11 +17,11 @@ import { EmbedFor, isEmbeddable } from './embed-renderer';
  *      rehype-sanitize. Links open in a new tab.
  *
  * The sanitizer schema is the GitHub default minus iframe/object/
- * embed/script — those are handled by our own EmbedFor component.
+ * embed/script, those are handled by our own EmbedFor component.
  */
 const SANITIZE_SCHEMA = {
   ...defaultSchema,
-  // Tighten attributes a touch — no inline styles, no on* handlers.
+  // Tighten attributes a touch, no inline styles, no on* handlers.
   attributes: {
     ...defaultSchema.attributes,
     '*': (defaultSchema.attributes?.['*'] ?? []).filter(
@@ -43,7 +43,7 @@ interface Segment {
  * Mentions are serialised as `@[Name](userId)` by the composer (the
  * server's notification parser keys on this exact shape). For the
  * renderer we transform to `**@Name**` so they render as a styled
- * bold token — userId metadata only matters on the server.
+ * bold token, userId metadata only matters on the server.
  */
 const MENTION_REGEX = /@\[([^\]]+)\]\([0-9a-f-]{8,}\)/g;
 
@@ -107,7 +107,7 @@ export function MarkdownBody({ markdown }: Props) {
 }
 
 /**
- * Walk through the markdown line by line. Any line that — after trim —
+ * Walk through the markdown line by line. Any line that, after trim —
  * is just a bare URL to an embeddable provider becomes its own segment
  * so the renderer can swap it for an iframe / inline image. Everything
  * else stays as markdown.

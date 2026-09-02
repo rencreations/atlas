@@ -14,7 +14,7 @@ export interface ChatGif {
 export interface ChatGifSearchResult {
   provider: 'tenor' | 'giphy';
   results: ChatGif[];
-  /** Opaque pagination cursor — Tenor returns its own string; Giphy uses
+  /** Opaque pagination cursor, Tenor returns its own string; Giphy uses
    *  numeric offset which we serialise as a decimal string. Pass back as `pos`. */
   next: string | null;
 }
@@ -59,7 +59,7 @@ interface GiphyEnvelope {
 }
 
 /**
- * Server-side GIF proxy. Supports both Giphy and Tenor — keeps the API
+ * Server-side GIF proxy. Supports both Giphy and Tenor, keeps the API
  * keys off the browser. Provider preference: Giphy first (if its key is
  * set), then Tenor. When neither is configured we return empty results
  * so the frontend can hide the GIF tab gracefully instead of erroring.

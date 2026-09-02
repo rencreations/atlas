@@ -37,8 +37,8 @@ interface Props {
 
 /**
  * Stage-channel layout. Two distinct sections:
- *   • Speakers — large tiles, top of the room.
- *   • Audience — compact avatar grid below.
+ *   • Speakers, large tiles, top of the room.
+ *   • Audience, compact avatar grid below.
  *
  * Hand-raise button shown to audience members. A queue popover shows
  * raised hands; moderators see a "Promote" button per row.
@@ -65,7 +65,7 @@ export function StageRoom({
     const map = new Map<string, 'SPEAKER' | 'AUDIENCE'>();
     for (const p of participants) {
       // ParticipantView doesn't surface metadata directly; we infer
-      // role from "are they publishing" — speakers always publish a
+      // role from "are they publishing", speakers always publish a
       // mic track. Audience never can. This is heuristic but matches
       // the LiveKit reality.
       const isSpeaker = !p.isMuted || p.isCameraEnabled || p.isScreenSharing;
@@ -181,7 +181,7 @@ export function StageRoom({
 }
 
 /**
- * Compact audience card — just avatar + name. Mods see a "Promote"
+ * Compact audience card, just avatar + name. Mods see a "Promote"
  * button on hover; raised hand shows a hand icon overlay.
  */
 function AudienceCard({

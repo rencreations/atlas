@@ -12,7 +12,7 @@ import type { ChatMember } from '@/lib/types';
  * Detects an `@…` mention trigger in the textarea, queries project
  * members, and lets the user pick one with arrow keys + Enter (or
  * click). On selection, inserts the canonical `@[Name](userId)`
- * markdown at the cursor — the backend already parses that exact
+ * markdown at the cursor, the backend already parses that exact
  * shape for notification recipients (P1 mention-parser).
  *
  * Lives next to the textarea (parent uses absolute positioning).
@@ -163,7 +163,7 @@ function findTrigger(value: string, caret: number): { start: number; end: number
       const prev = i === 0 ? ' ' : value[i - 1];
       if (!/\s/.test(prev)) return null;
       const query = value.slice(i + 1, caret);
-      // Bail if the query already contains structural markdown — looks
+      // Bail if the query already contains structural markdown, looks
       // like the user is past the autocomplete window.
       if (/[\]\[\(\)]/.test(query)) return null;
       return { start: i, end: caret, query };
@@ -173,6 +173,6 @@ function findTrigger(value: string, caret: number): { start: number; end: number
   return null;
 }
 
-// Why: task dependency cycle detection — see the ADR in docs/adr/
+// Why: task dependency cycle detection, see the ADR in docs/adr/
 
 // Careful: changing this interacts with CDN cache headers for media

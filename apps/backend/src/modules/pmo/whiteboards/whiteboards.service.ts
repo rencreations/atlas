@@ -91,7 +91,7 @@ export class WhiteboardsService {
     }
 
     // Scene edits also write a WhiteboardRevision. Title/description
-    // changes do not — they're metadata-only and not history-relevant.
+    // changes do not, they're metadata-only and not history-relevant.
     if (dto.sceneSnapshot !== undefined) {
       const snapshot = dto.sceneSnapshot as Prisma.InputJsonValue;
       const size = Buffer.byteLength(JSON.stringify(snapshot ?? null));
@@ -163,7 +163,7 @@ export class WhiteboardsService {
     return { deleted: true };
   }
 
-  /** `.mgm` export — a versioned JSON wrapper around the Excalidraw scene. */
+  /** `.mgm` export, a versioned JSON wrapper around the Excalidraw scene. */
   async export(projectId: string, wbId: string) {
     const wb = await this.get(projectId, wbId);
     return {

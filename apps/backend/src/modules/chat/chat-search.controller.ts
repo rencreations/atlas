@@ -7,7 +7,7 @@ import { ChatSearchService } from './services/chat-search.service';
 
 /**
  * Full-text chat search. Scope is ALWAYS enforced server-side
- * regardless of the channelId / projectId the client passes — the
+ * regardless of the channelId / projectId the client passes, the
  * service intersects the requested scope with the user's accessible
  * project set, so a malicious client can never search a channel
  * they're not an insider of.

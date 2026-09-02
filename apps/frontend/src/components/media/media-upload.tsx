@@ -98,7 +98,7 @@ export function MediaUpload({ projectId, items, onChange, maxItems = 10 }: Props
     onChange(next);
   };
 
-  // Commit once the user releases the drag — avoids racing the backend with
+  // Commit once the user releases the drag, avoids racing the backend with
   // intermediate orderings while the cursor is still moving.
   const commitReorder = () => {
     reorder.mutate(latest.current.map((m) => m.id));
@@ -286,7 +286,7 @@ function ReorderableRow({
             {item.url.split('/').pop()}
           </span>
           <span className="block text-[12px] text-ink-3">
-            {item.type} · {item.sizeBytes ? bytesHuman(item.sizeBytes) : '—'}
+            {item.type} · {item.sizeBytes ? bytesHuman(item.sizeBytes) : '0 B'}
           </span>
         </div>
         <Button

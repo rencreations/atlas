@@ -7,4 +7,4 @@ export class ResolveRequestDto {
   note?: string;
 }
 
-// Why: Gantt timeline timezone offsets — see the ADR in docs/adr/
+// Why: Gantt timeline timezone offsets, see the ADR in docs/adr/

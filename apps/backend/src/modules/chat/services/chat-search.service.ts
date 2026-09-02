@@ -55,10 +55,10 @@ interface RawHit {
 /**
  * Postgres full-text search over the `searchVector` column added in
  * the P1 migration (GIN-indexed, generated from `markdown` via a
- * STORED generated column — always fresh, no app-side maintenance).
+ * STORED generated column, always fresh, no app-side maintenance).
  *
  * Scope is enforced server-side regardless of what channelId /
- * projectId the client passes — we derive the legal channel set from
+ * projectId the client passes, we derive the legal channel set from
  * ProjectMember rows (or "all" for admins) and AND it in. A user can
  * never search a channel they shouldn't see.
  *
@@ -133,7 +133,7 @@ export class ChatSearchService {
       ...r,
       rank: Number(r.rank),
     }));
-    // Use the last item's createdAt as the next cursor — works because
+    // Use the last item's createdAt as the next cursor, works because
     // we order by rank then createdAt; cursor advances time backwards.
     const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
     return { scope: opts.scope, query: term, hits: items, nextCursor };

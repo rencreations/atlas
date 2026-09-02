@@ -26,7 +26,7 @@ import { ChatRealtimePublisher } from './services/chat-realtime.publisher';
 
 /**
  * Project-scoped chat endpoints. Every request resolves access via
- * ProjectAccessService — chat is hidden from anyone who isn't an insider
+ * ProjectAccessService, chat is hidden from anyone who isn't an insider
  * of the project (admin/PM/contributor). Viewers and guests get 403.
  */
 @ApiBearerAuth()

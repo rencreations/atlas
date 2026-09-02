@@ -40,7 +40,7 @@ const DEFAULT_2X2: Cell[] = [
 
 /**
  * The Atlas signature corner pattern. Used at edges, corners, and divider
- * strips — never as a tiled wallpaper.
+ * strips, never as a tiled wallpaper.
  *
  * Every motif renders in the theme's single primary brand color on the
  * page paper, so the pattern re-skins with the active theme and stays one

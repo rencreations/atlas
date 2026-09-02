@@ -26,10 +26,10 @@ class StartRecordingDto {
 /**
  * Recording lifecycle endpoints (Phase 7). All mod-only.
  *
- *   POST /api/v1/voice/channels/:id/recording/start  — mod
- *   POST /api/v1/voice/channels/:id/recording/stop   — mod
- *   GET  /api/v1/voice/channels/:id/recordings       — any insider (list)
- *   GET  /api/v1/voice/recordings/:id/download       — any insider, must
+ *   POST /api/v1/voice/channels/:id/recording/start , mod
+ *   POST /api/v1/voice/channels/:id/recording/stop  , mod
+ *   GET  /api/v1/voice/channels/:id/recordings      , any insider (list)
+ *   GET  /api/v1/voice/recordings/:id/download      , any insider, must
  *        be within the retention window
  *
  * Authorization mirrors the moderation controller: per-project channels
@@ -76,7 +76,7 @@ export class VoiceRecordingController {
 
   @Get('voice/recordings/:id/download')
   async download(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    // Reader-level gate — same channel access as list.
+    // Reader-level gate, same channel access as list.
     const rec = await this.prisma.voiceRecording.findUnique({
       where: { id },
       select: { id: true, channelId: true },

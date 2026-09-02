@@ -78,7 +78,7 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
     enabled: voiceEnabled,
   });
 
-  // Keep the lobby avatar stacks live — same subscription the voice
+  // Keep the lobby avatar stacks live, same subscription the voice
   // lobby page uses.
   React.useEffect(() => {
     if (!voiceEnabled) return;
@@ -206,7 +206,7 @@ function ProjectSection({
 
   // Subscribe to project-level voice events so the roster / channel
   // list stays live. The socket invalidates the voice-channels query
-  // on every roster / channel change — TanStack Query then refetches.
+  // on every roster / channel change, TanStack Query then refetches.
   React.useEffect(() => {
     if (!voiceEnabled) return;
     const socket = getVoiceSocket();

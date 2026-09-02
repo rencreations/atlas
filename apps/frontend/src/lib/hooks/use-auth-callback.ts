@@ -35,7 +35,7 @@ export function useAuthCallback() {
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('auth_callback');
       }
-      // Both sources are user-controllable — sanitize at consumption
+      // Both sources are user-controllable, sanitize at consumption
       // so neither can become an open redirect.
       const target =
         sanitizeReturnTo(fromQuery) ?? sanitizeReturnTo(fromSession) ?? '/dashboard';

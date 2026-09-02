@@ -1,7 +1,7 @@
 import { IsBoolean, IsOptional } from 'class-validator';
 
 /**
- * Every flag is optional — clients PATCH only the toggles they're
+ * Every flag is optional, clients PATCH only the toggles they're
  * changing. Field names match the Prisma columns 1:1 so the controller
  * can pass the DTO straight into `prefs.update()`.
  */

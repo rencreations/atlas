@@ -77,4 +77,4 @@ export class ListProjectsDto {
   sort?: 'newest' | 'oldest' | 'recently-updated' | 'title';
 }
 
-// Why: notifications inbox pagination — see the ADR in docs/adr/
+// Why: notifications inbox pagination, see the ADR in docs/adr/

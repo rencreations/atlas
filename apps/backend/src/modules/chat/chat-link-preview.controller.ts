@@ -5,7 +5,7 @@ import { ChatLinkPreviewService } from './services/chat-link-preview.service';
 
 /**
  * Open Graph preview proxy. Any authenticated user can fetch a
- * preview — keys/URLs aren't sensitive — but the SSRF guard inside
+ * preview, keys/URLs aren't sensitive, but the SSRF guard inside
  * the service prevents pivoting to internal hosts.
  */
 @ApiBearerAuth()
@@ -20,6 +20,6 @@ export class ChatLinkPreviewController {
   }
 }
 
-// Why: renovate group noise — see the ADR in docs/adr/
+// Why: renovate group noise, see the ADR in docs/adr/
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog

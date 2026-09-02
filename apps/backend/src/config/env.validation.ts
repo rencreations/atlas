@@ -43,7 +43,7 @@ class EnvVars {
   @IsNotEmpty()
   DATABASE_URL!: string;
 
-  // Keycloak is one auth method among many now — optional. Credentials
+  // Keycloak is one auth method among many now, optional. Credentials
   // can be entered in godmode instead.
   @IsOptional()
   @IsString()
@@ -70,7 +70,7 @@ class EnvVars {
   KEYCLOAK_AUDIENCE?: string;
 
   /// Control-plane passphrase for /godmode. Required for self-hosted
-  /// deployments — without it nothing can be configured.
+  /// deployments, without it nothing can be configured.
   @IsString()
   @IsNotEmpty()
   GODMODE_PASSPHRASE!: string;
@@ -100,7 +100,7 @@ class EnvVars {
   @IsString()
   SENTRY_TRACES_SAMPLE_RATE?: string;
 
-  /// Legacy env admin seeding — optional; admin assignment is role-based
+  /// Legacy env admin seeding, optional; admin assignment is role-based
   /// via godmode now.
   @IsOptional()
   @IsString()
@@ -313,7 +313,7 @@ class EnvVars {
   @IsString()
   VAPID_PRIVATE_KEY?: string;
 
-  /// Identity URI sent in the VAPID JWT — typically `mailto:ops@your.org`
+  /// Identity URI sent in the VAPID JWT, typically `mailto:ops@your.org`
   /// or `https://atlas.labmgm.org`.
   @IsOptional()
   @IsString()

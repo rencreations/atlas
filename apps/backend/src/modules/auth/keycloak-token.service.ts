@@ -23,7 +23,7 @@ type TokenKind = 'access' | 'id';
 /**
  * Verifies Keycloak-issued JWTs against the realm JWKS before any identity
  * claim is trusted. Sessions must only ever be minted from claims returned
- * by this service — never from the request body.
+ * by this service, never from the request body.
  */
 @Injectable()
 export class KeycloakTokenService {

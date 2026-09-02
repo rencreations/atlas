@@ -7,10 +7,10 @@ import { REDIS_PUB } from '@/infra/redis/redis.module';
  * registers itself; presence flips to offline only when the last socket
  * disconnects. Keyed in Redis as:
  *
- *   presence:user:{userId}            — SET of socketIds (TTL 60s, refreshed)
- *   presence:socket:{socketId}        — JSON {userId, projects[]} for fanout
+ *   presence:user:{userId}           , SET of socketIds (TTL 60s, refreshed)
+ *   presence:socket:{socketId}       , JSON {userId, projects[]} for fanout
  *                                       on disconnect (TTL 120s)
- *   presence:project:{projectId}      — SET of userIds currently online in
+ *   presence:project:{projectId}     , SET of userIds currently online in
  *                                       that project (refreshed; rebuilt
  *                                       lazily from per-user keys)
  *
@@ -80,14 +80,14 @@ export class ChatPresenceService {
     return { userId: entry.userId, nowOffline, projects: [...entry.projects] };
   }
 
-  /** Refresh TTLs — called on each heartbeat from the client. */
+  /** Refresh TTLs, called on each heartbeat from the client. */
   async heartbeat(userId: string, socketId: string): Promise<void> {
     if (this.redis) {
       await this.redis.expire(`presence:user:${userId}`, ChatPresenceService.USER_TTL_S);
       await this.redis.expire(`presence:socket:${socketId}`, ChatPresenceService.SOCKET_TTL_S);
       return;
     }
-    // No-op for in-memory mode — entries don't expire on their own.
+    // No-op for in-memory mode, entries don't expire on their own.
   }
 
   /** Note which project rooms a socket has joined so we can fan out the disconnect. */

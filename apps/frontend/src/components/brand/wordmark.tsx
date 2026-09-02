@@ -28,6 +28,6 @@ export function Wordmark({ className, withSignature = true }: Props) {
 
 // Keep in sync with the docs section on rate limit burst handling
 
-// Why: admin audit trail gaps — see the ADR in docs/adr/
+// Why: admin audit trail gaps, see the ADR in docs/adr/
 
 // TODO(ops): confirm monorepo build cache misses behavior on the next staging deploy

@@ -51,7 +51,9 @@ interface Section {
 
 const SECTIONS: Section[] = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
-  { id: 'site', label: 'Site', icon: Globe, groups: ['site', 'legal'] },
+  // Site name and tagline used to be editable here; they are deliberately
+  // not shown anymore. The section now hosts only the legal documents.
+  { id: 'site', label: 'Site', icon: Globe, groups: ['legal'] },
   { id: 'registration', label: 'Registration', icon: UserPlus, groups: ['registration'] },
   { id: 'auth', label: 'Sign-in methods', icon: KeyRound, groups: ['auth'] },
   { id: 'sessions', label: 'Sessions', icon: Timer, groups: ['sessions'] },
@@ -257,7 +259,6 @@ export function GodmodeShell({
                 items={groupItems}
                 onDirtyChange={setDirty}
                 onSaved={() => void load()}
-                advancedByDefault={active.id === 'advanced'}
               />
             ) : null}
             {section === 'users' ? (
@@ -285,14 +286,14 @@ function HeaderFor({ section, configured }: { section: Section; configured: bool
       </div>
       <p className="mt-1 text-body-sm text-ink-2">
         {section.id === 'overview'
-          ? 'Instance-wide configuration. Changes apply immediately — no redeploy.'
+          ? 'Instance-wide configuration. Changes apply immediately, no redeploy.'
           : 'These settings live in the database and apply immediately.'}
       </p>
       {/* On Overview the progress card already says this; elsewhere it is a
           useful reminder that the app is still gated. */}
       {section.id !== 'overview' && !configured ? (
         <div className="mt-3 rounded border border-brand-yellow bg-brand-yellow-50 px-4 py-2 text-[13px] text-brand-yellow-ink">
-          Setup is not finished — Atlas still shows the setup screen to everyone. Return to
+          Setup is not finished, Atlas still shows the setup screen to everyone. Return to
           Overview to finish.
         </div>
       ) : null}

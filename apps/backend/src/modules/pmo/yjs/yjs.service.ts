@@ -68,7 +68,7 @@ export class YjsService {
    *  authorId, when provided, comes from the sidecar's last-active
    *  awareness user (the client whose update triggered the debounce).
    *  If the id doesn't resolve to a real User we drop it rather than
-   *  failing the snapshot — anonymity is preferable to data loss. */
+   *  failing the snapshot, anonymity is preferable to data loss. */
   async saveSnapshot(
     docKey: string,
     stateB64: string,

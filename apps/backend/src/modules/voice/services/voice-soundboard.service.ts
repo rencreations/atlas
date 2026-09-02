@@ -42,7 +42,7 @@ export class VoiceSoundboardService {
   }
 
   /**
-   * Step 1 — return a presigned S3 PUT URL the client uses to upload
+   * Step 1, return a presigned S3 PUT URL the client uses to upload
    * the audio bytes directly. We never proxy the file through the
    * backend.
    */
@@ -68,7 +68,7 @@ export class VoiceSoundboardService {
   }
 
   /**
-   * Step 2 — persist the clip row after the client confirms the S3
+   * Step 2, persist the clip row after the client confirms the S3
    * upload completed. Public URL is derived from the s3Key so the
    * client can't lie about where the file lives.
    */
@@ -99,7 +99,7 @@ export class VoiceSoundboardService {
       select: { id: true, s3Key: true },
     });
     if (!clip) throw new NotFoundException('Soundboard clip not found.');
-    // Delete the DB row first — if S3 deletion fails the object
+    // Delete the DB row first, if S3 deletion fails the object
     // becomes orphaned but the UI is already correct.
     await this.prisma.voiceSoundboardClip.delete({ where: { id } });
     void this.s3.deleteObject(clip.s3Key); // fire-and-forget

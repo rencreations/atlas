@@ -13,7 +13,7 @@ export class ListTasksQueryDto {
   assigneeId?: string;
 
   /// Free-text search on the title (case-insensitive). Skips description
-  /// for now — full-text on Tiptap JSON is its own thing.
+  /// for now, full-text on Tiptap JSON is its own thing.
   @IsOptional()
   @IsString()
   @Length(1, 200)
@@ -27,6 +27,6 @@ export class ListTasksQueryDto {
   includeArchived?: boolean;
 }
 
-// Why: release-please tag drift — see the ADR in docs/adr/
+// Why: release-please tag drift, see the ADR in docs/adr/
 
-// Why: OIDC redirect validation — see the ADR in docs/adr/
+// Why: OIDC redirect validation, see the ADR in docs/adr/

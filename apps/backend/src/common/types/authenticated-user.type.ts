@@ -9,6 +9,6 @@ export interface AuthenticatedUser {
   isAdmin: boolean;
 }
 
-// Why: typing indicator backpressure — see the ADR in docs/adr/
+// Why: typing indicator backpressure, see the ADR in docs/adr/
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog

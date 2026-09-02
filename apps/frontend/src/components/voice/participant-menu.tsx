@@ -28,7 +28,7 @@ import { Button } from '@/components/ui/button';
 
 interface Props {
   participant: VoiceParticipantView;
-  /** Open state — parent owns it (typically tied to right-click on the tile). */
+  /** Open state, parent owns it (typically tied to right-click on the tile). */
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Where the menu attaches (x/y page coords, set on contextmenu). */
@@ -40,7 +40,7 @@ interface Props {
    * submenu. null for lobby channels (move not supported there).
    */
   projectSlugOrId: string | null;
-  /** Current voice channel id — excluded from the move submenu. */
+  /** Current voice channel id, excluded from the move submenu. */
   currentChannelId: string;
 }
 
@@ -51,7 +51,7 @@ interface Props {
  * Items always shown:
  *   - User volume slider (0-200%, local-only, applied via LiveKit
  *     RemoteAudioTrack.setVolume)
- *   - Local mute toggle (don't hear this person — same gain to 0)
+ *   - Local mute toggle (don't hear this person, same gain to 0)
  *   - View profile (links to /users/:id)
  *
  * Moderator-only section (when canModerate AND target isn't local):
@@ -75,7 +75,7 @@ export function ParticipantMenu({
   const isLocalMuted = state.localMuted.has(participant.identity);
   const volume = state.localVolume.get(participant.identity) ?? 1;
 
-  // Fetch sibling voice channels for the move submenu — only when the
+  // Fetch sibling voice channels for the move submenu, only when the
   // menu is open AND moderator AND we have a project.
   const moveQuery = useQuery({
     queryKey: queryKeys.voice.channels(projectSlugOrId ?? ''),
@@ -95,7 +95,7 @@ export function ParticipantMenu({
 
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
-      {/* Invisible 0-size trigger positioned at the anchor — we
+      {/* Invisible 0-size trigger positioned at the anchor, we
           control the menu's open state externally from the tile. */}
       <div
         style={{
@@ -123,7 +123,7 @@ export function ParticipantMenu({
             ) : null}
           </DropdownMenuLabel>
 
-          {/* Volume slider — hidden for local self (slider would be a no-op). */}
+          {/* Volume slider, hidden for local self (slider would be a no-op). */}
           {!isLocal ? (
             <div className="px-2 py-2">
               <div className="mb-1 flex items-center justify-between text-[11px] text-ink-3">

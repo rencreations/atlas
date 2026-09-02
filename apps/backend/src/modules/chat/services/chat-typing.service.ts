@@ -5,7 +5,7 @@ import { REDIS_PUB } from '@/infra/redis/redis.module';
 /**
  * "User X is typing in channel Y" flag with a short TTL. The client
  * pings while the user is composing; the flag self-expires if pings
- * stop. We deliberately don't persist anything — typing is purely
+ * stop. We deliberately don't persist anything, typing is purely
  * ephemeral UX.
  *
  * Returns whether this is a fresh transition (false → true) so the

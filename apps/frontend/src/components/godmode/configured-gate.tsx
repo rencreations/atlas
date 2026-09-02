@@ -17,7 +17,7 @@ const EXEMPT_PATHS = ['/godmode', '/health', '/login'];
 /**
  * First-run gate: while the instance is unconfigured, every page renders
  * a setup screen with a CTA to /godmode. Fetched once per session; the
- * backend never reveals WHICH settings are missing — just that setup
+ * backend never reveals WHICH settings are missing, just that setup
  * hasn't finished.
  */
 export function ConfiguredGate({ children }: { children: React.ReactNode }) {
@@ -36,7 +36,7 @@ export function ConfiguredGate({ children }: { children: React.ReactNode }) {
 
   if (configured === null) {
     // While resolving: exempt paths (login, godmode, health) render their
-    // children immediately — never flash the setup screen at them — and
+    // children immediately, never flash the setup screen at them, and
     // everything else shows the loading shell instead of a blank page.
     if (exempt) return <>{children}</>;
     return <LoadingShell />;

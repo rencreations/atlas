@@ -72,7 +72,9 @@ export class UsersService {
     // Never let a client point a profile at arbitrary bucket objects.
     let avatarS3Key: string | undefined;
     if (dto.avatarS3Key) {
-      const pattern = new RegExp(`^avatars/${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+-[0-9a-f]{8}(\\.[a-z]{2,4})?$`);
+      const pattern = new RegExp(
+        `^avatars/${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+-[0-9a-f]{8}(\\.[a-z]{2,4})?$`,
+      );
       if (!pattern.test(dto.avatarS3Key)) {
         throw new BadRequestException('Invalid avatar key.');
       }
@@ -102,7 +104,11 @@ export class UsersService {
       throw new BadRequestException('Avatar must be at most 5 MB.');
     }
     const key = `avatars/${userId}/${Date.now()}-${randomUUID().slice(0, 8)}${this.extensionFor(contentType)}`;
-    return this.s3.presignPut({ key, contentType, contentLength: contentLength ?? AVATAR_MAX_BYTES });
+    return this.s3.presignPut({
+      key,
+      contentType,
+      contentLength: contentLength ?? AVATAR_MAX_BYTES,
+    });
   }
 
   async recordConsent(userId: string) {
@@ -164,7 +170,7 @@ export class UsersService {
 
   /**
    * Grant/revoke the admin role (legacy endpoint kept for the admin
-   * console). Admin status is now role-based — the boolean flag is the
+   * console). Admin status is now role-based, the boolean flag is the
    * denormalized mirror.
    */
   async setAdmin(actorId: string, targetId: string, isAdmin: boolean) {
@@ -178,7 +184,7 @@ export class UsersService {
     if (!target) throw new NotFoundException('User not found.');
 
     const adminRole = await this.prisma.role.findUnique({ where: { code: 'admin' } });
-    if (!adminRole) throw new NotFoundException('Admin role template is missing — run the seed.');
+    if (!adminRole) throw new NotFoundException('Admin role template is missing, run the seed.');
 
     if (isAdmin) {
       await this.prisma.userRole.upsert({
@@ -218,7 +224,7 @@ export class UsersService {
       throw new ConflictException('A user with that email already exists.');
     }
     const roleCode = dto.roleCode ?? 'member';
-    // Only superadmins may mint other superadmins — otherwise any admin
+    // Only superadmins may mint other superadmins, otherwise any admin
     // could escalate by creating a privileged account.
     if (roleCode === 'superadmin' && !(await this.isSuperadmin(actorId))) {
       throw new ForbiddenException('Only superadmins can create superadmin accounts.');
@@ -281,7 +287,7 @@ export class UsersService {
         where: { userId: targetId },
         data: { passwordHash: await bcrypt.hash(newPassword, 12), mustChange: true },
       }),
-      // An admin reset invalidates every existing session — if the
+      // An admin reset invalidates every existing session, if the
       // account was compromised, this kicks the attacker out.
       this.prisma.session.deleteMany({ where: { userId: targetId } }),
     ]);

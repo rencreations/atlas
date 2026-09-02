@@ -69,7 +69,7 @@ import {
  * `iconName` is stored as on TaskList; values are the React components.
  *
  * To add an icon: import it at the top of this file and add an entry
- * here. Be conservative — every new entry costs bundle size.
+ * here. Be conservative, every new entry costs bundle size.
  */
 export const LUCIDE_ICON_MAP = {
   boxes: Boxes,

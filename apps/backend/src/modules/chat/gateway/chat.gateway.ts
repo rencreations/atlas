@@ -22,7 +22,7 @@ import { WsSessionGuard } from './ws-session.guard';
 /**
  * `/chat` namespace. Authentication happens on the connection handshake
  * (not via @UseGuards on every event) so an invalid token disconnects
- * the socket immediately — never holds a half-open connection.
+ * the socket immediately, never holds a half-open connection.
  *
  * Room model:
  *   project:{id}  → presence, channel.created/archived, unread.update
@@ -40,7 +40,7 @@ import { WsSessionGuard } from './ws-session.guard';
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
 
-  // With `namespace: '/chat'`, Nest injects the Namespace here — NOT
+  // With `namespace: '/chat'`, Nest injects the Namespace here, NOT
   // the root socket.io Server. We don't call `.of()` on it (that's a
   // Server method, doesn't exist on Namespace); we use it directly.
   @WebSocketServer()
@@ -81,7 +81,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     // Every authenticated user can read workspace-global channels, so
     // every socket joins the global fanout room (unread.update and
-    // channel.* events for projectId = null channels) — no client
+    // channel.* events for projectId = null channels), no client
     // subscribe step needed. Presence stays project-scoped.
     await socket.join('global');
 
@@ -94,7 +94,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (!result) return;
     if (result.nowOffline) {
       for (const projectId of result.projects) {
-        // `this.server` is already the `/chat` namespace — emit directly.
+        // `this.server` is already the `/chat` namespace, emit directly.
         this.server
           .to(`project:${projectId}`)
           .emit('presence.update', { userId: result.userId, online: false });
@@ -107,7 +107,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   // ─── Subscribe / unsubscribe ────────────────────────────────────────
 
-  /** Client opened a channel — verify access and join the rooms. */
+  /** Client opened a channel, verify access and join the rooms. */
   @UseGuards(WsSessionGuard)
   @SubscribeMessage('chat:subscribe')
   async subscribe(

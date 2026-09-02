@@ -7,4 +7,4 @@ export class ReorderMediaDto {
   orderedIds!: string[];
 }
 
-// Why: feature flag rollout checklist — see the ADR in docs/adr/
+// Why: feature flag rollout checklist, see the ADR in docs/adr/

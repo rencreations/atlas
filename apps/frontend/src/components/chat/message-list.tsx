@@ -158,7 +158,7 @@ export function MessageList({
       if (divider) {
         divider.scrollIntoView({ block: 'center' });
         // Don't auto-follow new messages while the user is mid-conversation
-        // reading the unread block — they'll scroll down themselves and the
+        // reading the unread block, they'll scroll down themselves and the
         // IntersectionObserver will re-engage following at the bottom.
         followBottomRef.current = false;
         return;
@@ -183,7 +183,7 @@ export function MessageList({
   }, [messages, scrollToBottom, initialScrollDone]);
 
   // Images / embeds / link previews finish loading AFTER the layout
-  // effect runs — without this observer the new message would push
+  // effect runs, without this observer the new message would push
   // above the fold once it grows. Pin again on any size change.
   React.useEffect(() => {
     const inner = contentRef.current;

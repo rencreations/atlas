@@ -74,7 +74,7 @@ export function SaveBadge({
           'inline-flex items-center gap-1.5 text-[12px] text-ink-3',
           className,
         )}
-        title="Unsaved changes — will sync momentarily"
+        title="Unsaved changes, will sync momentarily"
       >
         <CircleDashed className="h-3.5 w-3.5" strokeWidth={2.25} />
         Unsaved

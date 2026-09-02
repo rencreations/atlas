@@ -5,7 +5,7 @@ import type { ChatMessagePublic } from './chat-messages.service';
 
 /**
  * Central emit point for chat realtime events. All mutation services
- * call this — never `gateway.server.emit` directly — so the wire
+ * call this, never `gateway.server.emit` directly, so the wire
  * shape is defined in one place.
  *
  * The gateway calls `attach(ns)` during initialization with its own
@@ -15,10 +15,10 @@ import type { ChatMessagePublic } from './chat-messages.service';
  * no-ops (REST keeps working; the frontend falls back to polling).
  *
  * Room conventions:
- *   project:{id}  — project-level fanout (channel.created, unread.update, presence)
- *   global        — workspace-global fanout (projectId = null channels);
+ *   project:{id} , project-level fanout (channel.created, unread.update, presence)
+ *   global       , workspace-global fanout (projectId = null channels);
  *                   every authenticated socket joins it on connect
- *   channel:{id}  — per-channel events (message, reaction, pin, typing)
+ *   channel:{id} , per-channel events (message, reaction, pin, typing)
  */
 @Injectable()
 export class ChatRealtimePublisher {

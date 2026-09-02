@@ -57,7 +57,7 @@ export async function api<T = unknown>(path: string, opts: FetchOptions = {}): P
 
 /**
  * Fire-and-forget PATCH/POST that survives a page-close. Built on
- * `fetch({ keepalive: true })` — the browser keeps the connection
+ * `fetch({ keepalive: true })`, the browser keeps the connection
  * open after the document is torn down. Used by the SaveCoordinator
  * to flush in-flight debounced saves on `visibilitychange === hidden`
  * and `beforeunload`. The 64KB body cap is per the keepalive spec;
@@ -81,7 +81,7 @@ export function apiBeacon(path: string, body: unknown, method: 'PATCH' | 'POST' 
 }
 
 /**
- * Direct PUT — used for S3 presigned uploads (no auth, raw body).
+ * Direct PUT, used for S3 presigned uploads (no auth, raw body).
  * `contentType` overrides the header sent on the wire; it must match the
  * content-type the URL was signed with, otherwise S3 rejects the signature.
  * Defaults to the file's own type to preserve existing callers.

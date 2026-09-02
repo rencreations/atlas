@@ -6,7 +6,7 @@ import { useSaveCoordinator } from './store';
 export interface UseSaveSurfaceOptions {
   surfaceId: string;
   /**
-   * Synchronous flush callback — runs on `visibilitychange === hidden`,
+   * Synchronous flush callback, runs on `visibilitychange === hidden`,
    * `beforeunload`, and component unmount. MUST do its network call
    * via `apiBeacon()` (fetch keepalive) or `navigator.sendBeacon` so
    * the request survives page teardown.
@@ -31,7 +31,7 @@ export function useSaveSurface({ surfaceId, flushNow }: UseSaveSurfaceOptions) {
   useEffect(() => {
     register(surfaceId, () => ref.current());
     return () => {
-      // Final flush on unmount — this is the bug fix for "clear
+      // Final flush on unmount, this is the bug fix for "clear
       // debounce timer on unmount before the PATCH fires."
       try {
         ref.current();

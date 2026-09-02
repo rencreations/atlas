@@ -22,7 +22,7 @@ import type { TeamMember, TeamPayload } from '@/lib/types';
  * Phase 11 polish: clicking a card opens a read-only profile drawer with
  * phone / department hydrated from Keycloak when the admin token is
  * available. For Phase 6 v1 we surface what's already in the local User
- * table — name, email, avatar, bio — and skip the Keycloak fetch.
+ * table, name, email, avatar, bio, and skip the Keycloak fetch.
  */
 export function TeamView({ projectSlug }: { projectSlug: string }) {
   const [search, setSearch] = React.useState('');

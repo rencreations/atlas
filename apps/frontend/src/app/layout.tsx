@@ -27,8 +27,8 @@ const geistMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s — Atlas',
-    default: 'Atlas — Project Portfolio',
+    template: '%s, Atlas',
+    default: 'Atlas, Project Portfolio',
   },
   description:
     'Discover, manage, and contribute to active research projects at Shirasaka Ren.',

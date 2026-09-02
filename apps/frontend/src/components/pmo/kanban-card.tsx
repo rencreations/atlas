@@ -102,7 +102,7 @@ export function KanbanCard({ projectSlug, list, task, dragging, overlay }: Props
 
   // Pointer-drag from anywhere on the card, navigate on click. dnd-kit's
   // `attributes` (role="button" + tabIndex) used to be spread on this
-  // wrapper, which nested an <a> inside a button — two interactive nodes,
+  // wrapper, which nested an <a> inside a button, two interactive nodes,
   // flagged by axe and confusing for screen readers. Spreading them onto
   // the anchor instead made dnd-kit swallow the click, so the card stopped
   // opening. Listeners alone on the wrapper keep both behaviours with the

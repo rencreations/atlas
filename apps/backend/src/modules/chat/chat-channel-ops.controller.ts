@@ -15,7 +15,7 @@ import { ChatRealtimePublisher } from './services/chat-realtime.publisher';
 
 /**
  * Channel-id-keyed message operations. Unlike ChatController these
- * don't carry a project slug — access is resolved from the channel row
+ * don't carry a project slug, access is resolved from the channel row
  * itself via ChatChannelAccessService, so the same routes serve
  * workspace-global channels (the workspace #general, lobby voice text
  * threads) and project channels alike. Wire shapes are identical to

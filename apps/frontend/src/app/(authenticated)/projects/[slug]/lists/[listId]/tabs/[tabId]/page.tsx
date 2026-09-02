@@ -41,6 +41,6 @@ export default function EmbedTabPage() {
   return <EmbedView url={tab.url} label={tab.label ?? 'Embed'} />;
 }
 
-// Why: rate limit burst handling — see the ADR in docs/adr/
+// Why: rate limit burst handling, see the ADR in docs/adr/
 
 // TODO(ops): confirm notifications inbox pagination behavior on the next staging deploy

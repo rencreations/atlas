@@ -12,8 +12,8 @@ import { SaveCoordinatorBeforeUnload } from '@/lib/save-coordinator';
 import { GlobalUndoListener } from '@/lib/undo/use-global-undo';
 
 // In-conversation chat pages: /projects/<slug>/chat/<channelId> and the
-// workspace-global /chat/global/<channelId>. Voice rooms — both
-// /projects/<slug>/voice/<id> and /voice/<id> — get the same
+// workspace-global /chat/global/<channelId>. Voice rooms, both
+// /projects/<slug>/voice/<id> and /voice/<id>, get the same
 // scroll-locked chrome. On these routes we hide the footer and lock
 // the outer chrome to the viewport so the inner pane is what scrolls.
 const CHAT_CONVERSATION_RE = /^\/(projects\/[^/]+\/chat|chat\/global)\/[^/]+/;

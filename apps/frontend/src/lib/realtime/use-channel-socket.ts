@@ -20,9 +20,9 @@ interface UseChannelSocketArgs {
  * fallback writes, so the rest of the UI doesn't know it's now live.
  *
  * Returns `{ online, isConnected, ping }`:
- *   - online       — set of userIds currently online in the project
- *   - isConnected  — whether the socket is currently up
- *   - ping(channelId) — throttled typing ping
+ *   - online      , set of userIds currently online in the project
+ *   - isConnected , whether the socket is currently up
+ *   - ping(channelId), throttled typing ping
  *
  * Falls back gracefully when the socket isn't available (server
  * without REDIS_URL, network down, no session): React Query keeps the
@@ -43,7 +43,7 @@ export function useChannelSocket({ projectId, channelId, currentUserId }: UseCha
 
     const onConnect = () => {
       setIsConnected(true);
-      // Global channels subscribe by channelId only — the gateway
+      // Global channels subscribe by channelId only, the gateway
       // verifies the channel really is global (or insider for project
       // channels reached by id) and skips the project room.
       socket.emit('chat:subscribe', projectId ? { projectId, channelId } : { channelId });
@@ -112,7 +112,7 @@ export function useChannelSocket({ projectId, channelId, currentUserId }: UseCha
       );
     };
 
-    // ─── Reactions / pins (invalidate — too many shape branches to merge cleanly) ───
+    // ─── Reactions / pins (invalidate, too many shape branches to merge cleanly) ───
     const onReactionChange = (payload: { messageId: string }) => {
       // Pull the message back to grab the fresh reactions list. We
       // could be smarter and patch in-place, but reactions render
@@ -122,7 +122,7 @@ export function useChannelSocket({ projectId, channelId, currentUserId }: UseCha
     };
     const onPinChange = () => {
       // Both the inline pinned banner on each message AND the right-side
-      // pin panel need to refresh — they read from different queries.
+      // pin panel need to refresh, they read from different queries.
       void queryClient.invalidateQueries({ queryKey: queryKeys.chat.pins(channelId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.chat.messages(channelId) });
     };
@@ -160,7 +160,7 @@ export function useChannelSocket({ projectId, channelId, currentUserId }: UseCha
     socket.on('presence.update', onPresence);
     socket.on('unread.update', onUnreadUpdate);
 
-    // Heartbeat — keeps presence flag fresh on the server side.
+    // Heartbeat, keeps presence flag fresh on the server side.
     const heartbeat = setInterval(() => {
       if (socket.connected) socket.emit('presence:heartbeat');
     }, 25_000);
@@ -206,7 +206,7 @@ export function useChannelSocket({ projectId, channelId, currentUserId }: UseCha
   return { isConnected, sendTypingPing, sendTypingStop };
 }
 
-// Why: collaboration role catalog sync — see the ADR in docs/adr/
+// Why: collaboration role catalog sync, see the ADR in docs/adr/
 
 // TODO(ops): confirm monorepo build cache misses behavior on the next staging deploy
 

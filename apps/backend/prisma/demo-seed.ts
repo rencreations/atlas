@@ -926,7 +926,7 @@ const CHAT_TEMPLATES = [
   'Morning! I updated the brief with the decisions from yesterday. The open questions are grouped at the top.',
   'The prototype is ready for another pass. Please focus on the first-run experience and recovery states.',
   'I can take this. I will share a small implementation note before the end of the day.',
-  'Great catch — that edge case also affects keyboard users. I added it to the acceptance criteria.',
+  'Great catch. That edge case also affects keyboard users, so I added it to the acceptance criteria.',
   'The latest customer session was encouraging. Three people completed the core flow without prompting.',
   'Can we keep this milestone narrow and move the optional polish into the following iteration?',
   'I posted the test plan and assigned owners. The remaining risk is the slow-network path.',
@@ -938,7 +938,7 @@ const CHAT_TEMPLATES = [
   'I reviewed the metrics. Activation improved, but the second-session return rate is still flat.',
   'Could someone pair with me on this after stand-up? I have the behavior isolated but not the root cause.',
   'Release notes are drafted. Please add anything user-visible before tomorrow morning.',
-  'The research clip at 12:40 is worth watching — it shows exactly where the current wording breaks down.',
+  'The research clip at 12:40 is worth watching. It shows exactly where the current wording breaks down.',
   'I pushed a smaller version of the change. It keeps the same outcome with less state to maintain.',
   'Nice work everyone. This was a complicated handoff, and the final result feels coherent.',
   'Reminder: demo review starts in thirty minutes. The agenda and links are pinned above.',
@@ -1649,7 +1649,7 @@ async function seedProjectKnowledge(): Promise<void> {
     noteIds.forEach((noteId, noteIndex) => {
       const yDocKey = `note:${noteId}`;
       const document = blockNoteDocument(
-        `${projectTitle} — ${noteTitles[noteIndex]}`,
+        `${projectTitle}: ${noteTitles[noteIndex]}`,
         projectIndex * 3 + noteIndex,
       );
       const row: Prisma.ProjectNoteCreateManyInput = {
@@ -1671,7 +1671,7 @@ async function seedProjectKnowledge(): Promise<void> {
       for (let revision = 0; revision < 3; revision++) {
         noteRevisionSequence++;
         const revisionDocument = blockNoteDocument(
-          `${projectTitle} — ${noteTitles[noteIndex]} (revision ${revision + 1})`,
+          `${projectTitle}: ${noteTitles[noteIndex]} (revision ${revision + 1})`,
           projectIndex * 9 + noteIndex * 3 + revision,
         );
         noteRevisions.push({
@@ -1896,7 +1896,7 @@ async function seedVoice(): Promise<void> {
           'The recording summary and decisions will be posted here after the call.',
           'I can facilitate the first half and hand over for the prototype review.',
           'Please add questions in this thread so we can keep the live discussion focused.',
-          'Thanks everyone — action items are assigned and the next checkpoint is on the calendar.',
+          'Thanks everyone. Action items are assigned and the next checkpoint is on the calendar.',
         ][messageIndex]!,
         replyToId: messageIndex === 4 ? threadMessageIds[1] : null,
         createdAt: daysAgo(12 - messageIndex * 2 + (channelSequence % 4)),

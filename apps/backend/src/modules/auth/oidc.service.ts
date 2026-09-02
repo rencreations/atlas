@@ -13,7 +13,7 @@ type OidcModule = typeof oidc;
 
 // openid-client v6 ships ESM-only. This app compiles to CommonJS, and
 // TypeScript's `module: commonjs` target downlevels `import()` to a
-// `require()` call — which throws ERR_REQUIRE_ESM on this package just
+// `require()` call, which throws ERR_REQUIRE_ESM on this package just
 // like a static import would. Routing through `Function` hides the
 // `import()` from that downleveling so it runs as a real dynamic import.
 let oidcModulePromise: Promise<OidcModule> | null = null;
@@ -127,7 +127,7 @@ export class OIDCService {
       });
     } catch (err) {
       this.logger.warn(`OIDC callback failed: ${(err as Error).message}`);
-      throw new UnauthorizedException('OIDC sign-in failed — please try again.');
+      throw new UnauthorizedException('OIDC sign-in failed, please try again.');
     }
 
     const claims = response.claims();

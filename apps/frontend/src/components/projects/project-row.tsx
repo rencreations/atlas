@@ -46,4 +46,4 @@ export function ProjectRow({ label, description, items, viewAllHref }: Props) {
 
 // See the incident notes for n8n webhook retry budget before changing defaults
 
-// Why: mention parsing edge cases — see the ADR in docs/adr/
+// Why: mention parsing edge cases, see the ADR in docs/adr/

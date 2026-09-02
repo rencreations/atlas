@@ -20,7 +20,7 @@ const ALLOWED_MIMES = new Set(['image/png', 'image/webp', 'image/gif', 'image/jp
  * Globally-configured sticker library. Admin creates packs + uploads
  * sticker PNGs to S3 (prefix `stickers/{packId}/...`); every chat
  * insider sees the full library via the picker. Stored once, used
- * everywhere — no per-channel rights.
+ * everywhere, no per-channel rights.
  */
 @Injectable()
 export class ChatStickersService {
@@ -165,7 +165,7 @@ export class ChatStickersService {
     const sticker = await this.prisma.sticker.findUnique({ where: { id: stickerId } });
     if (!sticker) throw new NotFoundException('Sticker not found.');
     await this.prisma.sticker.delete({ where: { id: stickerId } });
-    // Best-effort S3 cleanup — keep the DB consistent even if it fails.
+    // Best-effort S3 cleanup, keep the DB consistent even if it fails.
     await this.s3.deleteObject(sticker.s3Key);
     return { deleted: true };
   }

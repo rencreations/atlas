@@ -78,14 +78,14 @@ export class OtpService {
       where: { purpose, target, consumedAt: null, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: 'desc' },
     });
-    if (!row) throw new UnauthorizedException('No active code — request a new one.');
+    if (!row) throw new UnauthorizedException('No active code, request a new one.');
 
     if (row.attempts >= maxAttempts) {
       await this.prisma.otpChallenge.update({
         where: { id: row.id },
         data: { consumedAt: new Date() },
       });
-      throw new UnauthorizedException('Too many attempts — request a new code.');
+      throw new UnauthorizedException('Too many attempts, request a new code.');
     }
 
     if (row.codeHash !== this.hash(code.replace(/\s/g, ''))) {

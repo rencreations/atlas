@@ -108,7 +108,7 @@ export function SoundboardPanel() {
             <div className="py-6 text-center text-[12px] text-ink-3">
               {isAdmin
                 ? 'No clips yet. Upload your first one below.'
-                : 'No soundboard clips yet — ask an admin to upload some.'}
+                : 'No soundboard clips yet, ask an admin to upload some.'}
             </div>
           ) : (
             <ul className="grid grid-cols-2 gap-2">
@@ -321,7 +321,7 @@ function UploadSection() {
       <div className="space-y-2">
         <div>
           <Label htmlFor="sb-file" className="text-[11px]">
-            Audio file (mp3, wav, ogg — max 30s)
+            Audio file (mp3, wav, ogg, max 30s)
           </Label>
           <Input
             id="sb-file"

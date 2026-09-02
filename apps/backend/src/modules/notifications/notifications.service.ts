@@ -41,7 +41,7 @@ export class NotificationsService {
     private readonly push: PushDispatchService,
   ) {}
 
-  /** Persist only — legacy callers. */
+  /** Persist only, legacy callers. */
   create(input: NotificationInput) {
     return this.prisma.notification.create({
       data: {
@@ -55,7 +55,7 @@ export class NotificationsService {
     });
   }
 
-  /** Bulk persist only — legacy callers. */
+  /** Bulk persist only, legacy callers. */
   createMany(inputs: NotificationInput[]) {
     if (inputs.length === 0) return Promise.resolve({ count: 0 });
     return this.prisma.notification.createMany({
@@ -94,7 +94,7 @@ export class NotificationsService {
       this.logger.warn(`realtime emit failed: ${String(err)}`);
     }
 
-    // Push runs in the background — never await on the caller's path.
+    // Push runs in the background, never await on the caller's path.
     void this.maybePush(input.userId, input.type, row, input.pushTag).catch((err: unknown) =>
       this.logger.warn(`push dispatch errored: ${String(err)}`),
     );
@@ -174,7 +174,7 @@ export class NotificationsService {
 
   /**
    * Emit the post-read unread count so the bell on the user's OTHER tabs
-   * updates immediately. Best-effort — failures don't poison the read path.
+   * updates immediately. Best-effort, failures don't poison the read path.
    */
   private async emitUnread(userId: string): Promise<void> {
     try {

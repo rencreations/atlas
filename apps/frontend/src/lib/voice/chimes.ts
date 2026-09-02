@@ -53,7 +53,7 @@ function playTones(tones: Tone[], gain = 0.15) {
   }
 }
 
-/** Two ascending tones — someone joined. */
+/** Two ascending tones, someone joined. */
 export function playJoinChime() {
   playTones([
     { freq: 523.25, duration: 0.08 }, // C5
@@ -61,7 +61,7 @@ export function playJoinChime() {
   ]);
 }
 
-/** Two descending tones — someone left. */
+/** Two descending tones, someone left. */
 export function playLeaveChime() {
   playTones([
     { freq: 783.99, duration: 0.08 }, // G5
@@ -69,12 +69,12 @@ export function playLeaveChime() {
   ]);
 }
 
-/** Soft single tone — you toggled your own mute. */
+/** Soft single tone, you toggled your own mute. */
 export function playMuteChime() {
   playTones([{ freq: 392.0, duration: 0.07 }], 0.12); // G4, quieter
 }
 
-/** Soft single tone, slightly higher — you toggled unmute. */
+/** Soft single tone, slightly higher, you toggled unmute. */
 export function playUnmuteChime() {
   playTones([{ freq: 523.25, duration: 0.07 }], 0.12); // C5
 }

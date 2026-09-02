@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ChatGif, ChatGifSearchResult, Sticker, StickerPack } from '@/lib/types';
 
-// Lazy-load the emoji picker — it's ~600KB and only needed when the
+// Lazy-load the emoji picker, it's ~600KB and only needed when the
 // popover opens. Loading on the main bundle would punish every chat
 // view, not just users that open the picker.
 const EmojiPicker = React.lazy(() => import('emoji-picker-react'));
@@ -20,7 +20,7 @@ interface Props {
   onEmojiPick: (emoji: string) => void;
   /** Called with the GIF URL to insert into the message body. */
   onGifPick: (gif: ChatGif) => void;
-  /** Called when the user picks a sticker — attaches it as an inline image. */
+  /** Called when the user picks a sticker, attaches it as an inline image. */
   onStickerPick: (sticker: Sticker) => void;
   /** Called whenever the popover closes (either by selection or outside
    *  click). The composer wires this to refocus the textarea so a
@@ -32,7 +32,7 @@ interface Props {
 /**
  * Three-tab picker (Emoji / GIF / Sticker) anchored on the composer's
  * smile button. Mirrors the WhatsApp pattern. Sticker tab is a stub
- * for P3 — stickers ship in P5 (admin upload UI + sticker API). When
+ * for P3, stickers ship in P5 (admin upload UI + sticker API). When
  * the GIF tab is disabled (TENOR_API_KEY unset on the server), the
  * tab still renders but says so plainly.
  */

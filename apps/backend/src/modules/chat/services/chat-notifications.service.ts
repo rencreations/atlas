@@ -24,7 +24,7 @@ interface OnMessageCreatedInput {
  * the "user wasn't watching" case (badges + email).
  *
  * Chat webhook events are reported as a string event type to keep
- * WebhooksService's existing union additive — we don't widen the
+ * WebhooksService's existing union additive, we don't widen the
  * AtlasWebhookEvent type until P5 polish.
  */
 @Injectable()
@@ -42,7 +42,7 @@ export class ChatNotificationsService {
     const recipients = await this.resolveRecipients(projectId, mentions, author.id);
     if (recipients.length === 0) return;
 
-    // Global channels (projectId = null) have no project row — they
+    // Global channels (projectId = null) have no project row, they
     // belong to the workspace itself.
     const project = projectId
       ? await this.prisma.project.findUnique({

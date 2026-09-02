@@ -8,7 +8,7 @@ import type { ChatLinkPreview } from '@/lib/types';
  * Compact OG card shown above the composer when a user pastes a URL.
  * Sender can X it to send the link as plain text instead. The same
  * component renders next to messages once we surface saved previews
- * (deferred — for P3 we keep the composer-side display only).
+ * (deferred, for P3 we keep the composer-side display only).
  */
 export function LinkPreviewCard({
   preview,

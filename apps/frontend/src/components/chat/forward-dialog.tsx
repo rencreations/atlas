@@ -46,7 +46,7 @@ export function ForwardDialog({ open, onClose, message }: Props) {
   });
 
   // Present workspace-global channels as a pseudo-project group at the
-  // top — the forward endpoint takes a bare channelId either way.
+  // top, the forward endpoint takes a bare channelId either way.
   const projects = React.useMemo(() => {
     const payload = overviewQuery.data;
     if (!payload) return [];

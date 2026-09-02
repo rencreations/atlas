@@ -83,7 +83,7 @@ export default function MyDashboardPage() {
       <section>
         <h2 className="mb-3 text-[12px] uppercase tracking-[0.12em] text-ink-3">My open tasks</h2>
         {!dash.myOpenTasks || dash.myOpenTasks.length === 0 ? (
-          <p className="text-body-sm text-ink-3">No open tasks — nice.</p>
+          <p className="text-body-sm text-ink-3">No open tasks, nice.</p>
         ) : (
         <Card className="p-0">
           <ul className="divide-y divide-line">

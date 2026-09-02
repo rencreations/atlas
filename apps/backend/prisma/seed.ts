@@ -95,7 +95,7 @@ const ROLE_TEMPLATES: { code: string; name: string; description: string; permiss
   {
     code: 'superadmin',
     name: 'Superadmin',
-    description: 'Instance owner — godmode access and every permission.',
+    description: 'Instance owner: godmode access and every permission.',
     permissions: PERMISSIONS.map((p) => p.code),
   },
   {
@@ -164,7 +164,7 @@ export async function seedBaseData(prisma: PrismaClient) {
     });
   }
 
-  // Feature flags: register known keys (disabled by default — safe). Only
+  // Feature flags: register known keys (disabled by default, safe). Only
   // create if absent so an operator's toggled value is never reset on reseed.
   const DEFAULT_FLAGS: { key: string; description: string }[] = [
     {
@@ -180,7 +180,7 @@ export async function seedBaseData(prisma: PrismaClient) {
     });
   }
 
-  // Permission catalog (additive — never removes existing rows).
+  // Permission catalog (additive, never removes existing rows).
   for (const p of PERMISSIONS) {
     await prisma.permission.upsert({
       where: { code: p.code },

@@ -247,7 +247,7 @@ export class TaskListsService {
     });
     if (!tab) throw new NotFoundException('Tab not found.');
     if (tab.kind !== TaskListTabKind.EMBED) {
-      throw new BadRequestException('Built-in tabs cannot be deleted — hide them instead.');
+      throw new BadRequestException('Built-in tabs cannot be deleted, hide them instead.');
     }
     await this.prisma.taskListTab.delete({ where: { id: tabId } });
     return this.get(projectId, listId);
@@ -260,7 +260,7 @@ export class TaskListsService {
    * - Entries without `id` create a new one.
    * - Existing statuses absent from the payload are deleted; their
    *   tasks (if any) move to `moveTasksTo` first.
-   * - Exactly one entry ends up as `isDefault: true` — if none flagged,
+   * - Exactly one entry ends up as `isDefault: true`, if none flagged,
    *   the first entry wins. The default status is what new tasks land
    *   in when a creator doesn't pick one explicitly.
    * - Order matches the array position.

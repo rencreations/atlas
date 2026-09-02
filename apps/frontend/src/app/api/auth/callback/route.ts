@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
     }
 
     // The backend's /auth/login endpoint requires the user's identity claims
-    // up-front (it doesn't validate the access token via JWKS — it trusts that
+    // up-front (it doesn't validate the access token via JWKS, it trusts that
     // we just exchanged the code at Keycloak). Pull claims from the ID token,
     // and fall back to /userinfo if the ID token is absent or empty.
     let claims: KeycloakIdTokenClaims = tokenData.id_token

@@ -14,7 +14,7 @@ import { UpdateChannelDto } from '../dto/update-channel.dto';
 
 /**
  * Channel CRUD for project chat. Access enforcement (insider vs manager)
- * lives in the controller via ProjectAccessService — this service trusts
+ * lives in the controller via ProjectAccessService, this service trusts
  * that its caller has already authorized the operation.
  */
 @Injectable()
@@ -195,7 +195,7 @@ export class ChatChannelsService {
    * Read-only snapshot of the requesting user's membership state. Used by
    * the frontend on channel entry to freeze the "unread cutoff" so the
    * New-messages divider doesn't move as the session continues reading.
-   * Returns nulls when the user has never read the channel — that's
+   * Returns nulls when the user has never read the channel, that's
    * fine: every visible message then counts as unread.
    */
   async getMemberState(channelId: string, userId: string) {

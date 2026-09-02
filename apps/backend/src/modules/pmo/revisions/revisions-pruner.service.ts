@@ -16,7 +16,7 @@ const CHECKPOINT_INTERVAL_MS = 60 * 60 * 1000; // promote one revision/hour to i
  *     KEEP_RECENT window. Checkpoints are retained indefinitely.
  *   • Delete everything that is neither recent nor a checkpoint.
  *
- * Runs as a dependency-free setInterval — same pattern as the
+ * Runs as a dependency-free setInterval, same pattern as the
  * due-date scanner. Disabled when PMO is off; failures are logged,
  * never thrown.
  */
@@ -125,7 +125,7 @@ export class RevisionsPrunerService implements OnModuleInit, OnModuleDestroy {
 
   /** Per-hour checkpoint promotion. For each hour bucket that has at
    *  least one revision, mark its earliest row as a checkpoint so it
-   *  survives the next prune. Idempotent — running it twice is a no-op. */
+   *  survives the next prune. Idempotent, running it twice is a no-op. */
   private async promoteCheckpoints(
     id: string,
     kind: 'note' | 'whiteboard' | 'ydoc',

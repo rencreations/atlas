@@ -59,7 +59,7 @@ export class NotificationsController {
   /**
    * Returns the VAPID public key the frontend feeds into
    * `pushManager.subscribe()`. Empty string when push isn't configured
-   * yet — frontend uses this to hide the "Enable browser notifications"
+   * yet, frontend uses this to hide the "Enable browser notifications"
    * UI instead of attempting a doomed subscribe.
    */
   @Get('push/vapid-public-key')

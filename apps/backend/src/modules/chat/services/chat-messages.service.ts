@@ -300,12 +300,12 @@ function extractMentions(markdown: string): string[] {
 }
 
 /**
- * Public projection. Deleted messages return a tombstone — never the
- * original text — and reactions are stripped (matches Slack/Discord).
+ * Public projection. Deleted messages return a tombstone, never the
+ * original text, and reactions are stripped (matches Slack/Discord).
  */
 function shapeMessage(m: MessageWithIncludes) {
   const isDeleted = !!m.deletedAt;
-  // Metadata is sender-render-time — wipe it on delete same as the body.
+  // Metadata is sender-render-time, wipe it on delete same as the body.
   const metadata = isDeleted ? null : (m.metadata ?? null);
   const pin = m.pins && m.pins.length > 0 ? m.pins[0] : null;
   return {

@@ -45,7 +45,7 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
   }, []);
   // Keep the overlay open while keyboard focus is still inside the card
   // (e.g. tabbing from the base link into the overlay buttons). relatedTarget
-  // is null for clicks on non-focusable chrome or window blur — close then.
+  // is null for clicks on non-focusable chrome or window blur, close then.
   const onBlur = React.useCallback(
     (e: React.FocusEvent<HTMLDivElement>) => {
       if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget as Node)) return;
@@ -57,7 +57,7 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
   // The overlay is fixed-positioned to the card's location at hover time. Once
   // the user scrolls, the card slides away under it and the cursor is still
   // sitting on the (now orphaned) overlay, so neither mouseleave ever fires.
-  // Dismiss once the card has drifted past a small threshold — preserves the
+  // Dismiss once the card has drifted past a small threshold, preserves the
   // "stay open while still" feel and ignores accidental trackpad jitter.
   React.useEffect(() => {
     if (!hovered) return;
@@ -93,7 +93,7 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
       )}
       style={resolvedWidth ? { width: resolvedWidth } : undefined}
     >
-      {/* Base card — always visible */}
+      {/* Base card, always visible */}
       <Link
         href={`/projects/${project.slug}` as never}
         className="block rounded focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
@@ -119,14 +119,14 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
             </div>
           </div>
           {project.visibility === 'PRIVATE' ? (
-            <span title="Private — team only" className="text-ink-3">
+            <span title="Private, team only" className="text-ink-3">
               <Lock className="h-3.5 w-3.5" strokeWidth={2.25} />
             </span>
           ) : null}
         </div>
       </Link>
 
-      {/* Hover-expanded overlay — desktop only via @media-hover */}
+      {/* Hover-expanded overlay, desktop only via @media-hover */}
       {hovered && coords ? <ExpandedOverlay project={project} anchor={coords} onLeave={onLeave} /> : null}
     </div>
   );

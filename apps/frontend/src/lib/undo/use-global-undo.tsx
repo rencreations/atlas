@@ -19,7 +19,7 @@ function isEditingContext(target: EventTarget | null): boolean {
   if (target.isContentEditable) return true;
   // BlockNote/Tiptap wrap their editor in a contenteditable=true; that's
   // covered by isContentEditable above. Excalidraw owns its own keydown
-  // listener on a focused canvas — walk up to detect.
+  // listener on a focused canvas, walk up to detect.
   let el: HTMLElement | null = target;
   while (el) {
     if (el.classList?.contains('excalidraw')) return true;
@@ -43,7 +43,7 @@ interface UndoResponse {
  *
  * On success: invalidates all PMO task queries (kanban / list / modal)
  * so the UI reflects the reversal, and shows a green toast naming the
- * op. On 409: shows a red toast — the entry stays available so the
+ * op. On 409: shows a red toast, the entry stays available so the
  * user can try again.
  */
 export function GlobalUndoListener() {

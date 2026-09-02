@@ -205,7 +205,7 @@ export const SETTINGS: Record<string, SettingDef> = {
     'site',
     'Tagline',
     'One-liner shown on the login page.',
-    'Your organization workspace — projects, chat, PMO, and voice in one place.',
+    'Your organization workspace for projects, chat, PMO, and voice in one place.',
   ),
 
   // ─── Appearance ───────────────────────────────────────────────────
@@ -786,7 +786,7 @@ export const SETTINGS: Record<string, SettingDef> = {
   ),
   'legal.requireConsent': bool(
     'legal.requireConsent',
-    'legal',
+    'registration',
     'Require consent on registration',
     'New users must accept the terms before their account activates.',
     false,

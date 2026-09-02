@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-const APP_SUFFIX = ' — Atlas';
+const APP_SUFFIX = ', Atlas';
 
 /** Event fired after the base title changes so the notification bell can
  *  re-apply its unread-count prefix. */
@@ -24,7 +24,7 @@ export function getPageTitleBase(): string {
   return base;
 }
 
-/** Give each page a distinct tab title ("Projects — Atlas") so browser
+/** Give each page a distinct tab title ("Projects, Atlas") so browser
  *  tabs and history entries stop all reading the same generic title. */
 export function usePageTitle(name: string) {
   React.useEffect(() => {

@@ -3,12 +3,12 @@ import { cn } from '@/lib/utils';
 interface Props {
   className?: string;
   size?: number;
-  /** Hide from screen readers — these are decorative by default. */
+  /** Hide from screen readers, these are decorative by default. */
   decorative?: boolean;
 }
 
 /**
- * Shirasaka Ren brand mark — the geometric signature, rendered in the
+ * Shirasaka Ren brand mark, the geometric signature, rendered in the
  * theme's single primary brand color. One hue per theme keeps the mark
  * in sync with every surface it sits on. Used as the favicon-scale
  * brand mark, in headers, and in tight footers.

@@ -13,7 +13,7 @@ export const SOUNDBOARD_ALLOWED_MIME = [
 
 export type SoundboardMime = (typeof SOUNDBOARD_ALLOWED_MIME)[number];
 
-/** Step 1 — admin asks for a presigned PUT URL. */
+/** Step 1, admin asks for a presigned PUT URL. */
 export class PresignSoundboardClipDto {
   @IsString()
   @MinLength(1)
@@ -26,14 +26,14 @@ export class PresignSoundboardClipDto {
   @IsIn(SOUNDBOARD_ALLOWED_MIME as unknown as string[])
   contentType!: SoundboardMime;
 
-  /** Bytes — capped server-side to keep S3 + browsers happy. */
+  /** Bytes, capped server-side to keep S3 + browsers happy. */
   @IsInt()
   @Min(1)
   @Max(10 * 1024 * 1024) // 10 MB hard cap; sane for short clips
   contentLength!: number;
 }
 
-/** Step 2 — admin registers the uploaded clip after the S3 PUT succeeds. */
+/** Step 2, admin registers the uploaded clip after the S3 PUT succeeds. */
 export class RegisterSoundboardClipDto {
   @IsString()
   @MinLength(1)
@@ -49,7 +49,7 @@ export class RegisterSoundboardClipDto {
   /** Duration of the audio, measured client-side after decode (ms). */
   @IsInt()
   @Min(1)
-  @Max(30_000) // 30s max — soundboards are for short stings, not full tracks
+  @Max(30_000) // 30s max, soundboards are for short stings, not full tracks
   durationMs!: number;
 }
 

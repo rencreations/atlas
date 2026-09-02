@@ -8,7 +8,7 @@ import { usePageTitle } from '@/lib/page-title';
 /**
  * Workspace-global channel view (e.g. the workspace #general). Every
  * authenticated user can read and write; admins manage. No project
- * query needed — the channel carries no project context.
+ * query needed, the channel carries no project context.
  */
 export default function GlobalChannelPage() {
   const params = useParams();

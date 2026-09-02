@@ -30,12 +30,12 @@ class StageActionDto {
 }
 
 /**
- * Phase 8 — stage channel operations:
- *   POST /voice/channels/:id/hand/raise   — self (audience only)
- *   POST /voice/channels/:id/hand/lower   — self OR mod (targetUserId)
- *   GET  /voice/channels/:id/hand/queue   — any insider (queue list)
- *   POST /voice/channels/:id/stage/promote — mod
- *   POST /voice/channels/:id/stage/demote  — mod
+ * Phase 8, stage channel operations:
+ *   POST /voice/channels/:id/hand/raise  , self (audience only)
+ *   POST /voice/channels/:id/hand/lower  , self OR mod (targetUserId)
+ *   GET  /voice/channels/:id/hand/queue  , any insider (queue list)
+ *   POST /voice/channels/:id/stage/promote, mod
+ *   POST /voice/channels/:id/stage/demote , mod
  */
 @ApiBearerAuth()
 @ApiTags('voice')

@@ -15,7 +15,7 @@ export interface ConfirmOptions {
   title: string;
   /** What happens, and whether it can be undone. */
   description?: React.ReactNode;
-  /** Confirm button label — a verb, not "OK". */
+  /** Confirm button label, a verb, not "OK". */
   confirmLabel?: string;
   cancelLabel?: string;
   /** `danger` for destructive/irreversible actions (the default). */
@@ -33,7 +33,7 @@ const ConfirmContext = React.createContext<((opts: ConfirmOptions) => Promise<bo
 /**
  * Replaces `window.confirm` for destructive actions. The design system
  * requires confirmations to render through the Dialog primitive so they
- * are themed, focus-trapped, and keyboard-navigable — native dialogs are
+ * are themed, focus-trapped, and keyboard-navigable, native dialogs are
  * none of those, and they block the main thread.
  *
  * Usage:

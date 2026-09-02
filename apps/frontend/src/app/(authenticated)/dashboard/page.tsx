@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 
 // Rows the discovery feed can emit, and the browse URL each one's
 // "View all" should point at. Rows without a browse-filter equivalent
-// (e.g. "recent" — browse has no recency filter) get no link rather
+// (e.g. "recent", browse has no recency filter) get no link rather
 // than a dead one. browse maps the row key back to these filters.
 const ROW_VIEW_ALL: Record<string, string | undefined> = {
   shipped: '/projects?row=shipped', // browse maps row=shipped → phase=SHIPPED
@@ -75,7 +75,7 @@ export default function DashboardPage() {
             {data.myProjects.managed.length > 0 ? (
               <ProjectRow
                 label="Projects you manage"
-                description="You're a project manager — full access."
+                description="You're a project manager, full access."
                 items={data.myProjects.managed}
                 viewAllHref="/me"
               />

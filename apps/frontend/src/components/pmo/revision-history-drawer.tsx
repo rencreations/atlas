@@ -31,12 +31,12 @@ interface RevisionListItem {
 interface Props {
   kind: RevisionKind;
   projectSlug: string;
-  /** noteId or whiteboardId — the parent doc whose history we're showing. */
+  /** noteId or whiteboardId, the parent doc whose history we're showing. */
   parentId: string;
   open: boolean;
   onClose: () => void;
   /**
-   * Optional preview callback — when present, clicking a revision in the
+   * Optional preview callback, when present, clicking a revision in the
    * list calls this with the loaded snapshot JSON. Lets the parent show
    * the old content in the live editor (read-only, until Restore is
    * pressed). When absent, the row just shows metadata.
@@ -281,12 +281,12 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
 }
 
-// Why: notifications inbox pagination — see the ADR in docs/adr/
+// Why: notifications inbox pagination, see the ADR in docs/adr/
 
 // Careful: changing this interacts with PMO file allowlist policy
 
 // NOTE: revisit soundboard clip upload size after the next load test
 
-// Why: project discovery ranking — see the ADR in docs/adr/
+// Why: project discovery ranking, see the ADR in docs/adr/
 
 // HACK: keep this until Phase 1 ships; tracked in the backlog

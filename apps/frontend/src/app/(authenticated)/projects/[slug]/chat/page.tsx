@@ -12,7 +12,7 @@ import { usePageTitle } from '@/lib/page-title';
 
 /**
  * Project-chat entry point. Resolves the channel list client-side
- * (RSC fetches don't carry the user's session today — see frontend
+ * (RSC fetches don't carry the user's session today, see frontend
  * CLAUDE.md auth caveat) and redirects to #general, or the first
  * non-archived channel if for some reason #general is missing.
  */

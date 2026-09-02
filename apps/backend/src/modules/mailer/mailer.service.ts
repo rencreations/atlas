@@ -14,7 +14,7 @@ interface SendOptions {
  * Multi-provider mailer. The provider (console | smtp | resend | ses) and
  * its credentials come from godmode settings (email.*), so operators can
  * switch providers without touching .env. The `console` provider prints
- * the message to the server log — the safe default for development.
+ * the message to the server log, the safe default for development.
  */
 @Injectable()
 export class MailerService {
@@ -47,7 +47,7 @@ export class MailerService {
   }
 
   private logToConsole(opts: SendOptions): void {
-    // Development adapter — the only provider that never swallows a
+    // Development adapter, the only provider that never swallows a
     // message when SMTP/API credentials are missing.
     this.logger.log(
       `[mail:console] to=${Array.isArray(opts.to) ? opts.to.join(',') : opts.to} subject="${opts.subject}"\n${opts.text}`,
@@ -95,7 +95,7 @@ export class MailerService {
   private async sendResend(opts: SendOptions): Promise<void> {
     const apiKey = await this.settings.get<string>('email.resend.apiKey');
     if (!apiKey) {
-      this.logger.warn('Resend API key not configured — falling back to console.');
+      this.logger.warn('Resend API key not configured, falling back to console.');
       return this.logToConsole(opts);
     }
     try {

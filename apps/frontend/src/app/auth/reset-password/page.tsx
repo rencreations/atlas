@@ -67,7 +67,7 @@ function ResetPasswordContent() {
       >
         <ErrorState
           title="This link is missing its token"
-          message="Use the full link from your email — the one that contains the token. If it still doesn't work, request a new reset link from the sign-in page."
+          message="Use the full link from your email, the one that contains the token. If it still doesn't work, request a new reset link from the sign-in page."
         />
       </AuthShell>
     );

@@ -30,7 +30,7 @@ const SESSION_USER_SELECT = {
 /**
  * Local sign-in flows: email+password, registration, password reset,
  * magic links, email verification, the instance passphrase, and phone
- * OTP login. Every successful flow returns a SessionUser — the caller
+ * OTP login. Every successful flow returns a SessionUser, the caller
  * (AuthService) mints the database session.
  */
 @Injectable()
@@ -248,7 +248,7 @@ export class LocalAuthService {
     const siteName = await this.settings.get<string>('site.name');
     await this.mailer.send({
       to: email,
-      subject: `Verify your email — ${siteName}`,
+      subject: `Verify your email, ${siteName}`,
       text: `Welcome to ${siteName}! Click this link to verify your email address:\n\n${link}\n\nThis link expires in 24 hours.`,
     });
   }
@@ -296,7 +296,7 @@ export class LocalAuthService {
     const normalized = email.toLowerCase().trim();
     const user = await this.prisma.user.findUnique({ where: { email: normalized } });
     if (!user) {
-      // Don't leak account existence — pretend success and send nothing.
+      // Don't leak account existence, pretend success and send nothing.
       return { delivered: false };
     }
     const token = randomBytes(24).toString('hex');

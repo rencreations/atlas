@@ -22,7 +22,7 @@ interface PresenceState {
 }
 
 /**
- * Tiny global store for the *ephemeral* chat UI state — typing
+ * Tiny global store for the *ephemeral* chat UI state, typing
  * indicators and presence dots. Persistent data (messages, channels,
  * reactions) lives in React Query; mixing them would invalidate
  * caches every keystroke from another user.

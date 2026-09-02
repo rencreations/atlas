@@ -161,7 +161,7 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
           <span className="select-all font-mono text-[13px] font-semibold text-brand-yellow-ink">
             {inviteCode}
           </span>{' '}
-          — valid for 7 days.
+         , valid for 7 days.
         </div>
       ) : null}
 

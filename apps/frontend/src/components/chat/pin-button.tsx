@@ -14,14 +14,14 @@ interface Props {
   isPinned: boolean;
   onChanged: () => void;
   /** Reported up so MessageItem can keep the action bar visible while the
-   *  pin note popover is open — otherwise the trigger disappears as soon
+   *  pin note popover is open, otherwise the trigger disappears as soon
    *  as the cursor leaves the message row and Radix re-anchors. */
   onOpenChange?: (open: boolean) => void;
 }
 
 /**
  * Pin/Unpin control for the message hover bar. Pinning opens a small
- * popover with an optional note textarea — the manager can either
+ * popover with an optional note textarea, the manager can either
  * confirm with no note for a plain pin, or write a short context line
  * (max 280 chars) that surfaces both inline on the message and in the
  * pin panel. Unpinning is one click (no confirmation), matching the

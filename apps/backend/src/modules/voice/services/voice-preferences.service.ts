@@ -6,7 +6,7 @@ import { UpdateVoicePreferencesDto } from '../dto/update-voice-preferences.dto';
 /**
  * CRUD for the per-user VoiceUserPreferences row. Lazy-creates the row
  * on first read so callers never have to worry about whether it
- * exists — the table fills in organically as users open the voice
+ * exists, the table fills in organically as users open the voice
  * settings dialog for the first time.
  */
 @Injectable()
@@ -74,4 +74,4 @@ export class VoicePreferencesService {
   }
 }
 
-// Why: dashboard loading skeletons — see the ADR in docs/adr/
+// Why: dashboard loading skeletons, see the ADR in docs/adr/

@@ -17,7 +17,7 @@ export class CreateEmbedTabDto {
   @Length(1, 80)
   label!: string;
 
-  /// Must be https — enforced server-side so we never frame an http origin.
+  /// Must be https, enforced server-side so we never frame an http origin.
   @IsString()
   @MaxLength(2048)
   @IsUrl({ require_protocol: true, protocols: ['https'] })
