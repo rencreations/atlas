@@ -11,6 +11,8 @@ export interface GodmodeSettingItem {
   options?: { label: string; value: string }[];
   advanced?: boolean;
   public?: boolean;
+  visibleWhen?: { key: string; oneOf: string[] };
+  disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string };
 }
 
 export interface GodmodeSettingGroup {
@@ -35,6 +37,8 @@ export interface GodmodeUser {
   phone: string | null;
   lastLoginAt: string | null;
   createdAt: string;
+  suspendedAt: string | null;
+  suspendedReason: string | null;
   userRoles: { id: string; roleId: string; role: { id: string; code: string; name: string } }[];
 }
 

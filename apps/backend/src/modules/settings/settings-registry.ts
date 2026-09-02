@@ -34,6 +34,12 @@ export interface SettingDef {
   public?: boolean;
   /** Hidden behind the "Advanced" toggle in the UI. */
   advanced?: boolean;
+  /** Show this field only while `key`'s value is one of `oneOf` (e.g. a
+   *  provider's fields while that provider is selected). */
+  visibleWhen?: { key: string; oneOf: string[] };
+  /** Grey the control out (with `hint` shown) while `key`'s value is one
+   *  of `oneOf` (e.g. magic link until an email provider is configured). */
+  disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string };
 }
 
 export type SettingGroup =
@@ -815,6 +821,52 @@ export const SETTINGS: Record<string, SettingDef> = {
   ),
 };
 
+// ─── Conditional rendering rules (applied at module scope) ──────────
+// Provider-specific fields (SMTP/Resend/SES, Twilio/Vonage/…) only render
+// while their provider is selected. Their stored values are untouched when
+// hidden, so switching providers never loses configuration.
+const PROVIDER_PREFIXES: Record<string, string> = {
+  smtp: 'email.smtp',
+  resend: 'email.resend',
+  ses: 'email.ses',
+  twilio: 'sms.twilio',
+  vonage: 'sms.vonage',
+  infobip: 'sms.infobip',
+  sinch: 'sms.sinch',
+  messagebird: 'sms.messagebird',
+};
+for (const [provider, prefix] of Object.entries(PROVIDER_PREFIXES)) {
+  const group = prefix.split('.')[0] as 'email' | 'sms';
+  for (const key of Object.keys(SETTINGS)) {
+    if (key.startsWith(`${prefix}.`)) {
+      SETTINGS[key]!.visibleWhen = { key: `${group}.provider`, oneOf: [provider] };
+    }
+  }
+}
+
+// Options that depend on a provider being configured stay visible but
+// greyed out with guidance until the prerequisite is set.
+SETTINGS['auth.magicLink.enabled']!.disabledWhen = {
+  key: 'email.provider',
+  oneOf: ['console'],
+  hint: 'Configure an email provider first (Email section).',
+};
+SETTINGS['auth.phone.enabled']!.disabledWhen = {
+  key: 'sms.provider',
+  oneOf: ['console'],
+  hint: 'Configure an SMS provider first (SMS / OTP section).',
+};
+SETTINGS['auth.phone.otpEnabled']!.disabledWhen = {
+  key: 'auth.phone.enabled',
+  oneOf: [false],
+  hint: 'Turn on phone sign-in first.',
+};
+SETTINGS['registration.requireEmailVerification']!.disabledWhen = {
+  key: 'email.provider',
+  oneOf: ['console'],
+  hint: 'Email verification needs a configured email provider (Email section).',
+};
+
 function oauthDefs(): Record<string, SettingDef> {
   const defs: Record<string, SettingDef> = {};
   const providers: {
@@ -952,5 +1004,6 @@ function oauthDefs(): Record<string, SettingDef> {
       }
     }
   }
+
   return defs;
 }

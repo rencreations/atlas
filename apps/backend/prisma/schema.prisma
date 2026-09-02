@@ -169,6 +169,13 @@ model User {
   avatarUrl         String?
   bio               String?
   isAdmin           Boolean   @default(false)
+  /// Set when a superadmin suspends the account. Blocks all sign-ins and
+  /// invalidates existing sessions. Cleared on unsuspend.
+  suspendedAt       DateTime?
+  /// The message shown to the suspended user when they try to sign in.
+  suspendedReason   String?
+  /// Godmode session id of the operator who suspended the account.
+  suspendedById     String?
   lastLoginAt       DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

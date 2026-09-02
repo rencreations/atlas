@@ -1,4 +1,11 @@
-import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import * as bcrypt from 'bcryptjs';
@@ -213,6 +220,8 @@ export class GodmodeService {
         phone: true,
         lastLoginAt: true,
         createdAt: true,
+        suspendedAt: true,
+        suspendedReason: true,
         userRoles: { include: { role: { select: { id: true, code: true, name: true } } } },
       },
     });
@@ -327,6 +336,237 @@ export class GodmodeService {
         await this.prisma.user.update({ where: { id: userId }, data: { isAdmin: false } });
       }
     }
+  }
+
+  // ─── Account moderation ────────────────────────────────────────────
+
+  /** First superadmin who is not `excludeId`; content gets reassigned to them. */
+  private async fallbackSuperadminId(excludeId?: string): Promise<string | null> {
+    const grant = await this.prisma.userRole.findFirst({
+      where: { role: { code: 'superadmin' }, ...(excludeId ? { userId: { not: excludeId } } : {}) },
+      orderBy: { createdAt: 'asc' },
+      select: { userId: true },
+    });
+    return grant?.userId ?? null;
+  }
+
+  async suspendUser(
+    userId: string,
+    message: string | undefined,
+    operatorSessionId?: string,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found.');
+    if (user.suspendedAt) throw new ConflictException('User is already suspended.');
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          suspendedAt: new Date(),
+          suspendedReason: message?.trim() || 'Contact the workspace administrator.',
+          suspendedById: operatorSessionId,
+        },
+      }),
+      // Sessions are deleted so the suspension takes effect immediately.
+      this.prisma.session.deleteMany({ where: { userId } }),
+    ]);
+    this.logger.log(`Godmode suspended user ${userId} (${user.email})`);
+  }
+
+  async unsuspendUser(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found.');
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { suspendedAt: null, suspendedReason: null, suspendedById: null },
+    });
+    this.logger.log(`Godmode unsuspended user ${userId} (${user.email})`);
+  }
+
+  /**
+   * Hard-delete a user account and every personal row. Content that must
+   * keep an owner (projects, channels, tasks, files, notes, whiteboards,
+   * stickers, soundboard clips, recordings) is reassigned to the first
+   * remaining superadmin; their chat messages and task comments are
+   * removed. Refuses to delete the last superadmin.
+   */
+  async deleteUser(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found.');
+
+    const isSuperadmin = await this.prisma.userRole.count({
+      where: { userId, role: { code: 'superadmin' } },
+    });
+    if (isSuperadmin > 0) {
+      const other = await this.fallbackSuperadminId(userId);
+      if (!other) {
+        throw new BadRequestException(
+          'This is the last superadmin. Grant superadmin to another user before deleting this account.',
+        );
+      }
+    }
+    const reassignTo = await this.fallbackSuperadminId(userId);
+    if (!reassignTo) {
+      throw new BadRequestException('No remaining superadmin to reassign this user content to.');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.session.deleteMany({ where: { userId } }),
+      this.prisma.userAuthIdentity.deleteMany({ where: { userId } }),
+      this.prisma.passwordCredential.deleteMany({ where: { userId } }),
+      this.prisma.userRole.deleteMany({ where: { OR: [{ userId }, { grantedById: userId }] } }),
+      this.prisma.notificationPreference.deleteMany({ where: { userId } }),
+      this.prisma.voiceUserPreferences.deleteMany({ where: { userId } }),
+      this.prisma.bookmark.deleteMany({ where: { userId } }),
+      this.prisma.projectMember.deleteMany({ where: { userId } }),
+      this.prisma.projectInvite.deleteMany({
+        where: { OR: [{ invitedUserId: userId }, { invitedById: userId }] },
+      }),
+      this.prisma.contributionRequest.deleteMany({ where: { userId } }),
+      this.prisma.contributionRequest.updateMany({
+        where: { resolvedById: userId },
+        data: { resolvedById: null },
+      }),
+      this.prisma.notification.deleteMany({ where: { userId } }),
+      this.prisma.chatChannelMember.deleteMany({ where: { userId } }),
+      this.prisma.chatReaction.deleteMany({ where: { userId } }),
+      this.prisma.chatPinned.deleteMany({ where: { pinnedById: userId } }),
+      this.prisma.chatMessage.updateMany({
+        where: { deletedByUserId: userId },
+        data: { deletedByUserId: null },
+      }),
+      this.prisma.chatMessage.deleteMany({ where: { authorId: userId } }),
+      this.prisma.chatChannel.updateMany({
+        where: { createdById: userId },
+        data: { createdById: reassignTo },
+      }),
+      this.prisma.stickerPack.updateMany({
+        where: { createdById: userId },
+        data: { createdById: reassignTo },
+      }),
+      this.prisma.taskAssignee.deleteMany({ where: { userId } }),
+      this.prisma.taskComment.deleteMany({ where: { authorId: userId } }),
+      this.prisma.task.updateMany({
+        where: { createdById: userId },
+        data: { createdById: reassignTo },
+      }),
+      this.prisma.taskAttachment.updateMany({
+        where: { uploadedById: userId },
+        data: { uploadedById: reassignTo },
+      }),
+      this.prisma.taskCommentAttachment.updateMany({
+        where: { uploadedById: userId },
+        data: { uploadedById: reassignTo },
+      }),
+      this.prisma.projectFile.updateMany({
+        where: { uploadedById: userId },
+        data: { uploadedById: reassignTo },
+      }),
+      this.prisma.projectNote.updateMany({
+        where: { createdById: userId },
+        data: { createdById: reassignTo },
+      }),
+      this.prisma.whiteboard.updateMany({
+        where: { createdById: userId },
+        data: { createdById: reassignTo },
+      }),
+      this.prisma.project.updateMany({
+        where: { ownerId: userId },
+        data: { ownerId: reassignTo },
+      }),
+      this.prisma.featuredProject.updateMany({
+        where: { setById: userId },
+        data: { setById: reassignTo },
+      }),
+      this.prisma.voiceChannel.updateMany({
+        where: { createdById: userId },
+        data: { createdById: reassignTo },
+      }),
+      this.prisma.voiceParticipant.deleteMany({ where: { userId } }),
+      this.prisma.voiceRecording.updateMany({
+        where: { startedByUserId: userId },
+        data: { startedByUserId: reassignTo },
+      }),
+      this.prisma.voiceSoundboardClip.updateMany({
+        where: { uploadedById: userId },
+        data: { uploadedById: reassignTo },
+      }),
+      this.prisma.user.delete({ where: { id: userId } }),
+    ]);
+    this.logger.log(`Godmode deleted user ${userId} (${user.email})`);
+  }
+
+  /** Set (or reset) a local password for any account. */
+  async resetUserPassword(userId: string, password: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found.');
+    const minLen = await this.settings.get<number>('auth.passwordMinLength');
+    if (password.length < minLen) {
+      throw new BadRequestException(`Password must be at least ${minLen} characters.`);
+    }
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    await this.prisma.$transaction([
+      this.prisma.passwordCredential.upsert({
+        where: { userId },
+        create: { userId, passwordHash, mustChange: true },
+        update: { passwordHash, mustChange: true },
+      }),
+      this.prisma.userAuthIdentity.upsert({
+        where: { provider_providerId: { provider: 'password', providerId: user.email } },
+        create: { userId, provider: 'password', providerId: user.email },
+        update: {},
+      }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { passwordChangedAt: new Date() },
+      }),
+      this.prisma.session.deleteMany({ where: { userId } }),
+    ]);
+    this.logger.log(`Godmode reset the password for ${user.email}`);
+  }
+
+  /** Sign the user out of every device. */
+  async revokeUserSessions(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found.');
+    await this.prisma.session.deleteMany({ where: { userId } });
+    this.logger.log(`Godmode revoked all sessions for ${user.email}`);
+  }
+
+  /** Create a custom role with a generated code derived from its name. */
+  async createRole(dto: {
+    name: string;
+    description?: string;
+    permissions: string[];
+  }): Promise<{ code: string }> {
+    const name = dto.name.trim();
+    if (!name) throw new BadRequestException('Role name is required.');
+    const code = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40);
+    if (!code) throw new BadRequestException('Role name must contain letters or numbers.');
+    const existing = await this.prisma.role.findUnique({ where: { code } });
+    if (existing) {
+      throw new ConflictException(`A role with the code "${code}" already exists.`);
+    }
+    const known = await this.prisma.permission.findMany({ select: { code: true } });
+    const knownCodes = new Set(known.map((p) => p.code));
+    const unknown = dto.permissions.filter((p) => !knownCodes.has(p));
+    if (unknown.length > 0) {
+      throw new ConflictException(`Unknown permissions: ${unknown.join(', ')}`);
+    }
+    await this.prisma.role.create({
+      data: {
+        code,
+        name,
+        description: dto.description,
+        permissions: dto.permissions,
+        isSystem: false,
+      },
+    });
+    return { code };
   }
 
   async listRoles() {

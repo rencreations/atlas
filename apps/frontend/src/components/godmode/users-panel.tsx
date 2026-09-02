@@ -1,7 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { LoaderCircle, Plus, Ticket, Trash2, UserPlus } from 'lucide-react';
+import {
+  Ban,
+  KeyRound,
+  LoaderCircle,
+  LogOut,
+  MoreHorizontal,
+  Plus,
+  Ticket,
+  Trash2,
+  UserPlus,
+} from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,11 +21,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import { useConfirm } from '@/components/ui/confirm';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
@@ -118,6 +130,124 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
     [confirm, load, show],
   );
 
+  const [moderating, setModerating] = useState<{ user: GodmodeUser; action: 'suspend' | 'reset' } | null>(null);
+
+  const suspendUser = useCallback(
+    async (user: GodmodeUser, message: string) => {
+      try {
+        await godmodeFetch(godmodePaths.suspendUser(user.id), {
+          method: 'POST',
+          body: JSON.stringify({ message }),
+        });
+        setModerating(null);
+        show({ title: 'User suspended', description: user.email, tone: 'success' });
+        void load();
+      } catch (err) {
+        show({
+          title: 'Suspend failed',
+          description: err instanceof Error ? err.message : 'Unknown error.',
+          tone: 'danger',
+        });
+      }
+    },
+    [load, show],
+  );
+
+  const unsuspendUser = useCallback(
+    async (user: GodmodeUser) => {
+      try {
+        await godmodeFetch(godmodePaths.unsuspendUser(user.id), { method: 'POST' });
+        show({ title: 'User unsuspended', description: user.email, tone: 'success' });
+        void load();
+      } catch (err) {
+        show({
+          title: 'Unsuspend failed',
+          description: err instanceof Error ? err.message : 'Unknown error.',
+          tone: 'danger',
+        });
+      }
+    },
+    [load, show],
+  );
+
+  const resetPassword = useCallback(
+    async (user: GodmodeUser, password: string) => {
+      try {
+        await godmodeFetch(godmodePaths.resetUserPassword(user.id), {
+          method: 'POST',
+          body: JSON.stringify({ password }),
+        });
+        setModerating(null);
+        show({
+          title: 'Password reset',
+          description: `${user.email} can sign in with the new password and will be asked to change it.`,
+          tone: 'success',
+        });
+        void load();
+      } catch (err) {
+        show({
+          title: 'Reset failed',
+          description: err instanceof Error ? err.message : 'Unknown error.',
+          tone: 'danger',
+        });
+      }
+    },
+    [load, show],
+  );
+
+  const revokeSessions = useCallback(
+    async (user: GodmodeUser) => {
+      const ok = await confirm({
+        title: `Sign ${user.name} out everywhere?`,
+        description: 'Every device and browser session for this account is deleted immediately.',
+        confirmLabel: 'Sign out everywhere',
+      });
+      if (!ok) return;
+      try {
+        await godmodeFetch(godmodePaths.revokeUserSessions(user.id), { method: 'POST' });
+        show({ title: 'Sessions revoked', description: user.email, tone: 'success' });
+        void load();
+      } catch (err) {
+        show({
+          title: 'Revoke failed',
+          description: err instanceof Error ? err.message : 'Unknown error.',
+          tone: 'danger',
+        });
+      }
+    },
+    [confirm, load, show],
+  );
+
+  const deleteUser = useCallback(
+    async (user: GodmodeUser) => {
+      const ok = await confirm({
+        title: `Delete ${user.name}?`,
+        description: (
+          <>
+            This permanently deletes the account for <strong>{user.email}</strong>, their
+            messages and comments, and every personal setting. Projects and content they own
+            are reassigned to the first remaining superadmin. This cannot be undone.
+          </>
+        ),
+        confirmLabel: 'Delete account',
+        tone: 'danger',
+      });
+      if (!ok) return;
+      try {
+        await godmodeFetch(godmodePaths.deleteUser(user.id), { method: 'DELETE' });
+        show({ title: 'User deleted', description: user.email, tone: 'success' });
+        void load();
+      } catch (err) {
+        show({
+          title: 'Delete failed',
+          description: err instanceof Error ? err.message : 'Unknown error.',
+          tone: 'danger',
+        });
+      }
+    },
+    [confirm, load, show],
+  );
+
   const issueInvite = useCallback(async () => {
     try {
       const res = await godmodeFetch<{ code: string }>(godmodePaths.invites(), {
@@ -184,6 +314,7 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="truncate text-[14px] font-medium text-ink">{user.name}</span>
+                  {user.suspendedAt ? <Badge tone="danger">suspended</Badge> : null}
                   {user.isAdmin ? <Badge tone="info">admin</Badge> : null}
                   {user.userRoles
                     .filter((ur) => ur.role.code !== 'member')
@@ -203,6 +334,11 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
                     ))}
                 </div>
                 <div className="truncate text-[12px] text-ink-3">{user.email}</div>
+                {user.suspendedAt ? (
+                  <div className="truncate text-[12px] text-brand-red">
+                    Suspended: {user.suspendedReason ?? 'Contact the workspace administrator.'}
+                  </div>
+                ) : null}
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <GrantRoleMenu
@@ -222,6 +358,46 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
                     <Trash2 className="h-3.5 w-3.5 text-brand-red" strokeWidth={2.25} />
                   </Button>
                 ))}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Manage ${user.name}`}
+                    >
+                      <MoreHorizontal className="h-4 w-4" strokeWidth={2.25} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Manage {user.name}</DropdownMenuLabel>
+                    {user.suspendedAt ? (
+                      <DropdownMenuItem onSelect={() => void unsuspendUser(user)}>
+                        <Ban className="h-4 w-4" strokeWidth={2.25} />
+                        Unsuspend account
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onSelect={() => setModerating({ user, action: 'suspend' })}
+                      >
+                        <Ban className="h-4 w-4" strokeWidth={2.25} />
+                        Suspend account…
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onSelect={() => setModerating({ user, action: 'reset' })}>
+                      <KeyRound className="h-4 w-4" strokeWidth={2.25} />
+                      Reset password…
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => void revokeSessions(user)}>
+                      <LogOut className="h-4 w-4" strokeWidth={2.25} />
+                      Sign out everywhere
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => void deleteUser(user)}>
+                      <Trash2 className="h-4 w-4 text-brand-red" strokeWidth={2.25} />
+                      <span className="text-brand-red">Delete account</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           ))}
@@ -236,7 +412,119 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
           onSubmit={(data) => void createUser(data)}
         />
       ) : null}
+
+      {moderating?.action === 'suspend' ? (
+        <SuspendUserDialog
+          user={moderating.user}
+          onClose={() => setModerating(null)}
+          onSubmit={(message) => void suspendUser(moderating.user, message)}
+        />
+      ) : null}
+
+      {moderating?.action === 'reset' ? (
+        <ResetPasswordDialog
+          user={moderating.user}
+          onClose={() => setModerating(null)}
+          onSubmit={(password) => void resetPassword(moderating.user, password)}
+        />
+      ) : null}
     </div>
+  );
+}
+
+/** Strong random password with unambiguous characters. */
+function generatePassword(): string {
+  const chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const bytes = crypto.getRandomValues(new Uint32Array(14));
+  return Array.from(bytes, (b) => chars[b % chars.length]).join('');
+}
+
+function SuspendUserDialog({
+  user,
+  onClose,
+  onSubmit,
+}: {
+  user: GodmodeUser;
+  onClose: () => void;
+  onSubmit: (message: string) => void;
+}) {
+  const [message, setMessage] = useState('');
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent size="sm">
+        <DialogTitle>Suspend {user.name}?</DialogTitle>
+        <DialogDescription>
+          They are signed out everywhere immediately and cannot sign back in until you
+          unsuspend them. The message below is what they see when they try.
+        </DialogDescription>
+        <div className="mt-4 flex flex-col gap-1.5">
+          <Label htmlFor="suspend-message">Message to the user</Label>
+          <Textarea
+            id="suspend-message"
+            rows={3}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Contact the workspace administrator."
+            maxLength={500}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={() => onSubmit(message)}>
+            <Ban className="h-4 w-4" strokeWidth={2.25} />
+            Suspend account
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ResetPasswordDialog({
+  user,
+  onClose,
+  onSubmit,
+}: {
+  user: GodmodeUser;
+  onClose: () => void;
+  onSubmit: (password: string) => void;
+}) {
+  const [password, setPassword] = useState(() => generatePassword());
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent size="sm">
+        <DialogTitle>Reset password for {user.name}</DialogTitle>
+        <DialogDescription>
+          They sign in with this password and are asked to change it right after. Existing
+          sessions are signed out.
+        </DialogDescription>
+        <div className="mt-4 flex flex-col gap-1.5">
+          <Label htmlFor="rp-password">New password</Label>
+          <div className="flex items-center gap-2">
+            <Input
+              id="rp-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+            />
+            <Button variant="secondary" size="sm" onClick={() => setPassword(generatePassword())}>
+              Generate
+            </Button>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button disabled={password.length < 8} onClick={() => onSubmit(password)}>
+            <KeyRound className="h-4 w-4" strokeWidth={2.25} />
+            Set password
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

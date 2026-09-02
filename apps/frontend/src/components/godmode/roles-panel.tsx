@@ -1,11 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Check, LoaderCircle, ShieldCheck } from 'lucide-react';
+import { Check, LoaderCircle, Plus, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
@@ -18,6 +20,8 @@ export function RolesPanel() {
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [creatingBusy, setCreatingBusy] = useState(false);
 
   // Local editor state for the selected role.
   const [name, setName] = useState('');
@@ -117,6 +121,10 @@ export function RolesPanel() {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-[280px_1fr]">
       <div className="flex flex-col gap-2">
+        <Button size="sm" onClick={() => setCreating(true)}>
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
+          New role
+        </Button>
         {roles.length === 0 ? (
           <div className="rounded border border-line bg-surface p-8 text-center text-[14px] text-ink-3 shadow-1">
             No roles yet.
@@ -210,9 +218,142 @@ export function RolesPanel() {
         </div>
       ) : (
         <div className="rounded border border-line bg-surface p-8 text-center text-[14px] text-ink-3 shadow-1">
-          Select a role to edit its permissions.
+          Select a role to edit its permissions, or create a new one.
         </div>
       )}
+
+      {creating ? (
+        <CreateRoleDialog
+          permissions={permissions}
+          busy={creatingBusy}
+          onClose={() => setCreating(false)}
+          onCreate={async (data) => {
+            setCreatingBusy(true);
+            try {
+              const res = await godmodeFetch<{ code: string }>(godmodePaths.roles(), {
+                method: 'POST',
+                body: JSON.stringify(data),
+              });
+              setCreating(false);
+              show({ title: 'Role created', description: data.name, tone: 'success' });
+              await load();
+              setSelectedCode(res.code);
+            } catch (err) {
+              show({
+                title: 'Create failed',
+                description: err instanceof Error ? err.message : 'Unknown error.',
+                tone: 'danger',
+              });
+            } finally {
+              setCreatingBusy(false);
+            }
+          }}
+        />
+      ) : null}
     </div>
+  );
+}
+
+function CreateRoleDialog({
+  permissions,
+  busy,
+  onClose,
+  onCreate,
+}: {
+  permissions: GodmodePermission[];
+  busy: boolean;
+  onClose: () => void;
+  onCreate: (data: { name: string; description?: string; permissions: string[] }) => void;
+}) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+
+  const categories = useMemo(() => {
+    const map = new Map<string, GodmodePermission[]>();
+    for (const p of permissions) {
+      const list = map.get(p.category) ?? [];
+      list.push(p);
+      map.set(p.category, list);
+    }
+    return [...map.entries()];
+  }, [permissions]);
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent size="lg" className="max-h-[85%] overflow-y-auto">
+        <DialogTitle>Create a custom role</DialogTitle>
+        <DialogDescription>
+          Pick a name and the permissions this role grants. The role code is derived from the
+          name and can be granted from Users &amp; invites.
+        </DialogDescription>
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cr-name">Role name</Label>
+            <Input
+              id="cr-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Support moderator"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cr-desc">Description</Label>
+            <Textarea
+              id="cr-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              placeholder="What this role is for."
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-4">
+          {categories.map(([category, perms]) => (
+            <div key={category} className="rounded border border-line bg-surface p-4 shadow-1">
+              <div className="text-eyebrow uppercase text-ink-4">{category}</div>
+              <div className="mt-3 flex flex-col gap-2">
+                {perms.map((p) => (
+                  <label key={p.id} className="flex items-start gap-3 text-[14px] text-ink">
+                    <Checkbox
+                      checked={checked.has(p.code)}
+                      onCheckedChange={(v) => {
+                        const next = new Set(checked);
+                        if (v === true) next.add(p.code);
+                        else next.delete(p.code);
+                        setChecked(next);
+                      }}
+                    />
+                    <span className="min-w-0">
+                      <span className="font-medium">{p.name}</span>
+                      <span className="ml-2 font-mono text-[11px] text-ink-4">{p.code}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button disabled={!name.trim() || busy} onClick={() => onCreate({
+            name: name.trim(),
+            description: description.trim() || undefined,
+            permissions: [...checked],
+          })}>
+            {busy ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
+            ) : (
+              <Check className="h-4 w-4" strokeWidth={2.25} />
+            )}
+            Create role
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

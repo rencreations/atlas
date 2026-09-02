@@ -34,8 +34,12 @@ export class SessionService {
         name: true,
         avatarUrl: true,
         isAdmin: true,
+        suspendedAt: true,
       },
     });
+    // Suspended accounts lose access immediately: their sessions were
+    // deleted at suspend time, and this catches any that slipped through.
+    if (user?.suspendedAt) return null;
     return user as AuthenticatedUser | null;
   }
 

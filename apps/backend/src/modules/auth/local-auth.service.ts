@@ -210,6 +210,21 @@ export class LocalAuthService {
     return { code };
   }
 
+  /** Non-consuming invite check so the register page can gate its form on it. */
+  async verifyInviteCode(code: string): Promise<{ valid: boolean }> {
+    const row = await this.prisma.magicLinkToken.findFirst({
+      where: {
+        purpose: 'invite-accept',
+        tokenHash: this.hashToken(code.trim().toUpperCase()),
+        consumedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      select: { id: true },
+    });
+    if (!row) throw new ForbiddenException('Invalid or expired invite code.');
+    return { valid: true };
+  }
+
   private async consumeInviteCode(code: string, email: string): Promise<void> {
     const row = await this.prisma.magicLinkToken.findFirst({
       where: {

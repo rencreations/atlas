@@ -9,6 +9,8 @@ import {
   IsOptional,
   IsString,
   Length,
+  MaxLength,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 
@@ -107,6 +109,36 @@ export class UpsertRoleDto {
 
   @IsOptional()
   @IsString()
+  description?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  permissions!: string[];
+}
+
+export class SuspendUserDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  message?: string;
+}
+
+export class ResetPasswordDto {
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  password!: string;
+}
+
+export class CreateRoleDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(60)
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
   description?: string;
 
   @IsArray()

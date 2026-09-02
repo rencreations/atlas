@@ -26,6 +26,10 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  /** True once the invite code checked out; gates the account form. */
+  const [inviteVerified, setInviteVerified] = useState(false);
+  const [checkingInvite, setCheckingInvite] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +53,34 @@ export default function RegisterPage() {
   }, [error]);
 
   const clearInvalid = useCallback(() => setInvalid([]), []);
+
+  // Step 1 of the invite flow: check the code without consuming it, then
+  // reveal the account form. The code is validated again (and consumed)
+  // when the account is actually created.
+  const checkInvite = useCallback(async () => {
+    setCheckingInvite(true);
+    setInviteError(null);
+    try {
+      const res = await fetch(`${API_BASE}${apiPaths.auth.inviteCheck()}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ code: inviteCode }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(
+          Array.isArray(data?.message)
+            ? data.message.join(', ')
+            : (data?.message ?? 'Invalid or expired invite code.'),
+        );
+      }
+      setInviteVerified(true);
+    } catch (err) {
+      setInviteError(err instanceof Error ? err.message : 'Invalid or expired invite code.');
+    } finally {
+      setCheckingInvite(false);
+    }
+  }, [inviteCode]);
 
   const submit = useCallback(async () => {
     setBusy(true);
@@ -123,6 +155,57 @@ export default function RegisterPage() {
     );
   }
 
+  // Invite-first flow: ask for the code before showing anything else so
+  // nobody fills out the whole form just to learn an invite is required.
+  if (config.registration.inviteRequired && !inviteVerified) {
+    return (
+      <AuthShell
+        title="Enter your invite code"
+        subtitle="This instance requires an invite code to create an account. Ask an admin if you don't have one."
+        footer={<Link href="/login" className="font-medium text-brand-blue hover:underline">Already have an account? Sign in</Link>}
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void checkInvite();
+          }}
+          className="flex flex-col gap-4"
+        >
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="reg-invite">Invite code</Label>
+            <Input
+              id="reg-invite"
+              value={inviteCode}
+              onChange={(e) => {
+                setInviteError(null);
+                setInviteCode(e.target.value.toUpperCase());
+              }}
+              placeholder="Issued by an admin"
+              invalid={Boolean(inviteError)}
+              autoComplete="off"
+            />
+            {inviteError ? (
+              <p role="alert" className="text-[12.5px] text-brand-red">
+                {inviteError}
+              </p>
+            ) : null}
+          </div>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={!inviteCode.trim() || checkingInvite}
+          >
+            {checkingInvite ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
+            ) : null}
+            Continue
+          </Button>
+        </form>
+      </AuthShell>
+    );
+  }
+
   return (
     <AuthShell
       title="Create an account"
@@ -144,6 +227,20 @@ export default function RegisterPage() {
             className="rounded border border-brand-red/30 bg-brand-red-50 px-4 py-3 text-[13px] text-ink"
           >
             {error}
+          </div>
+        ) : null}
+        {inviteVerified ? (
+          <div className="flex items-center justify-between rounded border border-brand-green/30 bg-brand-green-50 px-3 py-2">
+            <span className="font-mono text-[12px] font-medium text-brand-green-strong">
+              Invite code {inviteCode}
+            </span>
+            <button
+              type="button"
+              className="text-[12px] font-medium text-ink-2 underline-offset-2 hover:underline"
+              onClick={() => setInviteVerified(false)}
+            >
+              Change
+            </button>
           </div>
         ) : null}
         <div className="flex flex-col gap-1.5">
@@ -186,17 +283,6 @@ export default function RegisterPage() {
           />
           <p className="text-[12px] text-ink-3">At least 6 characters</p>
         </div>
-        {config.registration.inviteRequired ? (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="reg-invite">Invite code</Label>
-            <Input
-              id="reg-invite"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-              placeholder="Issued by an admin"
-            />
-          </div>
-        ) : null}
         {config.legal.requireConsent ? (
           <div className="flex items-start gap-2.5">
             <Checkbox

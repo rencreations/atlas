@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Check, FileText, LoaderCircle, RotateCcw, Upload } from 'lucide-react';
+import { Check, ChevronDown, FileText, LoaderCircle, RotateCcw, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,8 +22,10 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
+import { cn } from '@/lib/utils';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
 import type { GodmodeSettingItem } from '@/lib/godmode/types';
+import { OAUTH_PROVIDER_LOGOS } from './oauth-logos';
 
 interface EditorValue {
   value: string | boolean | number;
@@ -43,14 +45,20 @@ const LEGAL_DOC_KEYS = new Set(['legal.termsText', 'legal.privacyText']);
 /**
  * Generic settings renderer driven by the godmode settings registry.
  * Renders every registry item type (boolean switch, text, secret,
- * number, enum, json) and saves changed items in bulk.
+ * number, enum, json) and saves changed items in bulk. Provider
+ * settings (email/SMS) only render while their provider is selected;
+ * the OAuth group gets a dedicated per-provider panel.
  */
 export function SettingsEditor({
   items,
+  allItems,
   onDirtyChange,
   onSaved,
 }: {
   items: GodmodeSettingItem[];
+  /** Every registry item; used to resolve cross-section dependencies
+   *  (visibleWhen / disabledWhen can reference keys in other groups). */
+  allItems?: GodmodeSettingItem[];
   /** Fired when the set of unsaved edits becomes non-empty / empty. */
   onDirtyChange?: (dirty: boolean) => void;
   /** Fired after settings were saved successfully (lets the host refresh). */
@@ -92,7 +100,45 @@ export function SettingsEditor({
     }
   }
 
-  const hasInvalidJson = items.some(
+  // Provider-conditional fields (email.smtp.*, sms.twilio.*, ...) render
+  // only while their provider dropdown points at them. Hidden fields keep
+  // their values in state and are still saved if dirty, so switching
+  // providers never loses configuration.
+  // Dependencies may live in other sections (email.provider gates the
+  // magic-link toggle in Sign-in methods), so resolve them against the
+  // full registry view rather than just this section's items.
+  const lookupItems = useMemo(() => allItems ?? items, [allItems, items]);
+
+  const visibleItems = useMemo(() => {
+    return items.filter((item) => {
+      const rule = item.visibleWhen;
+      if (!rule) return true;
+      const dep =
+        values[rule.key]?.value ?? lookupItems.find((i) => i.key === rule.key)?.value ?? '';
+      return rule.oneOf.includes(String(dep));
+    });
+  }, [items, lookupItems, values]);
+
+  // Options whose prerequisite is not configured yet (magic link without
+  // an email provider, etc.) render greyed out with a hint instead of
+  // silently failing later.
+  const depValue = useCallback(
+    (key: string) =>
+      values[key]?.value ?? lookupItems.find((i) => i.key === key)?.value ?? '',
+    [lookupItems, values],
+  );
+  const disabledHint = useCallback(
+    (item: GodmodeSettingItem): string | null => {
+      const rule = item.disabledWhen;
+      if (!rule) return null;
+      return rule.oneOf.includes(String(depValue(rule.key))) ? rule.hint : null;
+    },
+    [depValue],
+  );
+
+  const isOauthGroup = items.length > 0 && items.every((i) => i.group === 'oauth');
+
+  const hasInvalidJson = visibleItems.some(
     (i) => i.type === 'json' && !isValidJson(String(values[i.key]?.value ?? '')),
   );
 
@@ -160,46 +206,58 @@ export function SettingsEditor({
         ) : null}
       </div>
 
-      {items.map((item) => {
-        const entry = values[item.key];
-        if (!entry) return null;
-        return (
-          <div
-            key={item.key}
-            className="rounded border border-line bg-surface p-4 shadow-1"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-medium text-ink">{item.label}</span>
-                  {item.secret ? (
-                    <span className="rounded bg-brand-blue-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-brand-blue">
-                      secret
-                    </span>
+      {isOauthGroup ? (
+        <OAuthProvidersPanel items={items} values={values} onChange={set} />
+      ) : (
+        visibleItems.map((item) => {
+          const entry = values[item.key];
+          if (!entry) return null;
+          const hint = disabledHint(item);
+          return (
+            <div
+              key={item.key}
+              className="rounded border border-line bg-surface p-4 shadow-1"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-medium text-ink">{item.label}</span>
+                    {item.secret ? (
+                      <span className="rounded bg-brand-blue-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-brand-blue">
+                        secret
+                      </span>
+                    ) : null}
+                    {item.advanced ? (
+                      <span className="rounded bg-surface-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">
+                        advanced
+                      </span>
+                    ) : null}
+                  </div>
+                  {item.description ? (
+                    <p className="mt-1 text-[13px] text-ink-3">{item.description}</p>
                   ) : null}
-                  {item.advanced ? (
-                    <span className="rounded bg-surface-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                      advanced
-                    </span>
+                  {hint ? (
+                    <p className="mt-1 flex items-start gap-1.5 text-[12.5px] text-brand-yellow-ink">
+                      <span aria-hidden>!</span>
+                      {hint}
+                    </p>
                   ) : null}
+                  <p className="mt-1 font-mono text-[11px] text-ink-4">{item.key}</p>
                 </div>
-                {item.description ? (
-                  <p className="mt-1 text-[13px] text-ink-3">{item.description}</p>
-                ) : null}
-                <p className="mt-1 font-mono text-[11px] text-ink-4">{item.key}</p>
-              </div>
-              <div className="shrink-0">
-                <SettingControl
-                  item={item}
-                  entry={entry}
-                  jsonValid={item.type === 'json' ? isValidJson(String(entry.value)) : true}
-                  onChange={(v) => set(item.key, v)}
-                />
+                <div className={cn('shrink-0', hint && 'opacity-50')}>
+                  <SettingControl
+                    item={item}
+                    entry={entry}
+                    disabled={Boolean(hint)}
+                    jsonValid={item.type === 'json' ? isValidJson(String(entry.value)) : true}
+                    onChange={(v) => set(item.key, v)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
 
       {items.length === 0 ? (
         <div className="rounded border border-line bg-surface p-8 text-center text-[14px] text-ink-3 shadow-1">
@@ -240,12 +298,15 @@ function SettingControl({
   item,
   entry,
   jsonValid,
+  disabled = false,
   onChange,
 }: {
   item: GodmodeSettingItem;
   entry: EditorValue;
   /** Whether the current value parses as JSON (only meaningful for json items). */
   jsonValid: boolean;
+  /** Grey out the control because its prerequisite is not configured. */
+  disabled?: boolean;
   onChange: (value: EditorValue['value']) => void;
 }) {
   if (LEGAL_DOC_KEYS.has(item.key)) {
@@ -257,6 +318,7 @@ function SettingControl({
       <Switch
         checked={entry.value === true}
         onCheckedChange={(v) => onChange(v)}
+        disabled={disabled}
         aria-label={item.label}
       />
     );
@@ -264,7 +326,7 @@ function SettingControl({
 
   if (item.type === 'enum' && item.options) {
     return (
-      <Select value={String(entry.value)} onValueChange={(v) => onChange(v)}>
+      <Select value={String(entry.value)} onValueChange={(v) => onChange(v)} disabled={disabled}>
         <SelectTrigger className="w-[220px]" aria-label={item.label}>
           <SelectValue />
         </SelectTrigger>
@@ -285,6 +347,7 @@ function SettingControl({
         type="number"
         className="w-[160px]"
         aria-label={item.label}
+        disabled={disabled}
         // Keep '' while the field is empty instead of coercing to 0;
         // emptied numbers are skipped at save time.
         value={String(entry.value)}
@@ -301,6 +364,7 @@ function SettingControl({
           rows={4}
           aria-label={item.label}
           invalid={!jsonValid}
+          disabled={disabled}
           value={String(entry.value)}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -320,6 +384,7 @@ function SettingControl({
         placeholder={item.secretSet ? '•••••••• (set, leave blank to keep)' : 'Not set'}
         onChange={(e) => onChange(e.target.value)}
         autoComplete="new-password"
+        disabled={disabled}
         aria-label={item.label}
       />
     );
@@ -330,6 +395,7 @@ function SettingControl({
       className="w-[280px]"
       value={String(entry.value)}
       onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
       aria-label={item.label}
     />
   );
@@ -435,6 +501,144 @@ function LegalDocControl({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+interface ProviderGroup {
+  id: string;
+  label: string;
+  tutorial?: string;
+  enabledKey: string;
+  fields: GodmodeSettingItem[];
+}
+
+/**
+ * The OAuth group renders as a list of providers, one card each. The card
+ * shows the brand logo and a switch; enabling a provider reveals its
+ * configuration fields below it. Disabled providers keep their saved
+ * credentials, so re-enabling never asks for them again.
+ */
+function OAuthProvidersPanel({
+  items,
+  values,
+  onChange,
+}: {
+  items: GodmodeSettingItem[];
+  values: Record<string, EditorValue>;
+  onChange: (key: string, value: EditorValue['value']) => void;
+}) {
+  const providers = useMemo(() => {
+    const map = new Map<string, ProviderGroup>();
+    for (const item of items) {
+      const match = item.key.match(/^auth\.oauth\.([^.]+)\.([^.]+)$/);
+      if (!match) continue;
+      const [, id, field] = match;
+      if (!map.has(id)) {
+        map.set(id, { id, label: id, enabledKey: '', fields: [] });
+      }
+      const group = map.get(id)!;
+      if (field === 'enabled') {
+        group.enabledKey = item.key;
+        group.label = item.label.replace(/\s+sign-in$/i, '');
+        group.tutorial = item.description;
+      } else {
+        group.fields.push(item);
+      }
+    }
+    return [...map.values()].sort((a, b) => a.label.localeCompare(b.label));
+  }, [items]);
+
+  const [openOverrides, setOpenOverrides] = useState<Record<string, boolean>>({});
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-[13px] text-ink-3">
+        Turn on the providers you want on the login page. Each provider keeps its credentials
+        when switched off.
+      </p>
+      {providers.map((provider) => {
+        const enabled = values[provider.enabledKey]?.value === true;
+        const Logo = OAUTH_PROVIDER_LOGOS[provider.id];
+        const expanded = openOverrides[provider.id] ?? enabled;
+        return (
+          <div key={provider.id} className="rounded border border-line bg-surface p-4 shadow-1">
+            <div className="flex items-center gap-3">
+              <span className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-muted">
+                {Logo ? <Logo className="h-5 w-5" /> : null}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[14px] font-medium text-ink">{provider.label}</div>
+                <div className="font-mono text-[11px] text-ink-4">{provider.enabledKey}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenOverrides((prev) => ({ ...prev, [provider.id]: !expanded }))
+                }
+                aria-expanded={expanded}
+                aria-label={`Show ${provider.label} configuration`}
+                className="inline-grid h-9 w-9 place-items-center rounded text-ink-3 transition-colors duration-120 hover:bg-surface-muted hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              >
+                <ChevronDown
+                  className={cn('h-4 w-4 transition-transform duration-200', expanded && 'rotate-180')}
+                  strokeWidth={2.25}
+                />
+              </button>
+              <Switch
+                checked={enabled}
+                onCheckedChange={(v) => {
+                  onChange(provider.enabledKey, v);
+                  // Reveal the fields when turning on; hide them when turning off.
+                  setOpenOverrides((prev) => ({ ...prev, [provider.id]: Boolean(v) }));
+                }}
+                aria-label={`${provider.label} sign-in`}
+              />
+            </div>
+            {expanded ? (
+              <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4 pl-12">
+                {provider.tutorial ? (
+                  <p className="text-[12.5px] text-ink-3">{provider.tutorial}</p>
+                ) : null}
+                {provider.fields.length > 0 && !enabled ? (
+                  <p className="text-[12px] text-ink-4">
+                    Saved credentials stay here while the provider is off.
+                  </p>
+                ) : null}
+                {provider.fields.map((field) => {
+                  const entry = values[field.key];
+                  if (!entry) return null;
+                  return (
+                    <div key={field.key} className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[13px] font-medium text-ink">{field.label}</span>
+                          {field.secret ? (
+                            <span className="rounded bg-brand-blue-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-brand-blue">
+                              secret
+                            </span>
+                          ) : null}
+                        </div>
+                        {field.description ? (
+                          <p className="mt-0.5 text-[12px] text-ink-4">{field.description}</p>
+                        ) : null}
+                      </div>
+                      <div className="shrink-0">
+                        <SettingControl
+                          item={field}
+                          entry={entry}
+                          jsonValid
+                          onChange={(v) => onChange(field.key, v)}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }

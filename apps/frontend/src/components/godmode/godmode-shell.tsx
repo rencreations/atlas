@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
+  ChevronDown,
   Fingerprint,
   Globe,
   HardDrive,
@@ -23,6 +24,7 @@ import {
   Users,
   Webhook,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Wordmark } from '@/components/brand/wordmark';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
@@ -47,6 +49,8 @@ interface Section {
   groups?: string[]; // settings groups rendered by this section
   /** Keys inside those groups that another panel owns. */
   excludeKeys?: string[];
+  /** Parent group id when this section renders as a child of it. */
+  parent?: string;
 }
 
 const SECTIONS: Section[] = [
@@ -54,13 +58,14 @@ const SECTIONS: Section[] = [
   // Site name and tagline used to be editable here; they are deliberately
   // not shown anymore. The section now hosts only the legal documents.
   { id: 'site', label: 'Site', icon: Globe, groups: ['legal'] },
-  { id: 'registration', label: 'Registration', icon: UserPlus, groups: ['registration'] },
-  { id: 'auth', label: 'Sign-in methods', icon: KeyRound, groups: ['auth'] },
-  { id: 'sessions', label: 'Sessions', icon: Timer, groups: ['sessions'] },
+  // Everything sign-in related lives under one Authentication group.
+  { id: 'registration', label: 'Registration', icon: UserPlus, groups: ['registration'], parent: 'authentication' },
+  { id: 'auth', label: 'Sign-in methods', icon: KeyRound, groups: ['auth'], parent: 'authentication' },
+  { id: 'sessions', label: 'Sessions', icon: Timer, groups: ['sessions'], parent: 'authentication' },
+  { id: 'oauth', label: 'OAuth providers', icon: Plug, groups: ['oauth'], parent: 'authentication' },
+  { id: 'sso', label: 'SSO (OIDC / SAML)', icon: Link2, groups: ['sso'], parent: 'authentication' },
   { id: 'email', label: 'Email', icon: Mail, groups: ['email'] },
   { id: 'sms', label: 'SMS / OTP', icon: MessageSquareText, groups: ['sms'] },
-  { id: 'oauth', label: 'OAuth providers', icon: Plug, groups: ['oauth'] },
-  { id: 'sso', label: 'SSO (OIDC / SAML)', icon: Link2, groups: ['sso'] },
   { id: 'storage', label: 'Storage', icon: HardDrive, groups: ['storage'] },
   { id: 'integrations', label: 'Integrations', icon: Webhook, groups: ['integrations'] },
   { id: 'appearance', label: 'Appearance', icon: Palette, groups: ['appearance'] },
@@ -82,6 +87,9 @@ const SECTIONS: Section[] = [
     excludeKeys: ['godmode.totp.enabled', 'godmode.totp.secret'],
   },
 ];
+
+/** Children of the Authentication group, rendered indented under it. */
+const AUTHENTICATION_CHILDREN = SECTIONS.filter((s) => s.parent === 'authentication');
 
 export function GodmodeShell({
   token: _token,
@@ -185,23 +193,27 @@ export function GodmodeShell({
           <Badge tone="danger">godmode</Badge>
         </div>
         <nav className="flex flex-col gap-0.5 p-3">
-          {SECTIONS.map((s) => {
+          {SECTIONS.filter((s) => !s.parent).map((s) => {
             const Icon = s.icon;
             const activeSection = s.id === section;
             return (
-              <button
-                key={s.id}
-                onClick={() => navigate(s.id)}
-                aria-current={activeSection ? 'page' : undefined}
-                className={`flex items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] font-medium transition-colors duration-120 ${
-                  activeSection
-                    ? 'bg-brand-blue-50 text-brand-blue'
-                    : 'text-ink-2 hover:bg-surface-muted hover:text-ink'
-                }`}
-              >
-                <Icon className="h-4 w-4" strokeWidth={2.25} />
-                {s.label}
-              </button>
+              <div key={s.id}>
+                {s.id === 'site' ? (
+                  <AuthenticationGroupNav section={section} navigate={navigate} />
+                ) : null}
+                <button
+                  onClick={() => navigate(s.id)}
+                  aria-current={activeSection ? 'page' : undefined}
+                  className={`flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] font-medium transition-colors duration-120 ${
+                    activeSection
+                      ? 'bg-brand-blue-50 text-brand-blue'
+                      : 'text-ink-2 hover:bg-surface-muted hover:text-ink'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" strokeWidth={2.25} />
+                  {s.label}
+                </button>
+              </div>
             );
           })}
           <div className="my-2 border-t border-line" />
@@ -257,6 +269,7 @@ export function GodmodeShell({
             {active.groups ? (
               <SettingsEditor
                 items={groupItems}
+                allItems={settings?.items}
                 onDirtyChange={setDirty}
                 onSaved={() => void load()}
               />
@@ -269,6 +282,64 @@ export function GodmodeShell({
           </>
         )}
       </main>
+    </div>
+  );
+}
+
+/**
+ * Expandable Authentication group: Registration, Sign-in methods,
+ * Sessions, OAuth providers, and SSO live as children under it.
+ */
+function AuthenticationGroupNav({
+  section,
+  navigate,
+}: {
+  section: string;
+  navigate: (next: string) => void;
+}) {
+  const [manualOpen, setManualOpen] = useState(false);
+  const childActive = AUTHENTICATION_CHILDREN.some((c) => c.id === section);
+  const expanded = manualOpen || childActive;
+  return (
+    <div>
+      <button
+        onClick={() => setManualOpen((o) => !o)}
+        aria-expanded={expanded}
+        className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] font-medium text-ink-2 transition-colors duration-120 hover:bg-surface-muted hover:text-ink"
+      >
+        <KeyRound className="h-4 w-4" strokeWidth={2.25} />
+        Authentication
+        <ChevronDown
+          className={cn(
+            'ml-auto h-4 w-4 transition-transform duration-200',
+            expanded && 'rotate-180',
+          )}
+          strokeWidth={2.25}
+        />
+      </button>
+      {expanded ? (
+        <div className="mt-0.5 flex flex-col gap-0.5">
+          {AUTHENTICATION_CHILDREN.map((s) => {
+            const Icon = s.icon;
+            const activeSection = s.id === section;
+            return (
+              <button
+                key={s.id}
+                onClick={() => navigate(s.id)}
+                aria-current={activeSection ? 'page' : undefined}
+                className={`ml-3 flex items-center gap-2.5 rounded px-3 py-2 pl-6 text-left text-[13px] font-medium transition-colors duration-120 ${
+                  activeSection
+                    ? 'bg-brand-blue-50 text-brand-blue'
+                    : 'text-ink-2 hover:bg-surface-muted hover:text-ink'
+                }`}
+              >
+                <Icon className="h-4 w-4" strokeWidth={2.25} />
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

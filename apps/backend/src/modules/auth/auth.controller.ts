@@ -12,6 +12,7 @@ import { KeycloakTokenService } from './keycloak-token.service';
 import {
   ChangePasswordDto,
   ForgotPasswordDto,
+  InviteCheckDto,
   LoginDto,
   LoginPasswordDto,
   LoginPassphraseDto,
@@ -123,6 +124,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Create an account (gated by registration settings)' })
   async register(@Body() dto: RegisterDto) {
     return this.local.register(dto);
+  }
+
+  /** Non-consuming check so the register form can ask for the code first. */
+  @Public()
+  @Post('register/invite/check')
+  @ApiOperation({ summary: 'Verify an invite code without consuming it' })
+  checkInvite(@Body() dto: InviteCheckDto) {
+    return this.local.verifyInviteCode(dto.code);
   }
 
   @Public()

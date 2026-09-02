@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -97,6 +97,19 @@ export class AuthService {
     user: SessionUser;
     mustChangePassword?: boolean;
   }> {
+    // Every sign-in path funnels through here, so a suspended account is
+    // rejected consistently with the message the superadmin wrote.
+    const record = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      select: { suspendedAt: true, suspendedReason: true },
+    });
+    if (record?.suspendedAt) {
+      throw new ForbiddenException(
+        record.suspendedReason
+          ? `Your account has been suspended: ${record.suspendedReason}`
+          : 'Your account has been suspended. Contact the workspace administrator.',
+      );
+    }
     const { sessionId, expiresAt } = await this.sessions.createSession(user.id, {
       method: opts?.method,
       accessToken: opts?.accessToken,

@@ -88,6 +88,7 @@ export function SetupOverview({
 
   const required: Step[] = useMemo(() => {
     const instanceUrl = str(settings, 'system.instanceUrl');
+    const emailProvider = str(settings, 'email.provider');
     return [
       {
         id: 'account',
@@ -118,24 +119,23 @@ export function SetupOverview({
         section: 'auth',
         cta: 'Choose methods',
       },
+      {
+        id: 'email',
+        title: 'Connect email delivery',
+        why: 'Magic links, password resets, invites, and verification emails all need a real mail provider.',
+        hint: 'Email → pick SMTP, Resend, or AWS SES and fill in its credentials. Until then Atlas only prints mail to the server log.',
+        done: Boolean(emailProvider) && emailProvider !== 'console',
+        section: 'email',
+        cta: 'Configure email',
+      },
     ];
   }, [settings, superadminExists]);
 
   const recommended: Step[] = useMemo(() => {
-    const provider = str(settings, 'email.provider');
     const bucket = str(settings, 'storage.s3.bucket');
     const terms = str(settings, 'legal.termsText');
     const privacy = str(settings, 'legal.privacyText');
     return [
-      {
-        id: 'email',
-        title: 'Connect email delivery',
-        why: 'Needed for magic links, password resets, invites, and notification emails.',
-        hint: 'Until then Atlas prints emails to the server log instead of sending them.',
-        done: Boolean(provider) && provider !== 'console',
-        section: 'email',
-        cta: 'Configure email',
-      },
       {
         id: 'storage',
         title: 'Connect file storage',
@@ -194,7 +194,7 @@ export function SetupOverview({
           <div>
             <h2 className="font-display text-h3 text-ink">Finish setting up Atlas</h2>
             <p className="mt-1 text-[13px] text-ink-2">
-              Three things are required. Everything else can wait until after you are inside.
+              Four things are required. Everything else can wait until after you are inside.
             </p>
           </div>
           <span className="text-[13px] font-medium text-ink-2" aria-live="polite">

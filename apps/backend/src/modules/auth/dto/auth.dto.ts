@@ -47,6 +47,12 @@ export class RegisterDto {
   acceptedTerms?: boolean;
 }
 
+export class InviteCheckDto {
+  @IsString()
+  @IsNotEmpty()
+  code!: string;
+}
+
 export class MagicLinkRequestDto {
   @IsEmail()
   email!: string;

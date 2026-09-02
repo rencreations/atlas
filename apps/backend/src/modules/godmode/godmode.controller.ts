@@ -22,8 +22,11 @@ import { GodmodeService } from './godmode.service';
 import {
   BulkUpdateSettingsDto,
   CreateGodmodeUserDto,
+  CreateRoleDto,
   EnableTotpDto,
   GrantRoleDto,
+  ResetPasswordDto,
+  SuspendUserDto,
   UnlockDto,
   UpdateSettingDto,
   UpsertRoleDto,
@@ -183,10 +186,55 @@ export class GodmodeController {
     return this.godmode.revokeRole(id, roleCode);
   }
 
+  /** Suspend an account. Sessions are revoked so the lockout is immediate. */
+  @UseGuards(GodmodeGuard)
+  @Post('users/:id/suspend')
+  suspendUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: SuspendUserDto,
+    @Req() req: GodmodeRequest,
+  ) {
+    return this.godmode.suspendUser(id, dto.message, req.godmodeSession?.id);
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Post('users/:id/unsuspend')
+  unsuspendUser(@Param('id', ParseUUIDPipe) id: string) {
+    return this.godmode.unsuspendUser(id);
+  }
+
+  /** Hard-delete the account and its personal data. */
+  @UseGuards(GodmodeGuard)
+  @Delete('users/:id')
+  deleteUser(@Param('id', ParseUUIDPipe) id: string) {
+    return this.godmode.deleteUser(id);
+  }
+
+  /** Set or reset the account's local password (forces a change on login). */
+  @UseGuards(GodmodeGuard)
+  @Post('users/:id/password')
+  resetUserPassword(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ResetPasswordDto) {
+    return this.godmode.resetUserPassword(id, dto.password);
+  }
+
+  /** Sign the account out of every device. */
+  @UseGuards(GodmodeGuard)
+  @Post('users/:id/sessions/revoke')
+  revokeUserSessions(@Param('id', ParseUUIDPipe) id: string) {
+    return this.godmode.revokeUserSessions(id);
+  }
+
   @UseGuards(GodmodeGuard)
   @Get('roles')
   listRoles() {
     return this.godmode.listRoles();
+  }
+
+  /** Create a custom role; the code is derived from the name. */
+  @UseGuards(GodmodeGuard)
+  @Post('roles')
+  createRole(@Body() dto: CreateRoleDto) {
+    return this.godmode.createRole(dto);
   }
 
   @UseGuards(GodmodeGuard)
