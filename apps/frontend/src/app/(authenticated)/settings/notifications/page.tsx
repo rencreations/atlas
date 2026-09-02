@@ -205,11 +205,15 @@ export default function NotificationSettingsPage() {
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {permission === 'default' || permission === 'denied' ? (
-                <Button onClick={onEnableClicked} disabled={enabling || permission === 'denied'}>
+                <Button
+                  onClick={onEnableClicked}
+                  disabled={enabling || permission === 'denied'}
+                  className="w-full sm:w-auto"
+                >
                   {enabling ? 'Enabling…' : 'Enable browser notifications'}
                 </Button>
               ) : null}
-              <Button variant="ghost" onClick={reenableBanner}>
+              <Button variant="ghost" onClick={reenableBanner} className="w-full sm:w-auto">
                 Restore the soft-prompt banner
               </Button>
             </div>

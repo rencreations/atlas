@@ -17,6 +17,7 @@ export function AttachmentRenderer({ attachment }: { attachment: ChatAttachment 
           href={attachment.url}
           target="_blank"
           rel="noreferrer"
+          aria-label="View image attachment"
           className="block max-w-[420px] overflow-hidden rounded border border-line"
         >
           {/* Plain img is fine, URL is on our CDN domain and we trust dimensions from the upload. */}

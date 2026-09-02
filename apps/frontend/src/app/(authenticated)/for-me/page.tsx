@@ -239,16 +239,16 @@ export default function ForMePage() {
             <Card>
               <CardBody>
                 <CardTitle>Quick links</CardTitle>
-                <div className="mt-3 flex flex-col gap-2">
-                  <Link href={'/projects' as never} className="flex items-center gap-2.5 text-[14px] text-ink hover:text-brand-blue">
+                <div className="mt-3 flex flex-col gap-1.5">
+                  <Link href={'/projects' as never} className="-my-1.5 flex items-center gap-2.5 py-1.5 text-[14px] text-ink hover:text-brand-blue">
                     <Inbox className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
                     Browse projects
                   </Link>
-                  <Link href={'/notifications' as never} className="flex items-center gap-2.5 text-[14px] text-ink hover:text-brand-blue">
+                  <Link href={'/notifications' as never} className="-my-1.5 flex items-center gap-2.5 py-1.5 text-[14px] text-ink hover:text-brand-blue">
                     <Bell className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
                     Notification inbox
                   </Link>
-                  <Link href={'/me' as never} className="flex items-center gap-2.5 text-[14px] text-ink hover:text-brand-blue">
+                  <Link href={'/me' as never} className="-my-1.5 flex items-center gap-2.5 py-1.5 text-[14px] text-ink hover:text-brand-blue">
                     <CheckCircle2 className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
                     My work
                   </Link>

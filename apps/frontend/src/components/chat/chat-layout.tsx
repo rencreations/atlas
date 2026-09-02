@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Hash, ArrowLeft, Globe, Radio, Pin } from 'lucide-react';
+import { Hash, ArrowLeft, Globe, Menu, Radio, Pin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
@@ -41,6 +41,8 @@ export function ChatLayout({
 }: Props) {
   const [replyTo, setReplyTo] = React.useState<ChatMessage | null>(null);
   const [pinsOpen, setPinsOpen] = React.useState(false);
+  // The channel sidebar collapses into a drawer below md.
+  const [mobileChannelsOpen, setMobileChannelsOpen] = React.useState(false);
   // SW fallback path appends `?focus=input` when opening a chat from a
   // notification on a browser that can't show inline reply (Safari /
   // Firefox). We thread this to the composer so the user lands with
@@ -79,15 +81,51 @@ export function ChatLayout({
 
   return (
     <div className="flex h-full min-h-0">
-      <ChannelList
-        scope={scope}
-        projectTitle={projectTitle}
-        activeChannelId={channelId}
-        canManage={isManager}
-      />
+      {/* Desktop sidebar; on mobile the same list opens as a drawer. */}
+      <div className="hidden md:flex">
+        <ChannelList
+          scope={scope}
+          projectTitle={projectTitle}
+          activeChannelId={channelId}
+          canManage={isManager}
+        />
+      </div>
+
+      {mobileChannelsOpen ? (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div
+            className="absolute inset-0 bg-[rgba(14,17,22,0.45)]"
+            aria-hidden
+            onClick={() => setMobileChannelsOpen(false)}
+          />
+          <div
+            className="relative z-10 flex w-[280px] max-w-[80vw]"
+            onClick={(e) => {
+              // Selecting a channel navigates; close the drawer behind it.
+              if ((e.target as HTMLElement).closest('a')) setMobileChannelsOpen(false);
+            }}
+          >
+            <ChannelList
+              scope={scope}
+              projectTitle={projectTitle}
+              activeChannelId={channelId}
+              canManage={isManager}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <section className="flex min-w-0 flex-1 flex-col bg-surface">
-        <header className="flex items-center gap-3 border-b border-line px-6 py-3">
+        <header className="flex items-center gap-3 border-b border-line px-4 py-3 md:px-6">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0 md:hidden"
+            aria-label="Open channels"
+            onClick={() => setMobileChannelsOpen(true)}
+          >
+            <Menu className="h-4 w-4" strokeWidth={2.25} />
+          </Button>
           {scope.kind === 'project' ? (
             <Link
               href={`/projects/${scope.slug}` as never}

@@ -333,7 +333,7 @@ function InternalLinks({
             href={it.href}
             target="_blank"
             rel="noreferrer"
-            className="group inline-flex items-center gap-2 text-[13px] text-ink hover:text-brand-blue"
+            className="group -my-1 inline-flex items-center gap-2 py-1 text-[13px] text-ink hover:text-brand-blue"
           >
             <span className="text-ink-3 group-hover:text-brand-blue">{it.icon}</span>
             <span className="font-medium">{it.label}</span>
