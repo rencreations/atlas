@@ -90,7 +90,7 @@ export default function ProjectDetailPage() {
           <div className="lg:col-span-8">
             <Link
               href={'/projects'}
-              className="text-[13px] font-medium text-ink-3 hover:text-ink"
+              className="-my-2 inline-block py-2 text-[13px] font-medium text-ink-3 hover:text-ink"
             >
               ← All projects
             </Link>

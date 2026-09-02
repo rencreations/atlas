@@ -192,7 +192,7 @@ function ReorderableTab({
         type="button"
         onPointerDown={(e) => dragControls.start(e)}
         className={cn(
-          'absolute -left-1 top-1/2 -translate-y-1/2 inline-grid h-6 w-4 cursor-grab place-items-center rounded',
+          'absolute -left-1 top-1/2 -translate-y-1/2 inline-grid h-7 w-5 cursor-grab place-items-center rounded',
           'text-ink-4 opacity-0 transition-opacity duration-120 ease-out-soft',
           'group-hover/tab:opacity-100 focus-visible:opacity-100',
         )}
