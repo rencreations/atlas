@@ -348,9 +348,9 @@ function BlockNoteEditor({
   const editorSurfaceRef = React.useRef<HTMLDivElement>(null);
 
   // BlockNote's contenteditable ships without an accessible name; label it
-  // once the editor renders (axe aria-input-field-name).
+  // once the editor renders (axe aria-input-field-name). The editor starts
+  // non-editable while the Yjs provider connects, so don't gate on loading.
   React.useEffect(() => {
-    if (isLoading) return;
     const el = editorSurfaceRef.current?.querySelector('.tiptap[contenteditable]');
     el?.setAttribute('aria-label', 'Note editor');
   }, [isLoading]);
