@@ -261,9 +261,17 @@ export function LoginClient({
     [redirecting],
   );
 
+  const ssoConnections = useMemo(() => config.sso.connections ?? [], [config.sso.connections]);
   const showOAuth = config.oauthProviders.length > 0;
-  const showSso = config.sso.oidc.enabled || config.sso.saml.enabled;
+  const showSso = config.sso.oidc.enabled || config.sso.saml.enabled || ssoConnections.length > 0;
   const dividerNeeded = showOAuth || showSso;
+  // When the typed email belongs to a connected directory, point the user
+  // at its button instead of making them hunt for it.
+  const matchedConnection = useMemo(() => {
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (!domain) return null;
+    return ssoConnections.find((c) => c.domains.some((d) => d.toLowerCase() === domain)) ?? null;
+  }, [email, ssoConnections]);
   // With password auth off the provider links must still be reachable from
   // whichever view we defaulted to.
   const showProviderBlock = (view === 'password' || !config.authMethods.password.enabled) && dividerNeeded;
@@ -618,6 +626,35 @@ export function LoginClient({
                 ? `Redirecting to ${config.sso.saml.label}…`
                 : config.sso.saml.label}
             </a>
+          ) : null}
+          {/* Tenant directories: one button per connected company. */}
+          {ssoConnections.map((conn) => (
+            <a
+              key={conn.id}
+              href={`${API_BASE}/auth/sso/${conn.id}/start?callbackUrl=${encodeURIComponent(safeCallback)}`}
+              data-provider-label={conn.name}
+              onClick={handleProviderClick}
+              aria-disabled={redirecting !== null}
+              className={cn(
+                providerLinkClass,
+                matchedConnection?.id === conn.id && 'border-brand-blue bg-brand-blue-50',
+                redirecting !== null && 'pointer-events-none opacity-60',
+              )}
+            >
+              {redirecting === conn.name ? (
+                <LoaderCircle className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
+              ) : (
+                <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
+              )}
+              {redirecting === conn.name ? `Redirecting to ${conn.name}…` : `Continue with ${conn.name}`}
+            </a>
+          ))}
+          {matchedConnection ? (
+            <p className="text-center text-[12.5px] text-ink-3">
+              Your email belongs to {matchedConnection.name}. Use the{' '}
+              <span className="font-medium text-brand-blue">{matchedConnection.name}</span> button
+              to sign in.
+            </p>
           ) : null}
         </div>
       ) : null}

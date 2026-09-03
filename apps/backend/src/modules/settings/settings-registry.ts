@@ -11,6 +11,7 @@
  */
 
 import { THEME_OPTIONS } from './theme-ids';
+import { PRIVACY_TEMPLATE, TERMS_TEMPLATE } from './legal-defaults';
 
 export type SettingType = 'boolean' | 'string' | 'number' | 'json' | 'enum';
 
@@ -45,6 +46,11 @@ export interface SettingDef {
   moreInfo?: string;
   /** A call-to-action rendered under the option (label + target section). */
   action?: { label: string; section: string };
+  /** Official setup-guide URL rendered as a link (OAuth providers, etc.). */
+  docUrl?: string;
+  /** Long text or file contents get an upload/paste dialog instead of an
+   *  inline input (e.g. Apple's .p8 private key). */
+  fileUpload?: { accept: string; hint: string };
 }
 
 export type SettingGroup =
@@ -388,7 +394,7 @@ export const SETTINGS: Record<string, SettingDef> = {
     'How Atlas sends mail: magic links, verification, notifications.',
     'console',
     [
-      { label: 'Console (development only)', value: 'console' },
+      { label: 'Console (dev only)', value: 'console' },
       { label: 'SMTP', value: 'smtp' },
       { label: 'Resend', value: 'resend' },
       { label: 'AWS SES', value: 'ses' },
@@ -466,7 +472,7 @@ export const SETTINGS: Record<string, SettingDef> = {
     'Who delivers the OTP codes. Console prints codes to the server log (development only).',
     'console',
     [
-      { label: 'Console (development only)', value: 'console' },
+      { label: 'Console (dev only)', value: 'console' },
       { label: 'Twilio', value: 'twilio' },
       { label: 'Vonage', value: 'vonage' },
       { label: 'Infobip', value: 'infobip' },
@@ -648,22 +654,34 @@ export const SETTINGS: Record<string, SettingDef> = {
   ),
 
   // ─── Storage ──────────────────────────────────────────────────────
+  // Switching providers never applies instantly: a background job copies
+  // every stored object to the new provider first, then flips this value.
   'storage.provider': enu(
     'storage.provider',
     'storage',
     'Storage provider',
-    'Where uploads (media, avatars, files) are stored.',
-    's3',
+    'Where uploads (media, avatars, files) are stored. Switching providers migrates existing files first, in the background.',
+    'local',
     [
-      { label: 'S3-compatible (AWS or MinIO/R2/…)', value: 's3' },
+      { label: 'Server local storage', value: 'local' },
+      { label: 'AWS S3', value: 's3' },
+      { label: 'Cloudflare R2', value: 'r2' },
+      { label: 'Other S3-compatible', value: 's3compat' },
       { label: 'Disabled', value: 'disabled' },
     ],
+  ),
+  'storage.local.path': str(
+    'storage.local.path',
+    'storage',
+    'Local storage folder',
+    'Folder on the server where uploads are kept. Relative to the backend working directory. On Railway or any ephemeral host, attach a persistent volume at this path so files survive redeploys.',
+    'data/files',
   ),
   'storage.s3.region': str(
     'storage.s3.region',
     'storage',
-    'S3 region',
-    'e.g. ap-southeast-1, us-east-1, auto for R2.',
+    'AWS region',
+    'e.g. ap-southeast-1 or us-east-1.',
     'ap-southeast-1',
     {
       envFallback: 'AWS_REGION',
@@ -679,28 +697,84 @@ export const SETTINGS: Record<string, SettingDef> = {
       envFallback: 'AWS_S3_BUCKET',
     },
   ),
-  'storage.s3.endpoint': str(
-    'storage.s3.endpoint',
-    'storage',
-    'S3 endpoint (optional)',
-    'Leave empty for AWS. Set to your MinIO / R2 endpoint URL for S3-compatible stores.',
-  ),
-  'storage.s3.accessKeyId': str('storage.s3.accessKeyId', 'storage', 'S3 access key id', '', '', {
+  'storage.s3.accessKeyId': str('storage.s3.accessKeyId', 'storage', 'AWS access key id', '', '', {
     envFallback: 'AWS_ACCESS_KEY_ID',
   }),
   'storage.s3.secretAccessKey': secret(
     'storage.s3.secretAccessKey',
     'storage',
-    'S3 secret access key',
+    'AWS secret access key',
     '',
   ),
   'storage.s3.publicBaseUrl': str(
     'storage.s3.publicBaseUrl',
     'storage',
-    'S3 public base URL',
+    'Public base URL (optional)',
     'CDN or bucket public URL used to serve stored objects, e.g. https://cdn.example.com.',
     '',
     { envFallback: 'AWS_S3_PUBLIC_BASE_URL' },
+  ),
+  'storage.r2.accountId': str(
+    'storage.r2.accountId',
+    'storage',
+    'R2 account id',
+    'The 32-character account id from the Cloudflare dashboard.',
+  ),
+  'storage.r2.bucket': str('storage.r2.bucket', 'storage', 'R2 bucket', 'Bucket name for uploads.'),
+  'storage.r2.accessKeyId': str(
+    'storage.r2.accessKeyId',
+    'storage',
+    'R2 access key id',
+    'Create one under R2 → Manage R2 API Tokens.',
+  ),
+  'storage.r2.secretAccessKey': secret(
+    'storage.r2.secretAccessKey',
+    'storage',
+    'R2 secret access key',
+    '',
+  ),
+  'storage.r2.publicBaseUrl': str(
+    'storage.r2.publicBaseUrl',
+    'storage',
+    'Public base URL',
+    'The r2.dev domain of the bucket or a custom domain, e.g. https://pub-xxxx.r2.dev.',
+  ),
+  'storage.s3compat.endpoint': str(
+    'storage.s3compat.endpoint',
+    'storage',
+    'Endpoint URL',
+    'e.g. https://minio.example.com or https://s3.eu-central-1.wasabisys.com.',
+  ),
+  'storage.s3compat.region': str(
+    'storage.s3compat.region',
+    'storage',
+    'Region',
+    'us-east-1 unless your provider requires a specific value.',
+    'us-east-1',
+  ),
+  'storage.s3compat.bucket': str(
+    'storage.s3compat.bucket',
+    'storage',
+    'Bucket',
+    'Bucket name for uploads.',
+  ),
+  'storage.s3compat.accessKeyId': str(
+    'storage.s3compat.accessKeyId',
+    'storage',
+    'Access key id',
+    '',
+  ),
+  'storage.s3compat.secretAccessKey': secret(
+    'storage.s3compat.secretAccessKey',
+    'storage',
+    'Secret access key',
+    '',
+  ),
+  'storage.s3compat.publicBaseUrl': str(
+    'storage.s3compat.publicBaseUrl',
+    'storage',
+    'Public base URL (optional)',
+    'CDN or bucket public URL used to serve stored objects.',
   ),
 
   // ─── Integrations ─────────────────────────────────────────────────
@@ -780,20 +854,22 @@ export const SETTINGS: Record<string, SettingDef> = {
   ),
 
   // ─── Legal ────────────────────────────────────────────────────────
+  // Defaults are real, ready-to-publish templates for the current state
+  // of Atlas; admins replace them with their own wording from godmode.
   'legal.termsText': str(
     'legal.termsText',
     'legal',
     'Terms of service',
-    'Markdown. Rendered at /legal/terms. Empty = the page 404s.',
-    '',
+    'Markdown. Rendered at /legal/terms. A default template ships with the instance.',
+    TERMS_TEMPLATE,
     { type: 'string' },
   ),
   'legal.privacyText': str(
     'legal.privacyText',
     'legal',
     'Privacy policy',
-    'Markdown. Rendered at /legal/privacy. Empty = the page 404s.',
-    '',
+    'Markdown. Rendered at /legal/privacy. A default template ships with the instance.',
+    PRIVACY_TEMPLATE,
   ),
   'legal.requireConsent': bool(
     'legal.requireConsent',
@@ -849,6 +925,23 @@ for (const [provider, prefix] of Object.entries(PROVIDER_PREFIXES)) {
   }
 }
 
+// Storage provider fields show only while their provider is selected.
+// Hidden fields keep their saved values, so switching providers never
+// loses configuration.
+const STORAGE_PREFIXES: Record<string, string> = {
+  local: 'storage.local',
+  s3: 'storage.s3',
+  r2: 'storage.r2',
+  s3compat: 'storage.s3compat',
+};
+for (const [provider, prefix] of Object.entries(STORAGE_PREFIXES)) {
+  for (const key of Object.keys(SETTINGS)) {
+    if (key.startsWith(`${prefix}.`)) {
+      SETTINGS[key]!.visibleWhen = { key: 'storage.provider', oneOf: [provider] };
+    }
+  }
+}
+
 // Options that depend on a provider being configured stay visible but
 // greyed out with guidance until the prerequisite is set.
 SETTINGS['auth.magicLink.enabled']!.disabledWhen = {
@@ -893,34 +986,38 @@ SETTINGS['auth.passphrase.enabled']!.moreInfo =
   'Lets people sign in with a single shared phrase instead of an account. Useful for event demos and read-only kiosks, not for regular users.';
 SETTINGS['auth.sessionDurationMinutes']!.moreInfo =
   'How long a sign-in stays valid before the user must sign in again. Shorter is safer; longer is more convenient.';
-SETTINGS['storage.s3.endpoint']!.moreInfo =
-  'Leave empty for AWS S3. Set it to your MinIO, Cloudflare R2, or other S3-compatible endpoint URL.';
+SETTINGS['storage.provider']!.moreInfo =
+  'Switching providers moves every existing file to the new provider in the background first; the switch completes only when the copy finishes cleanly. Server local storage keeps files on the machine Atlas runs on and needs no credentials.';
 
 function oauthDefs(): Record<string, SettingDef> {
   const defs: Record<string, SettingDef> = {};
   const providers: {
     id: string;
     label: string;
-    tutorial: string;
-    extra?: { key: string; label: string; description: string; secret?: boolean }[];
+    /** Official setup-guide link shown in the godmode panel. */
+    doc: string;
+    extra?: {
+      key: string;
+      label: string;
+      description: string;
+      secret?: boolean;
+      fileUpload?: { accept: string; hint: string };
+    }[];
   }[] = [
     {
       id: 'google',
       label: 'Google',
-      tutorial:
-        'Console → https://console.cloud.google.com/apis/credentials. Create an OAuth client (Web application), add the callback URL shown below, and copy the client id and secret.',
+      doc: 'https://developers.google.com/identity/protocols/oauth2/web-server',
     },
     {
       id: 'github',
       label: 'GitHub',
-      tutorial:
-        'GitHub → Settings → Developer settings → OAuth Apps. Register a new app with the callback URL shown below, then copy the client id and secret.',
+      doc: 'https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app',
     },
     {
       id: 'gitlab',
       label: 'GitLab',
-      tutorial:
-        'GitLab → User Settings → Applications (or a group/instance application). Set the redirect URI to the callback URL shown below.',
+      doc: 'https://docs.gitlab.com/integration/oauth_provider/',
       extra: [
         {
           key: 'instanceUrl',
@@ -932,8 +1029,7 @@ function oauthDefs(): Record<string, SettingDef> {
     {
       id: 'apple',
       label: 'Apple',
-      tutorial:
-        'Apple Developer → Certificates, Identifiers & Profiles → Keys. Register a Sign in with Apple key, note the key id and team id, and download the .p8 private key. Register an App ID with Sign in with Apple enabled, then create a Services ID with the callback URL shown below.',
+      doc: 'https://developer.apple.com/help/account/configure-app-capabilities/configure-sign-in-with-apple-for-the-web/',
       extra: [
         {
           key: 'teamId',
@@ -947,35 +1043,35 @@ function oauthDefs(): Record<string, SettingDef> {
         },
         {
           key: 'privateKey',
-          label: 'Private key (PEM)',
-          description: 'Contents of the downloaded .p8 file.',
+          label: 'Private key (.p8)',
+          description: 'The Sign in with Apple private key from Apple Developer.',
           secret: true,
+          fileUpload: {
+            accept: '.p8,text/plain,application/octet-stream',
+            hint: 'Upload the .p8 private key file you downloaded from Apple Developer, or paste its contents below.',
+          },
         },
       ],
     },
     {
       id: 'x',
       label: 'X (Twitter)',
-      tutorial:
-        'X Developer Portal → Projects & Apps → your app → User authentication settings. Enable OAuth 2.0, set the callback URL shown below, and copy the client id and secret.',
+      doc: 'https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token',
     },
     {
       id: 'facebook',
       label: 'Facebook',
-      tutorial:
-        'Meta for Developers → Apps → Create/select app → Facebook Login → Settings. Add the OAuth redirect URI shown below, then copy the App ID and App Secret.',
+      doc: 'https://developers.facebook.com/docs/facebook-login/web',
     },
     {
       id: 'discord',
       label: 'Discord',
-      tutorial:
-        'Discord Developer Portal → Applications → New Application → OAuth2. Add the redirect URL shown below, then copy the client id and secret.',
+      doc: 'https://discord.com/developers/docs/topics/oauth2',
     },
     {
       id: 'azure',
       label: 'Azure (Microsoft)',
-      tutorial:
-        'Microsoft Entra admin center → App registrations → New registration. Set the redirect URI to the callback URL shown below (Web platform), then copy the Application (client) ID and create a client secret.',
+      doc: 'https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app',
       extra: [
         {
           key: 'tenant',
@@ -987,8 +1083,7 @@ function oauthDefs(): Record<string, SettingDef> {
     {
       id: 'keycloak',
       label: 'Keycloak',
-      tutorial:
-        'Your Keycloak admin console → Clients → Create. Set the root URL and the redirect URI to the callback URL shown below, enable the email and profile mappers, then copy the client id and secret.',
+      doc: 'https://www.keycloak.org/docs/latest/server_admin/',
       extra: [
         {
           key: 'issuer',
@@ -1004,9 +1099,9 @@ function oauthDefs(): Record<string, SettingDef> {
       `auth.oauth.${p.id}.enabled`,
       'oauth',
       `${p.label} sign-in`,
-      p.tutorial,
+      '',
       false,
-      { public: true },
+      { public: true, docUrl: p.doc },
     );
     defs[`auth.oauth.${p.id}.clientId`] = str(
       `auth.oauth.${p.id}.clientId`,
@@ -1030,6 +1125,9 @@ function oauthDefs(): Record<string, SettingDef> {
           e.description,
           '',
         );
+        if (e.fileUpload) {
+          defs[`auth.oauth.${p.id}.${e.key}`]!.fileUpload = e.fileUpload;
+        }
       }
     }
   }

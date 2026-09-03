@@ -12,6 +12,7 @@ import { SmsService } from './sms.service';
 import { OAuthService } from './oauth.service';
 import { OIDCService } from './oidc.service';
 import { SamlService } from './saml.service';
+import { SsoConnectionsService } from './sso-connections.service';
 import { OAuthController } from './oauth.controller';
 import { PermissionsGuard } from './guards/permissions.guard';
 
@@ -30,8 +31,16 @@ import { PermissionsGuard } from './guards/permissions.guard';
     OAuthService,
     OIDCService,
     SamlService,
+    SsoConnectionsService,
     PermissionsGuard,
   ],
-  exports: [AuthService, SessionService, KeycloakTokenService, IdentityService, PermissionsGuard],
+  exports: [
+    AuthService,
+    SessionService,
+    KeycloakTokenService,
+    IdentityService,
+    SsoConnectionsService,
+    PermissionsGuard,
+  ],
 })
 export class AuthModule {}

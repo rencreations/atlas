@@ -15,6 +15,10 @@ export interface GodmodeSettingItem {
   disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string; section: string };
   moreInfo?: string;
   action?: { label: string; section: string };
+  /** Official setup-guide URL rendered as a link (OAuth providers, etc.). */
+  docUrl?: string;
+  /** Long text or file contents get an upload/paste dialog (e.g. Apple .p8). */
+  fileUpload?: { accept: string; hint: string };
 }
 
 export interface GodmodeSettingGroup {
@@ -27,6 +31,45 @@ export interface GodmodeSettingsView {
   groups: GodmodeSettingGroup[];
   items: GodmodeSettingItem[];
   configured: boolean;
+  ssoConnections?: GodmodeSsoConnection[];
+}
+
+/** A tenant SSO directory (OIDC or SAML) connected to this instance. */
+export interface GodmodeSsoConnection {
+  id: string;
+  name: string;
+  type: 'oidc' | 'saml';
+  enabled: boolean;
+  domains: string[];
+  config: {
+    issuer?: string;
+    clientId?: string;
+    clientSecret?: string;
+    entryPoint?: string;
+    spIssuer?: string;
+    cert?: string;
+    privateKey?: string;
+    /** Masked view: which secrets already have a stored value. */
+    secretSet?: Record<string, boolean>;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Background storage-provider migration status. */
+export interface GodmodeStorageMigration {
+  id: string;
+  fromProvider: string;
+  toProvider: string;
+  status: 'RUNNING' | 'COMPLETED' | 'FAILED' | 'INTERRUPTED';
+  objectCount: number;
+  transferredCount: number;
+  totalBytes: string | number;
+  transferredBytes: string | number;
+  error: string | null;
+  createdAt: string;
+  updatedAt: string;
+  finishedAt: string | null;
 }
 
 export interface GodmodeUser {

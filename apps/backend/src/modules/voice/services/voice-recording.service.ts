@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { VoiceRecordingStatus } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from '@/prisma/prisma.service';
-import { S3Service } from '@/modules/media/s3.service';
+import { StorageService } from '@/modules/media/storage.service';
 import { LivekitService } from './livekit.service';
 import { VoiceRealtimePublisher } from './voice-realtime.publisher';
 
@@ -39,7 +39,7 @@ export class VoiceRecordingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly livekit: LivekitService,
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
     private readonly realtime: VoiceRealtimePublisher,
     private readonly config: ConfigService,
   ) {}

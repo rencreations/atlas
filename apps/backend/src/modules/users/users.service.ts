@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { SettingsService } from '@/modules/settings/settings.service';
-import { S3Service } from '@/modules/media/s3.service';
+import { StorageService } from '@/modules/media/storage.service';
 import { UpdateMeDto } from './dto/update-me.dto';
 
 const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
@@ -37,7 +37,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
   ) {}
 
   async getMe(id: string) {
@@ -62,7 +62,7 @@ export class UsersService {
       ...rest,
       // The user-uploaded avatar wins; the stored URL is the SSO/Gravatar
       // fallback underneath it.
-      avatarUrl: avatarS3Key ? this.s3.publicUrlFor(avatarS3Key) : user.avatarUrl,
+      avatarUrl: avatarS3Key ? await this.s3.publicUrlFor(avatarS3Key) : user.avatarUrl,
     };
   }
 
@@ -89,7 +89,7 @@ export class UsersService {
     const { avatarS3Key: stored, ...stripped } = user;
     return {
       ...stripped,
-      avatarUrl: stored ? this.s3.publicUrlFor(stored) : user.avatarUrl,
+      avatarUrl: stored ? await this.s3.publicUrlFor(stored) : user.avatarUrl,
     };
   }
 

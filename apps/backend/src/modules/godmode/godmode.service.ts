@@ -12,6 +12,8 @@ import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { SettingsService } from '@/modules/settings/settings.service';
+import { StorageMigrationService } from '@/modules/media/storage-migration.service';
+import { SsoConnectionDto, SsoConnectionsService } from '@/modules/auth/sso-connections.service';
 import { generateTotpSecret, totpAuthUrl, verifyTotpToken } from './totp.util';
 import { WebauthnService } from './webauthn.service';
 
@@ -33,7 +35,63 @@ export class GodmodeService {
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
     private readonly webauthn: WebauthnService,
+    private readonly storageMigration: StorageMigrationService,
+    private readonly ssoConnections: SsoConnectionsService,
   ) {}
+
+  /**
+   * Bulk-save settings with one special case: changing `storage.provider`
+   * never applies instantly. The other keys are saved, then a background
+   * migration starts; the provider flips only when every object has been
+   * copied to the new provider. Switching to or from "disabled" applies
+   * immediately (there is no source to migrate).
+   */
+  async bulkSetSettings(entries: { key: string; value: unknown }[]) {
+    const providerChange = entries.find((e) => e.key === 'storage.provider');
+    const active = await this.settings.get<string>('storage.provider');
+    const target = providerChange ? String(providerChange.value) : active;
+
+    if (providerChange && target !== active && target !== 'disabled' && active !== 'disabled') {
+      const rest = entries.filter((e) => e.key !== 'storage.provider');
+      await this.settings.setMany(rest);
+      const migration = await this.storageMigration.start(active, target);
+      return { ok: true, storageMigrationStarted: true, migrationId: migration.id };
+    }
+    await this.settings.setMany(entries);
+    return { ok: true };
+  }
+
+  // ─── Storage migration (godmode UI) ───────────────────────────────
+
+  storageMigrationStatus() {
+    return this.storageMigration.latest();
+  }
+
+  retryStorageMigration() {
+    return this.storageMigration.retry();
+  }
+
+  // ─── SSO connections (tenant directories) ─────────────────────────
+
+  listSsoConnections() {
+    return this.ssoConnections.list();
+  }
+
+  createSsoConnection(dto: SsoConnectionDto) {
+    return this.ssoConnections.create(dto);
+  }
+
+  updateSsoConnection(id: string, dto: SsoConnectionDto) {
+    return this.ssoConnections.update(id, dto);
+  }
+
+  setSsoConnectionEnabled(id: string, enabled: boolean) {
+    return this.ssoConnections.setEnabled(id, enabled);
+  }
+
+  deleteSsoConnection(id: string) {
+    return this.ssoConnections.remove(id);
+  }
 
   private hashToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');

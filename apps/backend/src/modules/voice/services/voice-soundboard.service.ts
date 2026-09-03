@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from '@/prisma/prisma.service';
-import { S3Service } from '@/modules/media/s3.service';
+import { StorageService } from '@/modules/media/storage.service';
 import {
   PresignSoundboardClipDto,
   RegisterSoundboardClipDto,
@@ -23,7 +23,7 @@ const slugId = customAlphabet('0123456789abcdefghijkmnopqrstuvwxyz', 16);
 export class VoiceSoundboardService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
   ) {}
 
   list() {
@@ -63,7 +63,7 @@ export class VoiceSoundboardService {
       uploadUrl,
       expiresIn,
       s3Key,
-      publicUrl: this.s3.publicUrlFor(s3Key),
+      publicUrl: await this.s3.publicUrlFor(s3Key),
     };
   }
 
@@ -77,7 +77,7 @@ export class VoiceSoundboardService {
       data: {
         name: dto.name.trim(),
         s3Key: dto.s3Key,
-        url: this.s3.publicUrlFor(dto.s3Key),
+        url: await this.s3.publicUrlFor(dto.s3Key),
         durationMs: dto.durationMs,
         uploadedById,
       },

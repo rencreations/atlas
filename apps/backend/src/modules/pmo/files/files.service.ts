@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { customAlphabet } from 'nanoid';
-import { S3Service } from '@/modules/media/s3.service';
+import { StorageService } from '@/modules/media/storage.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { PresignFileDto } from './dto/presign-file.dto';
@@ -21,7 +21,7 @@ export class FilesService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
     config: ConfigService,
   ) {
     this.maxBytes = config.get<number>('pmo.fileMaxBytes') ?? 52_428_800;
@@ -56,7 +56,7 @@ export class FilesService {
       contentType: dto.contentType,
       contentLength: dto.contentLength,
     });
-    return { uploadUrl, expiresIn, s3Key: key, url: this.s3.publicUrlFor(key) };
+    return { uploadUrl, expiresIn, s3Key: key, url: await this.s3.publicUrlFor(key) };
   }
 
   /** Register a ProjectFile row after the client PUTs the object to S3. */
@@ -79,7 +79,7 @@ export class FilesService {
         parentFolderId: dto.parentFolderId ?? null,
         name: dto.name,
         isFolder: false,
-        url: this.s3.publicUrlFor(dto.s3Key),
+        url: await this.s3.publicUrlFor(dto.s3Key),
         s3Key: dto.s3Key,
         mime: dto.mime,
         bytes: dto.bytes,

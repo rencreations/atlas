@@ -37,16 +37,19 @@ function bool(view: GodmodeSettingsView, key: string): boolean {
 
 /** True when at least one way to sign in is switched on. */
 function anySignInMethod(view: GodmodeSettingsView): boolean {
-  return view.items.some(
-    (i) =>
-      i.value === true &&
-      (i.key === 'auth.emailPassword.enabled' ||
-        i.key === 'auth.magicLink.enabled' ||
-        i.key === 'auth.phone.enabled' ||
-        i.key === 'auth.passphrase.enabled' ||
-        i.key === 'sso.oidc.enabled' ||
-        i.key === 'sso.saml.enabled' ||
-        (i.key.startsWith('auth.oauth.') && i.key.endsWith('.enabled'))),
+  return (
+    (view.ssoConnections ?? []).some((c) => c.enabled) ||
+    view.items.some(
+      (i) =>
+        i.value === true &&
+        (i.key === 'auth.emailPassword.enabled' ||
+          i.key === 'auth.magicLink.enabled' ||
+          i.key === 'auth.phone.enabled' ||
+          i.key === 'auth.passphrase.enabled' ||
+          i.key === 'sso.oidc.enabled' ||
+          i.key === 'sso.saml.enabled' ||
+          (i.key.startsWith('auth.oauth.') && i.key.endsWith('.enabled'))),
+    )
   );
 }
 
@@ -129,16 +132,16 @@ export function SetupOverview({
   }, [settings, superadminExists]);
 
   const recommended: Step[] = useMemo(() => {
-    const bucket = str(settings, 'storage.s3.bucket');
+    const storageProvider = str(settings, 'storage.provider');
     const terms = str(settings, 'legal.termsText');
     const privacy = str(settings, 'legal.privacyText');
     return [
       {
         id: 'storage',
-        title: 'Connect file storage',
-        why: 'Needed for avatars, chat attachments, and PMO file uploads.',
-        hint: 'Any S3-compatible bucket works (AWS S3, Cloudflare R2, MinIO). Uploads return a clear error until this is set.',
-        done: Boolean(bucket),
+        title: 'Choose file storage',
+        why: 'Uploads (avatars, chat attachments, PMO files) are kept on the server disk by default. Move them to AWS S3 or Cloudflare R2 when you need scale.',
+        hint: 'Switching providers copies every existing file in the background first, nothing breaks.',
+        done: Boolean(storageProvider) && storageProvider !== 'disabled',
         section: 'storage',
         cta: 'Configure storage',
       },

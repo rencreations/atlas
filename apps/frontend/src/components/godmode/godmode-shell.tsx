@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, LoaderCircle, LogOut } from 'lucide-react';
 import { FingerprintIcon } from '@/components/icons/animated/fingerprint';
@@ -56,11 +56,13 @@ const SECTIONS: Section[] = [
   // not shown anymore. The section now hosts only the legal documents.
   { id: 'site', label: 'Site', icon: EarthIcon, groups: ['legal'] },
   // Everything sign-in related lives under one Authentication group.
+  // Sessions sits below SSO: the flow reads registration, methods, then
+  // the external directories, with session policy last.
   { id: 'registration', label: 'Registration', icon: UserPlusIcon, groups: ['registration'], parent: 'authentication' },
   { id: 'auth', label: 'Sign-in methods', icon: KeyIcon, groups: ['auth'], parent: 'authentication' },
-  { id: 'sessions', label: 'Sessions', icon: TimerIcon, groups: ['sessions'], parent: 'authentication' },
   { id: 'oauth', label: 'OAuth providers', icon: PlugIcon, groups: ['oauth'], parent: 'authentication' },
   { id: 'sso', label: 'SSO (OIDC / SAML)', icon: Link2Icon, groups: ['sso'], parent: 'authentication' },
+  { id: 'sessions', label: 'Sessions', icon: TimerIcon, groups: ['sessions'], parent: 'authentication' },
   { id: 'email', label: 'Email', icon: MailIcon, groups: ['email'] },
   { id: 'sms', label: 'SMS / OTP', icon: MessageSquareIcon, groups: ['sms'] },
   { id: 'storage', label: 'Storage', icon: HardDriveIcon, groups: ['storage'] },
@@ -146,12 +148,19 @@ export function GodmodeShell({
     applySection(next);
   };
 
+  // A monotonically increasing request id so a slow, older fetch can
+  // never overwrite a newer one (saving then deleting an SSO connection
+  // used to race and show the deleted row again).
+  const loadSeq = useRef(0);
   const load = useCallback(async () => {
+    const seq = ++loadSeq.current;
     setLoading(true);
     try {
       const view = await godmodeFetch<GodmodeSettingsView>(godmodePaths.settings());
+      if (seq !== loadSeq.current) return; // a newer load superseded this one
       setSettings(view);
     } catch (err) {
+      if (seq !== loadSeq.current) return;
       if (err instanceof GodmodeError && err.status === 401) {
         onExpired();
         return;
@@ -162,7 +171,7 @@ export function GodmodeShell({
         tone: 'danger',
       });
     } finally {
-      setLoading(false);
+      if (seq === loadSeq.current) setLoading(false);
     }
   }, [onExpired, show]);
 
@@ -271,9 +280,11 @@ export function GodmodeShell({
               <SettingsEditor
                 items={groupItems}
                 allItems={settings?.items}
+                ssoConnections={settings?.ssoConnections}
                 onDirtyChange={setDirty}
                 onSaved={() => void load()}
                 onNavigate={navigate}
+                onSsoChanged={() => void load()}
               />
             ) : null}
             {section === 'users' ? (

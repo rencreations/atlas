@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
 import { SettingsService } from '@/modules/settings/settings.service';
+import { SsoConnectionsService } from '@/modules/auth/sso-connections.service';
 import { THEME_OPTIONS } from '@/modules/settings/theme-ids';
 
 const OAUTH_LABELS: Record<string, string> = {
@@ -28,6 +29,7 @@ export class PublicConfigController {
   constructor(
     private readonly settings: SettingsService,
     private readonly config: ConfigService,
+    private readonly ssoConnections: SsoConnectionsService,
   ) {}
 
   @Public()
@@ -140,6 +142,14 @@ export class PublicConfigController {
       sso: {
         oidc: { enabled: oidcEnabled, label: oidcLabel },
         saml: { enabled: samlEnabled, label: samlLabel },
+        // Tenant directories: every enabled connection gets its own
+        // button on the login page.
+        connections: (await this.ssoConnections.enabled()).map((c) => ({
+          id: c.id,
+          name: c.name,
+          type: c.type,
+          domains: c.domains,
+        })),
       },
       modules: {
         pmo: pmoEnabled,

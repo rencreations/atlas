@@ -6,7 +6,21 @@ import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Select = RadixSelect.Root;
-export const SelectValue = RadixSelect.Value;
+
+/** Always one line: long labels truncate instead of wrapping. */
+export const SelectValue = React.forwardRef<
+  React.ElementRef<typeof RadixSelect.Value>,
+  React.ComponentPropsWithoutRef<typeof RadixSelect.Value>
+>(({ className, children, ...rest }, ref) => (
+  <RadixSelect.Value
+    ref={ref}
+    className={cn('min-w-0 truncate whitespace-nowrap', className)}
+    {...rest}
+  >
+    {children}
+  </RadixSelect.Value>
+));
+SelectValue.displayName = 'SelectValue';
 
 export const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof RadixSelect.Trigger>,
@@ -15,7 +29,7 @@ export const SelectTrigger = React.forwardRef<
   <RadixSelect.Trigger
     ref={ref}
     className={cn(
-      'inline-flex h-10 w-full items-center justify-between rounded bg-surface px-3.5 text-[15px] text-ink',
+      'inline-flex h-10 w-full items-center justify-between gap-2 overflow-hidden whitespace-nowrap rounded bg-surface px-3.5 text-[15px] text-ink',
       'border border-line transition-[border-color,box-shadow] duration-120 ease-out-soft',
       'hover:border-line-strong',
       'focus:outline-none focus:border-brand-blue focus:shadow-[0_0_0_3px_rgba(58,109,197,0.15)]',

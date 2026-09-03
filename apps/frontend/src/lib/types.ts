@@ -981,6 +981,8 @@ export interface PublicConfig {
   sso: {
     oidc: { enabled: boolean; label: string };
     saml: { enabled: boolean; label: string };
+    /** Enabled tenant directories (one button each on the login page). */
+    connections: { id: string; name: string; type: 'oidc' | 'saml'; domains: string[] }[];
   };
   modules: { pmo: boolean; voice: boolean };
   features: { gifs: boolean; push: boolean };

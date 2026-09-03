@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type * as oidc from 'openid-client';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { ExternalProfile, IdentityService, SessionUser } from './identity.service';
+import { SsoConnectionRow } from './sso-connections.service';
 
 interface OidcState {
   nonce: string;
@@ -48,6 +49,11 @@ export class OIDCService {
 
   callbackUrl(): string {
     return `${this.backendBaseUrl().replace(/\/+$/, '')}/api/v1/auth/oidc/callback`;
+  }
+
+  /** Per-connection callback URL (tenant SSO directories). */
+  callbackUrlFor(connectionId: string): string {
+    return `${this.backendBaseUrl().replace(/\/+$/, '')}/api/v1/auth/sso/${connectionId}/oidc/callback`;
   }
 
   private jwtSecret(): string {
@@ -113,6 +119,78 @@ export class OIDCService {
    */
   async handleCallback(reqUrl: string): Promise<{ user: SessionUser; returnTo: string | null }> {
     const configuration = await this.configuration();
+    return this.completeWithConfiguration(configuration, reqUrl, 'oidc');
+  }
+
+  // ─── Tenant SSO connections ───────────────────────────────────────
+
+  /** Discovery configuration for one tenant connection (cached by id + issuer). */
+  async configurationFor(conn: SsoConnectionRow): Promise<oidc.Configuration> {
+    const issuerUrl = (conn.config.issuer ?? '').replace(/\/+$/, '');
+    if (!issuerUrl) {
+      throw new UnauthorizedException('This SSO connection has no issuer URL.');
+    }
+    const cacheKey = `${conn.id}|${issuerUrl}`;
+    const cached = this.configurations.get(cacheKey);
+    if (cached) return cached;
+
+    const clientId = conn.config.clientId ?? '';
+    const clientSecret = conn.config.clientSecret ?? '';
+    if (!clientId || !clientSecret) {
+      throw new UnauthorizedException(
+        'This SSO connection is missing its client id or secret. Check it in godmode.',
+      );
+    }
+    try {
+      const oidc = await loadOidc();
+      const configuration = await oidc.discovery(
+        new URL(issuerUrl),
+        clientId,
+        clientSecret,
+        undefined,
+        {
+          // Self-hosted IdPs over plain HTTP (e.g. a LAN Keycloak) are a
+          // legitimate setup; production instances should use TLS.
+          execute: [oidc.allowInsecureRequests],
+        },
+      );
+      this.configurations.set(cacheKey, configuration);
+      return configuration;
+    } catch (err) {
+      this.logger.warn(`OIDC discovery failed for ${issuerUrl}: ${(err as Error).message}`);
+      throw new UnauthorizedException(
+        'Could not reach the OIDC issuer. Check the issuer URL in godmode.',
+      );
+    }
+  }
+
+  async startFor(conn: SsoConnectionRow): Promise<string> {
+    const configuration = await this.configurationFor(conn);
+    const oidc = await loadOidc();
+    const state = oidc.randomState();
+    const nonce = oidc.randomNonce();
+    const url = oidc.buildAuthorizationUrl(configuration, {
+      redirect_uri: this.callbackUrlFor(conn.id),
+      scope: 'openid email profile',
+      state,
+      nonce,
+    });
+    return url.toString();
+  }
+
+  async handleCallbackFor(
+    conn: SsoConnectionRow,
+    reqUrl: string,
+  ): Promise<{ user: SessionUser; returnTo: string | null }> {
+    const configuration = await this.configurationFor(conn);
+    return this.completeWithConfiguration(configuration, reqUrl, `sso:${conn.id}`);
+  }
+
+  private async completeWithConfiguration(
+    configuration: oidc.Configuration,
+    reqUrl: string,
+    identityProvider: string,
+  ): Promise<{ user: SessionUser; returnTo: string | null }> {
     const oidc = await loadOidc();
     const currentUrl = new URL(reqUrl, this.backendBaseUrl());
     if (currentUrl.searchParams.has('error')) {
@@ -151,7 +229,7 @@ export class OIDCService {
             String(userinfo.preferred_username ?? ''),
       picture: typeof userinfo.picture === 'string' ? userinfo.picture : undefined,
     };
-    const user = await this.identity.upsertFromExternal('oidc', profile);
+    const user = await this.identity.upsertFromExternal(identityProvider, profile);
     return { user, returnTo: null };
   }
 }

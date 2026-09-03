@@ -4,7 +4,7 @@ import type { Transition } from "framer-motion";
 import { motion, useAnimation } from "framer-motion";
 import { useReducedMotion } from "framer-motion";
 import type { HTMLAttributes } from "react";
-import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -36,6 +36,22 @@ const ChevronDownIcon = forwardRef<ChevronDownIconHandle, ChevronDownIconProps>(
       };
     });
 
+
+    // Play when any part of the surrounding button or link is hovered,
+    // not just the icon itself (the host is the interactive element).
+    const containerRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+      const host = containerRef.current?.closest("button, a, [role=button]");
+      if (!host || reducedMotion || isControlledRef.current) return;
+      const enter = () => controls.start("animate");
+      const leave = () => controls.start("normal");
+      host.addEventListener("mouseenter", enter);
+      host.addEventListener("mouseleave", leave);
+      return () => {
+        host.removeEventListener("mouseenter", enter);
+        host.removeEventListener("mouseleave", leave);
+      };
+    }, [controls, reducedMotion]);
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (reducedMotion) return;
@@ -62,6 +78,7 @@ const ChevronDownIcon = forwardRef<ChevronDownIconHandle, ChevronDownIconProps>(
 
     return (
       <div
+        ref={containerRef}
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

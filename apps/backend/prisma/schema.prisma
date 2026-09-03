@@ -1538,3 +1538,41 @@ model GodmodePasskey {
   name         String?
   createdAt    DateTime @default(now())
 }
+
+/// A tenant SSO directory (OIDC or SAML). Instances can connect many
+/// directories, e.g. one per customer company. Secret fields inside
+/// `config` (client secrets, certificates) are stored encrypted with the
+/// same `enc:v1:` convention AppSetting uses.
+model SsoConnection {
+  id        String   @id @default(uuid())
+  /// Button label on the login page, e.g. "Acme workspace".
+  name      String
+  type      String // 'oidc' | 'saml'
+  enabled   Boolean  @default(false)
+  /// Optional comma-separated email domains; when the typed email matches,
+  /// the login page highlights this directory.
+  domains   String   @default("")
+  config    Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Background migration of stored objects from one storage provider to
+/// another (local → S3, S3 → R2, ...). Writes keep flowing to the old
+/// provider until the migration finishes; only then does
+/// `storage.provider` flip to the target.
+model StorageMigration {
+  id               String   @id @default(uuid())
+  fromProvider     String
+  toProvider       String
+  status           String   @default("RUNNING") // RUNNING | COMPLETED | FAILED | INTERRUPTED
+  objectCount      Int      @default(0)
+  transferredCount Int      @default(0)
+  totalBytes       BigInt   @default(0)
+  transferredBytes BigInt   @default(0)
+  /// Human-readable error when status = FAILED.
+  error            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  finishedAt       DateTime?
+}

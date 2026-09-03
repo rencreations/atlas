@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatAttachmentKind } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
-import { S3Service } from '@/modules/media/s3.service';
+import { StorageService } from '@/modules/media/storage.service';
 import { PresignChatAttachmentDto } from '../dto/presign-attachment.dto';
 
 const objectId = customAlphabet('0123456789abcdefghijkmnopqrstuvwxyz', 12);
@@ -21,7 +21,7 @@ export interface ChatAttachmentPresignResult {
 }
 
 /**
- * Reuses S3Service.presignPut with a chat-specific key prefix so chat
+ * Reuses StorageService.presignPut with a chat-specific key prefix so chat
  * uploads can't collide with project media in the same bucket. Keys
  * land under `chat/{channelId}/{ts}-{id}-{filename}` for easy
  * filtering and per-channel deletion later.
@@ -35,7 +35,7 @@ export class ChatAttachmentsService {
   private readonly maxBytes: number;
 
   constructor(
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
     config: ConfigService,
   ) {
     this.maxBytes = config.get<number>('chat.maxAttachmentBytes') ?? 52_428_800;
@@ -59,7 +59,7 @@ export class ChatAttachmentsService {
       uploadUrl: presign.uploadUrl,
       expiresIn: presign.expiresIn,
       s3Key: key,
-      publicUrl: this.s3.publicUrlFor(key),
+      publicUrl: await this.s3.publicUrlFor(key),
       kind,
       contentType: dto.contentType,
     };

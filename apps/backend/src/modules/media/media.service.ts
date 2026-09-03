@@ -9,13 +9,13 @@ import { MediaType } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { PresignUploadDto } from './dto/presign-upload.dto';
 import { RegisterMediaDto } from './dto/register-media.dto';
-import { S3Service } from './s3.service';
+import { StorageService } from './storage.service';
 
 @Injectable()
 export class MediaService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
     private readonly config: ConfigService,
   ) {}
 
@@ -49,7 +49,7 @@ export class MediaService {
       uploadUrl,
       expiresIn,
       objectKey: key,
-      publicUrl: this.s3.publicUrlFor(key),
+      publicUrl: await this.s3.publicUrlFor(key),
       type: isImage ? MediaType.IMAGE : MediaType.VIDEO,
     };
   }
@@ -72,7 +72,7 @@ export class MediaService {
         });
         if (oldThumb) {
           await tx.projectMedia.delete({ where: { id: oldThumb.id } });
-          const oldKey = this.s3.keyFromPublicUrl(oldThumb.url);
+          const oldKey = await this.s3.keyFromPublicUrl(oldThumb.url);
           if (oldKey) await this.s3.deleteObject(oldKey);
         }
       } else {
@@ -160,7 +160,7 @@ export class MediaService {
 
     await this.prisma.projectMedia.delete({ where: { id: mediaId } });
 
-    const key = this.s3.keyFromPublicUrl(media.url);
+    const key = await this.s3.keyFromPublicUrl(media.url);
     if (key) await this.s3.deleteObject(key);
 
     if (media.order === 0) {

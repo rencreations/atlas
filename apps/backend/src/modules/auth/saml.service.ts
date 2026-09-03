@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { SAML } from '@node-saml/node-saml';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { ExternalProfile, IdentityService, SessionUser } from './identity.service';
+import { SsoConnectionRow } from './sso-connections.service';
 
 /**
  * SAML 2.0 service provider (HTTP-POST binding) for directory SSO
@@ -83,6 +84,76 @@ export class SamlService {
 
   async handleAcs(body: Record<string, unknown>): Promise<{ user: SessionUser; returnTo: null }> {
     const sp = await this.saml();
+    return this.consumeAssertion(sp, body, 'saml');
+  }
+
+  // ─── Tenant SSO connections ───────────────────────────────────────
+
+  /** Per-connection ACS URL (tenant SSO directories). */
+  acsUrlFor(connectionId: string): string {
+    return `${this.backendBaseUrl().replace(/\/+$/, '')}/api/v1/auth/sso/${connectionId}/saml/acs`;
+  }
+
+  /** SP metadata for one tenant connection (entity id + ACS URL). */
+  metadataFor(conn: SsoConnectionRow): { entityId: string; acsUrl: string; sloUrl: string } {
+    return {
+      entityId: conn.config.spIssuer || this.backendBaseUrl(),
+      acsUrl: this.acsUrlFor(conn.id),
+      sloUrl: '',
+    };
+  }
+
+  private async samlFor(conn: SsoConnectionRow): Promise<SAML> {
+    const entryPoint = conn.config.entryPoint ?? '';
+    const issuer = conn.config.spIssuer ?? '';
+    const cert = conn.config.cert ?? '';
+    if (!entryPoint || !cert) {
+      throw new UnauthorizedException(
+        'This SSO connection is missing its entry point or certificate. Check it in godmode.',
+      );
+    }
+    const key = `${conn.id}|${entryPoint}|${issuer}|${cert.slice(0, 32)}`;
+    if (this.sp && this.spConfigKey === key) return this.sp;
+
+    this.sp = new SAML({
+      callbackUrl: this.acsUrlFor(conn.id),
+      entryPoint,
+      issuer: issuer || this.backendBaseUrl(),
+      idpCert: cert,
+      ...(conn.config.privateKey
+        ? { privateKey: conn.config.privateKey, decryptionPvk: conn.config.privateKey }
+        : {}),
+      wantAssertionsSigned: true,
+      wantAuthnResponseSigned: false,
+      disableRequestedAuthnContext: true,
+    });
+    this.spConfigKey = key;
+    return this.sp;
+  }
+
+  async startFor(conn: SsoConnectionRow): Promise<string> {
+    const sp = await this.samlFor(conn);
+    try {
+      return await sp.getAuthorizeUrlAsync('', undefined, {});
+    } catch (err) {
+      this.logger.warn(`SAML authorize URL failed: ${(err as Error).message}`);
+      throw new UnauthorizedException('Could not build the SAML sign-in request.');
+    }
+  }
+
+  async handleAcsFor(
+    conn: SsoConnectionRow,
+    body: Record<string, unknown>,
+  ): Promise<{ user: SessionUser; returnTo: null }> {
+    const sp = await this.samlFor(conn);
+    return this.consumeAssertion(sp, body, `sso:${conn.id}`);
+  }
+
+  private async consumeAssertion(
+    sp: SAML,
+    body: Record<string, unknown>,
+    identityProvider: string,
+  ): Promise<{ user: SessionUser; returnTo: null }> {
     const rawResponse = body?.SAMLResponse ?? body?.SAMLart;
     if (!rawResponse || typeof rawResponse !== 'string') {
       throw new UnauthorizedException('Missing SAML response.');
@@ -119,7 +190,7 @@ export class SamlService {
       if (!profile.providerId) {
         throw new Error('SAML assertion has no nameID.');
       }
-      const user = await this.identity.upsertFromExternal('saml', profile);
+      const user = await this.identity.upsertFromExternal(identityProvider, profile);
       return { user, returnTo: null };
     } catch (err) {
       this.logger.warn(`SAML ACS validation failed: ${(err as Error).message}`);

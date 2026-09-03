@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CryptoService } from './crypto.service';
 import { SETTINGS, SettingDef } from './settings-registry';
+import { PRIVACY_TEMPLATE, TERMS_TEMPLATE } from './legal-defaults';
 
 const CACHE_TTL_MS = 15_000;
 
@@ -34,6 +35,40 @@ export class SettingsService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.prime();
+    await this.seedLegalDefaults();
+  }
+
+  /**
+   * First boot (or upgrade): when no legal text has ever been saved,
+   * publish the bundled terms and privacy templates so the public pages
+   * work out of the box. Admins replace them anytime from godmode.
+   * An explicit row, even empty, is respected.
+   */
+  private async seedLegalDefaults(): Promise<void> {
+    const now = new Date().toISOString().slice(0, 10);
+    let siteName = 'Atlas';
+    try {
+      siteName = String((await this.get<string>('site.name')) || 'Atlas');
+    } catch {
+      // Default name is fine when the site setting cannot be read yet.
+    }
+    for (const [key, template] of [
+      ['legal.termsText', TERMS_TEMPLATE],
+      ['legal.privacyText', PRIVACY_TEMPLATE],
+    ] as const) {
+      const existing = await this.prisma.appSetting
+        .findUnique({ where: { key } })
+        .catch(() => null);
+      // Only published text is respected; an empty row still gets the
+      // template so the legal pages work out of the box.
+      const published =
+        existing && typeof existing.value === 'string' && existing.value.trim().length > 0;
+      if (published) continue;
+      const text = template.replace(/\{\{SITE_NAME\}\}/g, siteName).replace(/\{\{DATE\}\}/g, now);
+      await this.set(key, text, 'legal-defaults').catch((err) => {
+        this.logger.warn(`Could not seed ${key}: ${(err as Error).message}`);
+      });
+    }
   }
 
   /** Load every explicit DB value into the cache. */
@@ -203,6 +238,8 @@ export class SettingsService implements OnModuleInit {
       disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string; section: string };
       moreInfo?: string;
       action?: { label: string; section: string };
+      docUrl?: string;
+      fileUpload?: { accept: string; hint: string };
     }[]
   > {
     const defs = this.definitions();
@@ -222,6 +259,8 @@ export class SettingsService implements OnModuleInit {
           disabledWhen: def.disabledWhen,
           moreInfo: def.moreInfo,
           action: def.action,
+          docUrl: def.docUrl,
+          fileUpload: def.fileUpload,
         };
         if (def.secret) {
           const raw = await this.get<string>(def.key);

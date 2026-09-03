@@ -17,6 +17,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Public } from '@/common/decorators/public.decorator';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { SETTING_GROUPS } from '@/modules/settings/settings-registry';
+import { SsoConnectionDto } from '@/modules/auth/sso-connections.service';
 import { GodmodeGuard, GodmodeRequest } from './godmode.guard';
 import { GodmodeService } from './godmode.service';
 import {
@@ -128,11 +129,12 @@ export class GodmodeController {
   @UseGuards(GodmodeGuard)
   @Get('settings')
   async listSettings() {
-    const [items, configured] = await Promise.all([
+    const [items, configured, ssoConnections] = await Promise.all([
       this.settings.viewForGodmode(),
       this.settings.isConfigured(),
+      this.godmode.listSsoConnections(),
     ]);
-    return { groups: SETTING_GROUPS, items, configured };
+    return { groups: SETTING_GROUPS, items, configured, ssoConnections };
   }
 
   @UseGuards(GodmodeGuard)
@@ -145,8 +147,56 @@ export class GodmodeController {
   @UseGuards(GodmodeGuard)
   @Put('settings')
   async bulkSetSettings(@Body() dto: BulkUpdateSettingsDto) {
-    await this.settings.setMany(dto.settings);
-    return { ok: true };
+    return this.godmode.bulkSetSettings(dto.settings);
+  }
+
+  // ─── Storage migration ────────────────────────────────────────────
+
+  /** Latest storage-provider migration (progress, status, error). */
+  @UseGuards(GodmodeGuard)
+  @Get('storage/migration')
+  storageMigration() {
+    return this.godmode.storageMigrationStatus();
+  }
+
+  /** Retry the last failed storage migration. */
+  @UseGuards(GodmodeGuard)
+  @Post('storage/migration/retry')
+  async retryStorageMigration() {
+    return this.godmode.retryStorageMigration();
+  }
+
+  // ─── SSO connections (tenant directories) ─────────────────────────
+
+  @UseGuards(GodmodeGuard)
+  @Get('sso/connections')
+  listSsoConnections() {
+    return this.godmode.listSsoConnections();
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Post('sso/connections')
+  createSsoConnection(@Body() dto: SsoConnectionDto) {
+    return this.godmode.createSsoConnection(dto);
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Put('sso/connections/:id')
+  updateSsoConnection(@Param('id', ParseUUIDPipe) id: string, @Body() dto: SsoConnectionDto) {
+    return this.godmode.updateSsoConnection(id, dto);
+  }
+
+  /** Quick enable/disable toggle without resending the full config. */
+  @UseGuards(GodmodeGuard)
+  @Put('sso/connections/:id/enabled')
+  toggleSsoConnection(@Param('id', ParseUUIDPipe) id: string, @Body() dto: { enabled: boolean }) {
+    return this.godmode.setSsoConnectionEnabled(id, dto.enabled);
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Delete('sso/connections/:id')
+  deleteSsoConnection(@Param('id', ParseUUIDPipe) id: string) {
+    return this.godmode.deleteSsoConnection(id);
   }
 
   // ─── Users & roles ─────────────────────────────────────────────────

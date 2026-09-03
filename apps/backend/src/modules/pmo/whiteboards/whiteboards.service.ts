@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
-import { S3Service } from '@/modules/media/s3.service';
+import { StorageService } from '@/modules/media/storage.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateWhiteboardDto } from './dto/create-whiteboard.dto';
 import { PresignThumbnailDto } from './dto/presign-thumbnail.dto';
@@ -32,7 +32,7 @@ export class WhiteboardsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
     config: ConfigService,
   ) {
     this.maxWhiteboards = config.get<number>('pmo.maxWhiteboardsPerProject') ?? 100;
@@ -192,6 +192,6 @@ export class WhiteboardsService {
       contentType: dto.contentType,
       contentLength: dto.contentLength,
     });
-    return { uploadUrl, expiresIn, s3Key: key, url: this.s3.publicUrlFor(key) };
+    return { uploadUrl, expiresIn, s3Key: key, url: await this.s3.publicUrlFor(key) };
   }
 }

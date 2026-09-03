@@ -59,6 +59,7 @@ const FALLBACK_CONFIG: PublicConfig = {
   sso: {
     oidc: { enabled: false, label: 'Single sign-on' },
     saml: { enabled: false, label: 'Company SSO' },
+    connections: [],
   },
   modules: { pmo: false, voice: false },
   features: { gifs: false, push: false },

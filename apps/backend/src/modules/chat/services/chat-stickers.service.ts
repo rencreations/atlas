@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
 import { toSlug } from '@/common/utils/slug.util';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
-import { S3Service } from '@/modules/media/s3.service';
+import { StorageService } from '@/modules/media/storage.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import {
   CreateStickerPackDto,
@@ -28,7 +28,7 @@ export class ChatStickersService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly s3: StorageService,
     config: ConfigService,
   ) {
     // Reuse the existing image-attachment cap; stickers are images.
@@ -133,7 +133,7 @@ export class ChatStickersService {
       uploadUrl: presign.uploadUrl,
       expiresIn: presign.expiresIn,
       s3Key: key,
-      publicUrl: this.s3.publicUrlFor(key),
+      publicUrl: await this.s3.publicUrlFor(key),
       contentType: dto.contentType,
     };
   }

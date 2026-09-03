@@ -60,6 +60,11 @@ export const apiPaths = {
     passkeyRegisterVerify: () => '/godmode/2fa/passkey/register/verify',
     passkeyAuthenticateOptions: () => '/godmode/2fa/passkey/authenticate/options',
     passkeyDelete: (id: string) => `/godmode/2fa/passkey/${id}`,
+    ssoConnections: () => '/godmode/sso/connections',
+    ssoConnection: (id: string) => `/godmode/sso/connections/${id}`,
+    ssoConnectionEnabled: (id: string) => `/godmode/sso/connections/${id}/enabled`,
+    storageMigration: () => '/godmode/storage/migration',
+    storageMigrationRetry: () => '/godmode/storage/migration/retry',
   },
 
   // Feature flags, public evaluated map + admin CRUD.

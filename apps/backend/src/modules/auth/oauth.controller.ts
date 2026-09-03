@@ -17,6 +17,7 @@ import { AuthService } from './auth.service';
 import { OAuthService } from './oauth.service';
 import { OIDCService } from './oidc.service';
 import { SamlService } from './saml.service';
+import { SsoConnectionsService } from './sso-connections.service';
 
 /**
  * Browser-facing OAuth / OIDC / SAML flows. All three redirect the
@@ -33,6 +34,7 @@ export class OAuthController {
     private readonly oidc: OIDCService,
     private readonly saml: SamlService,
     private readonly settings: SettingsService,
+    private readonly ssoConnections: SsoConnectionsService,
   ) {}
 
   /** Where this instance's auth callbacks live (shown in godmode tutorials). */
@@ -168,6 +170,73 @@ export class OAuthController {
   @ApiOperation({ summary: 'SAML service-provider metadata (for the IdP setup)' })
   samlMetadata() {
     return this.saml.metadata();
+  }
+
+  // ─── Tenant SSO connections (many directories per instance) ──────
+
+  /** Begin sign-in against one connected company directory. */
+  @Get('sso/:id/start')
+  @ApiOperation({ summary: 'Begin an SSO flow for one tenant connection' })
+  async ssoConnectionStart(@Param('id') id: string, @Res() res: Response) {
+    try {
+      const conn = await this.ssoConnections.get(id, true);
+      if (!conn.enabled) {
+        throw new BadRequestException('This SSO connection is disabled.');
+      }
+      const url =
+        conn.type === 'saml' ? await this.saml.startFor(conn) : await this.oidc.startFor(conn);
+      return res.redirect(url);
+    } catch (err) {
+      return this.redirectWithError(
+        res,
+        err instanceof Error ? err.message : 'SSO sign-in failed.',
+      );
+    }
+  }
+
+  @Get('sso/:id/oidc/callback')
+  @ApiOperation({ summary: 'OIDC callback for one tenant connection' })
+  async ssoOidcCallback(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
+    try {
+      const conn = await this.ssoConnections.get(id, true);
+      const { user } = await this.oidc.handleCallbackFor(conn, req.url);
+      const session = await this.auth.issueSession(user, { method: `sso:${id}` }, req);
+      return this.redirectWithSession(res, session, null);
+    } catch (err) {
+      return this.redirectWithError(
+        res,
+        err instanceof Error ? err.message : 'OIDC sign-in failed.',
+      );
+    }
+  }
+
+  @Post('sso/:id/saml/acs')
+  @ApiOperation({ summary: 'SAML ACS for one tenant connection' })
+  async ssoSamlAcs(
+    @Param('id') id: string,
+    @Body() body: Record<string, unknown>,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const conn = await this.ssoConnections.get(id, true);
+      const { user } = await this.saml.handleAcsFor(conn, body);
+      const session = await this.auth.issueSession(user, { method: `sso:${id}` }, req);
+      return this.redirectWithSession(res, session, null);
+    } catch (err) {
+      return this.redirectWithError(
+        res,
+        err instanceof Error ? err.message : 'SAML sign-in failed.',
+      );
+    }
+  }
+
+  /** SP metadata for one tenant connection (for the IdP setup). */
+  @Get('sso/:id/saml/metadata')
+  @ApiOperation({ summary: 'SAML metadata for one tenant connection' })
+  async ssoSamlMetadata(@Param('id') id: string) {
+    const conn = await this.ssoConnections.get(id, true);
+    return this.saml.metadataFor(conn);
   }
 
   // ─── Redirect helpers ─────────────────────────────────────────────
