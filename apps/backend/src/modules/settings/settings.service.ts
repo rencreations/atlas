@@ -59,10 +59,14 @@ export class SettingsService implements OnModuleInit {
       const existing = await this.prisma.appSetting
         .findUnique({ where: { key } })
         .catch(() => null);
-      // Only published text is respected; an empty row still gets the
-      // template so the legal pages work out of the box.
+      // Only published text is respected: anything shorter than 200
+      // characters is a placeholder or test snippet, not a real policy,
+      // so it gets replaced by the template as well. Admins replace the
+      // template anytime from godmode; published text is never touched.
       const published =
-        existing && typeof existing.value === 'string' && existing.value.trim().length > 0;
+        existing &&
+        typeof existing.value === 'string' &&
+        existing.value.trim().length >= 200;
       if (published) continue;
       const text = template.replace(/\{\{SITE_NAME\}\}/g, siteName).replace(/\{\{DATE\}\}/g, now);
       await this.set(key, text, 'legal-defaults').catch((err) => {
