@@ -121,6 +121,10 @@ const config: Config = {
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
+        'toast-out': {
+          '0%': { opacity: '1', transform: 'translateX(0) scale(1)' },
+          '100%': { opacity: '0', transform: 'translateX(16px) scale(0.98)' },
+        },
         'modal-in': {
           '0%': { opacity: '0', transform: 'scale(0.96)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
@@ -137,6 +141,7 @@ const config: Config = {
         'fade-up': 'fade-up 520ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'fade-in': 'fade-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'fade-out': 'fade-out 200ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'toast-out': 'toast-out 200ms cubic-bezier(0.4, 0, 1, 1) both',
         'modal-in': 'modal-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both',
         shimmer: 'shimmer 1.4s linear infinite',
         spin: 'spin-slow 0.8s linear infinite',

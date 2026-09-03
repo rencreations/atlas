@@ -170,7 +170,7 @@ export function SetupOverview({
           bool(settings, 'modules.pmo.enabled') ? 'on' : 'off'
         }; voice/video is ${bool(settings, 'modules.voice.enabled') ? 'on' : 'off'}.`,
         done: true,
-        section: 'modules',
+        section: 'site',
         cta: 'Toggle modules',
       },
     ];

@@ -64,9 +64,7 @@ export class SettingsService implements OnModuleInit {
       // so it gets replaced by the template as well. Admins replace the
       // template anytime from godmode; published text is never touched.
       const published =
-        existing &&
-        typeof existing.value === 'string' &&
-        existing.value.trim().length >= 200;
+        existing && typeof existing.value === 'string' && existing.value.trim().length >= 200;
       if (published) continue;
       const text = template.replace(/\{\{SITE_NAME\}\}/g, siteName).replace(/\{\{DATE\}\}/g, now);
       await this.set(key, text, 'legal-defaults').catch((err) => {
@@ -244,6 +242,7 @@ export class SettingsService implements OnModuleInit {
       action?: { label: string; section: string };
       docUrl?: string;
       fileUpload?: { accept: string; hint: string };
+      placeholder?: string;
     }[]
   > {
     const defs = this.definitions();
@@ -265,6 +264,7 @@ export class SettingsService implements OnModuleInit {
           action: def.action,
           docUrl: def.docUrl,
           fileUpload: def.fileUpload,
+          placeholder: def.placeholder,
         };
         if (def.secret) {
           const raw = await this.get<string>(def.key);

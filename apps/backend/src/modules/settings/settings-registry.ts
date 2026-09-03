@@ -51,6 +51,10 @@ export interface SettingDef {
   /** Long text or file contents get an upload/paste dialog instead of an
    *  inline input (e.g. Apple's .p8 private key). */
   fileUpload?: { accept: string; hint: string };
+  /** Grey example text shown inside an empty input. Auto-derived from an
+   *  "e.g. ..." description or the default value when not set explicitly,
+   *  see `derivePlaceholders` below. */
+  placeholder?: string;
 }
 
 export type SettingGroup =
@@ -329,7 +333,7 @@ export const SETTINGS: Record<string, SettingDef> = {
   'auth.phone.otpEnabled': bool(
     'auth.phone.otpEnabled',
     'auth',
-    'Phone OTP login',
+    'Allow OTP sign-in',
     'Allow one-time-code sign-in for accounts with a verified phone.',
     true,
     { public: true },
@@ -420,7 +424,7 @@ export const SETTINGS: Record<string, SettingDef> = {
   'email.smtp.secure': bool(
     'email.smtp.secure',
     'email',
-    'SMTP SSL',
+    'Use SSL for SMTP',
     'Use implicit TLS (port 465). Off = STARTTLS.',
     false,
   ),
@@ -778,13 +782,20 @@ export const SETTINGS: Record<string, SettingDef> = {
   ),
 
   // ─── Integrations ─────────────────────────────────────────────────
+  'integrations.n8n.enabled': bool(
+    'integrations.n8n.enabled',
+    'integrations',
+    'Turn on n8n webhooks',
+    'Send workflow events (contributions, project invites) to an n8n webhook.',
+    false,
+  ),
   'integrations.n8n.baseUrl': str(
     'integrations.n8n.baseUrl',
     'integrations',
     'n8n base URL',
-    'Webhook receiver for workflow automations.',
     '',
-    { envFallback: 'N8N_BASE_URL' },
+    '',
+    { envFallback: 'N8N_BASE_URL', placeholder: 'https://n8n.yourcompany.com' },
   ),
   'integrations.n8n.webhookPath': str(
     'integrations.n8n.webhookPath',
@@ -800,25 +811,39 @@ export const SETTINGS: Record<string, SettingDef> = {
     'n8n webhook secret',
     'HMAC signing secret shared with n8n.',
   ),
-  'integrations.gifs.tenorApiKey': secret(
-    'integrations.gifs.tenorApiKey',
+  'integrations.gifs.enabled': bool(
+    'integrations.gifs.enabled',
     'integrations',
-    'Tenor API key',
-    'From developers.google.com/tenor.',
+    'Turn on GIF search',
+    'Lets people search and send GIFs from the chat composer.',
+    false,
   ),
-  'integrations.gifs.giphyApiKey': secret(
-    'integrations.gifs.giphyApiKey',
+  'integrations.gifs.klipyAppKey': str(
+    'integrations.gifs.klipyAppKey',
     'integrations',
-    'Giphy API key',
-    'From developers.giphy.com.',
+    'Klipy app key',
+    'Klipy aggregates GIFs, stickers, and clips behind one key, no separate Tenor or Giphy keys needed. This key is sent to every visitor’s browser to fetch GIFs directly, it is not a secret.',
+    '',
+    { public: true, docUrl: 'https://partner.klipy.com/api-keys', placeholder: 'e.g. 5f3c1a...' },
+  ),
+  'integrations.push.enabled': bool(
+    'integrations.push.enabled',
+    'integrations',
+    'Turn on push notifications',
+    'Send browser push notifications for mentions, DMs, and task assignments.',
+    false,
   ),
   'integrations.push.vapidPublicKey': str(
     'integrations.push.vapidPublicKey',
     'integrations',
     'VAPID public key',
-    'Generate with: npx web-push generate-vapid-keys',
     '',
-    { envFallback: 'VAPID_PUBLIC_KEY' },
+    '',
+    {
+      envFallback: 'VAPID_PUBLIC_KEY',
+      moreInfo:
+        'Generate a pair with the button below, or paste one you already have (e.g. from npx web-push generate-vapid-keys).',
+    },
   ),
   'integrations.push.vapidPrivateKey': secret(
     'integrations.push.vapidPrivateKey',
@@ -830,16 +855,16 @@ export const SETTINGS: Record<string, SettingDef> = {
     'integrations.push.vapidSubject',
     'integrations',
     'VAPID subject',
-    'mailto: or https: contact identity.',
+    '',
     'mailto:dev@atlas.local',
-    { envFallback: 'VAPID_SUBJECT' },
+    { envFallback: 'VAPID_SUBJECT', placeholder: 'mailto:you@yourcompany.com' },
   ),
 
   // ─── Modules ──────────────────────────────────────────────────────
   'modules.pmo.enabled': bool(
     'modules.pmo.enabled',
     'modules',
-    'PMO module',
+    'Turn on PMO Module',
     'Project management: lists, kanban, Gantt, notes, whiteboards, files.',
     false,
     { envFallback: 'PMO_ENABLED', public: true },
@@ -847,7 +872,7 @@ export const SETTINGS: Record<string, SettingDef> = {
   'modules.voice.enabled': bool(
     'modules.voice.enabled',
     'modules',
-    'Voice module',
+    'Turn on Voice & Video Module',
     'LiveKit voice/video rooms and screen share.',
     false,
     { envFallback: 'VOICE_ENABLED', public: true },
@@ -988,6 +1013,31 @@ SETTINGS['auth.sessionDurationMinutes']!.moreInfo =
   'How long a sign-in stays valid before the user must sign in again. Shorter is safer; longer is more convenient.';
 SETTINGS['storage.provider']!.moreInfo =
   'Switching providers moves every existing file to the new provider in the background first; the switch completes only when the copy finishes cleanly. Server local storage keeps files on the machine Atlas runs on and needs no credentials.';
+
+// ─── Placeholders (grey example text in an empty input) ──────────────
+// Every string field gets one automatically: an inline "e.g. ..." in the
+// description becomes the placeholder (and is trimmed out of the visible
+// description when it was the whole thing), otherwise a non-empty default
+// value doubles as the example. Fields that set `placeholder` explicitly
+// above are left untouched.
+for (const def of Object.values(SETTINGS)) {
+  if (def.type !== 'string' || def.placeholder) continue;
+  const desc = (def.description ?? '').trim();
+  const whole = desc.match(/^e\.g\.,?\s*(.+)$/i);
+  if (whole) {
+    def.placeholder = whole[1].replace(/\.$/, '').trim();
+    def.description = undefined;
+    continue;
+  }
+  const inline = desc.match(/e\.g\.,?\s*([^\s,][^),]*)/i);
+  if (inline) {
+    def.placeholder = inline[1].replace(/\.$/, '').trim();
+    continue;
+  }
+  if (typeof def.defaultValue === 'string' && def.defaultValue.trim() !== '') {
+    def.placeholder = def.defaultValue;
+  }
+}
 
 function oauthDefs(): Record<string, SettingDef> {
   const defs: Record<string, SettingDef> = {};

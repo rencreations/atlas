@@ -9,6 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import * as bcrypt from 'bcryptjs';
+import * as webpush from 'web-push';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { SettingsService } from '@/modules/settings/settings.service';
@@ -59,6 +60,18 @@ export class GodmodeService {
     }
     await this.settings.setMany(entries);
     return { ok: true };
+  }
+
+  /**
+   * Generate a fresh VAPID key pair and save it immediately (outside the
+   * bulk-save flow, so it takes effect the moment this returns). Returned
+   * once for the admin to copy, the private key is never shown again.
+   */
+  async generateVapidKeys(): Promise<{ publicKey: string; privateKey: string }> {
+    const { publicKey, privateKey } = webpush.generateVAPIDKeys();
+    await this.settings.set('integrations.push.vapidPublicKey', publicKey);
+    await this.settings.set('integrations.push.vapidPrivateKey', privateKey);
+    return { publicKey, privateKey };
   }
 
   // ─── Storage migration (godmode UI) ───────────────────────────────

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, LoaderCircle, LogOut } from 'lucide-react';
-import { FingerprintIcon } from '@/components/icons/animated/fingerprint';
 import { EarthIcon } from '@/components/icons/animated/globe';
 import { HardDriveIcon } from '@/components/icons/animated/hard-drive';
 import { KeyIcon } from '@/components/icons/animated/key-round';
@@ -11,10 +10,8 @@ import { LayoutGridIcon } from '@/components/icons/animated/layout-grid';
 import { Link2Icon } from '@/components/icons/animated/link-2';
 import { MailIcon } from '@/components/icons/animated/mail';
 import { MessageSquareIcon } from '@/components/icons/animated/message-square-text';
-import { PaletteIcon } from '@/components/icons/animated/palette';
 import { PlugIcon } from '@/components/icons/animated/plug';
-import { RocketIcon } from '@/components/icons/animated/rocket';
-import { ServerCogIcon } from '@/components/icons/animated/server-cog';
+import { SettingsIcon } from '@/components/icons/animated/settings';
 import { ShieldCheckIcon } from '@/components/icons/animated/shield-check';
 import { TimerIcon } from '@/components/icons/animated/timer';
 import { UserPlusIcon } from '@/components/icons/animated/user-plus';
@@ -52,9 +49,10 @@ interface Section {
 
 const SECTIONS: Section[] = [
   { id: 'overview', label: 'Overview', icon: LayoutGridIcon },
-  // Site name and tagline used to be editable here; they are deliberately
-  // not shown anymore. The section now hosts only the legal documents.
-  { id: 'site', label: 'Site', icon: EarthIcon, groups: ['legal'] },
+  // Site identity, legal documents, appearance (theme), and the feature
+  // modules all describe "what this instance looks and feels like to
+  // everyone", so they live together under one Site section.
+  { id: 'site', label: 'Site', icon: EarthIcon, groups: ['site', 'legal', 'appearance', 'modules'] },
   // Everything sign-in related lives under one Authentication group.
   // Sessions sits below SSO: the flow reads registration, methods, then
   // the external directories, with session policy last.
@@ -67,21 +65,20 @@ const SECTIONS: Section[] = [
   { id: 'sms', label: 'SMS / OTP', icon: MessageSquareIcon, groups: ['sms'] },
   { id: 'storage', label: 'Storage', icon: HardDriveIcon, groups: ['storage'] },
   { id: 'integrations', label: 'Integrations', icon: WebhookIcon, groups: ['integrations'] },
-  { id: 'appearance', label: 'Appearance', icon: PaletteIcon, groups: ['appearance'] },
-  { id: 'modules', label: 'Modules', icon: RocketIcon, groups: ['modules'] },
   { id: 'users', label: 'Users & invites', icon: UsersIcon },
   { id: 'roles', label: 'Roles & permissions', icon: ShieldCheckIcon },
-  { id: 'security', label: 'Godmode security', icon: FingerprintIcon },
-  // `system` and `godmode` used to have no section at all, which left
+  // Godmode's own security (TOTP/passkeys) merged in here too: `system`
+  // and `godmode` used to have no section at all, which left
   // system.instanceUrl (referenced by onboarding) and the godmode session
-  // TTL unreachable from the UI. TOTP is deliberately excluded: Godmode
-  // security owns the enrolment flow, and toggling `totp.enabled` or
-  // editing the raw secret from a generic editor can desync or disable
-  // 2FA without ever verifying a code.
+  // TTL unreachable from the UI. TOTP is deliberately excluded from the
+  // generic editor below: Godmode security owns the enrolment flow, and
+  // toggling `totp.enabled` or editing the raw secret from a generic
+  // editor can desync or disable 2FA without ever verifying a code; the
+  // shell renders <SecurityPanel /> alongside this section instead.
   {
     id: 'advanced',
     label: 'Advanced',
-    icon: ServerCogIcon,
+    icon: SettingsIcon,
     groups: ['system', 'godmode'],
     excludeKeys: ['godmode.totp.enabled', 'godmode.totp.secret'],
   },
@@ -199,14 +196,24 @@ export function GodmodeShell({
   }, [active, settings]);
 
   return (
-    <div className="mx-auto grid min-h-svh w-full max-w-[1360px] grid-cols-1 gap-0 md:grid-cols-[260px_1fr]">
-      {/* ─── Sidebar ─── */}
-      <aside className="border-r border-line bg-surface md:min-h-svh">
-        <div className="flex h-14 items-center justify-between border-b border-line px-4">
+    <div className="flex min-h-svh w-full flex-col md:flex-row">
+      {/* ─── Sidebar ───
+          Full-bleed and sticky: it spans the true left edge of the
+          viewport (no outer max-width wrapping it) and pins itself to
+          the viewport as the content column scrolls past it. The nav
+          list scrolls internally (min-h-0 is what lets it shrink inside
+          the flex column instead of pushing "Lock godmode" off-screen)
+          so every icon stays reachable even with Authentication open. */}
+      <aside className="flex shrink-0 flex-col border-r border-line bg-surface md:sticky md:top-0 md:h-svh md:w-[260px]">
+        <a
+          href={liveSiteUrl || '/'}
+          className="flex h-14 shrink-0 items-center justify-between border-b border-line px-4 transition-colors duration-120 hover:bg-surface-muted"
+          title="Go to the main site"
+        >
           <Wordmark withSignature={false} className="text-[16px]" />
           <Badge tone="danger">godmode</Badge>
-        </div>
-        <nav className="flex flex-col gap-0.5 p-3">
+        </a>
+        <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3">
           {SECTIONS.filter((s) => !s.parent).map((s) => {
             const Icon = s.icon;
             const activeSection = s.id === section;
@@ -230,19 +237,21 @@ export function GodmodeShell({
               </div>
             );
           })}
-          <div className="my-2 border-t border-line" />
+        </nav>
+        <div className="shrink-0 border-t border-line p-3">
           <button
             onClick={logout}
-            className="flex items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] font-medium text-ink-2 transition-colors duration-120 hover:bg-brand-red-50 hover:text-brand-red"
+            className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] font-medium text-ink-2 transition-colors duration-120 hover:bg-brand-red-50 hover:text-brand-red"
           >
             <LogOut className="h-4 w-4" strokeWidth={2.25} />
             Lock godmode
           </button>
-        </nav>
+        </div>
       </aside>
 
       {/* ─── Content ─── */}
-      <main className="min-w-0 p-6 md:p-10">
+      <main className="min-w-0 flex-1 p-6 md:p-10">
+        <div className="mx-auto max-w-[1100px]">
         {loading ? (
           <div className="flex justify-center py-24">
             <LoaderCircle className="h-6 w-6 animate-spin text-ink-3" strokeWidth={2.25} />
@@ -276,11 +285,19 @@ export function GodmodeShell({
                 }}
               />
             ) : null}
+            {section === 'advanced' ? (
+              <div className="mb-8 flex flex-col gap-3">
+                <h3 className="text-eyebrow uppercase text-ink-4">Two-factor &amp; passkeys</h3>
+                <SecurityPanel />
+                <div className="my-2 border-t border-line" />
+              </div>
+            ) : null}
             {active.groups ? (
               <SettingsEditor
                 items={groupItems}
                 allItems={settings?.items}
                 ssoConnections={settings?.ssoConnections}
+                groups={settings?.groups}
                 onDirtyChange={setDirty}
                 onSaved={() => void load()}
                 onNavigate={navigate}
@@ -291,9 +308,9 @@ export function GodmodeShell({
               <UsersPanel configured={settings?.configured ?? false} />
             ) : null}
             {section === 'roles' ? <RolesPanel /> : null}
-            {section === 'security' ? <SecurityPanel /> : null}
           </>
         )}
+        </div>
       </main>
 
       {celebrating ? (

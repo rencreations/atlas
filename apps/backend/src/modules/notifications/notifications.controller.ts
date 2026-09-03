@@ -64,8 +64,12 @@ export class NotificationsController {
    */
   @Get('push/vapid-public-key')
   @ApiOperation({ summary: 'VAPID public key for Web Push subscription' })
-  getVapidPublicKey() {
-    return { publicKey: this.push.getPublicKey(), configured: this.push.isConfigured() };
+  async getVapidPublicKey() {
+    const [publicKey, configured] = await Promise.all([
+      this.push.getPublicKey(),
+      this.push.isConfigured(),
+    ]);
+    return { publicKey, configured };
   }
 
   @Post('push/subscribe')

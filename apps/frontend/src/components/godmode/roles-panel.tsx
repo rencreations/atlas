@@ -119,8 +119,13 @@ export function RolesPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-[280px_1fr]">
-      <div className="flex flex-col gap-2">
+    <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[280px_1fr]">
+      {/* Sticky and independently scrollable: the permission editor on the
+          right can run much longer than one screen, and the role list is
+          the thing you need to keep glancing at (which role am I editing?)
+          while scrolling through it, so it stays put instead of scrolling
+          away with the page. */}
+      <div className="flex flex-col gap-2 md:sticky md:top-10 md:max-h-[calc(100svh-5rem)] md:overflow-y-auto md:pb-2">
         <Button size="sm" onClick={() => setCreating(true)}>
           <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
           New role

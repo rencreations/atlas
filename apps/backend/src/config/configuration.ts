@@ -102,8 +102,6 @@ export default () => ({
   chat: {
     socketPath: process.env.CHAT_SOCKET_PATH ?? '/socket.io',
     linkPreviewCacheTtl: parseInt(process.env.CHAT_LINK_PREVIEW_CACHE_TTL ?? '86400', 10),
-    tenorApiKey: process.env.TENOR_API_KEY ?? '',
-    giphyApiKey: process.env.GIPHY_API_KEY ?? '',
     maxAttachmentsPerMessage: parseInt(process.env.CHAT_MAX_ATTACHMENTS_PER_MESSAGE ?? '10', 10),
     maxAttachmentBytes: parseInt(process.env.CHAT_MAX_ATTACHMENT_BYTES ?? '52428800', 10),
     editWindowHours: parseInt(process.env.CHAT_EDIT_WINDOW_HOURS ?? '24', 10),

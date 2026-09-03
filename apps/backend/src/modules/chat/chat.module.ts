@@ -6,7 +6,6 @@ import { ProjectsModule } from '@/modules/projects/projects.module';
 import { AdminStickersController } from './admin-stickers.controller';
 import { ChatController } from './chat.controller';
 import { ChatChannelOpsController } from './chat-channel-ops.controller';
-import { ChatGifsController } from './chat-gifs.controller';
 import { ChatGlobalController } from './chat-global.controller';
 import { ChatLinkPreviewController } from './chat-link-preview.controller';
 import { ChatMembersController } from './chat-members.controller';
@@ -20,7 +19,6 @@ import { WsSessionGuard } from './gateway/ws-session.guard';
 import { ChatAttachmentsService } from './services/chat-attachments.service';
 import { ChatChannelAccessService } from './services/chat-channel-access.service';
 import { ChatChannelsService } from './services/chat-channels.service';
-import { ChatGifsService } from './services/chat-gifs.service';
 import { ChatLinkPreviewService } from './services/chat-link-preview.service';
 import { ChatMessagesService } from './services/chat-messages.service';
 import { ChatNotificationsService } from './services/chat-notifications.service';
@@ -52,7 +50,6 @@ import { ChatTypingService } from './services/chat-typing.service';
     ChatMessagesController,
     ChatOverviewController,
     ChatLinkPreviewController,
-    ChatGifsController,
     ChatMembersController,
     ChatStickersController,
     AdminStickersController,
@@ -71,7 +68,6 @@ import { ChatTypingService } from './services/chat-typing.service';
     ChatTypingService,
     ChatRealtimePublisher,
     ChatLinkPreviewService,
-    ChatGifsService,
     ChatAttachmentsService,
     ChatStickersService,
     ChatSearchService,

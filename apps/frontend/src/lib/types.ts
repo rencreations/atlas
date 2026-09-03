@@ -458,20 +458,10 @@ export interface ChatLinkPreview {
   cached?: boolean;
 }
 
+/** A GIF picked from the Klipy picker, ready to send. */
 export interface ChatGif {
   id: string;
-  title: string;
-  previewUrl: string;
-  gifUrl: string;
-  mp4Url: string | null;
-  width: number;
-  height: number;
-}
-
-export interface ChatGifSearchResult {
-  provider: 'tenor' | 'giphy';
-  results: ChatGif[];
-  next: string | null;
+  url: string;
 }
 
 export interface ChatAttachmentPresign {
@@ -986,6 +976,8 @@ export interface PublicConfig {
   };
   modules: { pmo: boolean; voice: boolean };
   features: { gifs: boolean; push: boolean };
+  /** GIF search (Klipy). The app key is designed to run client-side. */
+  gifs: { available: boolean; klipyAppKey: string };
   legal: { requireConsent: boolean; terms: boolean; privacy: boolean };
 }
 

@@ -65,8 +65,9 @@ export class PublicConfigController {
       samlLabel,
       pmoEnabled,
       voiceEnabled,
-      tenorKey,
-      giphyKey,
+      gifsEnabled,
+      klipyAppKey,
+      pushEnabled,
       vapidPublicKey,
     ] = await Promise.all([
       this.settings.isConfigured(),
@@ -86,8 +87,9 @@ export class PublicConfigController {
       this.settings.get<string>('sso.saml.buttonLabel'),
       this.settings.get<boolean>('modules.pmo.enabled'),
       this.settings.get<boolean>('modules.voice.enabled'),
-      this.settings.get<string>('integrations.gifs.tenorApiKey'),
-      this.settings.get<string>('integrations.gifs.giphyApiKey'),
+      this.settings.get<boolean>('integrations.gifs.enabled'),
+      this.settings.get<string>('integrations.gifs.klipyAppKey'),
+      this.settings.get<boolean>('integrations.push.enabled'),
       this.settings.get<string>('integrations.push.vapidPublicKey'),
     ]);
 
@@ -156,8 +158,15 @@ export class PublicConfigController {
         voice: voiceEnabled,
       },
       features: {
-        gifs: !!(tenorKey || giphyKey),
-        push: !!vapidPublicKey,
+        gifs: !!(gifsEnabled && klipyAppKey),
+        push: !!(pushEnabled && vapidPublicKey),
+      },
+      gifs: {
+        available: !!(gifsEnabled && klipyAppKey),
+        // The Klipy app key is designed to run client-side (it is what
+        // gif-picker-react's Klipy provider calls the API with directly
+        // from the browser), so it is not treated as a secret.
+        klipyAppKey: gifsEnabled ? klipyAppKey : '',
       },
       legal: {
         requireConsent: await this.settings.get<boolean>('legal.requireConsent'),

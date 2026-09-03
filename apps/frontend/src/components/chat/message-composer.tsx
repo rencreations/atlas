@@ -331,7 +331,7 @@ export function MessageComposer({
       api(messagesPath(scope, channelId), {
         method: 'POST',
         body: {
-          markdown: gif.gifUrl,
+          markdown: gif.url,
           replyToId: replyTo?.id,
           clientMessageId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         },

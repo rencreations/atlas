@@ -116,7 +116,7 @@ export class NotificationsService {
     row: Notification,
     pushTag: string | undefined,
   ): Promise<void> {
-    if (!this.push.isConfigured()) return;
+    if (!(await this.push.isConfigured())) return;
     const allowed = await this.prefs.isPushEnabledFor(userId, type);
     if (!allowed) return;
 

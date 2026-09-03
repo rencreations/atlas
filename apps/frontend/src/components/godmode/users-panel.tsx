@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   Ban,
+  Copy,
   KeyRound,
   LoaderCircle,
   LogOut,
@@ -43,6 +44,7 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   // Debounce the search input (~300ms) so the users API isn't hit per keystroke.
   useEffect(() => {
@@ -255,6 +257,7 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
         body: JSON.stringify({}),
       });
       setInviteCode(res.code);
+      setInviteOpen(true);
     } catch (err) {
       show({
         title: 'Could not create an invite',
@@ -263,6 +266,12 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
       });
     }
   }, [show]);
+
+  const copyInviteCode = useCallback(() => {
+    if (!inviteCode) return;
+    void navigator.clipboard?.writeText(inviteCode).catch(() => undefined);
+    show({ title: 'Copied', description: 'Invite code copied to clipboard.', tone: 'success' });
+  }, [inviteCode, show]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -285,15 +294,37 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
         </div>
       </div>
 
-      {inviteCode ? (
-        <div className="rounded border border-brand-yellow bg-brand-yellow-50 px-4 py-3 text-[13px]">
-          Invite code{' '}
-          <span className="select-all font-mono text-[13px] font-semibold text-brand-yellow-ink">
-            {inviteCode}
-          </span>{' '}
-         , valid for 7 days.
-        </div>
-      ) : null}
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent size="sm">
+          <DialogTitle>Invite code</DialogTitle>
+          <DialogDescription>
+            Share this with the person joining. Single use, valid for 7 days.
+          </DialogDescription>
+          {inviteCode ? (
+            <div className="mt-4 flex items-center gap-2 rounded bg-surface-muted px-3 py-2.5">
+              <code className="min-w-0 flex-1 select-all break-all font-mono text-[16px] font-semibold text-ink">
+                {inviteCode}
+              </code>
+              <button
+                type="button"
+                onClick={copyInviteCode}
+                aria-label="Copy invite code"
+                className="inline-grid h-8 w-8 shrink-0 place-items-center rounded text-ink-3 transition-colors duration-120 hover:bg-surface hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              >
+                <Copy className="h-4 w-4" strokeWidth={2.25} />
+              </button>
+            </div>
+          ) : null}
+          <DialogFooter className="mt-5">
+            <Button variant="secondary" size="sm" onClick={() => void issueInvite()}>
+              Generate new one
+            </Button>
+            <Button size="sm" onClick={() => setInviteOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {loading ? (
         <div className="flex justify-center py-12">
@@ -304,7 +335,10 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
           No users found{debouncedQ ? ` for “${debouncedQ}”` : ' yet'}.
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        // Local scroll: the search bar and Issue invite code / Add user
+        // buttons above stay put no matter how long this list gets, they
+        // never need to be scrolled back up to.
+        <div className="flex max-h-[calc(100svh-16rem)] flex-col gap-2 overflow-y-auto pr-1">
           {users.map((user) => (
             <div
               key={user.id}
@@ -347,17 +381,6 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
                   )}
                   onGrant={(code) => void toggleRole(user, code)}
                 />
-                {user.userRoles.map((ur) => (
-                  <Button
-                    key={ur.id}
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={`Remove ${ur.role.code} role`}
-                    onClick={() => void toggleRole(user, ur.role.code)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-brand-red" strokeWidth={2.25} />
-                  </Button>
-                ))}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -370,6 +393,20 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Manage {user.name}</DropdownMenuLabel>
+                    {user.userRoles.length > 0 ? (
+                      <>
+                        {user.userRoles.map((ur) => (
+                          <DropdownMenuItem
+                            key={ur.id}
+                            onSelect={() => void toggleRole(user, ur.role.code)}
+                          >
+                            <Trash2 className="h-4 w-4" strokeWidth={2.25} />
+                            Remove “{ur.role.code}” role
+                          </DropdownMenuItem>
+                        ))}
+                        <DropdownMenuSeparator />
+                      </>
+                    ) : null}
                     {user.suspendedAt ? (
                       <DropdownMenuItem onSelect={() => void unsuspendUser(user)}>
                         <Ban className="h-4 w-4" strokeWidth={2.25} />

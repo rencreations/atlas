@@ -65,6 +65,7 @@ export const apiPaths = {
     ssoConnectionEnabled: (id: string) => `/godmode/sso/connections/${id}/enabled`,
     storageMigration: () => '/godmode/storage/migration',
     storageMigrationRetry: () => '/godmode/storage/migration/retry',
+    generateVapidKeys: () => '/godmode/integrations/vapid/generate',
   },
 
   // Feature flags, public evaluated map + admin CRUD.
@@ -199,13 +200,6 @@ export const apiPaths = {
     presignAttachment: (projectSlugOrId: string, channelId: string) =>
       `/projects/${projectSlugOrId}/chat/channels/${channelId}/attachments/presign`,
     linkPreview: () => '/chat/link-preview',
-    gifsConfig: () => '/chat/gifs/config',
-    gifsSearch: (q: string, pos?: string) => {
-      const qs = new URLSearchParams({ q });
-      if (pos) qs.set('pos', pos);
-      return `/chat/gifs/search?${qs.toString()}`;
-    },
-    gifsTrending: (pos?: string) => `/chat/gifs/trending${pos ? `?pos=${encodeURIComponent(pos)}` : ''}`,
     members: (projectSlugOrId: string, q?: string) =>
       `/projects/${projectSlugOrId}/chat/members${q ? `?q=${encodeURIComponent(q)}` : ''}`,
     stickerPacks: () => '/chat/stickers/packs',

@@ -150,6 +150,15 @@ export class GodmodeController {
     return this.godmode.bulkSetSettings(dto.settings);
   }
 
+  // ─── Integrations ──────────────────────────────────────────────────
+
+  /** Generate a VAPID key pair and save it immediately; returned once. */
+  @UseGuards(GodmodeGuard)
+  @Post('integrations/vapid/generate')
+  generateVapidKeys() {
+    return this.godmode.generateVapidKeys();
+  }
+
   // ─── Storage migration ────────────────────────────────────────────
 
   /** Latest storage-provider migration (progress, status, error). */

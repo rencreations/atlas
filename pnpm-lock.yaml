@@ -356,6 +356,9 @@ importers:
       gantt-task-react:
         specifier: ^0.3.9
         version: 0.3.9(react@19.0.0-rc-69d4b800-20241021)
+      gif-picker-react:
+        specifier: ^2.0.0
+        version: 2.0.0(react-dom@19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021))(react@19.0.0-rc-69d4b800-20241021)
       livekit-client:
         specifier: ^2.7.0
         version: 2.21.0(@types/dom-mediacapture-record@1.0.22)
@@ -4942,6 +4945,12 @@ packages:
 
   get-tsconfig@4.14.2:
     resolution: {integrity: sha512-XpwZALwwl/BaKTAyC6+c5T8y6kCg2jk+XGqOVrKIQmW49pNypYLMRjCUXqa28tQgJlhS2RlzP7sc+Rx7W6qsfw==}
+
+  gif-picker-react@2.0.0:
+    resolution: {integrity: sha512-kY5969XCJFPRKj1gF+LMY6OyLV5HNXZkR4h0fWBBYrJUKuh5ntcJetget8MBgKX/n+2kuu/hXW5IG0Yn9xgtDA==}
+    peerDependencies:
+      react: '>=17'
+      react-dom: '>=17'
 
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -13476,6 +13485,11 @@ snapshots:
   get-tsconfig@4.14.2:
     dependencies:
       resolve-pkg-maps: 1.0.0
+
+  gif-picker-react@2.0.0(react-dom@19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021))(react@19.0.0-rc-69d4b800-20241021):
+    dependencies:
+      react: 19.0.0-rc-69d4b800-20241021
+      react-dom: 19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021)
 
   glob-parent@5.1.2:
     dependencies:

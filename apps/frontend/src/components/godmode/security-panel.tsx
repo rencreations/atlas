@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
-import type { GodmodePasskey, GodmodeSettingsView } from '@/lib/godmode/types';
+import type { GodmodePasskey } from '@/lib/godmode/types';
 
 interface TwoFactorStatus {
   totpEnabled: boolean;
@@ -36,7 +36,6 @@ export function SecurityPanel() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState<ConfirmTarget>(null);
-  const [sessionTtlMinutes, setSessionTtlMinutes] = useState<string | number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -48,16 +47,6 @@ export function SecurityPanel() {
 
   useEffect(() => {
     void load();
-    // The session lifetime is a settings value, not a 2FA value, read it
-    // from the settings registry so we can render it read-only.
-    godmodeFetch<GodmodeSettingsView>(godmodePaths.settings())
-      .then((view) => {
-        const item = view.items.find((i) => i.key === 'godmode.sessionTtlMinutes');
-        if (item && item.value !== undefined && item.value !== null && item.value !== '') {
-          setSessionTtlMinutes(String(item.value));
-        }
-      })
-      .catch(() => undefined);
   }, [load]);
 
   const beginTotp = useCallback(async () => {
@@ -261,24 +250,6 @@ export function SecurityPanel() {
             ))}
           </div>
         ) : null}
-      </div>
-
-      <div className="rounded border border-line bg-surface p-4 shadow-1">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[14px] font-medium text-ink">
-                Godmode session lifetime
-              </span>
-              <Badge tone="neutral">
-                {sessionTtlMinutes !== null ? `${sessionTtlMinutes} min` : 'managed'}
-              </Badge>
-            </div>
-            <p className="mt-1 text-[13px] text-ink-3">
-              Configure in Settings → Godmode security (godmode.sessionTtlMinutes).
-            </p>
-          </div>
-        </div>
       </div>
 
       <Dialog

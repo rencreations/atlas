@@ -2,19 +2,20 @@
 
 import * as React from 'react';
 import { Loader2, ImageIcon } from 'lucide-react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { ChatGif, ChatGifSearchResult, Sticker, StickerPack } from '@/lib/types';
+import type { ChatGif, PublicConfig, Sticker, StickerPack } from '@/lib/types';
 import { SmileIcon } from '@/components/icons/animated/smile';
 
-// Lazy-load the emoji picker, it's ~600KB and only needed when the
-// popover opens. Loading on the main bundle would punish every chat
-// view, not just users that open the picker.
+// Lazy-load the emoji and GIF pickers, they're heavy and only needed
+// when the popover opens. Loading on the main bundle would punish every
+// chat view, not just users that open the picker.
 const EmojiPicker = React.lazy(() => import('emoji-picker-react'));
+const KlipyGifPicker = React.lazy(() => import('./klipy-gif-picker'));
 
 interface Props {
   /** Called with the emoji character (e.g. "👍") to insert at the caret. */
@@ -119,30 +120,23 @@ export function ComposerPicker({ onEmojiPick, onGifPick, onStickerPick, onAfterC
 }
 
 function GifTab({ onPick }: { onPick: (gif: ChatGif) => void }) {
-  const [q, setQ] = React.useState('');
-  const debounced = useDebounced(q, 300);
-
   const configQuery = useQuery({
-    queryKey: ['chat', 'gifs', 'config'],
-    queryFn: () => api<{ available: boolean }>(apiPaths.chat.gifsConfig()),
+    queryKey: ['public-config'],
+    queryFn: () => api<PublicConfig>(apiPaths.publicConfig()),
     staleTime: 60 * 60 * 1000,
     retry: false,
   });
 
-  const search = useInfiniteQuery({
-    queryKey: ['chat', 'gifs', 'q', debounced],
-    enabled: configQuery.data?.available !== false,
-    initialPageParam: undefined as string | undefined,
-    queryFn: ({ pageParam }) =>
-      api<ChatGifSearchResult>(
-        debounced.trim().length === 0
-          ? apiPaths.chat.gifsTrending(pageParam)
-          : apiPaths.chat.gifsSearch(debounced.trim(), pageParam),
-      ),
-    getNextPageParam: (last: ChatGifSearchResult) => last.next ?? undefined,
-  });
+  if (configQuery.isLoading) {
+    return (
+      <div className="grid h-[360px] place-items-center text-ink-3">
+        <Loader2 className="h-4 w-4 animate-spin" />
+      </div>
+    );
+  }
 
-  if (configQuery.data?.available === false) {
+  const gifs = configQuery.data?.gifs;
+  if (!gifs?.available || !gifs.klipyAppKey) {
     return (
       <div className="grid h-[320px] place-items-center px-4 text-center text-[13px] text-ink-3">
         GIF search isn’t configured on this server.
@@ -150,65 +144,17 @@ function GifTab({ onPick }: { onPick: (gif: ChatGif) => void }) {
     );
   }
 
-  const gifs = search.data?.pages.flatMap((p) => p.results) ?? [];
-
   return (
-    <div className="flex h-[360px] flex-col gap-2">
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search GIFs"
-        className="rounded border border-line bg-surface px-2 py-1.5 text-[13px] outline-none focus:border-line-strong"
-      />
-      {/* Masonry: CSS columns lets each GIF keep its natural aspect ratio
-          and the scrollable parent grows downward as more pages load,
-          instead of the old grid squishing every cell to a fixed row. */}
-      <div className="flex-1 overflow-y-auto pr-1">
-        <div className="columns-2 gap-1.5 [column-fill:_balance]">
-          {gifs.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => onPick(g)}
-              title={g.title}
-              className="mb-1.5 block w-full break-inside-avoid overflow-hidden rounded border border-line transition-colors hover:border-brand-blue/50"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={g.previewUrl}
-                alt={g.title}
-                loading="lazy"
-                className="block w-full"
-                style={
-                  g.width && g.height
-                    ? { aspectRatio: `${g.width} / ${g.height}` }
-                    : undefined
-                }
-              />
-            </button>
-          ))}
-          {search.isLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={`s-${i}`}
-                  className="mb-1.5 h-24 break-inside-avoid animate-pulse rounded bg-line/40"
-                />
-              ))
-            : null}
-        </div>
-        {search.hasNextPage ? (
-          <div className="mt-2 flex justify-center pb-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => void search.fetchNextPage()}
-              loading={search.isFetchingNextPage}
-            >
-              Load more
-            </Button>
+    <div className="h-[360px]">
+      <React.Suspense
+        fallback={
+          <div className="grid h-[360px] place-items-center text-ink-3">
+            <Loader2 className="h-4 w-4 animate-spin" />
           </div>
-        ) : null}
-      </div>
+        }
+      >
+        <KlipyGifPicker appKey={gifs.klipyAppKey} onPick={onPick} />
+      </React.Suspense>
     </div>
   );
 }
@@ -276,15 +222,6 @@ function StickerTab({ onPick }: { onPick: (sticker: Sticker) => void }) {
         ))}
     </div>
   );
-}
-
-function useDebounced<T>(value: T, ms: number): T {
-  const [v, setV] = React.useState(value);
-  React.useEffect(() => {
-    const t = setTimeout(() => setV(value), ms);
-    return () => clearTimeout(t);
-  }, [value, ms]);
-  return v;
 }
 
 // The ordering here matters for project slug migration safety

@@ -19,6 +19,8 @@ export interface GodmodeSettingItem {
   docUrl?: string;
   /** Long text or file contents get an upload/paste dialog (e.g. Apple .p8). */
   fileUpload?: { accept: string; hint: string };
+  /** Grey example text shown inside an empty input. */
+  placeholder?: string;
 }
 
 export interface GodmodeSettingGroup {

@@ -1,8 +1,8 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import * as webpush from 'web-push';
 import { PrismaService } from '@/prisma/prisma.service';
+import { SettingsService } from '@/modules/settings/settings.service';
 
 export interface PushPayload {
   /// Visible title in the system notification.
@@ -28,45 +28,38 @@ export interface PushPayload {
  * mutation must complete even if every push fails. Dead endpoints
  * (404/410) are deleted so the user's subscription list self-prunes.
  *
- * Configuration is fully optional: when any VAPID env var is empty,
- * `isConfigured` is false and `dispatchToUser` becomes a no-op so
- * containers boot unchanged before keys are provisioned. This is what
- * makes the rollout safe, push lights up the moment env is filled in
- * on the server, without any code change.
+ * Configuration is fully optional and read live from `SettingsService`
+ * (DB, falling back to VAPID_* env) on every dispatch rather than cached
+ * at boot, so generating or pasting VAPID keys from godmode takes effect
+ * immediately, no restart needed. `integrations.push.enabled` is a
+ * separate on/off switch: keys can stay saved while push is toggled off.
  */
 @Injectable()
-export class PushDispatchService implements OnModuleInit {
+export class PushDispatchService {
   private readonly logger = new Logger(PushDispatchService.name);
-  private readonly publicKey: string;
-  private readonly privateKey: string;
-  private readonly subject: string;
-  private configured = false;
 
   constructor(
     private readonly prisma: PrismaService,
-    config: ConfigService,
-  ) {
-    this.publicKey = config.get<string>('push.vapidPublicKey', '');
-    this.privateKey = config.get<string>('push.vapidPrivateKey', '');
-    this.subject = config.get<string>('push.vapidSubject', '');
+    private readonly settings: SettingsService,
+  ) {}
+
+  private async keys(): Promise<{ publicKey: string; privateKey: string; subject: string } | null> {
+    const [enabled, publicKey, privateKey, subject] = await Promise.all([
+      this.settings.get<boolean>('integrations.push.enabled'),
+      this.settings.get<string>('integrations.push.vapidPublicKey'),
+      this.settings.get<string>('integrations.push.vapidPrivateKey'),
+      this.settings.get<string>('integrations.push.vapidSubject'),
+    ]);
+    if (!enabled || !publicKey || !privateKey || !subject) return null;
+    return { publicKey, privateKey, subject };
   }
 
-  onModuleInit(): void {
-    if (this.publicKey && this.privateKey && this.subject) {
-      webpush.setVapidDetails(this.subject, this.publicKey, this.privateKey);
-      this.configured = true;
-      this.logger.log('Web Push configured');
-    } else {
-      this.logger.log('Web Push not configured (VAPID_* env empty), dispatch is a no-op');
-    }
+  async isConfigured(): Promise<boolean> {
+    return (await this.keys()) !== null;
   }
 
-  isConfigured(): boolean {
-    return this.configured;
-  }
-
-  getPublicKey(): string {
-    return this.configured ? this.publicKey : '';
+  async getPublicKey(): Promise<string> {
+    return (await this.keys())?.publicKey ?? '';
   }
 
   /**
@@ -75,7 +68,9 @@ export class PushDispatchService implements OnModuleInit {
    * dead subscriptions are removed.
    */
   async dispatchToUser(userId: string, payload: PushPayload): Promise<void> {
-    if (!this.configured) return;
+    const keys = await this.keys();
+    if (!keys) return;
+    webpush.setVapidDetails(keys.subject, keys.publicKey, keys.privateKey);
 
     const subs = await this.prisma.pushSubscription.findMany({
       where: { userId },

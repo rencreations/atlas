@@ -1,8 +1,8 @@
 import { createHmac } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { PrismaService } from '@/prisma/prisma.service';
+import { SettingsService } from '@/modules/settings/settings.service';
 
 export type AtlasWebhookEvent =
   | 'contribution.submitted'
@@ -23,20 +23,31 @@ export interface WebhookEnvelope<T = unknown> {
 @Injectable()
 export class WebhooksService {
   private readonly logger = new Logger(WebhooksService.name);
-  private readonly url: string;
-  private readonly secret: string;
 
   constructor(
-    private readonly config: ConfigService,
+    private readonly settings: SettingsService,
     private readonly prisma: PrismaService,
-  ) {
-    const base = (config.get<string>('n8n.baseUrl') ?? '').replace(/\/+$/, '');
-    const path = config.get<string>('n8n.webhookPath') ?? '/webhook/atlas';
-    this.url = base ? `${base}${path.startsWith('/') ? path : `/${path}`}` : '';
-    this.secret = config.get<string>('n8n.secret') ?? '';
-    if (!this.url) {
-      this.logger.warn('Webhooks disabled, n8n not configured. Configure it in godmode.');
-    }
+  ) {}
+
+  /**
+   * Read live from `SettingsService` (DB, falling back to env) rather than
+   * caching at boot, so turning the toggle on/off or editing the URL in
+   * godmode takes effect on the next dispatch, no restart needed.
+   */
+  private async target(): Promise<{ url: string; secret: string } | null> {
+    const [enabled, base, path, secret] = await Promise.all([
+      this.settings.get<boolean>('integrations.n8n.enabled'),
+      this.settings.get<string>('integrations.n8n.baseUrl'),
+      this.settings.get<string>('integrations.n8n.webhookPath'),
+      this.settings.get<string>('integrations.n8n.secret'),
+    ]);
+    const cleanBase = (base ?? '').replace(/\/+$/, '');
+    if (!enabled || !cleanBase) return null;
+    const cleanPath = path || '/webhook/atlas';
+    return {
+      url: `${cleanBase}${cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`}`,
+      secret: secret ?? '',
+    };
   }
 
   /**
@@ -45,6 +56,12 @@ export class WebhooksService {
    * block the user-facing request, since email is async UX anyway.
    */
   async dispatch<T>(event: AtlasWebhookEvent, data: T): Promise<void> {
+    const target = await this.target();
+    if (!target) {
+      this.logger.debug(`Skipping ${event}, webhooks not configured.`);
+      return;
+    }
+
     const envelope: WebhookEnvelope<T> = {
       event,
       timestamp: new Date().toISOString(),
@@ -52,19 +69,14 @@ export class WebhooksService {
       data,
     };
     const body = JSON.stringify(envelope);
-    const signature = createHmac('sha256', this.secret).update(body).digest('hex');
-
-    if (!this.url) {
-      this.logger.debug(`Skipping ${event}, webhooks not configured.`);
-      return;
-    }
+    const signature = createHmac('sha256', target.secret).update(body).digest('hex');
 
     const log = await this.prisma.webhookDelivery.create({
       data: { event, payload: envelope as object },
     });
 
     try {
-      const res = await axios.post(this.url, envelope, {
+      const res = await axios.post(target.url, envelope, {
         headers: {
           'content-type': 'application/json',
           'x-atlas-signature': signature,

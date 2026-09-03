@@ -10,7 +10,7 @@ const toastVariants = cva(
   [
     'pointer-events-auto relative flex w-full max-w-[360px] items-start gap-3 overflow-hidden',
     'rounded bg-surface p-4 pr-10 shadow-2 border border-line',
-    'data-[state=open]:animate-fade-up data-[state=closed]:animate-fade-out',
+    'data-[state=open]:animate-fade-up data-[state=closed]:animate-toast-out',
   ],
   {
     variants: {
@@ -65,14 +65,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastContext.Provider value={ctx}>
-      <RadixToast.Provider duration={6000} swipeDirection="right">
+      <RadixToast.Provider duration={1800} swipeDirection="right">
         {children}
         {items.map((t) => (
           <RadixToast.Root
             key={t.id}
             className={cn(toastVariants({ tone: t.tone ?? 'neutral' }))}
             // Errors need more reading time than transient confirmations.
-            duration={t.tone === 'danger' ? 10000 : t.tone === 'warning' ? 8000 : 6000}
+            // 70% shorter than the original 6/8/10s, danger stays longest.
+            duration={t.tone === 'danger' ? 3000 : t.tone === 'warning' ? 2400 : 1800}
             onOpenChange={(open) => {
               if (!open) setItems((prev) => prev.filter((x) => x.id !== t.id));
             }}

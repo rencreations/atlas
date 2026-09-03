@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { getSessionId } from '@/lib/auth-client';
@@ -51,7 +52,12 @@ function systemPrefersDark(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-/** Apply a theme + mode to the document (attributes, color-scheme, meta). */
+/**
+ * Apply a theme + mode to the document (attributes, color-scheme, meta).
+ * Exported as `previewTheme` too: a live preview (e.g. clicking a theme
+ * swatch in godmode before saving) calls this directly to re-skin the
+ * page without touching the persisted user/localStorage preference.
+ */
 function applyTheme(themeId: string, mode: ThemeMode): void {
   const root = document.documentElement;
   const id = isThemeId(themeId) ? themeId : DEFAULT_THEME_ID;
@@ -101,6 +107,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     defaultThemeMode: 'system',
     allowUserThemes: true,
   });
+  // Godmode always shows the instance default, never the visiting admin's
+  // personal override, so a theme change previews against what everyone
+  // else actually sees. The main site keeps respecting the personal pick.
+  const pathname = usePathname();
+  const isGodmode = pathname?.startsWith('/godmode') ?? false;
 
   // Boot: apply the local mirror immediately, then let the server win.
   useEffect(() => {
@@ -195,6 +206,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Re-assert the instance default whenever /godmode is the active route,
+  // and hand control back to the personal preference on the way out.
+  // Runs after the resolution effect above (declaration order), so this
+  // wins the paint whenever both fire in the same tick.
+  useEffect(() => {
+    if (isGodmode) {
+      applyTheme(defaults.defaultTheme, defaults.defaultThemeMode);
+    } else {
+      applyTheme(themeId, mode);
+    }
+  }, [isGodmode, themeId, mode, defaults]);
+
   const setThemeId = useCallback(
     (id: string) => {
       if (!isThemeId(id)) return;
@@ -232,3 +255,5 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme(): ThemeContextValue {
   return useContext(ThemeContext);
 }
+
+export { applyTheme as previewTheme };

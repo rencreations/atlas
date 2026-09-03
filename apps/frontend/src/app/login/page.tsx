@@ -63,6 +63,7 @@ const FALLBACK_CONFIG: PublicConfig = {
   },
   modules: { pmo: false, voice: false },
   features: { gifs: false, push: false },
+  gifs: { available: false, klipyAppKey: '' },
   legal: { requireConsent: false, terms: false, privacy: false },
 };
 
