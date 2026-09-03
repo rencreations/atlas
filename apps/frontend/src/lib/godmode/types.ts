@@ -12,7 +12,9 @@ export interface GodmodeSettingItem {
   advanced?: boolean;
   public?: boolean;
   visibleWhen?: { key: string; oneOf: string[] };
-  disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string };
+  disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string; section: string };
+  moreInfo?: string;
+  action?: { label: string; section: string };
 }
 
 export interface GodmodeSettingGroup {

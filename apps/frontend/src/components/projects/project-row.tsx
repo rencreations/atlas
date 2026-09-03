@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+
+import { ArrowRightIcon } from '@/components/icons/animated/arrow-right';
+
 import { ScrollRow } from '@/components/ui/scroll-row';
 import { ProjectCard } from './project-card';
 import type { ProjectCard as ProjectCardData } from '@/lib/types';
@@ -27,10 +29,7 @@ export function ProjectRow({ label, description, items, viewAllHref }: Props) {
             className="group -my-2 inline-flex items-center gap-1 py-2 text-[14px] font-medium text-brand-blue"
           >
             View all
-            <ArrowRight
-              className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-              strokeWidth={2.25}
-            />
+            <ArrowRightIcon size={14} className="flex items-center justify-center transition-transform group-hover:translate-x-0.5" />
           </Link>
         ) : null}
       </div>

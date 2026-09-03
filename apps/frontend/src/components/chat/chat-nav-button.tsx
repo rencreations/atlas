@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Globe, Hash, MessagesSquare, Search } from 'lucide-react';
+import { Globe, Hash, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { ChatOverviewPayload } from '@/lib/types';
 import { GlobalChatSearch } from './global-chat-search';
+import { MessageSquareIcon } from '@/components/icons/animated/messages-square';
+import { SearchIcon } from '@/components/icons/animated/search';
 
 /**
  * Header shortcut. Shows a chat icon with a small unread badge; clicking
@@ -59,7 +61,7 @@ export function ChatNavButton() {
           aria-label={totalUnread > 0 ? `Chat (${totalUnread} unread)` : 'Chat'}
           className="relative"
         >
-          <MessagesSquare className="h-4 w-4" strokeWidth={2.25} />
+          <MessageSquareIcon size={16} className="flex items-center justify-center" />
           {totalUnread > 0 ? (
             <span className="absolute -right-0.5 -top-0.5 inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium text-white">
               {totalUnread > 99 ? '99+' : totalUnread}
@@ -169,7 +171,7 @@ export function ChatNavButton() {
         // render a compact icon button that gains its label at xl+.
         trigger={
           <Button size="sm" variant="ghost" aria-label="Search chats" className="px-2 xl:px-3">
-            <Search className="h-4 w-4" strokeWidth={2.25} />
+            <SearchIcon size={16} className="flex items-center justify-center" />
             <span className="hidden xl:inline">Search chats</span>
           </Button>
         }

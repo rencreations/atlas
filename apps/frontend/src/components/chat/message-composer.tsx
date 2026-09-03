@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Send, X, Reply as ReplyIcon, Paperclip, Loader2 } from 'lucide-react';
+import { X, Reply as ReplyIcon, Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, uploadToPresigned } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
@@ -9,6 +9,8 @@ import { queryKeys } from '@/lib/api/queries';
 import { messagesPath, presignPath, type ChatScope } from '@/lib/chat/scope';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { PaperclipIcon } from '@/components/icons/animated/paperclip';
+import { SendIcon } from '@/components/icons/animated/send';
 import type {
   ChatAttachmentKind,
   ChatAttachmentPresign,
@@ -448,7 +450,7 @@ export function MessageComposer({
           aria-label="Attach file"
           className="shrink-0"
         >
-          <Paperclip className="h-4 w-4" strokeWidth={2.25} />
+          <PaperclipIcon size={16} className="flex items-center justify-center" />
         </Button>
         <input
           ref={fileInputRef}
@@ -497,7 +499,7 @@ export function MessageComposer({
           aria-label="Send message"
           className="shrink-0"
         >
-          <Send className="h-4 w-4" strokeWidth={2.25} />
+          <SendIcon size={16} className="flex items-center justify-center" />
         </Button>
       </div>
       {sendMutation.isError ? (

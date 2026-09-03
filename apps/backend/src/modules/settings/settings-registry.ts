@@ -38,8 +38,13 @@ export interface SettingDef {
    *  provider's fields while that provider is selected). */
   visibleWhen?: { key: string; oneOf: string[] };
   /** Grey the control out (with `hint` shown) while `key`'s value is one
-   *  of `oneOf` (e.g. magic link until an email provider is configured). */
-  disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string };
+   *  of `oneOf` (e.g. magic link until an email provider is configured).
+   *  `section` renders a CTA that jumps to the godmode section to fix it. */
+  disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string; section: string };
+  /** Extended explanation shown in a help tooltip for confusing options. */
+  moreInfo?: string;
+  /** A call-to-action rendered under the option (label + target section). */
+  action?: { label: string; section: string };
 }
 
 export type SettingGroup =
@@ -849,23 +854,47 @@ for (const [provider, prefix] of Object.entries(PROVIDER_PREFIXES)) {
 SETTINGS['auth.magicLink.enabled']!.disabledWhen = {
   key: 'email.provider',
   oneOf: ['console'],
-  hint: 'Configure an email provider first (Email section).',
+  hint: 'Magic links are emailed, so this needs a real email provider.',
+  section: 'email',
 };
 SETTINGS['auth.phone.enabled']!.disabledWhen = {
   key: 'sms.provider',
   oneOf: ['console'],
-  hint: 'Configure an SMS provider first (SMS / OTP section).',
+  hint: 'Phone sign-in sends SMS codes, so this needs a real SMS provider.',
+  section: 'sms',
 };
 SETTINGS['auth.phone.otpEnabled']!.disabledWhen = {
   key: 'auth.phone.enabled',
   oneOf: [false],
-  hint: 'Turn on phone sign-in first.',
+  hint: 'Phone sign-in must be on before OTP can be.',
+  section: 'auth',
 };
 SETTINGS['registration.requireEmailVerification']!.disabledWhen = {
   key: 'email.provider',
   oneOf: ['console'],
-  hint: 'Email verification needs a configured email provider (Email section).',
+  hint: 'Verification links are emailed, so this needs a real email provider.',
+  section: 'email',
 };
+
+// ─── Guidance for options that benefit from extra context ────────────
+SETTINGS['registration.inviteRequired']!.moreInfo =
+  'Invite codes are single-use, expire after 7 days, and can optionally be bound to one email address. Issue them from Users & invites.';
+SETTINGS['registration.inviteRequired']!.action = {
+  label: 'Issue an invite code',
+  section: 'users',
+};
+SETTINGS['registration.enabled']!.moreInfo =
+  'When off, nobody can create their own account. People join only when an admin adds them or hands out an invite code.';
+SETTINGS['registration.requireEmailVerification']!.moreInfo =
+  'New accounts must click a link emailed to them before they can sign in. Leave off while testing with the console email provider.';
+SETTINGS['appearance.allowUserThemes']!.moreInfo =
+  'When on, every user can pick their own theme in Settings → Appearance. When off, everyone gets the instance default.';
+SETTINGS['auth.passphrase.enabled']!.moreInfo =
+  'Lets people sign in with a single shared phrase instead of an account. Useful for event demos and read-only kiosks, not for regular users.';
+SETTINGS['auth.sessionDurationMinutes']!.moreInfo =
+  'How long a sign-in stays valid before the user must sign in again. Shorter is safer; longer is more convenient.';
+SETTINGS['storage.s3.endpoint']!.moreInfo =
+  'Leave empty for AWS S3. Set it to your MinIO, Cloudflare R2, or other S3-compatible endpoint URL.';
 
 function oauthDefs(): Record<string, SettingDef> {
   const defs: Record<string, SettingDef> = {};

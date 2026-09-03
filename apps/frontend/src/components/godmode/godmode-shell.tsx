@@ -2,28 +2,24 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  ChevronDown,
-  Fingerprint,
-  Globe,
-  HardDrive,
-  KeyRound,
-  LayoutGrid,
-  Link2,
-  LoaderCircle,
-  LogOut,
-  Mail,
-  MessageSquareText,
-  Palette,
-  Plug,
-  Rocket,
-  ServerCog,
-  ShieldCheck,
-  Timer,
-  UserPlus,
-  Users,
-  Webhook,
-} from 'lucide-react';
+import { ChevronDown, LoaderCircle, LogOut } from 'lucide-react';
+import { FingerprintIcon } from '@/components/icons/animated/fingerprint';
+import { EarthIcon } from '@/components/icons/animated/globe';
+import { HardDriveIcon } from '@/components/icons/animated/hard-drive';
+import { KeyIcon } from '@/components/icons/animated/key-round';
+import { LayoutGridIcon } from '@/components/icons/animated/layout-grid';
+import { Link2Icon } from '@/components/icons/animated/link-2';
+import { MailIcon } from '@/components/icons/animated/mail';
+import { MessageSquareIcon } from '@/components/icons/animated/message-square-text';
+import { PaletteIcon } from '@/components/icons/animated/palette';
+import { PlugIcon } from '@/components/icons/animated/plug';
+import { RocketIcon } from '@/components/icons/animated/rocket';
+import { ServerCogIcon } from '@/components/icons/animated/server-cog';
+import { ShieldCheckIcon } from '@/components/icons/animated/shield-check';
+import { TimerIcon } from '@/components/icons/animated/timer';
+import { UserPlusIcon } from '@/components/icons/animated/user-plus';
+import { UsersIcon } from '@/components/icons/animated/users';
+import { WebhookIcon } from '@/components/icons/animated/webhook';
 import { cn } from '@/lib/utils';
 import { Wordmark } from '@/components/brand/wordmark';
 import { Badge } from '@/components/ui/badge';
@@ -41,11 +37,12 @@ import { UsersPanel } from './users-panel';
 import { RolesPanel } from './roles-panel';
 import { SecurityPanel } from './security-panel';
 import { SetupOverview } from './setup-overview';
+import { CelebrationDialog } from './celebration-dialog';
 
 interface Section {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   groups?: string[]; // settings groups rendered by this section
   /** Keys inside those groups that another panel owns. */
   excludeKeys?: string[];
@@ -54,25 +51,25 @@ interface Section {
 }
 
 const SECTIONS: Section[] = [
-  { id: 'overview', label: 'Overview', icon: LayoutGrid },
+  { id: 'overview', label: 'Overview', icon: LayoutGridIcon },
   // Site name and tagline used to be editable here; they are deliberately
   // not shown anymore. The section now hosts only the legal documents.
-  { id: 'site', label: 'Site', icon: Globe, groups: ['legal'] },
+  { id: 'site', label: 'Site', icon: EarthIcon, groups: ['legal'] },
   // Everything sign-in related lives under one Authentication group.
-  { id: 'registration', label: 'Registration', icon: UserPlus, groups: ['registration'], parent: 'authentication' },
-  { id: 'auth', label: 'Sign-in methods', icon: KeyRound, groups: ['auth'], parent: 'authentication' },
-  { id: 'sessions', label: 'Sessions', icon: Timer, groups: ['sessions'], parent: 'authentication' },
-  { id: 'oauth', label: 'OAuth providers', icon: Plug, groups: ['oauth'], parent: 'authentication' },
-  { id: 'sso', label: 'SSO (OIDC / SAML)', icon: Link2, groups: ['sso'], parent: 'authentication' },
-  { id: 'email', label: 'Email', icon: Mail, groups: ['email'] },
-  { id: 'sms', label: 'SMS / OTP', icon: MessageSquareText, groups: ['sms'] },
-  { id: 'storage', label: 'Storage', icon: HardDrive, groups: ['storage'] },
-  { id: 'integrations', label: 'Integrations', icon: Webhook, groups: ['integrations'] },
-  { id: 'appearance', label: 'Appearance', icon: Palette, groups: ['appearance'] },
-  { id: 'modules', label: 'Modules', icon: Rocket, groups: ['modules'] },
-  { id: 'users', label: 'Users & invites', icon: Users },
-  { id: 'roles', label: 'Roles & permissions', icon: ShieldCheck },
-  { id: 'security', label: 'Godmode security', icon: Fingerprint },
+  { id: 'registration', label: 'Registration', icon: UserPlusIcon, groups: ['registration'], parent: 'authentication' },
+  { id: 'auth', label: 'Sign-in methods', icon: KeyIcon, groups: ['auth'], parent: 'authentication' },
+  { id: 'sessions', label: 'Sessions', icon: TimerIcon, groups: ['sessions'], parent: 'authentication' },
+  { id: 'oauth', label: 'OAuth providers', icon: PlugIcon, groups: ['oauth'], parent: 'authentication' },
+  { id: 'sso', label: 'SSO (OIDC / SAML)', icon: Link2Icon, groups: ['sso'], parent: 'authentication' },
+  { id: 'email', label: 'Email', icon: MailIcon, groups: ['email'] },
+  { id: 'sms', label: 'SMS / OTP', icon: MessageSquareIcon, groups: ['sms'] },
+  { id: 'storage', label: 'Storage', icon: HardDriveIcon, groups: ['storage'] },
+  { id: 'integrations', label: 'Integrations', icon: WebhookIcon, groups: ['integrations'] },
+  { id: 'appearance', label: 'Appearance', icon: PaletteIcon, groups: ['appearance'] },
+  { id: 'modules', label: 'Modules', icon: RocketIcon, groups: ['modules'] },
+  { id: 'users', label: 'Users & invites', icon: UsersIcon },
+  { id: 'roles', label: 'Roles & permissions', icon: ShieldCheckIcon },
+  { id: 'security', label: 'Godmode security', icon: FingerprintIcon },
   // `system` and `godmode` used to have no section at all, which left
   // system.instanceUrl (referenced by onboarding) and the godmode session
   // TTL unreachable from the UI. TOTP is deliberately excluded: Godmode
@@ -82,7 +79,7 @@ const SECTIONS: Section[] = [
   {
     id: 'advanced',
     label: 'Advanced',
-    icon: ServerCog,
+    icon: ServerCogIcon,
     groups: ['system', 'godmode'],
     excludeKeys: ['godmode.totp.enabled', 'godmode.totp.secret'],
   },
@@ -106,6 +103,14 @@ export function GodmodeShell({
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
+
+  // The live-site URL the deployer configured; the origin is the sane
+  // fallback when system.instanceUrl is still empty.
+  const liveSiteUrl =
+    (typeof settings?.items !== 'undefined' &&
+      String(settings?.items.find((i) => i.key === 'system.instanceUrl')?.value ?? '').trim()) ||
+    (typeof window !== 'undefined' ? window.location.origin : '');
 
   // The section lives in the URL so godmode panels can be linked to and
   // the browser Back button steps between them instead of leaving godmode.
@@ -210,7 +215,7 @@ export function GodmodeShell({
                       : 'text-ink-2 hover:bg-surface-muted hover:text-ink'
                   }`}
                 >
-                  <Icon className="h-4 w-4" strokeWidth={2.25} />
+                  <Icon size={16} className="flex items-center justify-center" />
                   {s.label}
                 </button>
               </div>
@@ -248,11 +253,7 @@ export function GodmodeShell({
                     try {
                       await godmodeFetch(godmodePaths.onboardingComplete(), { method: 'POST' });
                       await load();
-                      show({
-                        title: 'Atlas is live',
-                        description: 'People can sign in now.',
-                        tone: 'success',
-                      });
+                      setCelebrating(true);
                     } catch (err) {
                       show({
                         title: 'Could not finish setup',
@@ -272,6 +273,7 @@ export function GodmodeShell({
                 allItems={settings?.items}
                 onDirtyChange={setDirty}
                 onSaved={() => void load()}
+                onNavigate={navigate}
               />
             ) : null}
             {section === 'users' ? (
@@ -282,6 +284,13 @@ export function GodmodeShell({
           </>
         )}
       </main>
+
+      {celebrating ? (
+        <CelebrationDialog
+          liveUrl={liveSiteUrl}
+          onClose={() => setCelebrating(false)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -307,7 +316,7 @@ function AuthenticationGroupNav({
         aria-expanded={expanded}
         className="flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-[13.5px] font-medium text-ink-2 transition-colors duration-120 hover:bg-surface-muted hover:text-ink"
       >
-        <KeyRound className="h-4 w-4" strokeWidth={2.25} />
+        <KeyIcon size={16} className="flex items-center justify-center" />
         Authentication
         <ChevronDown
           className={cn(
@@ -333,7 +342,7 @@ function AuthenticationGroupNav({
                     : 'text-ink-2 hover:bg-surface-muted hover:text-ink'
                 }`}
               >
-                <Icon className="h-4 w-4" strokeWidth={2.25} />
+                <Icon size={16} className="flex items-center justify-center" />
                 {s.label}
               </button>
             );
@@ -350,7 +359,7 @@ function HeaderFor({ section, configured }: { section: Section; configured: bool
     <div className="mb-8">
       {/* The eyebrow used to repeat the h1 verbatim on every panel. */}
       <div className="flex items-center gap-2">
-        <Icon className="h-5 w-5 text-brand-blue" strokeWidth={2.25} />
+        <Icon size={20} className="flex items-center justify-center text-brand-blue" />
         <h1 className="font-display text-display-lg tracking-[-0.02em] text-ink">
           {section.label}
         </h1>

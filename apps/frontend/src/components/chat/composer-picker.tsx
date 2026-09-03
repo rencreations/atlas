@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Smile, Loader2, ImageIcon } from 'lucide-react';
+import { Loader2, ImageIcon } from 'lucide-react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ChatGif, ChatGifSearchResult, Sticker, StickerPack } from '@/lib/types';
+import { SmileIcon } from '@/components/icons/animated/smile';
 
 // Lazy-load the emoji picker, it's ~600KB and only needed when the
 // popover opens. Loading on the main bundle would punish every chat
@@ -48,7 +49,7 @@ export function ComposerPicker({ onEmojiPick, onGifPick, onStickerPick, onAfterC
     >
       <PopoverTrigger asChild>
         <Button size="icon-sm" variant="ghost" aria-label="Emoji, GIF, sticker" className="shrink-0">
-          <Smile className="h-4 w-4" strokeWidth={2.25} />
+          <SmileIcon size={16} className="flex items-center justify-center" />
         </Button>
       </PopoverTrigger>
       <PopoverContent

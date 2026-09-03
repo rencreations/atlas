@@ -1,16 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ArrowRight,
-  Check,
-  CircleDashed,
-  Info,
-  LoaderCircle,
-  PartyPopper,
-  Rocket,
-} from 'lucide-react';
+import { CircleDashed, Info, LoaderCircle } from 'lucide-react';
+import { ArrowRightIcon } from '@/components/icons/animated/arrow-right';
+import { CheckIcon } from '@/components/icons/animated/check';
+import { RocketIcon } from '@/components/icons/animated/rocket';
 import { Button } from '@/components/ui/button';
+import { PartyPopperIcon } from '@/components/icons/animated/party-popper';
+import { ConfettiBurst } from './confetti-burst';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
 import type { GodmodeSettingsView, GodmodeUser } from '@/lib/godmode/types';
 
@@ -180,9 +177,18 @@ export function SetupOverview({
   const blockers = required.filter((s) => !s.done);
   const canComplete = blockers.length === 0 && superadminExists !== null;
 
+  // The live-site URL the deployer configured; the origin is the fallback.
+  const liveUrl =
+    str(settings, 'system.instanceUrl') ||
+    (typeof window !== 'undefined' ? window.location.origin : '');
+
   if (settings.configured) {
     return (
-      <ConfiguredOverview recommended={recommended} onNavigate={onNavigate} />
+      <ConfiguredOverview
+        recommended={recommended}
+        liveUrl={liveUrl}
+        onNavigate={onNavigate}
+      />
     );
   }
 
@@ -247,7 +253,7 @@ export function SetupOverview({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <Rocket className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
+              <RocketIcon size={16} className="flex items-center justify-center text-brand-blue" />
               <span className="text-[14px] font-medium text-ink">Open Atlas to everyone</span>
             </div>
             <p className="mt-1 max-w-[520px] text-[13px] text-ink-3">
@@ -270,7 +276,7 @@ export function SetupOverview({
             disabled={!canComplete || completing}
             loading={completing}
           >
-            <Check className="h-4 w-4" strokeWidth={2.25} />
+            <CheckIcon size={16} className="flex items-center justify-center" />
             Finish setup
           </Button>
         </div>
@@ -307,7 +313,7 @@ function StepList({
                 role="img"
                 aria-label="Done"
               >
-                <Check className="h-3 w-3" strokeWidth={3} />
+                <CheckIcon size={12} className="flex items-center justify-center" />
               </span>
             ) : (
               <CircleDashed
@@ -332,7 +338,7 @@ function StepList({
             onClick={() => onNavigate(step.section)}
           >
             {step.done ? 'Review' : step.cta}
-            <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.25} />
+            <ArrowRightIcon size={14} className="flex items-center justify-center" />
           </Button>
         </div>
       ))}
@@ -343,22 +349,37 @@ function StepList({
 /** Once configured, the overview stops being a wizard and becomes a status page. */
 function ConfiguredOverview({
   recommended,
+  liveUrl,
   onNavigate,
 }: {
   recommended: Step[];
+  liveUrl: string;
   onNavigate: (section: string) => void;
 }) {
   const remaining = recommended.filter((s) => !s.done);
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-start gap-3 rounded-lg border border-brand-green/30 bg-brand-green-50 p-5">
-        <PartyPopper className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" strokeWidth={2.25} />
-        <div>
-          <div className="text-[14px] font-medium text-ink">This instance is live</div>
-          <p className="mt-1 text-[13px] text-ink-2">
-            People can sign in. Every setting on the left applies immediately, no redeploy.
-          </p>
+      <div className="relative flex flex-wrap items-start justify-between gap-3 overflow-hidden rounded-lg border border-brand-green/30 bg-brand-green-50 p-5">
+        {/* One celebratory burst per session when the admin sees the live state. */}
+        <ConfettiBurst oncePerSessionKey="atlas-live-confetti" className="absolute inset-0 h-full w-full" />
+        <div className="relative flex items-start gap-3">
+          <span className="mt-0.5 inline-grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-green-strong/10">
+            <PartyPopperIcon size={20} className="flex items-center justify-center" />
+          </span>
+          <div>
+            <div className="text-[14px] font-medium text-ink">This instance is live</div>
+            <p className="mt-1 max-w-[560px] text-[13px] text-ink-2">
+              People can sign in. Every setting on the left applies immediately, no redeploy.
+            </p>
+          </div>
         </div>
+        {liveUrl ? (
+          <Button size="sm" asChild className="relative">
+            <a href={liveUrl} target="_blank" rel="noreferrer">
+              See the live site
+            </a>
+          </Button>
+        ) : null}
       </div>
 
       {remaining.length > 0 ? (

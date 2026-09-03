@@ -200,7 +200,9 @@ export class SettingsService implements OnModuleInit {
       advanced?: boolean;
       public?: boolean;
       visibleWhen?: { key: string; oneOf: string[] };
-      disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string };
+      disabledWhen?: { key: string; oneOf: (string | boolean)[]; hint: string; section: string };
+      moreInfo?: string;
+      action?: { label: string; section: string };
     }[]
   > {
     const defs = this.definitions();
@@ -218,6 +220,8 @@ export class SettingsService implements OnModuleInit {
           public: def.public,
           visibleWhen: def.visibleWhen,
           disabledWhen: def.disabledWhen,
+          moreInfo: def.moreInfo,
+          action: def.action,
         };
         if (def.secret) {
           const raw = await this.get<string>(def.key);

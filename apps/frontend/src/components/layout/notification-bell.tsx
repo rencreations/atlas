@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Bell, BellOff, Check, Inbox, Loader2, Sparkles } from 'lucide-react';
+import { BellOff, Check, Inbox, Loader2, Sparkles } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Popover,
@@ -14,6 +14,7 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import type { NotificationItem, Paginated } from '@/lib/types';
 import { cn, formatRelative } from '@/lib/utils';
+import { BellIcon } from '@/components/icons/animated/bell';
 import { ATLAS_TITLE_EVENT, getPageTitleBase } from '@/lib/page-title';
 import { usePushPermission } from '@/lib/notifications/use-push-permission';
 import { useToast } from '@/components/ui/toast';
@@ -111,7 +112,7 @@ export function NotificationBell() {
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
           )}
         >
-          <Bell className="h-5 w-5" strokeWidth={2.25} />
+          <BellIcon size={20} className="flex items-center justify-center" />
           {count > 0 ? (
             <span className="absolute right-1.5 top-1.5 inline-grid min-w-[18px] place-items-center rounded-full bg-brand-red-strong px-1 text-[11px] font-medium leading-none text-white">
               {count > 99 ? '99+' : count}

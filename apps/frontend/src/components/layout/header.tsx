@@ -3,9 +3,11 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, Plus } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Wordmark } from '@/components/brand/wordmark';
 import { ShapeSignature } from '@/components/brand/shape-signature';
+import { MenuIcon } from '@/components/icons/animated/menu';
+import { PlusIcon } from '@/components/icons/animated/plus';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -35,6 +37,7 @@ const NAV: NavLink[] = [
 export function Header({ user }: { user?: SessionUser | null }) {
   const [scrolled, setScrolled] = React.useState(false);
   const pathname = usePathname();
+  const reducedMotion = useReducedMotion();
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -54,7 +57,13 @@ export function Header({ user }: { user?: SessionUser | null }) {
     >
       <div className="container-x mx-auto flex h-14 max-w-[1360px] items-center gap-6 md:h-16">
         <Link href={'/dashboard' as never} aria-label="Atlas home" className="flex items-center gap-2">
-          <ShapeSignature size={24} />
+          <motion.span
+            className="flex items-center"
+            whileHover={reducedMotion ? undefined : { scale: 1.08, rotate: -4 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+          >
+            <ShapeSignature size={24} />
+          </motion.span>
           <Wordmark withSignature={false} className="hidden text-[18px] sm:inline-flex" />
         </Link>
 
@@ -84,7 +93,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Open navigation menu">
-                <Menu className="h-5 w-5" strokeWidth={2.25} />
+                <MenuIcon size={20} className="flex items-center justify-center" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[220px]">
@@ -104,7 +113,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href={'/projects/new' as never}>
-                  <Plus className="h-4 w-4" strokeWidth={2.25} />
+                  <PlusIcon size={16} className="flex items-center justify-center" />
                   New project
                 </Link>
               </DropdownMenuItem>
@@ -118,13 +127,13 @@ export function Header({ user }: { user?: SessionUser | null }) {
               carries New project on mobile). */}
           <Button asChild size="sm" className="hidden lg:inline-flex">
             <Link href={'/projects/new' as never}>
-              <Plus className="h-4 w-4" strokeWidth={2.25} />
+              <PlusIcon size={16} className="flex items-center justify-center" />
               New project
             </Link>
           </Button>
           <Button asChild size="icon-sm" variant="ghost" className="lg:hidden">
             <Link href={'/projects/new' as never} aria-label="New project">
-              <Plus className="h-4 w-4" strokeWidth={2.25} />
+              <PlusIcon size={16} className="flex items-center justify-center" />
             </Link>
           </Button>
           {user ? <ChatNavButton /> : null}

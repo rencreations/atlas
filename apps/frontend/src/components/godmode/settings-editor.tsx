@@ -1,7 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronDown, FileText, LoaderCircle, RotateCcw, Upload } from 'lucide-react';
+import { FileText, HelpCircle, LoaderCircle, RotateCcw, Upload } from 'lucide-react';
+import { ArrowRightIcon } from '@/components/icons/animated/arrow-right';
+import { CheckIcon } from '@/components/icons/animated/check';
+import { ChevronDownIcon } from '@/components/icons/animated/chevron-down';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
@@ -54,6 +58,7 @@ export function SettingsEditor({
   allItems,
   onDirtyChange,
   onSaved,
+  onNavigate,
 }: {
   items: GodmodeSettingItem[];
   /** Every registry item; used to resolve cross-section dependencies
@@ -63,6 +68,8 @@ export function SettingsEditor({
   onDirtyChange?: (dirty: boolean) => void;
   /** Fired after settings were saved successfully (lets the host refresh). */
   onSaved?: () => void;
+  /** Jumps to another godmode section (dependency and action CTAs). */
+  onNavigate?: (section: string) => void;
 }) {
   const { show } = useToast();
   const [values, setValues] = useState<Record<string, EditorValue>>({});
@@ -128,10 +135,12 @@ export function SettingsEditor({
     [lookupItems, values],
   );
   const disabledHint = useCallback(
-    (item: GodmodeSettingItem): string | null => {
+    (item: GodmodeSettingItem): { hint: string; section: string } | null => {
       const rule = item.disabledWhen;
       if (!rule) return null;
-      return rule.oneOf.includes(String(depValue(rule.key))) ? rule.hint : null;
+      return rule.oneOf.includes(String(depValue(rule.key)))
+        ? { hint: rule.hint, section: rule.section }
+        : null;
     },
     [depValue],
   );
@@ -193,19 +202,6 @@ export function SettingsEditor({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex min-h-9 items-center justify-end">
-        {dirtyCount > 0 ? (
-          <Button size="sm" onClick={() => void save()} disabled={saving || hasInvalidJson}>
-            {saving ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
-            ) : (
-              <Check className="h-4 w-4" strokeWidth={2.25} />
-            )}
-            Save {dirtyCount} change{dirtyCount === 1 ? '' : 's'}
-          </Button>
-        ) : null}
-      </div>
-
       {isOauthGroup ? (
         <OAuthProvidersPanel items={items} values={values} onChange={set} />
       ) : (
@@ -232,17 +228,54 @@ export function SettingsEditor({
                         advanced
                       </span>
                     ) : null}
+                    {item.moreInfo ? (
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label={`More about ${item.label}`}
+                              className="inline-grid h-6 w-6 shrink-0 place-items-center rounded-full text-ink-3 transition-colors duration-120 hover:bg-surface-muted hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                            >
+                              <HelpCircle className="h-3.5 w-3.5" strokeWidth={2.25} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent sideOffset={6}>{item.moreInfo}</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : null}
                   </div>
                   {item.description ? (
                     <p className="mt-1 text-[13px] text-ink-3">{item.description}</p>
                   ) : null}
-                  {hint ? (
-                    <p className="mt-1 flex items-start gap-1.5 text-[12.5px] text-brand-yellow-ink">
-                      <span aria-hidden>!</span>
-                      {hint}
-                    </p>
+                  {item.action && onNavigate ? (
+                    <button
+                      type="button"
+                      onClick={() => onNavigate(item.action!.section)}
+                      className="mt-1.5 inline-flex items-center gap-1 text-[12.5px] font-medium text-brand-blue underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                    >
+                      {item.action.label}
+                      <ArrowRightIcon size={12} className="flex items-center justify-center" />
+                    </button>
                   ) : null}
-                  <p className="mt-1 font-mono text-[11px] text-ink-4">{item.key}</p>
+                  {hint ? (
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-brand-yellow-ink">
+                      <span className="flex items-start gap-1.5">
+                        <span aria-hidden>!</span>
+                        {hint.hint}
+                      </span>
+                      {onNavigate ? (
+                        <button
+                          type="button"
+                          onClick={() => onNavigate(hint.section)}
+                          className="inline-flex items-center gap-1 font-medium underline-offset-2 hover:underline"
+                        >
+                          Configure now
+                          <ArrowRightIcon size={12} className="flex items-center justify-center" />
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
                 <div className={cn('shrink-0', hint && 'opacity-50')}>
                   <SettingControl
@@ -284,7 +317,7 @@ export function SettingsEditor({
             {saving ? (
               <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
             ) : (
-              <Check className="h-4 w-4" strokeWidth={2.25} />
+              <CheckIcon size={16} className="flex items-center justify-center" />
             )}
             Save changes
           </Button>
@@ -495,7 +528,7 @@ function LegalDocControl({
                 setOpen(false);
               }}
             >
-              <Check className="h-4 w-4" strokeWidth={2.25} />
+              <CheckIcon size={16} className="flex items-center justify-center" />
               Apply
             </Button>
           </DialogFooter>
@@ -569,7 +602,6 @@ function OAuthProvidersPanel({
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[14px] font-medium text-ink">{provider.label}</div>
-                <div className="font-mono text-[11px] text-ink-4">{provider.enabledKey}</div>
               </div>
               <button
                 type="button"
@@ -580,9 +612,9 @@ function OAuthProvidersPanel({
                 aria-label={`Show ${provider.label} configuration`}
                 className="inline-grid h-9 w-9 place-items-center rounded text-ink-3 transition-colors duration-120 hover:bg-surface-muted hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               >
-                <ChevronDown
-                  className={cn('h-4 w-4 transition-transform duration-200', expanded && 'rotate-180')}
-                  strokeWidth={2.25}
+                <ChevronDownIcon
+                  size={16}
+                  className={cn('flex items-center justify-center transition-transform duration-200', expanded && 'rotate-180')}
                 />
               </button>
               <Switch
