@@ -56,3 +56,6 @@ playwright-report/
 
 # npm (this is a pnpm repo)
 package-lock.json
+
+# local-storage provider files (runtime data, never committed)
+apps/backend/data/
