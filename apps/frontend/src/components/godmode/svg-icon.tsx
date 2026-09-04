@@ -54,8 +54,14 @@ export function rawSvgIcon(svg: string): React.ComponentType<LogoProps> {
       <span
         aria-hidden
         role="presentation"
-        className={className}
-        style={{ display: 'inline-block', width: size, height: size, lineHeight: 0 }}
+        // `display` lives in the className, not the style attribute: an
+        // inline style always beats a class regardless of specificity, so
+        // a hardcoded `display: inline-block` here silently defeated the
+        // `dark:hidden` class themedSvgIcon relies on below, both the
+        // light and dark copies stayed visible (and, stacked as two
+        // siblings, pushed each other off-center) in every theme.
+        className={cn('inline-block', className)}
+        style={{ width: size, height: size, lineHeight: 0 }}
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: html }}
       />
@@ -65,16 +71,25 @@ export function rawSvgIcon(svg: string): React.ComponentType<LogoProps> {
 }
 
 /** A light-mode SVG and a dark-mode SVG; only the active one renders,
- *  toggled by the `.dark` class the same way the rest of the app themes. */
+ *  toggled by the `.dark` class the same way the rest of the app themes.
+ *  Both copies live inside one wrapper span (rather than as two siblings
+ *  in whatever grid/flex the caller centers icons with) so there is only
+ *  ever one box for the parent to lay out and center, regardless of
+ *  which copy is the hidden one. */
 export function themedSvgIcon(lightSvg: string, darkSvg: string): React.ComponentType<LogoProps> {
   const Light = rawSvgIcon(lightSvg);
   const Dark = rawSvgIcon(darkSvg);
   function ThemedSvgIcon({ className, size = 20 }: LogoProps) {
     return (
-      <>
-        <Light className={cn(className, 'dark:hidden')} size={size} />
-        <Dark className={cn(className, 'hidden dark:inline-block')} size={size} />
-      </>
+      <span
+        aria-hidden
+        role="presentation"
+        className={cn('inline-grid place-items-center', className)}
+        style={{ width: size, height: size }}
+      >
+        <Light className="col-start-1 row-start-1 dark:hidden" size={size} />
+        <Dark className="col-start-1 row-start-1 hidden dark:inline-block" size={size} />
+      </span>
     );
   }
   return ThemedSvgIcon;
@@ -88,8 +103,8 @@ export function imgChipIcon(dataUri: string): React.ComponentType<LogoProps> {
       <span
         aria-hidden
         role="presentation"
-        className={className}
-        style={{ display: 'inline-block', width: size, height: size, lineHeight: 0 }}
+        className={cn('inline-block', className)}
+        style={{ width: size, height: size, lineHeight: 0 }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

@@ -297,11 +297,13 @@ export function GodmodeShell({
                 items={groupItems}
                 allItems={settings?.items}
                 ssoConnections={settings?.ssoConnections}
+                passphraseCredentials={settings?.passphraseCredentials}
                 groups={settings?.groups}
                 onDirtyChange={setDirty}
                 onSaved={() => void load()}
                 onNavigate={navigate}
                 onSsoChanged={() => void load()}
+                onPassphraseChanged={() => void load()}
               />
             ) : null}
             {section === 'users' ? (

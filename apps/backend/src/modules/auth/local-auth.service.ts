@@ -14,6 +14,7 @@ import { SettingsService } from '@/modules/settings/settings.service';
 import { MailerService } from '@/modules/mailer/mailer.service';
 import { IdentityService, SessionUser } from './identity.service';
 import { OtpService } from './otp.service';
+import { PassphraseCredentialsService } from './passphrase-credentials.service';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -41,6 +42,7 @@ export class LocalAuthService {
     private readonly mailer: MailerService,
     private readonly otp: OtpService,
     private readonly identity: IdentityService,
+    private readonly passphraseCredentials: PassphraseCredentialsService,
   ) {}
 
   private async minPasswordLength(): Promise<number> {
@@ -482,18 +484,19 @@ export class LocalAuthService {
 
   // ─── Instance passphrase ──────────────────────────────────────────
 
+  /**
+   * Each named passphrase credential resolves to its own user identity
+   * (`passphrase+<credentialId>@local`), so different credentials carry
+   * different roles/permissions instead of sharing one account.
+   */
   async loginWithPassphrase(passphrase: string): Promise<SessionUser> {
-    if (!(await this.settings.get<boolean>('auth.passphrase.enabled'))) {
-      throw new ForbiddenException('Passphrase sign-in is disabled on this instance.');
-    }
-    const expected = await this.settings.get<string>('auth.passphrase.value');
-    if (!expected || !this.safeCompare(passphrase, expected)) {
+    const match = await this.passphraseCredentials.findMatch(passphrase);
+    if (!match) {
       throw new UnauthorizedException('Incorrect passphrase.');
     }
 
-    const roleCode = await this.settings.get<string>('auth.passphrase.role');
-    const role = await this.prisma.role.findUnique({ where: { code: roleCode } });
-    const email = 'passphrase@local';
+    const role = await this.prisma.role.findUnique({ where: { code: match.roleCode } });
+    const email = `passphrase+${match.id}@local`;
     let user = (await this.prisma.user.findUnique({
       where: { email },
       select: SESSION_USER_SELECT,
@@ -502,10 +505,10 @@ export class LocalAuthService {
       user = (await this.prisma.user.create({
         data: {
           email,
-          name: 'Team member',
+          name: match.name,
           emailVerified: true,
-          isAdmin: roleCode === 'admin' || roleCode === 'superadmin',
-          identities: { create: { provider: 'passphrase', providerId: email } },
+          isAdmin: match.roleCode === 'admin' || match.roleCode === 'superadmin',
+          identities: { create: { provider: 'passphrase', providerId: match.id } },
           ...(role ? { userRoles: { create: { roleId: role.id } } } : {}),
         },
         select: SESSION_USER_SELECT,
@@ -522,11 +525,5 @@ export class LocalAuthService {
 
   private hashToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
-  }
-
-  private safeCompare(a: string, b: string): boolean {
-    const ha = createHash('sha256').update(a).digest();
-    const hb = createHash('sha256').update(b).digest();
-    return ha.length === hb.length && ha.equals(hb);
   }
 }

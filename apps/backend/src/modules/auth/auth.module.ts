@@ -13,6 +13,7 @@ import { OAuthService } from './oauth.service';
 import { OIDCService } from './oidc.service';
 import { SamlService } from './saml.service';
 import { SsoConnectionsService } from './sso-connections.service';
+import { PassphraseCredentialsService } from './passphrase-credentials.service';
 import { OAuthController } from './oauth.controller';
 import { PermissionsGuard } from './guards/permissions.guard';
 
@@ -32,6 +33,7 @@ import { PermissionsGuard } from './guards/permissions.guard';
     OIDCService,
     SamlService,
     SsoConnectionsService,
+    PassphraseCredentialsService,
     PermissionsGuard,
   ],
   exports: [
@@ -40,6 +42,7 @@ import { PermissionsGuard } from './guards/permissions.guard';
     KeycloakTokenService,
     IdentityService,
     SsoConnectionsService,
+    PassphraseCredentialsService,
     PermissionsGuard,
   ],
 })

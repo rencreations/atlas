@@ -1,6 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -141,7 +148,9 @@ export function LoginClient({
     const data = await res.json().catch(() => null);
     if (!res.ok) {
       throw new Error(
-        Array.isArray(data?.message) ? data.message.join(', ') : (data?.message ?? `Request failed (${res.status}).`),
+        Array.isArray(data?.message)
+          ? data.message.join(', ')
+          : (data?.message ?? `Request failed (${res.status}).`),
       );
     }
     return data as T;
@@ -151,7 +160,10 @@ export function LoginClient({
     setBusy(true);
     setError(null);
     try {
-      const session = await post<SessionResponse>(apiPaths.auth.loginPassword(), { email, password });
+      const session = await post<SessionResponse>(apiPaths.auth.loginPassword(), {
+        email,
+        password,
+      });
       if (session.mustChangePassword) {
         setPendingSession(session);
         switchView('must-change');
@@ -274,13 +286,16 @@ export function LoginClient({
   }, [email, ssoConnections]);
   // With password auth off the provider links must still be reachable from
   // whichever view we defaulted to.
-  const showProviderBlock = (view === 'password' || !config.authMethods.password.enabled) && dividerNeeded;
+  const showProviderBlock =
+    (view === 'password' || !config.authMethods.password.enabled) && dividerNeeded;
 
   const providerLinkClass =
     'flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-surface text-[14px] font-medium text-ink transition-[border-color,background-color,opacity] duration-120 hover:border-line-strong hover:bg-surface-muted';
 
   const switcherGrid =
-    config.authMethods.magicLink.enabled || config.authMethods.phone.enabled || config.authMethods.passphrase.enabled ? (
+    config.authMethods.magicLink.enabled ||
+    config.authMethods.phone.enabled ||
+    config.authMethods.passphrase.enabled ? (
       <div className="grid grid-cols-2 gap-2">
         {METHOD_DEFS.filter((m) => config.authMethods[m.configKey].enabled).map((m) => (
           <Button
@@ -347,15 +362,11 @@ export function LoginClient({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="login-password">Password</Label>
-              <Link
-                href={'/auth/forgot-password' as never}
-                className="-my-2 inline-block py-2 text-[12px] font-medium text-brand-blue hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
+            {/* PasswordInput sits first in the DOM (order-2 visually
+                keeps it below the label row): tab order follows DOM
+                order, not CSS order, so this is what makes Tab from the
+                email field land straight on the password field instead
+                of stopping on "Forgot password?" first. */}
             <PasswordInput
               id="login-password"
               autoComplete="current-password"
@@ -365,7 +376,17 @@ export function LoginClient({
                 clearInvalid();
                 setPassword(e.target.value);
               }}
+              className="order-2"
             />
+            <div className="order-1 flex items-center justify-between">
+              <Label htmlFor="login-password">Password</Label>
+              <Link
+                href={'/auth/forgot-password' as never}
+                className="-my-2 inline-block py-2 text-[12px] font-medium text-brand-blue hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
           <Button type="submit" disabled={!email || !password || busy} size="lg" className="w-full">
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
@@ -459,7 +480,12 @@ export function LoginClient({
               <p className="text-[12px] text-ink-3">4–6 digit code</p>
             </div>
           ) : null}
-          <Button type="submit" disabled={!phone || busy || (otpSent && otp.length < 4)} size="lg" className="w-full">
+          <Button
+            type="submit"
+            disabled={!phone || busy || (otpSent && otp.length < 4)}
+            size="lg"
+            className="w-full"
+          >
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
             {otpSent ? 'Verify & sign in' : 'Send code'}
           </Button>
@@ -544,7 +570,12 @@ export function LoginClient({
             />
             <p className="text-[12px] text-ink-3">At least 6 characters</p>
           </div>
-          <Button type="submit" disabled={newPassword.length < 6 || busy} size="lg" className="w-full">
+          <Button
+            type="submit"
+            disabled={newPassword.length < 6 || busy}
+            size="lg"
+            className="w-full"
+          >
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} /> : null}
             Set password & continue
           </Button>
@@ -581,7 +612,10 @@ export function LoginClient({
               data-provider-label={p.label}
               onClick={handleProviderClick}
               aria-disabled={redirecting !== null}
-              className={cn(providerLinkClass, redirecting !== null && 'pointer-events-none opacity-60')}
+              className={cn(
+                providerLinkClass,
+                redirecting !== null && 'pointer-events-none opacity-60',
+              )}
             >
               {redirecting === p.label ? (
                 <LoaderCircle className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
@@ -597,7 +631,10 @@ export function LoginClient({
               data-provider-label={config.sso.oidc.label}
               onClick={handleProviderClick}
               aria-disabled={redirecting !== null}
-              className={cn(providerLinkClass, redirecting !== null && 'pointer-events-none opacity-60')}
+              className={cn(
+                providerLinkClass,
+                redirecting !== null && 'pointer-events-none opacity-60',
+              )}
             >
               {redirecting === config.sso.oidc.label ? (
                 <LoaderCircle className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
@@ -615,7 +652,10 @@ export function LoginClient({
               data-provider-label={config.sso.saml.label}
               onClick={handleProviderClick}
               aria-disabled={redirecting !== null}
-              className={cn(providerLinkClass, redirecting !== null && 'pointer-events-none opacity-60')}
+              className={cn(
+                providerLinkClass,
+                redirecting !== null && 'pointer-events-none opacity-60',
+              )}
             >
               {redirecting === config.sso.saml.label ? (
                 <LoaderCircle className="h-4 w-4 animate-spin text-ink-3" strokeWidth={2.25} />
@@ -646,7 +686,9 @@ export function LoginClient({
               ) : (
                 <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
               )}
-              {redirecting === conn.name ? `Redirecting to ${conn.name}…` : `Continue with ${conn.name}`}
+              {redirecting === conn.name
+                ? `Redirecting to ${conn.name}…`
+                : `Continue with ${conn.name}`}
             </a>
           ))}
           {matchedConnection ? (

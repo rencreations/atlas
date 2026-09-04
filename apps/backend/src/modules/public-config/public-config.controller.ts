@@ -4,6 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { SsoConnectionsService } from '@/modules/auth/sso-connections.service';
+import { PassphraseCredentialsService } from '@/modules/auth/passphrase-credentials.service';
 import { THEME_OPTIONS } from '@/modules/settings/theme-ids';
 
 const OAUTH_LABELS: Record<string, string> = {
@@ -30,6 +31,7 @@ export class PublicConfigController {
     private readonly settings: SettingsService,
     private readonly config: ConfigService,
     private readonly ssoConnections: SsoConnectionsService,
+    private readonly passphraseCredentials: PassphraseCredentialsService,
   ) {}
 
   @Public()
@@ -58,7 +60,6 @@ export class PublicConfigController {
       magicLinkEnabled,
       phoneEnabled,
       phoneOtpEnabled,
-      passphraseEnabled,
       oidcEnabled,
       oidcLabel,
       samlEnabled,
@@ -80,7 +81,6 @@ export class PublicConfigController {
       this.settings.get<boolean>('auth.magicLink.enabled'),
       this.settings.get<boolean>('auth.phone.enabled'),
       this.settings.get<boolean>('auth.phone.otpEnabled'),
-      this.settings.get<boolean>('auth.passphrase.enabled'),
       this.settings.get<boolean>('sso.oidc.enabled'),
       this.settings.get<string>('sso.oidc.buttonLabel'),
       this.settings.get<boolean>('sso.saml.enabled'),
@@ -137,7 +137,10 @@ export class PublicConfigController {
         password: { enabled: passwordEnabled, label: 'Email & password' },
         magicLink: { enabled: magicLinkEnabled, label: 'Magic link' },
         phone: { enabled: phoneEnabled, otpEnabled: phoneOtpEnabled, label: 'Phone' },
-        passphrase: { enabled: passphraseEnabled, label: 'Passphrase' },
+        // No single flat toggle anymore: an instance can offer several
+        // named passphrases at once, so "enabled" here just means at
+        // least one of them currently is.
+        passphrase: { enabled: await this.passphraseCredentials.hasAny(), label: 'Passphrase' },
       },
       oauthProviders: oauth.filter((p) => p.enabled).map((p) => ({ id: p.id, label: p.label })),
       oauthCallbacks,

@@ -9,7 +9,8 @@ import { PhoneIcon } from '@/components/icons/animated/phone';
 import { WandSparklesIcon } from '@/components/icons/animated/wand-sparkles';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import type { GodmodeSettingItem } from '@/lib/godmode/types';
+import type { GodmodePassphraseCredential, GodmodeSettingItem } from '@/lib/godmode/types';
+import { PassphraseCredentialsPanel } from './passphrase-credentials-panel';
 import { InlineFieldRow, type EditorValue } from './setting-row';
 
 interface MethodGroup {
@@ -18,22 +19,19 @@ interface MethodGroup {
   fields: string[];
 }
 
+// Instance passphrase is handled separately below: an instance can offer
+// several named passphrases at once, each its own role, so it no longer
+// fits the "one toggle plus its fields" shape the rest of these use.
 const SIGN_IN_METHODS: MethodGroup[] = [
   { id: 'emailPassword', enabledKey: 'auth.emailPassword.enabled', fields: [] },
   { id: 'magicLink', enabledKey: 'auth.magicLink.enabled', fields: [] },
   { id: 'phone', enabledKey: 'auth.phone.enabled', fields: ['auth.phone.otpEnabled'] },
-  {
-    id: 'passphrase',
-    enabledKey: 'auth.passphrase.enabled',
-    fields: ['auth.passphrase.value', 'auth.passphrase.role'],
-  },
 ];
 
 const METHOD_ICONS: Record<string, React.ComponentType<{ className?: string; size?: number }>> = {
   emailPassword: MailIcon,
   magicLink: WandSparklesIcon,
   phone: PhoneIcon,
-  passphrase: KeyIcon,
 };
 
 /**
@@ -53,15 +51,23 @@ export function AuthMethodsPanel({
   onChange,
   disabledHint,
   onNavigate,
+  passphraseCredentials,
+  onPassphraseChanged,
 }: {
   items: GodmodeSettingItem[];
   values: Record<string, EditorValue>;
   onChange: (key: string, value: EditorValue['value']) => void;
   disabledHint: (item: GodmodeSettingItem) => { hint: string; section: string } | null;
   onNavigate?: (section: string) => void;
+  passphraseCredentials?: GodmodePassphraseCredential[];
+  onPassphraseChanged?: () => void;
 }) {
   const itemByKey = useMemo(() => new Map(items.map((i) => [i.key, i])), [items]);
   const [openOverrides, setOpenOverrides] = useState<Record<string, boolean>>({});
+  const [passphraseOpen, setPassphraseOpen] = useState(false);
+  const passphraseItem = itemByKey.get('auth.passphrase.enabled');
+  const credentials = passphraseCredentials ?? [];
+  const activeCredentials = credentials.filter((c) => c.enabled).length;
 
   const methods = useMemo(
     () =>
@@ -166,6 +172,50 @@ export function AuthMethodsPanel({
           </div>
         );
       })}
+
+      {passphraseItem ? (
+        <div className="rounded border border-line bg-surface p-4 shadow-1">
+          <button
+            type="button"
+            onClick={() => setPassphraseOpen((o) => !o)}
+            aria-expanded={passphraseOpen}
+            aria-label={`Show ${passphraseItem.label} directory`}
+            className="flex w-full items-center gap-3 rounded text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <span className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-muted">
+              <KeyIcon size={20} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="text-[14px] font-medium text-ink">{passphraseItem.label}</div>
+              {passphraseItem.description ? (
+                <p className="mt-0.5 text-[12px] text-ink-4">{passphraseItem.description}</p>
+              ) : null}
+            </div>
+            <span className="shrink-0 text-[12px] text-ink-4">
+              {activeCredentials > 0
+                ? `${activeCredentials} active`
+                : credentials.length > 0
+                  ? 'All off'
+                  : 'Off'}
+            </span>
+            <ChevronDownIcon
+              size={16}
+              className={cn(
+                'flex shrink-0 items-center justify-center text-ink-3 transition-transform duration-200',
+                passphraseOpen && 'rotate-180',
+              )}
+            />
+          </button>
+          {passphraseOpen ? (
+            <div className="mt-4 border-t border-line pt-4 pl-12">
+              <PassphraseCredentialsPanel
+                credentials={credentials}
+                onChanged={onPassphraseChanged}
+              />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

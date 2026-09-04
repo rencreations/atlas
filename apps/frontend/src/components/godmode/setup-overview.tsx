@@ -39,13 +39,15 @@ function bool(view: GodmodeSettingsView, key: string): boolean {
 function anySignInMethod(view: GodmodeSettingsView): boolean {
   return (
     (view.ssoConnections ?? []).some((c) => c.enabled) ||
+    // Passphrase is a dynamic list now (0+ named credentials), not the
+    // single auth.passphrase.enabled flag it used to be.
+    (view.passphraseCredentials ?? []).some((c) => c.enabled) ||
     view.items.some(
       (i) =>
         i.value === true &&
         (i.key === 'auth.emailPassword.enabled' ||
           i.key === 'auth.magicLink.enabled' ||
           i.key === 'auth.phone.enabled' ||
-          i.key === 'auth.passphrase.enabled' ||
           i.key === 'sso.oidc.enabled' ||
           i.key === 'sso.saml.enabled' ||
           (i.key.startsWith('auth.oauth.') && i.key.endsWith('.enabled'))),

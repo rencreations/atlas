@@ -34,6 +34,18 @@ export interface GodmodeSettingsView {
   items: GodmodeSettingItem[];
   configured: boolean;
   ssoConnections?: GodmodeSsoConnection[];
+  passphraseCredentials?: GodmodePassphraseCredential[];
+}
+
+/** A named instance-passphrase credential: its own role, its own users. */
+export interface GodmodePassphraseCredential {
+  id: string;
+  name: string;
+  roleCode: string;
+  enabled: boolean;
+  lastUsedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /** A tenant SSO directory (OIDC or SAML) connected to this instance. */

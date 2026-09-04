@@ -1557,6 +1557,23 @@ model SsoConnection {
   updatedAt DateTime @updatedAt
 }
 
+/// Named instance-passphrase credentials. An instance can offer several
+/// shared sign-in phrases at once (e.g. "Front desk kiosk", "Demo booth"),
+/// each with its own role and its own user identity, instead of every
+/// passphrase sharing one account and one permission set.
+model PassphraseCredential {
+  id             String    @id @default(uuid())
+  /// Admin-facing label only, e.g. "Front desk kiosk".
+  name           String
+  /// bcrypt hash, the plaintext is never stored.
+  passphraseHash String
+  roleCode       String    @default("member")
+  enabled        Boolean   @default(true)
+  lastUsedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
 /// Background migration of stored objects from one storage provider to
 /// another (local → S3, S3 → R2, ...). Writes keep flowing to the old
 /// provider until the migration finishes; only then does

@@ -16,7 +16,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
@@ -103,7 +109,11 @@ export function SsoConnectionsPanel({
     try {
       const config: Record<string, string> =
         draft.type === 'oidc'
-          ? { issuer: draft.issuer.trim(), clientId: draft.clientId.trim(), clientSecret: draft.clientSecret.trim() }
+          ? {
+              issuer: draft.issuer.trim(),
+              clientId: draft.clientId.trim(),
+              clientSecret: draft.clientSecret.trim(),
+            }
           : {
               entryPoint: draft.entryPoint.trim(),
               spIssuer: draft.spIssuer.trim(),
@@ -114,7 +124,10 @@ export function SsoConnectionsPanel({
         name: draft.name.trim(),
         type: draft.type,
         enabled: editing?.enabled ?? false,
-        domains: draft.domains.split(',').map((d) => d.trim()).filter(Boolean),
+        domains: draft.domains
+          .split(',')
+          .map((d) => d.trim())
+          .filter(Boolean),
         config,
       };
       if (editing) {
@@ -128,7 +141,11 @@ export function SsoConnectionsPanel({
           method: 'POST',
           body: JSON.stringify(payload),
         });
-        show({ title: 'Added', description: `${draft.name.trim()} is ready to enable.`, tone: 'success' });
+        show({
+          title: 'Added',
+          description: `${draft.name.trim()} is ready to enable.`,
+          tone: 'success',
+        });
       }
       setDialogOpen(false);
       onChanged?.();
@@ -165,7 +182,8 @@ export function SsoConnectionsPanel({
   const remove = async (conn: GodmodeSsoConnection) => {
     const ok = await confirm({
       title: `Delete ${conn.name}?`,
-      description: 'People from this directory will lose that sign-in button. Their accounts stay intact.',
+      description:
+        'People from this directory will lose that sign-in button. Their accounts stay intact.',
       confirmLabel: 'Delete connection',
     });
     if (!ok) return;
@@ -192,8 +210,8 @@ export function SsoConnectionsPanel({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <p className="max-w-[560px] text-[13px] text-ink-3">
           Connect company directories (Okta, Entra ID, Google Workspace, and more) so each
-          organization signs in with its own OIDC or SAML setup. Every enabled connection gets
-          its own button on the login page.
+          organization signs in with its own OIDC or SAML setup. Every enabled connection gets its
+          own button on the login page.
         </p>
         <Button size="sm" variant="secondary" onClick={openCreate}>
           <PlusIcon size={16} className="flex items-center justify-center" />
@@ -210,9 +228,10 @@ export function SsoConnectionsPanel({
 
       {connections.map((conn) => {
         const Icon = conn.type === 'saml' ? Fingerprint : KeyIcon;
-        const urlBase = conn.type === 'saml'
-          ? `${API_BASE}/auth/sso/${conn.id}/saml/acs`
-          : `${API_BASE}/auth/sso/${conn.id}/oidc/callback`;
+        const urlBase =
+          conn.type === 'saml'
+            ? `${API_BASE}/auth/sso/${conn.id}/saml/acs`
+            : `${API_BASE}/auth/sso/${conn.id}/oidc/callback`;
         return (
           <div key={conn.id} className="rounded border border-line bg-surface p-4 shadow-1">
             <div className="flex flex-wrap items-center gap-3">
@@ -240,7 +259,12 @@ export function SsoConnectionsPanel({
                   </code>
                   <button
                     type="button"
-                    onClick={() => copy(urlBase, conn.type === 'saml' ? 'ACS URL copied.' : 'Callback URL copied.')}
+                    onClick={() =>
+                      copy(
+                        urlBase,
+                        conn.type === 'saml' ? 'ACS URL copied.' : 'Callback URL copied.',
+                      )
+                    }
                     className="inline-grid h-6 w-6 place-items-center rounded text-ink-3 transition-colors duration-120 hover:bg-surface-muted hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                     aria-label={`Copy ${conn.type === 'saml' ? 'ACS URL' : 'callback URL'} for ${conn.name}`}
                   >
@@ -279,135 +303,158 @@ export function SsoConnectionsPanel({
             Choose how this organization signs in, then paste the details from their identity
             provider.
           </DialogDescription>
-          <div className="mt-5 flex flex-col gap-4">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[13px] font-medium text-ink">Name</span>
-              <Input
-                value={draft.name}
-                onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
-                placeholder="Acme workspace"
-                aria-label="Directory name"
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[13px] font-medium text-ink">Protocol</span>
-              <Select
-                value={draft.type}
-                onValueChange={(v) => setDraft((d) => ({ ...d, type: v as 'oidc' | 'saml' }))}
-              >
-                <SelectTrigger className="w-[240px]" aria-label="Protocol">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="oidc">OIDC (OpenID Connect)</SelectItem>
-                  <SelectItem value="saml">SAML 2.0</SelectItem>
-                </SelectContent>
-              </Select>
-            </label>
-            {draft.type === 'oidc' ? (
-              <>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-[13px] font-medium text-ink">Issuer URL</span>
-                  <Input
-                    value={draft.issuer}
-                    onChange={(e) => setDraft((d) => ({ ...d, issuer: e.target.value }))}
-                    placeholder="https://your-org.okta.com"
-                    aria-label="Issuer URL"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-[13px] font-medium text-ink">Client id</span>
-                  <Input
-                    value={draft.clientId}
-                    onChange={(e) => setDraft((d) => ({ ...d, clientId: e.target.value }))}
-                    aria-label="Client id"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-[13px] font-medium text-ink">Client secret</span>
-                  <Input
-                    type="password"
-                    value={draft.clientSecret}
-                    onChange={(e) => setDraft((d) => ({ ...d, clientSecret: e.target.value }))}
-                    autoComplete="new-password"
-                    placeholder={editing?.config.secretSet?.clientSecret ? '•••••••• (set, leave blank to keep)' : 'Not set'}
-                    aria-label="Client secret"
-                  />
-                </label>
-              </>
-            ) : (
-              <>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-[13px] font-medium text-ink">IdP entry point</span>
-                  <Input
-                    value={draft.entryPoint}
-                    onChange={(e) => setDraft((d) => ({ ...d, entryPoint: e.target.value }))}
-                    placeholder="https://acme.okta.com/app/atlas/.../sso/saml"
-                    aria-label="IdP entry point"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-[13px] font-medium text-ink">SP entity id (optional)</span>
-                  <Input
-                    value={draft.spIssuer}
-                    onChange={(e) => setDraft((d) => ({ ...d, spIssuer: e.target.value }))}
-                    placeholder="Leave empty to use the instance URL"
-                    aria-label="SP entity id"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-[13px] font-medium text-ink">IdP certificate</span>
-                  <Textarea
-                    value={draft.cert}
-                    onChange={(e) => setDraft((d) => ({ ...d, cert: e.target.value }))}
-                    rows={4}
-                    className="font-mono text-[12px]"
-                    placeholder="Paste the X.509 certificate (PEM), or leave the box to keep the stored one"
-                    aria-label="IdP certificate"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-[13px] font-medium text-ink">Signing private key (optional)</span>
-                  <Textarea
-                    value={draft.privateKey}
-                    onChange={(e) => setDraft((d) => ({ ...d, privateKey: e.target.value }))}
-                    rows={4}
-                    className="font-mono text-[12px]"
-                    placeholder="Only if your IdP expects signed requests"
-                    aria-label="Signing private key"
-                  />
-                </label>
-              </>
-            )}
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[13px] font-medium text-ink">Email domains (optional)</span>
-              <Input
-                value={draft.domains}
-                onChange={(e) => setDraft((d) => ({ ...d, domains: e.target.value }))}
-                placeholder="acme.com, acme.co.id"
-                aria-label="Email domains"
-              />
-              <span className="text-[12px] text-ink-4">
-                Comma separated. When someone types a matching email on the login page, this
-                directory is highlighted.
-              </span>
-            </label>
-          </div>
-          <DialogFooter className="mt-5">
-            <DialogClose asChild>
-              <Button variant="ghost" size="sm">
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button size="sm" onClick={() => void submit()} disabled={saving}>
-              {saving ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
+          {/* A <form> so Enter in any of these single-line fields submits,
+              same as pressing the primary button; the two Textareas below
+              (certificate, private key) are unaffected, Enter there just
+              inserts a newline like any multi-line field should. */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void submit();
+            }}
+          >
+            <div className="mt-5 flex flex-col gap-4">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[13px] font-medium text-ink">Name</span>
+                <Input
+                  value={draft.name}
+                  onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+                  placeholder="Acme workspace"
+                  aria-label="Directory name"
+                />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[13px] font-medium text-ink">Protocol</span>
+                <Select
+                  value={draft.type}
+                  onValueChange={(v) => setDraft((d) => ({ ...d, type: v as 'oidc' | 'saml' }))}
+                >
+                  <SelectTrigger className="w-[240px]" aria-label="Protocol">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="oidc">OIDC (OpenID Connect)</SelectItem>
+                    <SelectItem value="saml">SAML 2.0</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+              {draft.type === 'oidc' ? (
+                <>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-ink">Issuer URL</span>
+                    <Input
+                      value={draft.issuer}
+                      onChange={(e) => setDraft((d) => ({ ...d, issuer: e.target.value }))}
+                      placeholder="https://your-org.okta.com"
+                      aria-label="Issuer URL"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-ink">Client id</span>
+                    <Input
+                      value={draft.clientId}
+                      onChange={(e) => setDraft((d) => ({ ...d, clientId: e.target.value }))}
+                      aria-label="Client id"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-ink">Client secret</span>
+                    <Input
+                      type="password"
+                      value={draft.clientSecret}
+                      onChange={(e) => setDraft((d) => ({ ...d, clientSecret: e.target.value }))}
+                      autoComplete="off"
+                      data-1p-ignore="true"
+                      data-lpignore="true"
+                      data-bwignore="true"
+                      data-form-type="other"
+                      placeholder={
+                        editing?.config.secretSet?.clientSecret
+                          ? '•••••••• (set, leave blank to keep)'
+                          : 'Not set'
+                      }
+                      aria-label="Client secret"
+                    />
+                  </label>
+                </>
               ) : (
-                <CheckIcon size={16} className="flex items-center justify-center" />
+                <>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-ink">IdP entry point</span>
+                    <Input
+                      value={draft.entryPoint}
+                      onChange={(e) => setDraft((d) => ({ ...d, entryPoint: e.target.value }))}
+                      placeholder="https://acme.okta.com/app/atlas/.../sso/saml"
+                      aria-label="IdP entry point"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-ink">
+                      SP entity id (optional)
+                    </span>
+                    <Input
+                      value={draft.spIssuer}
+                      onChange={(e) => setDraft((d) => ({ ...d, spIssuer: e.target.value }))}
+                      placeholder="Leave empty to use the instance URL"
+                      aria-label="SP entity id"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-ink">IdP certificate</span>
+                    <Textarea
+                      value={draft.cert}
+                      onChange={(e) => setDraft((d) => ({ ...d, cert: e.target.value }))}
+                      rows={4}
+                      className="font-mono text-[12px]"
+                      placeholder="Paste the X.509 certificate (PEM), or leave the box to keep the stored one"
+                      aria-label="IdP certificate"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-ink">
+                      Signing private key (optional)
+                    </span>
+                    <Textarea
+                      value={draft.privateKey}
+                      onChange={(e) => setDraft((d) => ({ ...d, privateKey: e.target.value }))}
+                      rows={4}
+                      className="font-mono text-[12px]"
+                      placeholder="Only if your IdP expects signed requests"
+                      aria-label="Signing private key"
+                    />
+                  </label>
+                </>
               )}
-              {editing ? 'Save' : 'Add directory'}
-            </Button>
-          </DialogFooter>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[13px] font-medium text-ink">Email domains (optional)</span>
+                <Input
+                  value={draft.domains}
+                  onChange={(e) => setDraft((d) => ({ ...d, domains: e.target.value }))}
+                  placeholder="acme.com, acme.co.id"
+                  aria-label="Email domains"
+                />
+                <span className="text-[12px] text-ink-4">
+                  Comma separated. When someone types a matching email on the login page, this
+                  directory is highlighted.
+                </span>
+              </label>
+            </div>
+            <DialogFooter className="mt-5">
+              <DialogClose asChild>
+                <Button type="button" variant="ghost" size="sm">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" size="sm" disabled={saving}>
+                {saving ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
+                ) : (
+                  <CheckIcon size={16} className="flex items-center justify-center" />
+                )}
+                {editing ? 'Save' : 'Add directory'}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

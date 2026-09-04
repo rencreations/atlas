@@ -18,6 +18,7 @@ import { Public } from '@/common/decorators/public.decorator';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { SETTING_GROUPS } from '@/modules/settings/settings-registry';
 import { SsoConnectionDto } from '@/modules/auth/sso-connections.service';
+import { PassphraseCredentialDto } from '@/modules/auth/passphrase-credentials.service';
 import { GodmodeGuard, GodmodeRequest } from './godmode.guard';
 import { GodmodeService } from './godmode.service';
 import {
@@ -129,12 +130,13 @@ export class GodmodeController {
   @UseGuards(GodmodeGuard)
   @Get('settings')
   async listSettings() {
-    const [items, configured, ssoConnections] = await Promise.all([
+    const [items, configured, ssoConnections, passphraseCredentials] = await Promise.all([
       this.settings.viewForGodmode(),
       this.settings.isConfigured(),
       this.godmode.listSsoConnections(),
+      this.godmode.listPassphraseCredentials(),
     ]);
-    return { groups: SETTING_GROUPS, items, configured, ssoConnections };
+    return { groups: SETTING_GROUPS, items, configured, ssoConnections, passphraseCredentials };
   }
 
   @UseGuards(GodmodeGuard)
@@ -213,6 +215,45 @@ export class GodmodeController {
   @Delete('sso/connections/:id')
   deleteSsoConnection(@Param('id', ParseUUIDPipe) id: string) {
     return this.godmode.deleteSsoConnection(id);
+  }
+
+  // ─── Passphrase credentials (multiple instance passphrases) ───────
+
+  @UseGuards(GodmodeGuard)
+  @Get('passphrase-credentials')
+  listPassphraseCredentials() {
+    return this.godmode.listPassphraseCredentials();
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Post('passphrase-credentials')
+  createPassphraseCredential(@Body() dto: PassphraseCredentialDto) {
+    return this.godmode.createPassphraseCredential(dto);
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Put('passphrase-credentials/:id')
+  updatePassphraseCredential(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: PassphraseCredentialDto,
+  ) {
+    return this.godmode.updatePassphraseCredential(id, dto);
+  }
+
+  /** Quick enable/disable toggle without resending the passphrase. */
+  @UseGuards(GodmodeGuard)
+  @Put('passphrase-credentials/:id/enabled')
+  togglePassphraseCredential(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: { enabled: boolean },
+  ) {
+    return this.godmode.setPassphraseCredentialEnabled(id, dto.enabled);
+  }
+
+  @UseGuards(GodmodeGuard)
+  @Delete('passphrase-credentials/:id')
+  deletePassphraseCredential(@Param('id', ParseUUIDPipe) id: string) {
+    return this.godmode.deletePassphraseCredential(id);
   }
 
   // ─── Users & roles ─────────────────────────────────────────────────

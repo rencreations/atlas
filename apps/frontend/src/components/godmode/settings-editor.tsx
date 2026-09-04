@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
 import type {
+  GodmodePassphraseCredential,
   GodmodeSettingGroup,
   GodmodeSettingItem,
   GodmodeSsoConnection,
@@ -51,11 +52,13 @@ export function SettingsEditor({
   items,
   allItems,
   ssoConnections,
+  passphraseCredentials,
   groups,
   onDirtyChange,
   onSaved,
   onNavigate,
   onSsoChanged,
+  onPassphraseChanged,
 }: {
   items: GodmodeSettingItem[];
   /** Every registry item; used to resolve cross-section dependencies
@@ -63,6 +66,8 @@ export function SettingsEditor({
   allItems?: GodmodeSettingItem[];
   /** Tenant SSO directories managed by the dedicated SSO panel. */
   ssoConnections?: GodmodeSsoConnection[];
+  /** Named instance-passphrase credentials, managed inside the auth panel. */
+  passphraseCredentials?: GodmodePassphraseCredential[];
   /** Registry group metadata, used for merged-section sub-headings. */
   groups?: GodmodeSettingGroup[];
   /** Fired when the set of unsaved edits becomes non-empty / empty. */
@@ -73,6 +78,8 @@ export function SettingsEditor({
   onNavigate?: (section: string) => void;
   /** Fired after an SSO connection changed (lets the host refresh). */
   onSsoChanged?: () => void;
+  /** Fired after a passphrase credential changed (lets the host refresh). */
+  onPassphraseChanged?: () => void;
 }) {
   const { show } = useToast();
   const [values, setValues] = useState<Record<string, EditorValue>>({});
@@ -214,6 +221,8 @@ export function SettingsEditor({
             onChange={set}
             disabledHint={disabledHint}
             onNavigate={onNavigate}
+            passphraseCredentials={passphraseCredentials}
+            onPassphraseChanged={onPassphraseChanged}
           />
         );
       case 'sso':

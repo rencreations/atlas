@@ -5,7 +5,13 @@ import { Check, LoaderCircle, Plus, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -119,13 +125,8 @@ export function RolesPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[280px_1fr]">
-      {/* Sticky and independently scrollable: the permission editor on the
-          right can run much longer than one screen, and the role list is
-          the thing you need to keep glancing at (which role am I editing?)
-          while scrolling through it, so it stays put instead of scrolling
-          away with the page. */}
-      <div className="flex flex-col gap-2 md:sticky md:top-10 md:max-h-[calc(100svh-5rem)] md:overflow-y-auto md:pb-2">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-[280px_1fr]">
+      <div className="flex flex-col gap-2">
         <Button size="sm" onClick={() => setCreating(true)}>
           <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
           New role
@@ -140,7 +141,9 @@ export function RolesPanel() {
             key={role.id}
             onClick={() => setSelectedCode(role.code)}
             className={`rounded border bg-surface p-3 text-left shadow-1 transition-[border-color] duration-120 ${
-              selectedCode === role.code ? 'border-brand-blue' : 'border-line hover:border-line-strong'
+              selectedCode === role.code
+                ? 'border-brand-blue'
+                : 'border-line hover:border-line-strong'
             }`}
           >
             <div className="flex items-center justify-between gap-2">
@@ -158,40 +161,33 @@ export function RolesPanel() {
       </div>
 
       {selectedCode ? (
-        // Same top/middle/bottom split as the sidebar: the name+description
-        // header and the Save button stay put, only the permission list
-        // (which can run to dozens of checkboxes) scrolls in between.
-        <div className="flex flex-col gap-4 md:sticky md:top-10 md:max-h-[calc(100svh-5rem)]">
-          <div className="flex shrink-0 flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
-              <h3 className="font-display text-h4 text-ink">Editing {selectedCode}</h3>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
+            <h3 className="font-display text-h4 text-ink">Editing {selectedCode}</h3>
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-caption text-ink-3">Role name</span>
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
             </div>
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-caption text-ink-3">Role name</span>
-                <Input value={name} onChange={(e) => setName(e.target.value)} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span className="text-caption text-ink-3">Description</span>
-                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-caption text-ink-3">Description</span>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+              />
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-1 pr-1">
+          <div className="flex flex-col gap-4">
             {categories.map(([category, perms]) => (
-              <div
-                key={category}
-                className="rounded border border-line bg-surface p-4 shadow-1"
-              >
+              <div key={category} className="rounded border border-line bg-surface p-4 shadow-1">
                 <div className="text-eyebrow uppercase text-ink-4">{category}</div>
                 <div className="mt-3 flex flex-col gap-2">
                   {perms.map((p) => (
-                    <label
-                      key={p.id}
-                      className="flex items-start gap-3 text-[14px] text-ink"
-                    >
+                    <label key={p.id} className="flex items-start gap-3 text-[14px] text-ink">
                       <Checkbox
                         checked={checked.has(p.code)}
                         onCheckedChange={(v) => {
@@ -215,7 +211,7 @@ export function RolesPanel() {
             ))}
           </div>
 
-          <div className="flex shrink-0 items-center justify-end gap-2 border-t border-line pt-4">
+          <div className="flex items-center justify-end gap-2">
             <Button size="sm" onClick={() => void save()} disabled={saving || !dirty}>
               {saving ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
@@ -294,75 +290,84 @@ function CreateRoleDialog({
       <DialogContent size="lg">
         <DialogTitle>Create a custom role</DialogTitle>
         <DialogDescription>
-          Pick a name and the permissions this role grants. The role code is derived from the
-          name and can be granted from Users &amp; invites.
+          Pick a name and the permissions this role grants. The role code is derived from the name
+          and can be granted from Users &amp; invites.
         </DialogDescription>
-        <div className="mt-4 flex flex-col gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cr-name">Role name</Label>
-            <Input
-              id="cr-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Support moderator"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cr-desc">Description</Label>
-            <Textarea
-              id="cr-desc"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
-              placeholder="What this role is for."
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-4">
-          {categories.map(([category, perms]) => (
-            <div key={category} className="rounded border border-line bg-surface p-4 shadow-1">
-              <div className="text-eyebrow uppercase text-ink-4">{category}</div>
-              <div className="mt-3 flex flex-col gap-2">
-                {perms.map((p) => (
-                  <label key={p.id} className="flex items-start gap-3 text-[14px] text-ink">
-                    <Checkbox
-                      checked={checked.has(p.code)}
-                      onCheckedChange={(v) => {
-                        const next = new Set(checked);
-                        if (v === true) next.add(p.code);
-                        else next.delete(p.code);
-                        setChecked(next);
-                      }}
-                    />
-                    <span className="min-w-0">
-                      <span className="font-medium">{p.name}</span>
-                      <span className="ml-2 font-mono text-[11px] text-ink-4">{p.code}</span>
-                    </span>
-                  </label>
-                ))}
-              </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!name.trim() || busy) return;
+            onCreate({
+              name: name.trim(),
+              description: description.trim() || undefined,
+              permissions: [...checked],
+            });
+          }}
+        >
+          <div className="mt-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="cr-name">Role name</Label>
+              <Input
+                id="cr-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Support moderator"
+                autoFocus
+              />
             </div>
-          ))}
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="cr-desc">Description</Label>
+              <Textarea
+                id="cr-desc"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                placeholder="What this role is for."
+              />
+            </div>
+          </div>
 
-        <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button disabled={!name.trim() || busy} onClick={() => onCreate({
-            name: name.trim(),
-            description: description.trim() || undefined,
-            permissions: [...checked],
-          })}>
-            {busy ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
-            ) : (
-              <Check className="h-4 w-4" strokeWidth={2.25} />
-            )}
-            Create role
-          </Button>
-        </DialogFooter>
+          <div className="mt-4 flex flex-col gap-4">
+            {categories.map(([category, perms]) => (
+              <div key={category} className="rounded border border-line bg-surface p-4 shadow-1">
+                <div className="text-eyebrow uppercase text-ink-4">{category}</div>
+                <div className="mt-3 flex flex-col gap-2">
+                  {perms.map((p) => (
+                    <label key={p.id} className="flex items-start gap-3 text-[14px] text-ink">
+                      <Checkbox
+                        checked={checked.has(p.code)}
+                        onCheckedChange={(v) => {
+                          const next = new Set(checked);
+                          if (v === true) next.add(p.code);
+                          else next.delete(p.code);
+                          setChecked(next);
+                        }}
+                      />
+                      <span className="min-w-0">
+                        <span className="font-medium">{p.name}</span>
+                        <span className="ml-2 font-mono text-[11px] text-ink-4">{p.code}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!name.trim() || busy}>
+              {busy ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
+              ) : (
+                <Check className="h-4 w-4" strokeWidth={2.25} />
+              )}
+              Create role
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

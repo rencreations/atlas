@@ -45,10 +45,23 @@ export function SecretField({
     setOpen(true);
   };
 
-  const apply = () => {
+  // Every close path (Escape, outside click, Cancel, or a successful
+  // Apply) funnels through here via onOpenChange, so the draft never
+  // lingers for a later open to accidentally show again. Blurring first
+  // gives password managers a clean focus-loss signal to dismiss their
+  // own autofill overlay instead of leaving it stuck over a field that's
+  // about to disappear.
+  const closeAndReset = () => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    setOpen(false);
+    setDraft('');
+  };
+
+  const apply = (e: React.FormEvent) => {
+    e.preventDefault();
     if (draft.trim() === '') return;
     onChange(draft);
-    setOpen(false);
+    closeAndReset();
   };
 
   return (
@@ -58,47 +71,64 @@ export function SecretField({
         {isSet ? 'Edit' : 'Set'}
       </Button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(o) => (o ? setOpen(true) : closeAndReset())}>
         <DialogContent size={long ? 'lg' : 'sm'}>
-          <DialogTitle>{item.label}</DialogTitle>
-          <DialogDescription>
-            {isSet
-              ? 'A value is already saved. It can’t be viewed again here, only replaced, leave this blank and close to keep it unchanged.'
-              : (item.description ?? 'Stored encrypted and never shown again once saved.')}
-          </DialogDescription>
-          <div className="mt-4">
-            {long ? (
-              <Textarea
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                rows={6}
-                className="font-mono text-[12px]"
-                placeholder={isSet ? 'Leave blank to keep the current value' : 'Paste the value here'}
-                aria-label={`${item.label} value`}
-                autoFocus
-              />
-            ) : (
-              <PasswordInput
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={isSet ? 'Leave blank to keep the current value' : 'Not set'}
-                autoComplete="new-password"
-                aria-label={`${item.label} value`}
-                autoFocus
-              />
-            )}
-          </div>
-          <DialogFooter className="mt-5">
-            <DialogClose asChild>
-              <Button variant="ghost" size="sm">
-                Cancel
+          {/* A <form> so Enter in the (single-line) password input submits
+              like any other confirm dialog; Enter inside the textarea
+              variant still just inserts a newline, browsers never
+              auto-submit forms from a <textarea>. */}
+          <form onSubmit={apply}>
+            <DialogTitle>{item.label}</DialogTitle>
+            <DialogDescription>
+              {isSet
+                ? 'A value is already saved. It can’t be viewed again here, only replaced, leave this blank and close to keep it unchanged.'
+                : (item.description ?? 'Stored encrypted and never shown again once saved.')}
+            </DialogDescription>
+            <div className="mt-4">
+              {long ? (
+                <Textarea
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  rows={6}
+                  className="font-mono text-[12px]"
+                  placeholder={
+                    isSet ? 'Leave blank to keep the current value' : 'Paste the value here'
+                  }
+                  aria-label={`${item.label} value`}
+                  autoFocus
+                />
+              ) : (
+                <PasswordInput
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={isSet ? 'Leave blank to keep the current value' : 'Not set'}
+                  // This holds an API key/webhook secret, not a site
+                  // login, but a bare type="password" reads as one to
+                  // browsers and extensions, autocomplete="new-password"
+                  // especially invites a "save this password?" prompt.
+                  // These hints ask password managers to leave it alone.
+                  autoComplete="off"
+                  data-1p-ignore="true"
+                  data-lpignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
+                  aria-label={`${item.label} value`}
+                  autoFocus
+                />
+              )}
+            </div>
+            <DialogFooter className="mt-5">
+              <DialogClose asChild>
+                <Button type="button" variant="ghost" size="sm">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" size="sm" disabled={draft.trim() === ''}>
+                <CheckIcon size={16} className="flex items-center justify-center" />
+                Apply
               </Button>
-            </DialogClose>
-            <Button size="sm" onClick={apply} disabled={draft.trim() === ''}>
-              <CheckIcon size={16} className="flex items-center justify-center" />
-              Apply
-            </Button>
-          </DialogFooter>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>

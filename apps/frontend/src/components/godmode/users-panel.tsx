@@ -16,7 +16,13 @@ import {
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +33,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import { useConfirm } from '@/components/ui/confirm';
@@ -63,10 +75,10 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
       setRoles(r);
     } catch (err) {
       show({
-          title: 'Could not load users',
-          description: err instanceof Error ? err.message : 'Unknown error.',
-          tone: 'danger',
-        });
+        title: 'Could not load users',
+        description: err instanceof Error ? err.message : 'Unknown error.',
+        tone: 'danger',
+      });
     } finally {
       setLoading(false);
     }
@@ -132,7 +144,10 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
     [confirm, load, show],
   );
 
-  const [moderating, setModerating] = useState<{ user: GodmodeUser; action: 'suspend' | 'reset' } | null>(null);
+  const [moderating, setModerating] = useState<{
+    user: GodmodeUser;
+    action: 'suspend' | 'reset';
+  } | null>(null);
 
   const suspendUser = useCallback(
     async (user: GodmodeUser, message: string) => {
@@ -226,9 +241,9 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
         title: `Delete ${user.name}?`,
         description: (
           <>
-            This permanently deletes the account for <strong>{user.email}</strong>, their
-            messages and comments, and every personal setting. Projects and content they own
-            are reassigned to the first remaining superadmin. This cannot be undone.
+            This permanently deletes the account for <strong>{user.email}</strong>, their messages
+            and comments, and every personal setting. Projects and content they own are reassigned
+            to the first remaining superadmin. This cannot be undone.
           </>
         ),
         confirmLabel: 'Delete account',
@@ -376,18 +391,12 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <GrantRoleMenu
-                  roles={roles.filter(
-                    (r) => !user.userRoles.some((ur) => ur.role.code === r.code),
-                  )}
+                  roles={roles.filter((r) => !user.userRoles.some((ur) => ur.role.code === r.code))}
                   onGrant={(code) => void toggleRole(user, code)}
                 />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={`Manage ${user.name}`}
-                    >
+                    <Button variant="ghost" size="icon-sm" aria-label={`Manage ${user.name}`}>
                       <MoreHorizontal className="h-4 w-4" strokeWidth={2.25} />
                     </Button>
                   </DropdownMenuTrigger>
@@ -413,9 +422,7 @@ export function UsersPanel({ configured = true }: { configured?: boolean }) {
                         Unsuspend account
                       </DropdownMenuItem>
                     ) : (
-                      <DropdownMenuItem
-                        onSelect={() => setModerating({ user, action: 'suspend' })}
-                      >
+                      <DropdownMenuItem onSelect={() => setModerating({ user, action: 'suspend' })}>
                         <Ban className="h-4 w-4" strokeWidth={2.25} />
                         Suspend account…
                       </DropdownMenuItem>
@@ -491,8 +498,8 @@ function SuspendUserDialog({
       <DialogContent size="sm">
         <DialogTitle>Suspend {user.name}?</DialogTitle>
         <DialogDescription>
-          They are signed out everywhere immediately and cannot sign back in until you
-          unsuspend them. The message below is what they see when they try.
+          They are signed out everywhere immediately and cannot sign back in until you unsuspend
+          them. The message below is what they see when they try.
         </DialogDescription>
         <div className="mt-4 flex flex-col gap-1.5">
           <Label htmlFor="suspend-message">Message to the user</Label>
@@ -534,32 +541,49 @@ function ResetPasswordDialog({
       <DialogContent size="sm">
         <DialogTitle>Reset password for {user.name}</DialogTitle>
         <DialogDescription>
-          They sign in with this password and are asked to change it right after. Existing
-          sessions are signed out.
+          They sign in with this password and are asked to change it right after. Existing sessions
+          are signed out.
         </DialogDescription>
-        <div className="mt-4 flex flex-col gap-1.5">
-          <Label htmlFor="rp-password">New password</Label>
-          <div className="flex items-center gap-2">
-            <Input
-              id="rp-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={8}
-            />
-            <Button variant="secondary" size="sm" onClick={() => setPassword(generatePassword())}>
-              Generate
-            </Button>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (password.length >= 8) onSubmit(password);
+          }}
+        >
+          <div className="mt-4 flex flex-col gap-1.5">
+            <Label htmlFor="rp-password">New password</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="rp-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                minLength={8}
+                autoComplete="off"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-bwignore="true"
+                autoFocus
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setPassword(generatePassword())}
+              >
+                Generate
+              </Button>
+            </div>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button disabled={password.length < 8} onClick={() => onSubmit(password)}>
-            <KeyRound className="h-4 w-4" strokeWidth={2.25} />
-            Set password
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={password.length < 8}>
+              <KeyRound className="h-4 w-4" strokeWidth={2.25} />
+              Set password
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
@@ -616,6 +640,7 @@ function CreateUserDialog({
   const [password, setPassword] = useState('');
   const [roleCode, setRoleCode] = useState('member');
 
+  const valid = Boolean(email) && Boolean(name) && password.length >= 6;
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent size="sm">
@@ -625,54 +650,68 @@ function CreateUserDialog({
             ? 'Creates an account they sign into with email + password. Whether they must change it on first login follows the Sessions policy.'
             : 'This first account owns the instance: it is always created as superadmin, with the password you set here and no forced change on first login.'}
         </DialogDescription>
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cu-email">Email</Label>
-            <Input id="cu-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cu-name">Name</Label>
-            <Input id="cu-name" value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cu-pass">Initial password</Label>
-            <Input
-              id="cu-pass"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
-            />
-          </div>
-          <div className={configured ? 'flex flex-col gap-1.5' : 'hidden'}>
-            <Label htmlFor="cu-role">Role</Label>
-            <Select value={roleCode} onValueChange={setRoleCode}>
-              <SelectTrigger id="cu-role">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {roles.map((r) => (
-                  <SelectItem key={r.id} value={r.code}>
-                    {r.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            disabled={!email || !name || password.length < 6}
-            onClick={() =>
-              onSubmit({ email, name, password, roleCode: configured ? roleCode : 'superadmin' })
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid) {
+              onSubmit({ email, name, password, roleCode: configured ? roleCode : 'superadmin' });
             }
-          >
-            {configured ? 'Create user' : 'Create superadmin'}
-          </Button>
-        </DialogFooter>
+          }}
+        >
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="cu-email">Email</Label>
+              <Input
+                id="cu-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="cu-name">Name</Label>
+              <Input id="cu-name" value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="cu-pass">Initial password</Label>
+              <Input
+                id="cu-pass"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
+                autoComplete="off"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-bwignore="true"
+              />
+            </div>
+            <div className={configured ? 'flex flex-col gap-1.5' : 'hidden'}>
+              <Label htmlFor="cu-role">Role</Label>
+              <Select value={roleCode} onValueChange={setRoleCode}>
+                <SelectTrigger id="cu-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map((r) => (
+                    <SelectItem key={r.id} value={r.code}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!valid}>
+              {configured ? 'Create user' : 'Create superadmin'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

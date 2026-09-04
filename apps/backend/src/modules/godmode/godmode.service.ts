@@ -15,6 +15,10 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { StorageMigrationService } from '@/modules/media/storage-migration.service';
 import { SsoConnectionDto, SsoConnectionsService } from '@/modules/auth/sso-connections.service';
+import {
+  PassphraseCredentialDto,
+  PassphraseCredentialsService,
+} from '@/modules/auth/passphrase-credentials.service';
 import { generateTotpSecret, totpAuthUrl, verifyTotpToken } from './totp.util';
 import { WebauthnService } from './webauthn.service';
 
@@ -38,6 +42,7 @@ export class GodmodeService {
     private readonly webauthn: WebauthnService,
     private readonly storageMigration: StorageMigrationService,
     private readonly ssoConnections: SsoConnectionsService,
+    private readonly passphraseCredentials: PassphraseCredentialsService,
   ) {}
 
   /**
@@ -122,6 +127,28 @@ export class GodmodeService {
 
   deleteSsoConnection(id: string) {
     return this.ssoConnections.remove(id);
+  }
+
+  // ─── Passphrase credentials (multiple instance passphrases) ───────
+
+  listPassphraseCredentials() {
+    return this.passphraseCredentials.list();
+  }
+
+  createPassphraseCredential(dto: PassphraseCredentialDto) {
+    return this.passphraseCredentials.create(dto);
+  }
+
+  updatePassphraseCredential(id: string, dto: PassphraseCredentialDto) {
+    return this.passphraseCredentials.update(id, dto);
+  }
+
+  setPassphraseCredentialEnabled(id: string, enabled: boolean) {
+    return this.passphraseCredentials.setEnabled(id, enabled);
+  }
+
+  deletePassphraseCredential(id: string) {
+    return this.passphraseCredentials.remove(id);
   }
 
   private hashToken(token: string): string {

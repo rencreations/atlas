@@ -67,6 +67,9 @@ export const apiPaths = {
     storageMigrationRetry: () => '/godmode/storage/migration/retry',
     generateVapidKeys: () => '/godmode/integrations/vapid/generate',
     stats: () => '/godmode/stats',
+    passphraseCredentials: () => '/godmode/passphrase-credentials',
+    passphraseCredential: (id: string) => `/godmode/passphrase-credentials/${id}`,
+    passphraseCredentialEnabled: (id: string) => `/godmode/passphrase-credentials/${id}/enabled`,
   },
 
   // Feature flags, public evaluated map + admin CRUD.
