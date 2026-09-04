@@ -41,11 +41,6 @@ export class ProjectsController {
     return this.projects.list(user, query);
   }
 
-  @Get('discover')
-  discover(@CurrentUser() user: AuthenticatedUser) {
-    return this.projects.discover(user);
-  }
-
   @Get('featured')
   featured() {
     return this.projects.listFeatured();

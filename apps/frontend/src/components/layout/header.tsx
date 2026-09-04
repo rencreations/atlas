@@ -33,9 +33,8 @@ interface NavLink {
 
 const NAV: NavLink[] = [
   { label: 'For me', href: '/for-me' },
-  { label: 'Discover', href: '/dashboard' },
-  { label: 'Browse', href: '/projects' },
   { label: 'My work', href: '/me' },
+  { label: 'Discover', href: '/projects' },
 ];
 
 export function Header({ user }: { user?: SessionUser | null }) {
@@ -75,7 +74,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
       )}
     >
       <div className="container-x mx-auto flex h-14 max-w-[1360px] items-center gap-6 md:h-16">
-        <Link href={'/dashboard' as never} aria-label="Atlas home" className="flex items-center gap-2">
+        <Link href={'/projects' as never} aria-label="Atlas home" className="flex items-center gap-2">
           <motion.span
             className="flex items-center"
             whileHover={reducedMotion ? undefined : { scale: 1.08, rotate: -4 }}
@@ -87,25 +86,16 @@ export function Header({ user }: { user?: SessionUser | null }) {
         </Link>
 
         <nav className="hidden flex-1 items-center gap-6 md:flex">
-          {NAV.map((link) => {
-            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href as never}
-                className={cn(
-                  'relative pb-1 text-[14px] font-medium transition-colors',
-                  active ? 'text-ink' : 'text-ink-2 hover:text-ink',
-                )}
-              >
-                {link.label}
-                {active ? (
-                  <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-brand-blue-strong" />
-                ) : null}
-              </Link>
-            );
-          })}
+          {/* Order: For me, My work, Chat, Discover. Chat is a real
+              component (unread pill), so it slots between the second
+              and third static links instead of living inside NAV. */}
+          {NAV.slice(0, 2).map((link) => (
+            <NavLinkItem key={link.href} link={link} pathname={pathname} />
+          ))}
           {user ? <ChatNavButton /> : null}
+          {NAV.slice(2).map((link) => (
+            <NavLinkItem key={link.href} link={link} pathname={pathname} />
+          ))}
           {user ? (
             <Button
               size="sm"
@@ -129,7 +119,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[220px]">
-              {NAV.map((link) => {
+              {NAV.slice(0, 2).map((link) => {
                 const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
                 return (
                   <DropdownMenuItem key={link.href} asChild>
@@ -154,6 +144,19 @@ export function Header({ user }: { user?: SessionUser | null }) {
                   </Link>
                 </DropdownMenuItem>
               ) : null}
+              {NAV.slice(2).map((link) => {
+                const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                return (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link
+                      href={link.href as never}
+                      className={cn(active ? 'text-brand-blue' : 'text-ink')}
+                    >
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
               {user ? (
                 <DropdownMenuItem onSelect={() => setSearchOpen(true)}>Search</DropdownMenuItem>
               ) : null}
@@ -198,6 +201,24 @@ export function Header({ user }: { user?: SessionUser | null }) {
       </div>
       {user ? <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} /> : null}
     </header>
+  );
+}
+
+function NavLinkItem({ link, pathname }: { link: NavLink; pathname: string }) {
+  const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+  return (
+    <Link
+      href={link.href as never}
+      className={cn(
+        'relative pb-1 text-[14px] font-medium transition-colors',
+        active ? 'text-ink' : 'text-ink-2 hover:text-ink',
+      )}
+    >
+      {link.label}
+      {active ? (
+        <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-brand-blue-strong" />
+      ) : null}
+    </Link>
   );
 }
 

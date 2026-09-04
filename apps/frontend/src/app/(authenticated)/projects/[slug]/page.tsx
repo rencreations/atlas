@@ -1,6 +1,7 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import * as React from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -18,6 +19,8 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { usePageTitle } from '@/lib/page-title';
+import { getStoredSession } from '@/lib/auth-client';
+import { getLastListId } from '@/lib/pmo/last-list';
 import { isInsider, type ProjectDetail, type ProjectDetailInsider, type SessionUser } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { Avatar } from '@/components/ui/avatar';
@@ -30,16 +33,17 @@ import { ContributeModal } from '@/components/projects/contribute-modal';
 import { BookmarkButton } from '@/components/projects/bookmark-button';
 import { RichTextEditor } from '@/components/rich-text/editor';
 import { TaskListsSidebar } from '@/components/pmo/task-lists-sidebar';
-import { TaskListPicker } from '@/components/pmo/task-list-picker';
 import { isPmoEnabled } from '@/lib/hooks/use-pmo-enabled';
 import { PROJECT_PHASE_LABEL } from '@/lib/types';
 
 export default function ProjectDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: queryKeys.project(slug),
+    queryKey: queryKeys.projectWithMe(slug),
     queryFn: async () => {
       const [projectData, userData] = await Promise.all([
         api<ProjectDetail>(apiPaths.project(slug)),
@@ -50,6 +54,21 @@ export default function ProjectDetailPage() {
   });
 
   usePageTitle(data?.project.title ?? 'Project');
+
+  // Team members land straight in their last opened task list instead
+  // of the marketing-style description page. `?view=details` (the small
+  // "Project details" button inside the task list window) skips this so
+  // the description page stays reachable.
+  React.useEffect(() => {
+    if (!data || isLoading) return;
+    const project = data.project;
+    if (!isInsider(project) || project.archivedAt || !isPmoEnabled()) return;
+    if (searchParams.get('view') === 'details') return;
+    const lastId = getLastListId(project.slug, getStoredSession()?.user.id);
+    router.replace(
+      (lastId ? `/projects/${project.slug}/lists/${lastId}` : `/projects/${project.slug}/lists`) as never,
+    );
+  }, [data, isLoading, router, searchParams]);
 
   if (isError) {
     return (
@@ -130,7 +149,12 @@ export default function ProjectDetailPage() {
                 </Button>
               ) : null}
               {project.access.isInsider && isPmoEnabled() ? (
-                <TaskListPicker projectSlug={project.slug} />
+                <Button asChild variant="secondary" size="lg">
+                  <Link href={`/projects/${project.slug}/lists` as never}>
+                    <KanbanSquare className="h-4 w-4" strokeWidth={2.25} />
+                    Task lists
+                  </Link>
+                </Button>
               ) : null}
               {project.access.isInsider ? (
                 <Button asChild variant="secondary" size="lg">

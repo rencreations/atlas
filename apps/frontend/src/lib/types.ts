@@ -182,6 +182,8 @@ export interface ProjectCard {
   tags: Tag[];
   previewMedia: ProjectMedia[];
   memberCount: number;
+  /** Admin-pinned to the top of Discover (browse). */
+  pinned: boolean;
 }
 
 export interface ProjectMember {
@@ -226,8 +228,13 @@ export interface ProjectDetailInsider extends ProjectDetailViewer {
 
 export type ProjectDetail = ProjectDetailViewer | ProjectDetailInsider;
 
-export function isInsider(p: ProjectDetail): p is ProjectDetailInsider {
-  return p.access.isInsider;
+/**
+ * Narrow ProjectDetail to ProjectDetailInsider. Tolerates undefined so
+ * a stale/misshaped cache entry can never crash a whole layout: it just
+ * reads as a viewer until the real payload arrives.
+ */
+export function isInsider(p: ProjectDetail | null | undefined): p is ProjectDetailInsider {
+  return Boolean(p && p.access && p.access.isInsider);
 }
 
 export interface ContributionRequest {
@@ -279,14 +286,6 @@ export interface NotificationItem {
 export interface Paginated<T> {
   items: T[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
-}
-
-export interface DiscoveryPayload {
-  hero: ProjectCard[];
-  myProjects: { managed: ProjectCard[]; contributing: ProjectCard[] };
-  pendingRequests: { id: string; role: string; createdAt: string; project: ProjectCard }[];
-  rows: { key: string; label: string; items: ProjectCard[] }[];
-  tags: Tag[];
 }
 
 export interface DashboardPayload {
@@ -426,11 +425,19 @@ export interface ChatProjectOverviewChannel {
   updatedAt: string;
 }
 
+/** Admin-configured chat server avatar override (null = derived default). */
+export interface ChatAvatarInfo {
+  emoji: string | null;
+  color: string | null;
+  imageUrl: string | null;
+}
+
 export interface ChatProjectOverview {
   id: string;
   slug: string;
   title: string;
   thumbnailUrl: string | null;
+  avatar?: ChatAvatarInfo | null;
   updatedAt: string;
   channels: ChatProjectOverviewChannel[];
   unread: number;
@@ -439,6 +446,7 @@ export interface ChatProjectOverview {
 export interface ChatWorkspaceOverview {
   channels: ChatProjectOverviewChannel[];
   unread: number;
+  avatar?: ChatAvatarInfo | null;
 }
 
 export interface ChatOverviewPayload {

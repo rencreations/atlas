@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ChatChannelsService } from './chat-channels.service';
+import { ChatAvatarsService } from './chat-avatars.service';
 
 /**
  * Powers the navbar "chat" shortcut and the global /chat page on the
@@ -18,6 +19,7 @@ export class ChatOverviewService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly channels: ChatChannelsService,
+    private readonly avatars: ChatAvatarsService,
   ) {}
 
   async listMyProjects(user: AuthenticatedUser) {
@@ -53,6 +55,13 @@ export class ChatOverviewService {
       orderBy: { updatedAt: 'desc' },
     });
 
+    // Server avatars for the rail: workspace + every project key. One
+    // batched read regardless of how many projects the user has.
+    const avatarMap = await this.avatars.getMany([
+      this.avatars.workspaceKey,
+      ...projects.map((p) => this.avatars.projectKey(p.id)),
+    ]);
+
     const projectsWithUnread = await Promise.all(
       projects
         .filter((p) => p.chatChannels.length > 0)
@@ -84,6 +93,7 @@ export class ChatOverviewService {
             slug: p.slug,
             title: p.title,
             thumbnailUrl: p.thumbnailUrl,
+            avatar: avatarMap.get(this.avatars.projectKey(p.id)) ?? null,
             updatedAt: p.updatedAt,
             channels,
             unread: totalUnread,
@@ -91,7 +101,10 @@ export class ChatOverviewService {
         }),
     );
 
-    return { projects: projectsWithUnread, workspace: await this.workspaceOverview(user) };
+    return {
+      projects: projectsWithUnread,
+      workspace: await this.workspaceOverview(user),
+    };
   }
 
   /**
@@ -101,6 +114,7 @@ export class ChatOverviewService {
    */
   private async workspaceOverview(user: AuthenticatedUser) {
     await this.channels.ensureGlobalGeneral(user.id);
+    const workspaceAvatar = await this.avatars.get(this.avatars.workspaceKey);
     const rows = await this.prisma.chatChannel.findMany({
       where: { projectId: null, isVoiceThread: false, isArchived: false },
       orderBy: [{ isGeneral: 'desc' }, { createdAt: 'asc' }],
@@ -139,7 +153,11 @@ export class ChatOverviewService {
       }),
     );
 
-    return { channels, unread: channels.reduce((sum, ch) => sum + ch.unread, 0) };
+    return {
+      channels,
+      unread: channels.reduce((sum, ch) => sum + ch.unread, 0),
+      avatar: workspaceAvatar,
+    };
   }
 }
 

@@ -41,7 +41,7 @@ export default function PrivacySettingsPage() {
     mutationFn: () =>
       api<{ acceptedAt: string }>(apiPaths.meConsent(), {
         method: 'POST',
-        body: JSON.stringify({ accepted: true }),
+        body: { accepted: true },
       }),
     onSuccess: (data: { acceptedAt: string }) => {
       queryClient.setQueryData<Record<string, unknown>>(queryKeys.me, (old) => ({

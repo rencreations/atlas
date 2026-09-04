@@ -30,6 +30,7 @@ import { ChatReactionsService } from './services/chat-reactions.service';
 import { ChatSearchService } from './services/chat-search.service';
 import { ChatStickersService } from './services/chat-stickers.service';
 import { ChatTypingService } from './services/chat-typing.service';
+import { ChatAvatarsService } from './services/chat-avatars.service';
 
 /**
  * Realtime project chat. P1 shipped REST + polling. P2 adds the
@@ -71,10 +72,11 @@ import { ChatTypingService } from './services/chat-typing.service';
     ChatAttachmentsService,
     ChatStickersService,
     ChatSearchService,
+    ChatAvatarsService,
     ChatGateway,
     WsSessionGuard,
   ],
-  exports: [ChatChannelsService, ChatRealtimePublisher, ChatSearchService],
+  exports: [ChatChannelsService, ChatRealtimePublisher, ChatSearchService, ChatAvatarsService],
 })
 export class ChatModule {}
 

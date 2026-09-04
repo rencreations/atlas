@@ -9,6 +9,8 @@ import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { getStoredSession } from '@/lib/auth-client';
 import { channelHref, type ChatScope } from '@/lib/chat/scope';
+import { useChatOverview } from '@/lib/chat/use-chat-overview';
+import { chatAvatarFor } from '@/lib/chat/avatar';
 import { useVoiceEnabled } from '@/lib/hooks/use-voice-enabled';
 import { getVoiceSocket } from '@/lib/realtime/socket';
 import { Button } from '@/components/ui/button';
@@ -64,6 +66,10 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
   const voiceEnabled = useVoiceEnabled();
   const isAdmin = getStoredSession()?.user.isAdmin === true;
   const queryClient = useQueryClient();
+  // Reuses the rail's overview query (deduped by React Query) for the
+  // workspace avatar tile in this sidebar header.
+  const { workspace } = useChatOverview();
+  const workspaceAvatar = chatAvatarFor('workspace', workspace?.avatar);
 
   const globalChannelsQuery = useQuery({
     queryKey: queryKeys.chat.globalChannels,
@@ -113,10 +119,15 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
 
   return (
     <div className="border-b border-line pb-3">
-      <div className="flex items-center justify-between px-4 pb-1 pt-3">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-brand-blue">
-          <Globe className="h-3.5 w-3.5" strokeWidth={2.25} />
-          Workspace
+      <div className="flex items-center gap-2 px-4 pb-1 pt-3">
+        <ServerAvatarTile
+          emoji={workspaceAvatar.emoji}
+          color={workspaceAvatar.color}
+          imageUrl={workspaceAvatar.imageUrl}
+        />
+        <span className="inline-flex min-w-0 flex-1 items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-brand-blue">
+          <Globe className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
+          <span className="truncate">Workspace</span>
         </span>
         {isAdmin ? <CreateChannelButton scope={{ kind: 'global' }} /> : null}
       </div>
@@ -248,7 +259,10 @@ function ProjectSection({
         <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
           Project
         </div>
-        <div className="mt-0.5 truncate text-[14px] font-semibold text-ink">{projectTitle}</div>
+        <div className="mt-1.5 flex items-center gap-2.5">
+          <ProjectAvatarTile projectSlug={projectSlug} />
+          <div className="min-w-0 truncate text-[14px] font-semibold text-ink">{projectTitle}</div>
+        </div>
       </div>
 
       <div className="flex items-center justify-between px-4 pb-1 pt-3">
@@ -477,6 +491,43 @@ function CreateChannelButton({ scope }: { scope: ChatScope }) {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ServerAvatarTile({
+  emoji,
+  color,
+  imageUrl,
+}: {
+  emoji: string;
+  color: string;
+  imageUrl: string | null;
+}) {
+  return (
+    <span
+      className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-md text-[15px] leading-none"
+      style={{ backgroundColor: color }}
+      aria-hidden
+    >
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+      ) : (
+        emoji
+      )}
+    </span>
+  );
+}
+
+/** Project server tile in the channel sidebar, keyed by the slug. */
+function ProjectAvatarTile({ projectSlug }: { projectSlug: string }) {
+  const { projects } = useChatOverview();
+  const project = projects.find((p) => p.slug === projectSlug);
+  // Seed on the slug so a project that is still loading shows the same
+  // derived avatar it gets in the rail.
+  const avatar = chatAvatarFor(projectSlug, project?.avatar);
+  return (
+    <ServerAvatarTile emoji={avatar.emoji} color={avatar.color} imageUrl={avatar.imageUrl} />
   );
 }
 

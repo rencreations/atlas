@@ -52,7 +52,18 @@ export async function api<T = unknown>(path: string, opts: FetchOptions = {}): P
     throw new ApiError(res.status, body);
   }
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  // Parse defensively: a 2xx with a non-JSON body (proxy error page,
+  // empty body, plain text) must surface as a readable ApiError instead
+  // of an uncaught "Unexpected token ... in JSON" SyntaxError.
+  const text = await res.text();
+  if (!text) return undefined as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new ApiError(res.status, {
+      message: 'The server returned an unreadable response. Try again in a moment.',
+    });
+  }
 }
 
 /**

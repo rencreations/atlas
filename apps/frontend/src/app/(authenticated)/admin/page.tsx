@@ -15,6 +15,7 @@ import { CollaborationRoleManager } from '@/components/admin/role-manager';
 import { FeaturedManager } from '@/components/admin/featured-manager';
 import { StickerManager } from '@/components/admin/sticker-manager';
 import { FeatureFlagManager } from '@/components/admin/feature-flag-manager';
+import { ChatSettingsManager } from '@/components/admin/chat-settings-manager';
 
 export default function AdminPage() {
   usePageTitle('Atlas controls');
@@ -24,7 +25,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
 
   const requestedTab = searchParams.get('tab') || 'tags';
-  const tab = ['tags', 'featured', 'roles', 'users', 'stickers', 'flags'].includes(requestedTab)
+  const tab = ['tags', 'featured', 'roles', 'users', 'stickers', 'chat', 'flags'].includes(
+    requestedTab,
+  )
     ? requestedTab
     : 'tags';
 
@@ -78,10 +81,11 @@ export default function AdminPage() {
       >
         <TabsList>
           <TabsTrigger value="tags">Tags</TabsTrigger>
-          <TabsTrigger value="featured">Featured</TabsTrigger>
+          <TabsTrigger value="featured">Pinned</TabsTrigger>
           <TabsTrigger value="roles">Roles</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="stickers">Stickers</TabsTrigger>
+          <TabsTrigger value="chat">Chat</TabsTrigger>
           <TabsTrigger value="flags">Flags</TabsTrigger>
         </TabsList>
 
@@ -99,6 +103,9 @@ export default function AdminPage() {
         </TabsContent>
         <TabsContent value="stickers">
           <StickerManager />
+        </TabsContent>
+        <TabsContent value="chat">
+          <ChatSettingsManager />
         </TabsContent>
         <TabsContent value="flags">
           <FeatureFlagManager />

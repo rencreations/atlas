@@ -11,6 +11,8 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { isPmoEnabled } from '@/lib/hooks/use-pmo-enabled';
+import { getStoredSession } from '@/lib/auth-client';
+import { getLastListId } from '@/lib/pmo/last-list';
 import type { TaskList } from '@/lib/types';
 
 export default function TaskListsIndexPage() {
@@ -27,10 +29,14 @@ export default function TaskListsIndexPage() {
 
   React.useEffect(() => {
     if (!lists.data) return;
-    const firstActive = lists.data.find((l) => !l.archivedAt);
-    if (firstActive) {
-      router.replace(`/projects/${slug}/lists/${firstActive.id}` as never);
-    }
+    const active = lists.data.filter((l) => !l.archivedAt);
+    if (active.length === 0) return;
+    // "Task lists" opens the user's last opened list in this project,
+    // falling back to the first active one (the /chat and project page
+    // entry points share this rule).
+    const lastId = getLastListId(slug, getStoredSession()?.user.id);
+    const target = active.find((l) => l.id === lastId) ?? active[0];
+    router.replace(`/projects/${slug}/lists/${target.id}` as never);
   }, [lists.data, slug, router]);
 
   if (!pmoEnabled) {

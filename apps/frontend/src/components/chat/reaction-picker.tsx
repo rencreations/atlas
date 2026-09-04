@@ -9,6 +9,10 @@ import { cn } from '@/lib/utils';
 // hover with that bundle.
 const EmojiPicker = React.lazy(() => import('emoji-picker-react'));
 
+// Type-only so the heavy picker bundle stays out of the main chunk.
+import type { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/lib/theme';
+
 // A small row of recent reactions stays at the top so the common case
 // (👍 a message) still takes a single click.
 const QUICK_REACTIONS = ['👍', '❤️', '🎉', '🚀', '😂', '👀'];
@@ -32,6 +36,9 @@ interface Props {
  */
 export function ReactionPicker({ onPick, onOpenChange, triggerClassName }: Props) {
   const [open, setOpen] = React.useState(false);
+  // Follow the app theme, emoji-picker-react defaults to light.
+  const { resolved } = useTheme();
+  const pickerTheme = (resolved === 'dark' ? 'dark' : 'light') as Theme;
   const setBoth = React.useCallback(
     (o: boolean) => {
       setOpen(o);
@@ -90,6 +97,7 @@ export function ReactionPicker({ onPick, onOpenChange, triggerClassName }: Props
               onPick(e.emoji);
               setBoth(false);
             }}
+            theme={pickerTheme}
             width="100%"
             height={320}
             lazyLoadEmojis

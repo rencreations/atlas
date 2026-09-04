@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Globe, Hash } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { channelHref } from '@/lib/chat/scope';
 import { defaultChannelId } from '@/lib/chat/overview';
 import { useChatOverview } from '@/lib/chat/use-chat-overview';
+import { chatAvatarFor } from '@/lib/chat/avatar';
 import { cn } from '@/lib/utils';
 
 const TILE = 'relative grid h-11 w-11 shrink-0 place-items-center rounded-lg transition-colors';
@@ -15,7 +15,9 @@ const ACTIVE_RING = 'ring-2 ring-brand-blue-strong ring-offset-2 ring-offset-sur
 function UnreadBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span className="absolute -bottom-1 -right-1 inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium leading-none text-white">
+    // Sits outside the tile's overflow-hidden clip so the pill is never
+    // cut off by the avatar circle; z-10 keeps it above the tile.
+    <span className="absolute -bottom-1 -right-1 z-10 inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium leading-none text-white shadow-1">
       {count > 99 ? '99+' : count}
     </span>
   );
@@ -51,9 +53,8 @@ export function ChatRail() {
               active={isWorkspaceActive}
               label="Workspace"
               unread={workspace?.unread ?? 0}
-            >
-              <Globe className="h-5 w-5" strokeWidth={2.25} />
-            </RailTile>
+              avatar={chatAvatarFor('workspace', workspace?.avatar)}
+            />
 
             {projects.length > 0 ? <div className="h-px w-8 shrink-0 bg-line" /> : null}
 
@@ -69,18 +70,8 @@ export function ChatRail() {
                   active={activeProjectSlug === p.slug}
                   label={p.title}
                   unread={p.unread}
-                >
-                  {p.thumbnailUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={p.thumbnailUrl}
-                      alt=""
-                      className="h-full w-full rounded-lg object-cover"
-                    />
-                  ) : (
-                    <Hash className="h-5 w-5 text-ink-3" strokeWidth={2.25} />
-                  )}
-                </RailTile>
+                  avatar={chatAvatarFor(p.id, p.avatar)}
+                />
               );
             })}
           </>
@@ -95,29 +86,42 @@ function RailTile({
   active,
   label,
   unread,
-  children,
+  avatar,
 }: {
   href: string;
   active: boolean;
   label: string;
   unread: number;
-  children: React.ReactNode;
+  avatar: { emoji: string; color: string; imageUrl: string | null };
 }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Link
-          href={href as never}
-          aria-label={label}
-          className={cn(
-            TILE,
-            'overflow-hidden bg-surface text-ink-3 hover:text-ink',
-            active && ACTIVE_RING,
-          )}
-        >
-          {children}
+        <span className="relative inline-grid">
+          <Link
+            href={href as never}
+            aria-label={label}
+            className={cn(
+              TILE,
+              'overflow-hidden text-ink-3 hover:text-ink',
+              active && ACTIVE_RING,
+            )}
+          >
+            {avatar.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatar.imageUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span
+                className="grid h-full w-full place-items-center text-[20px] leading-none"
+                style={{ backgroundColor: avatar.color }}
+                aria-hidden
+              >
+                {avatar.emoji}
+              </span>
+            )}
+          </Link>
           <UnreadBadge count={unread} />
-        </Link>
+        </span>
       </TooltipTrigger>
       <TooltipContent side="right">{label}</TooltipContent>
     </Tooltip>

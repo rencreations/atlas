@@ -89,14 +89,14 @@ export default function ProfileSettingsPage() {
           apiPaths.meAvatarPresign(),
           {
             method: 'POST',
-            body: JSON.stringify({ contentType: file.type, contentLength: file.size }),
+            body: { contentType: file.type, contentLength: file.size },
           },
         );
         const key = new URL(presign.uploadUrl).pathname.split('/').slice(2).join('/');
         await uploadToPresigned(presign.uploadUrl, file);
         const updated = await api<MeProfile>(apiPaths.me(), {
           method: 'PATCH',
-          body: JSON.stringify({ avatarS3Key: key }),
+          body: { avatarS3Key: key },
         });
         queryClient.setQueryData(queryKeys.me, updated);
         show({ title: 'Avatar updated', tone: 'success' });

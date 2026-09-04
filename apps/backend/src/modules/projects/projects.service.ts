@@ -33,6 +33,7 @@ const CARD_SELECT = {
     take: 4,
     select: { id: true, url: true, type: true, order: true },
   },
+  featured: { select: { order: true } },
   _count: { select: { members: true } },
 } satisfies Prisma.ProjectSelect;
 
@@ -132,105 +133,42 @@ export class ProjectsService {
     const where = this.buildWhere(user, dto);
     const orderBy = this.buildOrderBy(dto.sort);
 
+    // Pinned (admin-curated featured) projects float to the top of the
+    // default Discover view. Any content filter (search, phase, tags,
+    // recruiting, saved-only) opts out so filtered results stay purely
+    // relevance/date-ordered. When pinned, page 1 shows the pinned set
+    // plus the first few regular rows, so later pages must subtract
+    // that offset from their skip to avoid dropping rows.
+    const pinnedAllowed =
+      !dto.q && !dto.phase?.length && !dto.tagIds?.length &&
+      !dto.recruitingFor && !dto.bookmarkedOnly;
+
+    const featured = pinnedAllowed
+      ? await this.prisma.featuredProject.findMany({
+          orderBy: { order: 'asc' },
+          where: { project: { deletedAt: null, ...this.visibilityClause(user) } },
+          include: { project: { select: CARD_SELECT } },
+        })
+      : [];
+    const pinnedIds = featured.map((f) => f.projectId);
+    const pinnedItems = featured.map((f) => this.shapeCard(f.project));
+    const offset = pinnedItems.length;
+
     const [items, total] = await this.prisma.$transaction([
       this.prisma.project.findMany({
-        where,
+        where: { ...where, id: { notIn: pinnedIds } },
         select: CARD_SELECT,
         orderBy,
-        skip: (dto.page - 1) * dto.pageSize,
-        take: dto.pageSize,
+        skip: Math.max(0, (dto.page - 1) * dto.pageSize - offset),
+        take: dto.pageSize - (dto.page === 1 ? offset : 0),
       }),
-      this.prisma.project.count({ where }),
+      this.prisma.project.count({ where: { ...where, id: { notIn: pinnedIds } } }),
     ]);
 
-    return paginate(
-      items.map((p) => this.shapeCard(p)),
-      total,
-      dto.page,
-      dto.pageSize,
-    );
-  }
+    const shaped = items.map((p) => this.shapeCard(p));
+    const rows = dto.page === 1 ? [...pinnedItems, ...shaped] : shaped;
 
-  /**
-   * Netflix-style discovery payload assembled in one call:
-   *   - hero: admin-curated featured projects
-   *   - myProjects: managed + contributing
-   *   - pendingRequests: applicant-side
-   *   - rows: phase-grouped + tag-grouped lanes
-   */
-  async discover(user: AuthenticatedUser) {
-    const baseVisibility = this.visibilityClause(user);
-
-    const [featured, memberships, pendingRequests, recruiting, recent, shipped, allTags] =
-      await this.prisma.$transaction([
-        this.prisma.featuredProject.findMany({
-          orderBy: { order: 'asc' },
-          where: { project: { deletedAt: null, archivedAt: null, ...baseVisibility } },
-          include: { project: { select: CARD_SELECT } },
-        }),
-        this.prisma.projectMember.findMany({
-          where: { userId: user.id, project: { deletedAt: null } },
-          include: { project: { select: CARD_SELECT } },
-          orderBy: { joinedAt: 'desc' },
-        }),
-        this.prisma.contributionRequest.findMany({
-          where: { userId: user.id, status: 'PENDING' },
-          include: { project: { select: CARD_SELECT } },
-          orderBy: { createdAt: 'desc' },
-        }),
-        this.prisma.project.findMany({
-          where: {
-            deletedAt: null,
-            archivedAt: null,
-            ...baseVisibility,
-            collaborationRoles: { isEmpty: false },
-          },
-          select: CARD_SELECT,
-          orderBy: { updatedAt: 'desc' },
-          take: 20,
-        }),
-        this.prisma.project.findMany({
-          where: { deletedAt: null, archivedAt: null, ...baseVisibility },
-          select: CARD_SELECT,
-          orderBy: { createdAt: 'desc' },
-          take: 20,
-        }),
-        this.prisma.project.findMany({
-          where: { deletedAt: null, archivedAt: null, phase: 'SHIPPED', ...baseVisibility },
-          select: CARD_SELECT,
-          orderBy: { updatedAt: 'desc' },
-          take: 20,
-        }),
-        this.prisma.tag.findMany({ orderBy: [{ category: 'asc' }, { name: 'asc' }] }),
-      ]);
-
-    const managed = memberships
-      .filter((m) => m.role === 'PROJECT_MANAGER')
-      .map((m) => this.shapeCard(m.project));
-    const contributing = memberships
-      .filter((m) => m.role === 'CONTRIBUTOR')
-      .map((m) => this.shapeCard(m.project));
-
-    return {
-      hero: featured.map((f) => this.shapeCard(f.project)),
-      myProjects: { managed, contributing },
-      pendingRequests: pendingRequests.map((r) => ({
-        id: r.id,
-        role: r.role,
-        createdAt: r.createdAt,
-        project: this.shapeCard(r.project),
-      })),
-      rows: [
-        {
-          key: 'recruiting',
-          label: 'Currently recruiting',
-          items: recruiting.map((p) => this.shapeCard(p)),
-        },
-        { key: 'recent', label: 'New this month', items: recent.map((p) => this.shapeCard(p)) },
-        { key: 'shipped', label: 'Shipped projects', items: shipped.map((p) => this.shapeCard(p)) },
-      ].filter((row) => row.items.length > 0),
-      tags: allTags,
-    };
+    return paginate(rows, total + offset, dto.page, dto.pageSize);
   }
 
   // ─── Update ────────────────────────────────────────────────────────────
@@ -356,6 +294,7 @@ export class ProjectsService {
       tags: p.tags.map((t) => t.tag),
       previewMedia: p.media,
       memberCount: p._count.members,
+      pinned: p.featured !== null,
     };
   }
 

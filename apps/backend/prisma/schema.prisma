@@ -204,6 +204,7 @@ model User {
   chatReactions                  ChatReaction[]
   chatPins                       ChatPinned[]            @relation("ChatPinnedBy")
   stickerPacksCreated            StickerPack[]           @relation("StickerPackCreator")
+  chatAvatarUpdates              ChatAvatar[]            @relation("ChatAvatarUpdates")
   // PMO back-relations (no DB impact; Prisma-only).
   tasksCreated                   Task[]                  @relation("TaskCreator")
   taskAssignments                TaskAssignee[]
@@ -723,6 +724,22 @@ model ChatLinkPreview {
 }
 
 // ─── Stickers (admin-managed global library) ─────────────────────────────
+
+/// Discord-style server avatar for the chat rail and chat sidebar. The
+/// default is a random emoji on a random background (derived from the
+/// key), admins can override per surface from the admin dashboard's
+/// Chat settings: key is 'workspace' for the workspace server or
+/// 'project:<id>' for a project server.
+model ChatAvatar {
+  key         String   @id
+  emoji       String?
+  color       String?
+  imageUrl    String?
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  updatedBy User? @relation("ChatAvatarUpdates", fields: [updatedById], references: [id], onDelete: SetNull)
+}
 
 model StickerPack {
   id          String   @id @default(uuid())

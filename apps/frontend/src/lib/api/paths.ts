@@ -117,7 +117,6 @@ export const apiPaths = {
     const qs = params.toString();
     return `/projects${qs ? `?${qs}` : ''}`;
   },
-  discovery: () => '/projects/discover',
   featured: () => '/projects/featured',
   project: (slug: string) => `/projects/${slug}`,
   archiveProject: (id: string) => `/projects/${id}/archive`,
@@ -239,6 +238,10 @@ export const apiPaths = {
     const qs = new URLSearchParams({ q: params.q });
     if (params.limit) qs.set('limit', String(params.limit));
     return `/search?${qs.toString()}`;
+  },
+  adminChat: {
+    avatars: () => '/admin/chat/avatars',
+    avatar: (key: string) => `/admin/chat/avatars/${encodeURIComponent(key)}`,
   },
   adminStickers: {
     packs: () => '/admin/stickers/packs',

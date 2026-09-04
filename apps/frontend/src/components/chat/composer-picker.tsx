@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ChatGif, PublicConfig, Sticker, StickerPack } from '@/lib/types';
+import { useTheme } from '@/lib/theme';
 import { SmileIcon } from '@/components/icons/animated/smile';
 
 // Lazy-load the emoji and GIF pickers, they're heavy and only needed
@@ -16,6 +17,10 @@ import { SmileIcon } from '@/components/icons/animated/smile';
 // chat view, not just users that open the picker.
 const EmojiPicker = React.lazy(() => import('emoji-picker-react'));
 const KlipyGifPicker = React.lazy(() => import('./klipy-gif-picker'));
+
+// Type-only so the heavy picker bundle stays out of the main chunk; the
+// Theme enum's values are string literals ('dark' | 'light').
+import type { Theme } from 'emoji-picker-react';
 
 interface Props {
   /** Called with the emoji character (e.g. "👍") to insert at the caret. */
@@ -40,6 +45,9 @@ interface Props {
  */
 export function ComposerPicker({ onEmojiPick, onGifPick, onStickerPick, onAfterClose }: Props) {
   const [open, setOpen] = React.useState(false);
+  // emoji-picker-react defaults to light; follow the app theme instead.
+  const { resolved } = useTheme();
+  const pickerTheme = (resolved === 'dark' ? 'dark' : 'light') as Theme;
   return (
     <Popover
       open={open}
@@ -91,6 +99,7 @@ export function ComposerPicker({ onEmojiPick, onGifPick, onStickerPick, onAfterC
                   onEmojiPick(e.emoji);
                   setOpen(false);
                 }}
+                theme={pickerTheme}
                 width="100%"
                 height={360}
                 lazyLoadEmojis

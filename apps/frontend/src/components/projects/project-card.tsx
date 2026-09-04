@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Lock, Users, ArrowRight } from 'lucide-react';
+import { Lock, Users, ArrowRight, Pin } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -111,6 +111,12 @@ export function ProjectCard({ project, width, static: isStatic = false, classNam
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
               <PhaseBadge phase={project.phase} />
+              {project.pinned ? (
+                <Badge tone="info">
+                  <Pin className="mr-0.5 h-3 w-3" strokeWidth={2.25} />
+                  Pinned
+                </Badge>
+              ) : null}
               {project.tags.slice(0, 2).map((t) => (
                 <Badge key={t.id} tone="neutral">
                   {t.name}

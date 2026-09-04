@@ -5,7 +5,6 @@ import type {
   CollaborationRole,
   ContributionRequest,
   DashboardPayload,
-  DiscoveryPayload,
   NotificationItem,
   Paginated,
   ProjectCard,
@@ -22,9 +21,16 @@ export const queryKeys = {
   forMe: ['for-me'] as const,
   notifications: (page: number) => ['notifications', page] as const,
   unreadCount: ['notifications', 'unread'] as const,
-  discovery: ['discovery'] as const,
   projects: (filters: Record<string, unknown>) => ['projects', filters] as const,
   project: (slug: string) => ['project', slug] as const,
+  /**
+   * The project description page's combined fetch (project + session
+   * user). Kept apart from `project` because that key is shared by
+   * every surface expecting the raw ProjectDetail (chat, task lists,
+   * manage, voice); sharing one key across two shapes crashed those
+   * consumers with `undefined.access` after visiting the detail page.
+   */
+  projectWithMe: (slug: string) => ['project', slug, 'me'] as const,
   projectRequests: (slug: string) => ['project', slug, 'requests'] as const,
   myRequests: ['contributions', 'mine'] as const,
   bookmarks: ['bookmarks'] as const,
@@ -91,7 +97,6 @@ export type {
   CollaborationRole,
   ContributionRequest,
   DashboardPayload,
-  DiscoveryPayload,
   NotificationItem,
   Paginated,
   ProjectCard,

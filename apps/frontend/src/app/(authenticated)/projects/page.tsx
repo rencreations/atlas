@@ -4,10 +4,12 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
+import { getStoredSession } from '@/lib/auth-client';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { usePageTitle } from '@/lib/page-title';
+import { useCanCreateProject } from '@/lib/hooks/use-can-create-project';
 import type { CollaborationRole, Paginated, ProjectCard, Tag } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { ProjectCard as ProjectCardView } from '@/components/projects/project-card';
@@ -26,9 +28,10 @@ const ROW_FILTERS: Record<string, { phase?: string[] }> = {
 };
 
 export default function ProjectsBrowsePage() {
-  usePageTitle('Browse projects');
+  usePageTitle('Discover');
 
   const searchParams = useSearchParams();
+  const { canCreate: canCreateProject } = useCanCreateProject(getStoredSession()?.user);
 
   const q = searchParams.get('q') || undefined;
   const row = searchParams.get('row');
@@ -95,7 +98,7 @@ export default function ProjectsBrowsePage() {
     <Container size="2xl" className="space-y-8 py-12">
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-display-lg tracking-[-0.02em] text-ink">
-          Browse projects
+          Discover
         </h1>
         <p className="max-w-prose text-body text-ink-2">
           {q ? <>Showing results for <span className="font-medium text-ink">&ldquo;{q}&rdquo;</span>.</> : 'Find what Ren is working on. Filter by phase, tags, or open roles.'}
@@ -112,18 +115,20 @@ export default function ProjectsBrowsePage() {
       {projects.data.items.length === 0 ? (
         <EmptyState
           title="No projects match those filters."
-          description="Try removing a filter or starting a new project of your own."
+          description="Try removing a filter, or contribute to a project once new ones open up."
           action={
             <div className="flex gap-3">
               <Button asChild variant="secondary">
                 <Link href={'/projects'}>Clear filters</Link>
               </Button>
-              <Button asChild>
-                <Link href={'/projects/new'}>
-                  <Plus className="h-4 w-4" strokeWidth={2.25} />
-                  Start a project
-                </Link>
-              </Button>
+              {canCreateProject ? (
+                <Button asChild>
+                  <Link href={'/projects/new'}>
+                    <Plus className="h-4 w-4" strokeWidth={2.25} />
+                    Start a project
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           }
         />

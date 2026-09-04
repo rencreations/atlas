@@ -27,6 +27,7 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { isVoiceEnabled } from '@/lib/hooks/use-voice-enabled';
 import { getVoiceSocket } from '@/lib/realtime/socket';
+import { dynamicAudioPreset } from './audio-quality';
 import {
   playJoinChime,
   playLeaveChime,
@@ -434,7 +435,9 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         adaptiveStream: true,
         dynacast: true,
         publishDefaults: {
-          audioPreset: { maxBitrate: 64_000 }, // STANDARD-quality default
+          // Dynamic per-joiner audio quality, tuned to this user's
+          // connection instead of a channel setting chosen at creation.
+          audioPreset: dynamicAudioPreset(),
         },
         // Pull the audio cleanup toggles from the user's saved prefs.
         // When prefs haven't loaded yet, fall back to all-on (matches
@@ -1195,7 +1198,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         const room = new Room({
           adaptiveStream: true,
           dynacast: true,
-          publishDefaults: { audioPreset: { maxBitrate: 64_000 } },
+          // Dynamic per-joiner audio quality (see joinRoom above).
+          publishDefaults: { audioPreset: dynamicAudioPreset() },
           audioCaptureDefaults: {
             autoGainControl: prefs?.autoGainControl ?? true,
             echoCancellation: prefs?.echoCancellation ?? true,

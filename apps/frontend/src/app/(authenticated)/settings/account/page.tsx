@@ -37,7 +37,7 @@ export default function AccountSettingsPage() {
     mutationFn: () =>
       api(apiPaths.auth.passwordChange(), {
         method: 'POST',
-        body: JSON.stringify({ currentPassword: current, newPassword: next }),
+        body: { currentPassword: current, newPassword: next },
       }),
     onSuccess: () => {
       setCurrent('');
@@ -92,7 +92,7 @@ export default function AccountSettingsPage() {
     mutationFn: () =>
       api(apiPaths.auth.phoneVerifyRequest(), {
         method: 'POST',
-        body: JSON.stringify({ phone }),
+        body: { phone },
       }),
     onSuccess: () => {
       setCodeSent(true);
@@ -109,7 +109,7 @@ export default function AccountSettingsPage() {
     mutationFn: () =>
       api(apiPaths.auth.phoneVerifyConfirm(), {
         method: 'POST',
-        body: JSON.stringify({ phone, code }),
+        body: { phone, code },
       }),
     onSuccess: () => {
       setCodeSent(false);

@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import { ProjectThumbnail } from '@/components/projects/project-thumbnail';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
 import type { Paginated, ProjectCard } from '@/lib/types';
 
 export function FeaturedManager() {
@@ -40,7 +41,7 @@ export function FeaturedManager() {
       api('/projects/featured', { method: 'POST', body: { projectIds: order } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['featured'] });
-      qc.invalidateQueries({ queryKey: ['discovery'] });
+      qc.invalidateQueries({ queryKey: queryKeys.projects({}) });
       show({ tone: 'success', title: 'Featured projects updated' });
     },
   });
@@ -81,9 +82,9 @@ export function FeaturedManager() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-h2 tracking-[-0.01em] text-ink">Featured projects</h2>
+        <h2 className="font-display text-h2 tracking-[-0.01em] text-ink">Pinned projects</h2>
         <p className="mt-1 text-body-sm text-ink-2">
-          The top of the discover dashboard. Up to 12 projects in your chosen order.
+          Pinned to the top of Discover for everyone. Up to 12 projects in your chosen order.
         </p>
       </div>
 

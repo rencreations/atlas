@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Bell, Loader2, LogOut, Settings, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Bell, Bookmark, Loader2, LogOut, Settings, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { clearSession, getStoredSession } from '@/lib/auth-client';
 import { api } from '@/lib/api/client';
 import { Avatar } from '@/components/ui/avatar';
@@ -59,6 +59,12 @@ export function UserMenu({ isAdmin }: Props) {
           <Link href={'/me' as never}>
             <UserIcon className="h-4 w-4 text-ink-2" strokeWidth={2.25} />
             Your dashboard
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={'/me/saved' as never}>
+            <Bookmark className="h-4 w-4 text-ink-2" strokeWidth={2.25} />
+            Saved projects
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

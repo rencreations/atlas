@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type {
-  VoiceAudioQuality,
   VoiceChannelKind,
   VoiceChannelPublic,
 } from '@/lib/voice/types';
@@ -65,7 +64,6 @@ export function VoiceChannelDialog(props: Props) {
   const [name, setName] = React.useState('');
   const [topic, setTopic] = React.useState('');
   const [userLimit, setUserLimit] = React.useState('');
-  const [audioQuality, setAudioQuality] = React.useState<VoiceAudioQuality>('STANDARD');
   const [kind, setKind] = React.useState<VoiceChannelKind>('STANDARD');
 
   // Reset the form whenever the dialog opens with a different target.
@@ -74,7 +72,6 @@ export function VoiceChannelDialog(props: Props) {
     setName(channel?.name ?? '');
     setTopic(channel?.topic ?? '');
     setUserLimit(channel?.userLimit ? String(channel.userLimit) : '');
-    setAudioQuality(channel?.audioQuality ?? 'STANDARD');
     setKind(channel?.kind ?? 'STANDARD');
   }, [open, channel]);
 
@@ -105,7 +102,6 @@ export function VoiceChannelDialog(props: Props) {
       name: string;
       topic?: string;
       userLimit?: number;
-      audioQuality?: VoiceAudioQuality;
       kind?: VoiceChannelKind;
     }) => {
       if (isEdit) {
@@ -134,9 +130,10 @@ export function VoiceChannelDialog(props: Props) {
       topic: topic.trim() || undefined,
       userLimit:
         limit !== undefined && !Number.isNaN(limit) && limit >= 0 ? limit : undefined,
-      audioQuality,
       // Only send kind on create. Backend doesn't support kind change
       // on edit (would require reseating every active participant).
+      // Audio quality is deliberately NOT part of this form: it is
+      // derived per participant from their connection at join time.
       ...(isEdit ? {} : { kind }),
     });
   };
@@ -203,36 +200,21 @@ export function VoiceChannelDialog(props: Props) {
               </p>
             </div>
           ) : null}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="vc-limit">User limit</Label>
-              <Input
-                id="vc-limit"
-                type="number"
-                min={0}
-                max={100}
-                value={userLimit}
-                onChange={(e) => setUserLimit(e.target.value)}
-                placeholder="No limit"
-              />
-              <p className="text-[11px] text-ink-3">0 or empty = unlimited</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="vc-quality">Audio quality</Label>
-              <Select
-                value={audioQuality}
-                onValueChange={(v) => setAudioQuality(v as VoiceAudioQuality)}
-              >
-                <SelectTrigger id="vc-quality">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="LOW">Low (32 kbps)</SelectItem>
-                  <SelectItem value="STANDARD">Standard (64 kbps)</SelectItem>
-                  <SelectItem value="HIGH">High (128 kbps)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="vc-limit">User limit</Label>
+            <Input
+              id="vc-limit"
+              type="number"
+              min={0}
+              max={100}
+              value={userLimit}
+              onChange={(e) => setUserLimit(e.target.value)}
+              placeholder="No limit"
+            />
+            <p className="text-[11px] text-ink-3">
+              0 or empty = unlimited. Audio quality adjusts automatically to each
+              participant&apos;s connection.
+            </p>
           </div>
           {errorMessage ? (
             <div className="text-[13px] text-brand-red">{errorMessage}</div>
