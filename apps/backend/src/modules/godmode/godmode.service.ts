@@ -74,6 +74,24 @@ export class GodmodeService {
     return { publicKey, privateKey };
   }
 
+  /**
+   * Cheap counts the Overview page uses to introduce "getting started"
+   * suggestions gradually, one at a time, once the required setup is
+   * done, instead of dumping a full product tour on the admin at once.
+   */
+  async instanceStats(): Promise<{
+    userCount: number;
+    projectCount: number;
+    chatMessageCount: number;
+  }> {
+    const [userCount, projectCount, chatMessageCount] = await Promise.all([
+      this.prisma.user.count(),
+      this.prisma.project.count(),
+      this.prisma.chatMessage.count(),
+    ]);
+    return { userCount, projectCount, chatMessageCount };
+  }
+
   // ─── Storage migration (godmode UI) ───────────────────────────────
 
   storageMigrationStatus() {

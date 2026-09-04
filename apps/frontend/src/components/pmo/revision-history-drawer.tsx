@@ -163,7 +163,7 @@ export function RevisionHistoryDrawer({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="fixed inset-y-0 right-0 w-[360px] max-w-[90vw] rounded-none border-l border-line bg-surface p-0 shadow-2">
+      <DialogContent className="fixed inset-y-0 right-0 max-h-svh w-[360px] max-w-[90vw] rounded-none border-l border-line bg-surface p-0 shadow-2">
         {/* pr-14 keeps the title clear of the Dialog's built-in close (top-right). */}
         <header className="flex items-center justify-between border-b border-line py-3 pl-4 pr-14">
           <DialogTitle className="flex items-center gap-2 font-display text-[14px] font-semibold tracking-normal text-ink">

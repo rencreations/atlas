@@ -108,6 +108,13 @@ export interface GodmodePermission {
   category: string;
 }
 
+/** Cheap usage counts driving the Overview page's post-launch suggestions. */
+export interface GodmodeInstanceStats {
+  userCount: number;
+  projectCount: number;
+  chatMessageCount: number;
+}
+
 export interface GodmodePasskey {
   id: string;
   credentialId: string;

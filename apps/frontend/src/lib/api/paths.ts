@@ -66,6 +66,7 @@ export const apiPaths = {
     storageMigration: () => '/godmode/storage/migration',
     storageMigrationRetry: () => '/godmode/storage/migration/retry',
     generateVapidKeys: () => '/godmode/integrations/vapid/generate',
+    stats: () => '/godmode/stats',
   },
 
   // Feature flags, public evaluated map + admin CRUD.

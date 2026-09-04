@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { PartyPopperIcon } from '@/components/icons/animated/party-popper';
 import { ConfettiBurst } from './confetti-burst';
 import { godmodeFetch, godmodePaths } from '@/lib/godmode/client';
-import type { GodmodeSettingsView, GodmodeUser } from '@/lib/godmode/types';
+import type { GodmodeInstanceStats, GodmodeSettingsView, GodmodeUser } from '@/lib/godmode/types';
 
 /** A setup step whose completion is derived from live instance state. */
 interface Step {
@@ -88,7 +88,6 @@ export function SetupOverview({
 
   const required: Step[] = useMemo(() => {
     const instanceUrl = str(settings, 'system.instanceUrl');
-    const emailProvider = str(settings, 'email.provider');
     return [
       {
         id: 'account',
@@ -119,23 +118,34 @@ export function SetupOverview({
         section: 'auth',
         cta: 'Choose methods',
       },
+    ];
+  }, [settings, superadminExists]);
+
+  const recommended: Step[] = useMemo(() => {
+    const emailProvider = str(settings, 'email.provider');
+    const smsProvider = str(settings, 'sms.provider');
+    const storageProvider = str(settings, 'storage.provider');
+    const terms = str(settings, 'legal.termsText');
+    const privacy = str(settings, 'legal.privacyText');
+    return [
       {
         id: 'email',
         title: 'Connect email delivery',
-        why: 'Magic links, password resets, invites, and verification emails all need a real mail provider.',
+        why: 'Optional, but magic links, password resets, invites, and verification emails all need a real mail provider to actually arrive.',
         hint: 'Email → pick SMTP, Resend, or AWS SES and fill in its credentials. Until then Atlas only prints mail to the server log.',
         done: Boolean(emailProvider) && emailProvider !== 'console',
         section: 'email',
         cta: 'Configure email',
       },
-    ];
-  }, [settings, superadminExists]);
-
-  const recommended: Step[] = useMemo(() => {
-    const storageProvider = str(settings, 'storage.provider');
-    const terms = str(settings, 'legal.termsText');
-    const privacy = str(settings, 'legal.privacyText');
-    return [
+      {
+        id: 'sms',
+        title: 'Connect SMS / OTP delivery',
+        why: 'Optional, only needed if you want phone sign-in or one-time codes by text.',
+        hint: 'SMS / OTP → pick Twilio, Vonage, Infobip, Sinch, or MessageBird and fill in its credentials.',
+        done: Boolean(smsProvider) && smsProvider !== 'console',
+        section: 'sms',
+        cta: 'Configure SMS',
+      },
       {
         id: 'storage',
         title: 'Choose file storage',
@@ -203,7 +213,8 @@ export function SetupOverview({
           <div>
             <h2 className="font-display text-h3 text-ink">Finish setting up Atlas</h2>
             <p className="mt-1 text-[13px] text-ink-2">
-              Four things are required. Everything else can wait until after you are inside.
+              {required.length} things are required. Everything else, including email and SMS,
+              can wait until after you are inside.
             </p>
           </div>
           <span className="text-[13px] font-medium text-ink-2" aria-live="polite">
@@ -360,6 +371,20 @@ function ConfiguredOverview({
   onNavigate: (section: string) => void;
 }) {
   const remaining = recommended.filter((s) => !s.done);
+  const [stats, setStats] = useState<GodmodeInstanceStats | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    godmodeFetch<GodmodeInstanceStats>(godmodePaths.stats())
+      .then((s) => {
+        if (!cancelled) setStats(s);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="relative flex flex-wrap items-start justify-between gap-3 overflow-hidden rounded-lg border border-brand-green/30 bg-brand-green-50 p-5">
@@ -385,6 +410,8 @@ function ConfiguredOverview({
         ) : null}
       </div>
 
+      <GrowthChecklist stats={stats} liveUrl={liveUrl} onNavigate={onNavigate} />
+
       {remaining.length > 0 ? (
         <StepList
           eyebrow={`Optional, ${remaining.length} left to polish`}
@@ -397,5 +424,107 @@ function ConfiguredOverview({
         </p>
       )}
     </div>
+  );
+}
+
+interface GrowthStep {
+  id: string;
+  title: string;
+  why: string;
+  done: boolean;
+  cta: string;
+  onClick: () => void;
+}
+
+/**
+ * "What to try next" suggestions once the instance is live, introduced one
+ * at a time as the admin makes progress instead of a full product-tour
+ * checklist dumped on them at once. Finished ones collapse to a small
+ * checkmark strip; only the current step gets a full card.
+ */
+function GrowthChecklist({
+  stats,
+  liveUrl,
+  onNavigate,
+}: {
+  stats: GodmodeInstanceStats | null;
+  liveUrl: string;
+  onNavigate: (section: string) => void;
+}) {
+  if (!stats) return null;
+
+  const steps: GrowthStep[] = [
+    {
+      id: 'project',
+      title: 'Create your first project',
+      why: 'Projects are where chat, tasks, and files actually live, there is nothing to show your team until one exists.',
+      done: stats.projectCount > 0,
+      cta: 'New project',
+      onClick: () => liveUrl && window.open(`${liveUrl}/projects/new`, '_blank', 'noreferrer'),
+    },
+    {
+      id: 'team',
+      title: 'Invite your team',
+      why: 'Right now it’s just your account. Add people directly or hand out an invite code.',
+      done: stats.userCount > 1,
+      cta: 'Users & invites',
+      onClick: () => onNavigate('users'),
+    },
+    {
+      id: 'chat',
+      title: 'Send your first message',
+      why: 'See what people will actually use day to day.',
+      done: stats.chatMessageCount > 0,
+      cta: 'Open the live site',
+      onClick: () => liveUrl && window.open(liveUrl, '_blank', 'noreferrer'),
+    },
+  ];
+
+  const current = steps.find((s) => !s.done);
+  const finished = steps.filter((s) => s.done);
+
+  return (
+    <section className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <h3 className="text-eyebrow uppercase text-ink-3">Get started</h3>
+        <span className="text-[12px] text-ink-4">
+          {finished.length} of {steps.length} done
+        </span>
+      </div>
+
+      {current ? (
+        <div className="flex items-start gap-4 rounded border border-line bg-surface p-4 shadow-1">
+          <CircleDashed
+            className="mt-0.5 h-5 w-5 shrink-0 text-ink-4"
+            strokeWidth={2.25}
+            role="img"
+            aria-label="Not done yet"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="text-[14px] font-medium text-ink">{current.title}</div>
+            <p className="mt-1 text-[13px] text-ink-3">{current.why}</p>
+          </div>
+          <Button variant="secondary" size="sm" className="shrink-0" onClick={current.onClick}>
+            {current.cta}
+            <ArrowRightIcon size={14} className="flex items-center justify-center" />
+          </Button>
+        </div>
+      ) : (
+        <p className="rounded border border-line bg-surface p-4 text-[13px] text-ink-3 shadow-1">
+          You’ve done all the getting-started basics, Atlas is in daily use.
+        </p>
+      )}
+
+      {finished.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-1">
+          {finished.map((s) => (
+            <span key={s.id} className="inline-flex items-center gap-1.5 text-[12px] text-ink-4">
+              <CheckIcon size={11} className="flex items-center justify-center text-brand-green" />
+              {s.title}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }

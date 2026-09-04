@@ -158,23 +158,28 @@ export function RolesPanel() {
       </div>
 
       {selectedCode ? (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
-            <h3 className="font-display text-h4 text-ink">Editing {selectedCode}</h3>
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-3">Role name</span>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+        // Same top/middle/bottom split as the sidebar: the name+description
+        // header and the Save button stay put, only the permission list
+        // (which can run to dozens of checkboxes) scrolls in between.
+        <div className="flex flex-col gap-4 md:sticky md:top-10 md:max-h-[calc(100svh-5rem)]">
+          <div className="flex shrink-0 flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
+              <h3 className="font-display text-h4 text-ink">Editing {selectedCode}</h3>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-3">Description</span>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-3">Role name</span>
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-3">Description</span>
+                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-1 pr-1">
             {categories.map(([category, perms]) => (
               <div
                 key={category}
@@ -210,7 +215,7 @@ export function RolesPanel() {
             ))}
           </div>
 
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-2 border-t border-line pt-4">
             <Button size="sm" onClick={() => void save()} disabled={saving || !dirty}>
               {saving ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.25} />
@@ -286,7 +291,7 @@ function CreateRoleDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent size="lg" className="max-h-[85%] overflow-y-auto">
+      <DialogContent size="lg">
         <DialogTitle>Create a custom role</DialogTitle>
         <DialogDescription>
           Pick a name and the permissions this role grants. The role code is derived from the

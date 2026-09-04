@@ -38,6 +38,12 @@ export const DialogContent = React.forwardRef<
               'relative w-full',
               sizes[size],
               'rounded-xl bg-surface shadow-3 outline-none',
+              // Capped to the viewport (svh, not %, the flex-centered
+              // wrapper above has no definite height for a percentage to
+              // resolve against) and scrollable internally, so a dialog
+              // taller than the screen scrolls itself instead of forcing
+              // the browser to zoom out to see the rest of it.
+              'max-h-[85svh] overflow-y-auto overscroll-contain',
               'p-7',
               'data-[state=open]:animate-modal-in',
               className,

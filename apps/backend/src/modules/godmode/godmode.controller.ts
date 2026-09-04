@@ -159,6 +159,13 @@ export class GodmodeController {
     return this.godmode.generateVapidKeys();
   }
 
+  /** Cheap usage counts for the Overview page's post-launch suggestions. */
+  @UseGuards(GodmodeGuard)
+  @Get('stats')
+  instanceStats() {
+    return this.godmode.instanceStats();
+  }
+
   // ─── Storage migration ────────────────────────────────────────────
 
   /** Latest storage-provider migration (progress, status, error). */
