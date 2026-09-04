@@ -505,6 +505,63 @@ export interface ChatSearchResponse {
   nextCursor: string | null;
 }
 
+export interface ProjectSearchHit {
+  id: string;
+  slug: string;
+  title: string;
+  thumbnailUrl: string | null;
+}
+
+/** `listId` is null when the project has no task list yet to anchor a "…/lists/:listId/…" href. */
+export interface NoteSearchHit {
+  id: string;
+  title: string;
+  projectId: string;
+  projectSlug: string;
+  projectTitle: string;
+  listId: string | null;
+}
+
+export interface FileSearchHit {
+  id: string;
+  name: string;
+  mime: string | null;
+  parentFolderId: string | null;
+  projectId: string;
+  projectSlug: string;
+  projectTitle: string;
+  listId: string | null;
+}
+
+export interface TaskSearchHit {
+  id: string;
+  key: string;
+  title: string;
+  taskListId: string;
+  projectId: string;
+  projectSlug: string;
+  projectTitle: string;
+}
+
+export interface WhiteboardSearchHit {
+  id: string;
+  title: string;
+  projectId: string;
+  projectSlug: string;
+  projectTitle: string;
+  listId: string | null;
+}
+
+export interface GlobalSearchResponse {
+  query: string;
+  projects: ProjectSearchHit[];
+  chat: ChatSearchHit[];
+  notes: NoteSearchHit[];
+  files: FileSearchHit[];
+  tasks: TaskSearchHit[];
+  whiteboards: WhiteboardSearchHit[];
+}
+
 export interface Sticker {
   id: string;
   name: string;

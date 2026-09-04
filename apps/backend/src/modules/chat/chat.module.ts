@@ -74,7 +74,7 @@ import { ChatTypingService } from './services/chat-typing.service';
     ChatGateway,
     WsSessionGuard,
   ],
-  exports: [ChatChannelsService, ChatRealtimePublisher],
+  exports: [ChatChannelsService, ChatRealtimePublisher, ChatSearchService],
 })
 export class ChatModule {}
 

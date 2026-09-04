@@ -235,6 +235,11 @@ export const apiPaths = {
       return `/chat/search?${qs.toString()}`;
     },
   },
+  search: (params: { q: string; limit?: number }) => {
+    const qs = new URLSearchParams({ q: params.q });
+    if (params.limit) qs.set('limit', String(params.limit));
+    return `/search?${qs.toString()}`;
+  },
   adminStickers: {
     packs: () => '/admin/stickers/packs',
     pack: (packId: string) => `/admin/stickers/packs/${packId}`,

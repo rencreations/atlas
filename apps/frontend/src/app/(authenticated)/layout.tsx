@@ -11,12 +11,14 @@ import { VoiceConnectedPanel } from '@/components/voice/voice-connected-panel';
 import { SaveCoordinatorBeforeUnload } from '@/lib/save-coordinator';
 import { GlobalUndoListener } from '@/lib/undo/use-global-undo';
 
-// In-conversation chat pages: /projects/<slug>/chat/<channelId> and the
-// workspace-global /chat/global/<channelId>. Voice rooms, both
-// /projects/<slug>/voice/<id> and /voice/<id>, get the same
+// Every chat page: /chat and /projects/<slug>/chat, bare or with a
+// channel id, all render inside the server-rail chat shell now, so all
+// of them need this chrome, including the two redirect-shim pages that
+// briefly render before they know which channel to land on. Voice
+// rooms, both /projects/<slug>/voice/<id> and /voice/<id>, get the same
 // scroll-locked chrome. On these routes we hide the footer and lock
 // the outer chrome to the viewport so the inner pane is what scrolls.
-const CHAT_CONVERSATION_RE = /^\/(projects\/[^/]+\/chat|chat\/global)\/[^/]+/;
+const CHAT_CONVERSATION_RE = /^\/(projects\/[^/]+\/chat|chat)(\/|$)/;
 const VOICE_ROUTE_RE = /^\/(projects\/[^/]+\/)?voice\/[^/]+/;
 
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {

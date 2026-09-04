@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronRight,
@@ -74,7 +75,12 @@ export function NotesView({ projectSlug }: { projectSlug: string }) {
   const queryClient = useQueryClient();
   const { show } = useToast();
   const confirm = useConfirm();
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const searchParams = useSearchParams();
+  // Seeded from a search-result link (?noteId=); the effect below falls
+  // back to the first note if it turns out not to be a real one.
+  const [selectedId, setSelectedId] = React.useState<string | null>(
+    () => searchParams?.get('noteId') ?? null,
+  );
   const [renaming, setRenaming] = React.useState<ProjectNoteTreeItem | null>(null);
 
   const me = useQuery({

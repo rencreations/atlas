@@ -38,15 +38,18 @@ interface Props {
 export function ChannelList({ scope, projectTitle, activeChannelId, canManage }: Props) {
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface-muted/40">
-      <WorkspaceSection activeChannelId={activeChannelId} />
-      {scope.kind === 'project' ? (
+      {/* Each "server" shows only its own channels now that the rail
+          makes every other server one click away (real Discord behavior). */}
+      {scope.kind === 'global' ? (
+        <WorkspaceSection activeChannelId={activeChannelId} />
+      ) : (
         <ProjectSection
           projectSlug={scope.slug}
           projectTitle={projectTitle ?? ''}
           activeChannelId={activeChannelId}
           canManage={canManage}
         />
-      ) : null}
+      )}
     </aside>
   );
 }

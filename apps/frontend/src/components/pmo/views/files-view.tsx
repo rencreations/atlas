@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronRight,
@@ -57,8 +58,12 @@ export function FilesView({ projectSlug }: { projectSlug: string }) {
   const queryClient = useQueryClient();
   const { show } = useToast();
   const confirm = useConfirm();
+  const searchParams = useSearchParams();
 
-  const [folderId, setFolderId] = React.useState<string | null>(null);
+  // Seeded from a search-result link (?folderId=), the root folder otherwise.
+  const [folderId, setFolderId] = React.useState<string | null>(
+    () => searchParams?.get('folderId') || null,
+  );
   const [renaming, setRenaming] = React.useState<ProjectFile | null>(null);
   const [newFolderOpen, setNewFolderOpen] = React.useState(false);
   const [dropTarget, setDropTarget] = React.useState<string | null>(null);

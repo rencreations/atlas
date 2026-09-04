@@ -17,11 +17,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChatNavButton } from '@/components/chat/chat-nav-button';
+import { GlobalSearch } from '@/components/search/global-search';
 import { NotificationBell } from './notification-bell';
 import { UserMenu } from './user-menu';
 import { cn } from '@/lib/utils';
 import { useChatOverview } from '@/lib/chat/use-chat-overview';
 import { useCanCreateProject } from '@/lib/hooks/use-can-create-project';
+import { SearchIcon } from '@/components/icons/animated/search';
 import type { SessionUser } from '@/lib/types';
 
 interface NavLink {
@@ -42,12 +44,25 @@ export function Header({ user }: { user?: SessionUser | null }) {
   const reducedMotion = useReducedMotion();
   const { totalUnread: chatUnread } = useChatOverview({ enabled: Boolean(user) });
   const { canCreate: canCreateProject } = useCanCreateProject(user);
+  const [searchOpen, setSearchOpen] = React.useState(false);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // ⌘K / Ctrl+K opens global search from anywhere in the app.
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   return (
@@ -91,6 +106,18 @@ export function Header({ user }: { user?: SessionUser | null }) {
             );
           })}
           {user ? <ChatNavButton /> : null}
+          {user ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label="Search"
+              className="px-2 xl:px-3"
+              onClick={() => setSearchOpen(true)}
+            >
+              <SearchIcon size={16} className="flex items-center justify-center" />
+              <span className="hidden xl:inline">Search</span>
+            </Button>
+          ) : null}
         </nav>
 
         {/* Mobile navigation, replaces the hidden md:flex nav below md. */}
@@ -126,6 +153,9 @@ export function Header({ user }: { user?: SessionUser | null }) {
                     ) : null}
                   </Link>
                 </DropdownMenuItem>
+              ) : null}
+              {user ? (
+                <DropdownMenuItem onSelect={() => setSearchOpen(true)}>Search</DropdownMenuItem>
               ) : null}
               {canCreateProject ? (
                 <>
@@ -166,6 +196,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
           {user ? <UserMenu isAdmin={user.isAdmin} /> : null}
         </div>
       </div>
+      {user ? <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} /> : null}
     </header>
   );
 }

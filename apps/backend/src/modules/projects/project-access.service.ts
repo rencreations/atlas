@@ -87,6 +87,22 @@ export class ProjectAccessService {
   asInsiderKind(access: ProjectAccess): 'admin' | 'manager' | 'contributor' {
     return access.level as 'admin' | 'manager' | 'contributor';
   }
+
+  /** Every project id the user may read insider (member-only) content on. */
+  async accessibleProjectIds(user: AuthenticatedUser): Promise<string[]> {
+    if (user.isAdmin) {
+      const projects = await this.prisma.project.findMany({
+        where: { deletedAt: null },
+        select: { id: true },
+      });
+      return projects.map((p) => p.id);
+    }
+    const memberships = await this.prisma.projectMember.findMany({
+      where: { userId: user.id, project: { deletedAt: null } },
+      select: { projectId: true },
+    });
+    return memberships.map((m) => m.projectId);
+  }
 }
 
 // TODO(ops): confirm renovate group noise behavior on the next staging deploy

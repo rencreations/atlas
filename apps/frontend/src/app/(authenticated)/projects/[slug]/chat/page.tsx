@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
-import { Container } from '@/components/layout/container';
 import type { ChatChannel } from '@/lib/types';
 import { usePageTitle } from '@/lib/page-title';
 
@@ -37,9 +37,8 @@ export default function ProjectChatIndexPage() {
   }, [channelsQuery.data, router, slug]);
 
   return (
-    <Container size="2xl" className="py-10">
-      <div className="h-10 w-40 animate-pulse rounded bg-line/60" />
-      <div className="mt-4 h-64 animate-pulse rounded-lg bg-line/40" />
-    </Container>
+    <div className="grid h-full flex-1 place-items-center">
+      <Loader2 className="h-5 w-5 animate-spin text-ink-3" strokeWidth={2.25} />
+    </div>
   );
 }

@@ -21,6 +21,7 @@ import { VersionModule } from './modules/version/version.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { SearchModule } from './modules/search/search.module';
 import { PmoModule } from './modules/pmo/pmo.module';
 import { VoiceModule } from './modules/voice/voice.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -67,6 +68,7 @@ import { MetricsModule } from './infra/metrics/metrics.module';
     NotificationsModule,
     AdminModule,
     ChatModule,
+    SearchModule,
     PmoModule,
     VoiceModule,
     HealthModule,

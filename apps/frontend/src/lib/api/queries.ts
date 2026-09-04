@@ -33,6 +33,7 @@ export const queryKeys = {
   collaborationRoles: ['admin', 'collaboration-roles'] as const,
   users: (search?: string) => ['users', search ?? ''] as const,
   featured: ['featured'] as const,
+  search: (q: string) => ['search', q] as const,
   chat: {
     myProjects: ['chat', 'me', 'projects'] as const,
     globalChannels: ['chat', 'global', 'channels'] as const,
