@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image as ImageIcon, RotateCcw, Save } from 'lucide-react';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
-import { chatAvatarFor } from '@/lib/chat/avatar';
+import { chatAvatarFor, chatAvatarKey } from '@/lib/chat/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,6 +54,7 @@ export function ChatSettingsManager() {
             title="Workspace"
             subtitle="Shown as the top tile in every chat rail."
             seed="workspace"
+            avatarKey={chatAvatarKey('workspace')}
             avatar={list.data.workspace}
             onSaved={invalidate}
           />
@@ -63,6 +64,7 @@ export function ChatSettingsManager() {
               title={p.title}
               subtitle={`Project server · ${p.slug}`}
               seed={p.id}
+              avatarKey={chatAvatarKey('project', p.id)}
               avatar={p.avatar}
               onSaved={invalidate}
             />
@@ -80,12 +82,16 @@ function AvatarRow({
   title,
   subtitle,
   seed,
+  avatarKey,
   avatar,
   onSaved,
 }: {
   title: string;
   subtitle: string;
+  /** Used only to derive the preview default; not sent to the API. */
   seed: string;
+  /** The backend ChatAvatar row key ('workspace' or 'project:<id>'). */
+  avatarKey: string;
   avatar: ChatAvatarInfo | null;
   onSaved: () => void;
 }) {
@@ -121,7 +127,7 @@ function AvatarRow({
 
   const save = useMutation({
     mutationFn: () =>
-      api(apiPaths.adminChat.avatar(seed), {
+      api(apiPaths.adminChat.avatar(avatarKey), {
         method: 'PUT',
         body: {
           emoji: emoji.trim() || null,
@@ -142,7 +148,7 @@ function AvatarRow({
   });
 
   const reset = useMutation({
-    mutationFn: () => api(apiPaths.adminChat.avatar(seed), { method: 'DELETE' }),
+    mutationFn: () => api(apiPaths.adminChat.avatar(avatarKey), { method: 'DELETE' }),
     onSuccess: () => {
       onSaved();
       show({ tone: 'success', title: `Avatar reset for ${title}` });

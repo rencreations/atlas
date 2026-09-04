@@ -1,5 +1,16 @@
 import type { ChatAvatarInfo } from '@/lib/types';
 
+/**
+ * Build the backend's `ChatAvatar` row key. Matches
+ * `ChatAvatarsService.workspaceKey`/`projectKey` on the backend; the
+ * admin endpoints validate against exactly this shape.
+ */
+export function chatAvatarKey(target: 'workspace'): string;
+export function chatAvatarKey(target: 'project', projectId: string): string;
+export function chatAvatarKey(target: 'workspace' | 'project', projectId?: string): string {
+  return target === 'workspace' ? 'workspace' : `project:${projectId}`;
+}
+
 /** Emoji pool for the derived default server avatars. */
 const DEFAULT_EMOJIS = ['🚀', '🎨', '🎧', '📚', '🛠️', '🌱', '⚡', '🧪', '🎮', '📡', '🏗️', '🧭'];
 

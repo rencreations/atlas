@@ -155,14 +155,6 @@ export default function TaskListLayout({
         <Container size="2xl" className="py-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <Link
-                href={`/projects/${slug}` as never}
-                className="inline-grid h-8 w-8 place-items-center rounded text-ink-3 hover:bg-surface-muted hover:text-ink"
-                aria-label="Back to project"
-                title="Back to project"
-              >
-                <ArrowLeft className="h-4 w-4" strokeWidth={2.25} />
-              </Link>
               <span
                 className={`flex h-10 w-10 items-center justify-center rounded ${pmoBgClass(data.iconColor)}`}
                 aria-hidden

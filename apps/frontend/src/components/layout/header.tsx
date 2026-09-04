@@ -96,18 +96,6 @@ export function Header({ user }: { user?: SessionUser | null }) {
           {NAV.slice(2).map((link) => (
             <NavLinkItem key={link.href} link={link} pathname={pathname} />
           ))}
-          {user ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              aria-label="Search"
-              className="px-2 xl:px-3"
-              onClick={() => setSearchOpen(true)}
-            >
-              <SearchIcon size={16} className="flex items-center justify-center" />
-              <span className="hidden xl:inline">Search</span>
-            </Button>
-          ) : null}
         </nav>
 
         {/* Mobile navigation, replaces the hidden md:flex nav below md. */}
@@ -194,6 +182,17 @@ export function Header({ user }: { user?: SessionUser | null }) {
                 </Link>
               </Button>
             </>
+          ) : null}
+          {/* Anchored between New project and the avatar, on the right. */}
+          {user ? (
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Search"
+              onClick={() => setSearchOpen(true)}
+            >
+              <SearchIcon size={16} className="flex items-center justify-center" />
+            </Button>
           ) : null}
           {user ? <NotificationBell /> : null}
           {user ? <UserMenu isAdmin={user.isAdmin} /> : null}

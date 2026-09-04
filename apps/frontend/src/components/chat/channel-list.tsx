@@ -272,7 +272,7 @@ function ProjectSection({
         {canManage ? <CreateChannelButton scope={{ kind: 'project', slug: projectSlug }} /> : null}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 pb-3">
+      <nav className="scroll-hidden flex-1 overflow-y-auto px-2 pb-3">
         {channelsQuery.isLoading ? (
           <ul className="space-y-0.5">
             <li className="h-8 animate-pulse rounded bg-surface-muted" />
@@ -523,9 +523,9 @@ function ServerAvatarTile({
 function ProjectAvatarTile({ projectSlug }: { projectSlug: string }) {
   const { projects } = useChatOverview();
   const project = projects.find((p) => p.slug === projectSlug);
-  // Seed on the slug so a project that is still loading shows the same
-  // derived avatar it gets in the rail.
-  const avatar = chatAvatarFor(projectSlug, project?.avatar);
+  // Seed on the project id once known (matches the rail's tile exactly);
+  // fall back to the slug while the overview is still loading.
+  const avatar = chatAvatarFor(project?.id ?? projectSlug, project?.avatar);
   return (
     <ServerAvatarTile emoji={avatar.emoji} color={avatar.color} imageUrl={avatar.imageUrl} />
   );
