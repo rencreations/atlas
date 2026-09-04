@@ -101,11 +101,13 @@ export class ChatAvatarsService {
     }
   }
 
-  private toFields(row: {
-    emoji: string | null;
-    color: string | null;
-    imageUrl: string | null;
-  } | null): ChatAvatarFields | null {
+  private toFields(
+    row: {
+      emoji: string | null;
+      color: string | null;
+      imageUrl: string | null;
+    } | null,
+  ): ChatAvatarFields | null {
     if (!row) return null;
     return { emoji: row.emoji, color: row.color, imageUrl: row.imageUrl };
   }

@@ -140,8 +140,11 @@ export class ProjectsService {
     // plus the first few regular rows, so later pages must subtract
     // that offset from their skip to avoid dropping rows.
     const pinnedAllowed =
-      !dto.q && !dto.phase?.length && !dto.tagIds?.length &&
-      !dto.recruitingFor && !dto.bookmarkedOnly;
+      !dto.q &&
+      !dto.phase?.length &&
+      !dto.tagIds?.length &&
+      !dto.recruitingFor &&
+      !dto.bookmarkedOnly;
 
     const featured = pinnedAllowed
       ? await this.prisma.featuredProject.findMany({
