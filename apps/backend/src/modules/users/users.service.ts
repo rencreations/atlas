@@ -26,6 +26,14 @@ const PUBLIC_USER_SELECT = {
   createdAt: true,
 } satisfies Prisma.UserSelect;
 
+/** Adds account-lifecycle and role-grant fields, for the admin dashboard's user list. */
+const ADMIN_USER_SELECT = {
+  ...PUBLIC_USER_SELECT,
+  suspendedAt: true,
+  suspendedReason: true,
+  userRoles: { select: { role: { select: { code: true, name: true } } } },
+} satisfies Prisma.UserSelect;
+
 /** Select with the avatar key + upload state, only for getMe/updateMe. */
 const ME_USER_SELECT = {
   ...PUBLIC_USER_SELECT,
@@ -146,16 +154,21 @@ export class UsersService {
         }
       : {};
 
-    const [items, total] = await this.prisma.$transaction([
+    const [rows, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
         where,
-        select: PUBLIC_USER_SELECT,
+        select: ADMIN_USER_SELECT,
         orderBy: [{ name: 'asc' }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
       this.prisma.user.count({ where }),
     ]);
+
+    const items = rows.map(({ userRoles, ...rest }) => ({
+      ...rest,
+      roles: userRoles.map((ur) => ur.role),
+    }));
 
     return {
       items,

@@ -7,10 +7,15 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RequirePermissions } from '@/common/decorators/require-permissions.decorator';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { GodmodeService } from '../godmode/godmode.service';
+import { UsersService } from '../users/users.service';
 import { AdminService } from './admin.service';
 import {
   CreateCollaborationRoleDto,
@@ -21,7 +26,36 @@ import {
 @ApiTags('admin')
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly admin: AdminService) {}
+  constructor(
+    private readonly admin: AdminService,
+    private readonly godmode: GodmodeService,
+    private readonly users: UsersService,
+  ) {}
+
+  // ─── Users tab: member directory with roles and suspension state ──────
+  // Separate from GET /users (which backs the unguarded collaborator
+  // search in project team panels) so that listing is permission-gated
+  // without breaking that unrelated, non-admin feature.
+
+  @Get('users')
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('users.view')
+  listUsers(
+    @Query('q') search?: string,
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ) {
+    return this.users.listUsers({ search, page, pageSize });
+  }
+
+  // ─── RBAC roles (Manager, Admin, etc.), for the users tab's role picker ──
+
+  @Get('roles')
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('roles.manage')
+  listInstanceRoles() {
+    return this.godmode.listRoles();
+  }
 
   // ─── Collaboration roles (Frontend Engineer, etc.) ────────────────────
 

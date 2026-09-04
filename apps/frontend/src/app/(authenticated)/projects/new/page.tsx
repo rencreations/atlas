@@ -1,9 +1,13 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
+import { getStoredSession } from '@/lib/auth-client';
+import { useCanCreateProject } from '@/lib/hooks/use-can-create-project';
 import { usePageTitle } from '@/lib/page-title';
 import type { CollaborationRole, Tag } from '@/lib/types';
 import { Container } from '@/components/layout/container';
@@ -12,6 +16,15 @@ import { NewProjectWizard } from '@/components/projects/new/wizard';
 
 export default function NewProjectPage() {
   usePageTitle('New project');
+  const router = useRouter();
+  const session = getStoredSession();
+  const { canCreate, isLoading: checkingAccess } = useCanCreateProject(session?.user);
+
+  useEffect(() => {
+    if (!checkingAccess && !canCreate) {
+      router.push('/projects');
+    }
+  }, [checkingAccess, canCreate, router]);
 
   const grouped = useQuery({
     queryKey: queryKeys.tagsGrouped,
@@ -34,6 +47,14 @@ export default function NewProjectPage() {
             roles.refetch();
           }}
         />
+      </Container>
+    );
+  }
+
+  if (checkingAccess || !canCreate) {
+    return (
+      <Container size="lg" className="py-12">
+        <div className="h-40 animate-pulse rounded bg-line" />
       </Container>
     );
   }

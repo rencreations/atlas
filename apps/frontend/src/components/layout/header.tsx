@@ -20,6 +20,8 @@ import { ChatNavButton } from '@/components/chat/chat-nav-button';
 import { NotificationBell } from './notification-bell';
 import { UserMenu } from './user-menu';
 import { cn } from '@/lib/utils';
+import { useChatOverview } from '@/lib/chat/use-chat-overview';
+import { useCanCreateProject } from '@/lib/hooks/use-can-create-project';
 import type { SessionUser } from '@/lib/types';
 
 interface NavLink {
@@ -38,6 +40,8 @@ export function Header({ user }: { user?: SessionUser | null }) {
   const [scrolled, setScrolled] = React.useState(false);
   const pathname = usePathname();
   const reducedMotion = useReducedMotion();
+  const { totalUnread: chatUnread } = useChatOverview({ enabled: Boolean(user) });
+  const { canCreate: canCreateProject } = useCanCreateProject(user);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -86,6 +90,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
               </Link>
             );
           })}
+          {user ? <ChatNavButton /> : null}
         </nav>
 
         {/* Mobile navigation, replaces the hidden md:flex nav below md. */}
@@ -110,13 +115,29 @@ export function Header({ user }: { user?: SessionUser | null }) {
                   </DropdownMenuItem>
                 );
               })}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href={'/projects/new' as never}>
-                  <PlusIcon size={16} className="flex items-center justify-center" />
-                  New project
-                </Link>
-              </DropdownMenuItem>
+              {user ? (
+                <DropdownMenuItem asChild>
+                  <Link href={'/chat' as never} className="flex items-center justify-between gap-2">
+                    <span>Chat</span>
+                    {chatUnread > 0 ? (
+                      <span className="inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium leading-none text-white">
+                        {chatUnread > 99 ? '99+' : chatUnread}
+                      </span>
+                    ) : null}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
+              {canCreateProject ? (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href={'/projects/new' as never}>
+                      <PlusIcon size={16} className="flex items-center justify-center" />
+                      New project
+                    </Link>
+                  </DropdownMenuItem>
+                </>
+              ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -124,19 +145,23 @@ export function Header({ user }: { user?: SessionUser | null }) {
         <div className="ml-auto flex items-center gap-2">
           {/* Labelled controls need lg+; below that they collapse to icons
               so the header never overflows (the hamburger menu already
-              carries New project on mobile). */}
-          <Button asChild size="sm" className="hidden lg:inline-flex">
-            <Link href={'/projects/new' as never}>
-              <PlusIcon size={16} className="flex items-center justify-center" />
-              New project
-            </Link>
-          </Button>
-          <Button asChild size="icon-sm" variant="ghost" className="lg:hidden">
-            <Link href={'/projects/new' as never} aria-label="New project">
-              <PlusIcon size={16} className="flex items-center justify-center" />
-            </Link>
-          </Button>
-          {user ? <ChatNavButton /> : null}
+              carries New project on mobile). Hidden outright for members
+              without projects.create, rather than showing a CTA that 403s. */}
+          {canCreateProject ? (
+            <>
+              <Button asChild size="sm" className="hidden lg:inline-flex">
+                <Link href={'/projects/new' as never}>
+                  <PlusIcon size={16} className="flex items-center justify-center" />
+                  New project
+                </Link>
+              </Button>
+              <Button asChild size="icon-sm" variant="ghost" className="lg:hidden">
+                <Link href={'/projects/new' as never} aria-label="New project">
+                  <PlusIcon size={16} className="flex items-center justify-center" />
+                </Link>
+              </Button>
+            </>
+          ) : null}
           {user ? <NotificationBell /> : null}
           {user ? <UserMenu isAdmin={user.isAdmin} /> : null}
         </div>

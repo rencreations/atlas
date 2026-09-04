@@ -86,6 +86,18 @@ export const apiPaths = {
   bookmark: (projectId: string) => `/users/me/bookmarks/${projectId}`,
   users: (q?: string) => `/users${q ? `?q=${encodeURIComponent(q)}` : ''}`,
   setAdmin: (id: string) => `/users/${id}/admin`,
+  userRoles: (id: string) => `/users/${id}/roles`,
+  grantUserRole: (id: string) => `/users/${id}/roles`,
+  revokeUserRole: (id: string, roleCode: string) =>
+    `/users/${id}/roles/${encodeURIComponent(roleCode)}`,
+  suspendUser: (id: string) => `/users/${id}/suspend`,
+  unsuspendUser: (id: string) => `/users/${id}/unsuspend`,
+  deleteUser: (id: string) => `/users/${id}`,
+  revokeUserSessions: (id: string) => `/users/${id}/sessions/revoke`,
+  adminResetPassword: (id: string) => `/users/${id}/password/reset`,
+  instanceRoles: () => '/admin/roles',
+  adminUsers: (q: string, page: number, pageSize: number) =>
+    `/admin/users?q=${encodeURIComponent(q)}&page=${page}&pageSize=${pageSize}`,
 
   tags: () => '/tags',
   tagsGrouped: () => '/tags/grouped',

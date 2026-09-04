@@ -12,9 +12,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RequirePermissions } from '@/common/decorators/require-permissions.decorator';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ListProjectsDto } from './dto/list-projects.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -56,6 +58,8 @@ export class ProjectsController {
   }
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('projects.create')
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateProjectDto) {
     return this.projects.create(user, dto);
   }

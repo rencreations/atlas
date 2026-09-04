@@ -116,8 +116,17 @@ const ROLE_TEMPLATES: { code: string; name: string; description: string; permiss
     name: 'Member',
     description: 'Regular workspace member.',
     permissions: [
-      'projects.read', 'projects.create', 'chat.read', 'chat.write',
+      'projects.read', 'chat.read', 'chat.write',
       'pmo.read', 'pmo.write', 'voice.read', 'media.upload',
+    ],
+  },
+  {
+    code: 'manager',
+    name: 'Manager',
+    description: 'Member plus permission to start and run new projects.',
+    permissions: [
+      'projects.read', 'projects.create', 'projects.manage', 'projects.manageMembers',
+      'chat.read', 'chat.write', 'pmo.read', 'pmo.write', 'voice.read', 'media.upload',
     ],
   },
   {

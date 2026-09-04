@@ -3,21 +3,17 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Globe, Hash, Search } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api/client';
-import { apiPaths } from '@/lib/api/paths';
-import { queryKeys } from '@/lib/api/queries';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import type { ChatOverviewPayload } from '@/lib/types';
+import { useChatOverview } from '@/lib/chat/use-chat-overview';
 import { GlobalChatSearch } from './global-chat-search';
-import { MessageSquareIcon } from '@/components/icons/animated/messages-square';
 import { SearchIcon } from '@/components/icons/animated/search';
 
 /**
- * Header shortcut. Shows a chat icon with a small unread badge; clicking
- * opens a popover listing the user's chat-enabled projects so they can
- * dive straight into a conversation without going through the project page.
+ * Header shortcut, next to "My work". Shows the word "Chat" with a small
+ * unread badge; clicking opens a popover listing the user's chat-enabled
+ * projects so they can dive straight into a conversation without going
+ * through the project page.
  *
  * Falls back to silent (no badge, no fetch on render) for users with no
  * projects, endpoint returns an empty list and that's it.
@@ -25,15 +21,7 @@ import { SearchIcon } from '@/components/icons/animated/search';
 export function ChatNavButton() {
   const [open, setOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
-
-  const overview = useQuery({
-    queryKey: queryKeys.chat.myProjects,
-    queryFn: () => api<ChatOverviewPayload>(apiPaths.chat.myProjects()),
-    refetchInterval: 30_000,
-    refetchOnWindowFocus: false,
-    // Don't error-noisy in dev when the backend is offline.
-    retry: false,
-  });
+  const { projects, workspace, totalUnread } = useChatOverview();
 
   // ⌘K / Ctrl+K opens global chat search from anywhere in the app.
   React.useEffect(() => {
@@ -47,27 +35,21 @@ export function ChatNavButton() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const projects = overview.data?.projects ?? [];
-  const workspace = overview.data?.workspace;
-  const totalUnread =
-    projects.reduce((sum, p) => sum + p.unread, 0) + (workspace?.unread ?? 0);
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          size="icon-sm"
-          variant="ghost"
+        <button
+          type="button"
           aria-label={totalUnread > 0 ? `Chat (${totalUnread} unread)` : 'Chat'}
-          className="relative"
+          className="relative flex items-center gap-1.5 pb-1 text-[14px] font-medium text-ink-2 transition-colors hover:text-ink"
         >
-          <MessageSquareIcon size={16} className="flex items-center justify-center" />
+          Chat
           {totalUnread > 0 ? (
-            <span className="absolute -right-0.5 -top-0.5 inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium text-white">
+            <span className="inline-grid h-4 min-w-4 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium leading-none text-white">
               {totalUnread > 99 ? '99+' : totalUnread}
             </span>
           ) : null}
-        </Button>
+        </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[320px] p-0">
         <div className="flex items-center justify-between border-b border-line px-3 py-2">
