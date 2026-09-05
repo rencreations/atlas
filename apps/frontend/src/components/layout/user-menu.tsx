@@ -3,9 +3,12 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { Bell, Bookmark, Loader2, LogOut, Settings, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { clearSession, getStoredSession } from '@/lib/auth-client';
 import { api } from '@/lib/api/client';
+import { apiPaths } from '@/lib/api/paths';
+import { queryKeys } from '@/lib/api/queries';
 import { Avatar } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -15,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import type { SessionUser } from '@/lib/types';
 
 interface Props {
   isAdmin?: boolean;
@@ -23,8 +27,20 @@ interface Props {
 export function UserMenu({ isAdmin }: Props) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = React.useState(false);
-  const session = getStoredSession();
-  const user = session?.user;
+  const stored = getStoredSession()?.user;
+  // The trigger avatar must react the instant the profile picture
+  // changes (see settings/profile's syncAvatarEverywhere), but the
+  // session in localStorage is a one-time snapshot from login that's
+  // never rewritten afterward. Read the live profile via the same
+  // query key that mutation updates instead, falling back to the
+  // stored snapshot until it resolves.
+  const { data: me } = useQuery({
+    queryKey: queryKeys.me,
+    queryFn: () => api<SessionUser>(apiPaths.me()),
+    enabled: Boolean(stored),
+    initialData: stored,
+  });
+  const user = me ?? stored;
 
   const handleLogout = async () => {
     setLoggingOut(true);

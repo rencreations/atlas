@@ -41,11 +41,21 @@ export function VoiceRoom({
   // more" tile in the equal grid. Purely a display concern, not shared
   // voice state.
   const [overflowPage, setOverflowPage] = useState(0);
+  // Tracks whether the mount-time auto-join has fired at least once, so
+  // an explicit Leave afterward renders a manual "Join voice" prompt
+  // instead of silently retrying the connection (and so the very first
+  // render, before that effect runs, doesn't briefly flash the same
+  // prompt while the auto-join is still on its way).
+  const autoJoinedRef = useRef(false);
 
   // Auto-join on mount unless we're already in a different channel.
+  // Only fires once per channel (deps intentionally exclude state) -
+  // an explicit leave afterward must not silently reconnect, it should
+  // fall through to the manual "Join voice" prompt below instead.
   useEffect(() => {
     if (state.channelId === channelId && state.connectionState !== 'idle') return;
     if (state.channelId !== null && state.channelId !== channelId) return;
+    autoJoinedRef.current = true;
     void actions.joinChannel(channelId, { projectId, projectSlug: projectSlugOrId ?? null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId, projectId]);
@@ -100,6 +110,30 @@ export function VoiceRoom({
         </div>
         <Button onClick={() => void actions.joinChannel(channelId, { projectId, projectSlug: projectSlugOrId ?? null })}>
           Switch to {channelName}
+        </Button>
+      </div>
+    );
+  }
+
+  // Not connected to this channel at all - either the mount-time
+  // auto-join hasn't fired yet (show the same connecting UI so there's
+  // no flash of the button below) or the user explicitly left while
+  // staying on this page, in which case they need a manual way back in.
+  if (state.channelId === null) {
+    if (!autoJoinedRef.current) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-3 text-ink-2">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" strokeWidth={2.25} />
+          <div className="text-sm">Connecting to {channelName}…</div>
+        </div>
+      );
+    }
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-ink-2">
+        <Volume2 className="h-8 w-8 text-ink-3" strokeWidth={2.25} />
+        <div className="text-sm">You&apos;ve left {channelName}.</div>
+        <Button onClick={() => void actions.joinChannel(channelId, { projectId, projectSlug: projectSlugOrId ?? null })}>
+          Join voice
         </Button>
       </div>
     );

@@ -468,6 +468,18 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       await room.disconnect();
     } catch {
       // best-effort
+    } finally {
+      // room.disconnect() unpublishes/unsubscribes tracks as part of
+      // its own teardown, which fires TrackUnsubscribed/LocalTrack-
+      // Unpublished etc. on THIS room object, sometimes after the
+      // disconnect() promise has already resolved. Every one of those
+      // handlers calls refreshParticipants(room) using the closed-over
+      // room reference regardless of roomRef.current, so a late event
+      // could re-populate state.participants (bringing your own tile
+      // back) right after leaveChannel() had already cleared it.
+      // Cutting all listeners here guarantees nothing more can mutate
+      // state from a room we've already decided to abandon.
+      room.removeAllListeners();
     }
   }, []);
 
