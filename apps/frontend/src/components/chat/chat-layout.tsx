@@ -80,7 +80,13 @@ export function ChatLayout({
   React.useEffect(() => setReplyTo(null), [channelId]);
 
   return (
-    <div className="flex h-full min-h-0">
+    // flex-1 + min-w-0: this is ChatShell's sole flex child (the rail is
+    // the other), so without an explicit grow it shrinks to its own
+    // content's natural width instead of filling the space the shell
+    // reserves for it, leaving a blank gap on the right, and (with wide
+    // enough content, e.g. the pin panel) can overflow the viewport
+    // instead of clipping to it.
+    <div className="flex h-full min-h-0 min-w-0 flex-1">
       {/* Desktop sidebar; on mobile the same list opens as a drawer. */}
       <div className="hidden md:flex">
         <ChannelList
