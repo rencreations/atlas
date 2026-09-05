@@ -178,8 +178,11 @@ because it can be configured in godmode.
 
 NestJS, global prefix `/api/v1`. Auth is bearer-based: the frontend
 sends `Authorization: Bearer <sessionId>` where the session id is an
-opaque UUID backed by the `Session` table. Swagger UI is served at
-`/api/v1/docs` outside production. See
+opaque UUID backed by the `Session` table. Complete interactive API
+reference (Swagger UI) is served at `/api/v1/docs` in every
+environment, including production - every endpoint carries a summary,
+request/response DTO schemas, and its auth requirement (session bearer
+or godmode's `X-Godmode-Token`). See
 [`docs/architecture.md`](docs/architecture.md) for the request lifecycle
 and module map.
 
