@@ -68,7 +68,17 @@ export function PinPanel({ open, onClose, scope, channelId, canModerate }: Props
   const pins = pinsQuery.data ?? [];
 
   return (
-    <aside className="flex w-[360px] shrink-0 flex-col border-l border-line bg-surface">
+    // Anchored to the chat area's own box (ChatLayout's root is the
+    // nearest `relative` ancestor), not laid out as a flex sibling of
+    // the channel list / message pane. A flex sibling's size is at the
+    // mercy of however much room the row happens to have left after its
+    // other children, which misbehaved across some pages/breakpoints,
+    // pushing the close button out of frame. A fixed-size absolute
+    // overlay can't be squeezed or overflow: it's always exactly
+    // w-[360px] (capped by max-w-[90vw] on narrow screens) and always
+    // flush against the right edge, matching the same convention as
+    // the PMO revision history drawer.
+    <aside className="absolute inset-y-0 right-0 z-30 flex w-[360px] max-w-[90vw] flex-col border-l border-line bg-surface shadow-2">
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
         <Pin className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
         <h2 className="flex-1 text-[14px] font-semibold text-ink">Pinned messages</h2>

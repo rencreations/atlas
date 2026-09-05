@@ -10,6 +10,7 @@ import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { type ChatScope } from '@/lib/chat/scope';
 import { useChannelSocket } from '@/lib/realtime/use-channel-socket';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { ChatChannel, ChatMessage } from '@/lib/types';
 import { ChannelList } from './channel-list';
@@ -86,7 +87,12 @@ export function ChatLayout({
     // reserves for it, leaving a blank gap on the right, and (with wide
     // enough content, e.g. the pin panel) can overflow the viewport
     // instead of clipping to it.
-    <div className="flex h-full min-h-0 min-w-0 flex-1">
+    // `relative` makes this the anchor for PinPanel's absolute
+    // right-docked overlay below, so it's always sized against this
+    // exact box (never the whole viewport, which would run under the
+    // header, and never the flex row's own shrink math, which is what
+    // pushed it out of frame before).
+    <div className="relative flex h-full min-h-0 min-w-0 flex-1">
       {/* Desktop sidebar; on mobile the same list opens as a drawer. */}
       <div className="hidden md:flex">
         <ChannelList
@@ -121,7 +127,21 @@ export function ChatLayout({
         </div>
       ) : null}
 
-      <section className="flex min-w-0 flex-1 flex-col bg-surface">
+      <section
+        className={cn(
+          'flex min-w-0 flex-1 flex-col bg-surface',
+          // PinPanel is an absolute overlay now (see its own comment),
+          // not a layout sibling, so nothing here shrinks to make room
+          // for it automatically. Reserve that space with padding
+          // instead, so the header's own pin/search controls and the
+          // message list stay clear of it rather than sitting invisibly
+          // underneath. Skipped below md: the panel is nearly full-width
+          // there anyway (max-w-[90vw]), so there's no useful space to
+          // reserve, it's expected to cover the screen like any other
+          // mobile overlay.
+          pinsOpen && 'md:pr-[360px]',
+        )}
+      >
         <header className="flex items-center gap-3 border-b border-line px-4 py-3 md:px-6">
           <Button
             variant="ghost"
@@ -149,24 +169,33 @@ export function ChatLayout({
               Chat
             </Link>
           )}
-          <div className="h-4 w-px bg-line" />
+          <div className="h-4 w-px shrink-0 bg-line" />
           {scope.kind === 'global' ? (
-            <Globe className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
+            <Globe className="h-4 w-4 shrink-0 text-brand-blue" strokeWidth={2.25} />
           ) : (
-            <Hash className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
+            <Hash className="h-4 w-4 shrink-0 text-ink-3" strokeWidth={2.25} />
           )}
-          <h1 className="text-[15px] font-semibold text-ink">{channel?.name ?? 'channel'}</h1>
-          {scope.kind === 'global' ? (
-            <span className="rounded-full bg-brand-blue-strong/10 px-2 py-0.5 text-[11px] font-medium text-brand-blue">
-              Workspace
-            </span>
-          ) : null}
-          {channel?.topic ? (
-            <span className="hidden truncate text-[13px] text-ink-3 md:inline">
-              · {channel.topic}
-            </span>
-          ) : null}
-          <div className="ml-auto flex items-center gap-2">
+          {/* min-w-0 lets this shrink instead of forcing the header (and
+              everything above it) wider than the viewport when a long
+              channel name/topic meets a narrow window; truncate only
+              takes effect once its box can actually shrink below the
+              text's natural width. */}
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <h1 className="min-w-0 truncate text-[15px] font-semibold text-ink">
+              {channel?.name ?? 'channel'}
+            </h1>
+            {scope.kind === 'global' ? (
+              <span className="shrink-0 rounded-full bg-brand-blue-strong/10 px-2 py-0.5 text-[11px] font-medium text-brand-blue">
+                Workspace
+              </span>
+            ) : null}
+            {channel?.topic ? (
+              <span className="hidden min-w-0 truncate text-[13px] text-ink-3 md:inline">
+                · {channel.topic}
+              </span>
+            ) : null}
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
             <span
               className="inline-flex items-center gap-1 text-[11px] text-ink-3"
               title={isConnected ? 'Realtime connected' : 'Reconnecting…'}
