@@ -65,20 +65,22 @@ export class UsersService {
       },
     });
     if (!user) throw new NotFoundException('User not found.');
-    const { avatarS3Key, ...rest } = user;
-    return {
-      ...rest,
-      // The user-uploaded avatar wins; the stored URL is the SSO/Gravatar
-      // fallback underneath it.
-      avatarUrl: avatarS3Key ? await this.s3.publicUrlFor(avatarS3Key) : user.avatarUrl,
-    };
+    // avatarUrl is kept correct in the DB by every avatar-changing action
+    // below (upload, remove, Gravatar fetch), so every other place in the
+    // app that reads this column directly (chat, voice join, project
+    // members, notifications, ...) always shows the current picture too -
+    // nothing to resolve here at read time.
+    const { avatarS3Key: _key, ...rest } = user;
+    return rest;
   }
 
   async updateMe(id: string, dto: UpdateMeDto) {
     // The avatar key is server-minted in avatarPresign; accept only keys
     // that belong to this user's own avatar folder and match our format.
     // Never let a client point a profile at arbitrary bucket objects.
-    let avatarS3Key: string | undefined;
+    // avatarUrl is written through in the same update so the DB column
+    // every other consumer reads is never stale (see getMe).
+    let avatarUpdate: { avatarS3Key: string; avatarUrl: string } | undefined;
     if (dto.avatarS3Key) {
       const pattern = new RegExp(
         `^avatars/${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+-[0-9a-f]{8}(\\.[a-z]{2,4})?$`,
@@ -86,19 +88,19 @@ export class UsersService {
       if (!pattern.test(dto.avatarS3Key)) {
         throw new BadRequestException('Invalid avatar key.');
       }
-      avatarS3Key = dto.avatarS3Key;
+      avatarUpdate = {
+        avatarS3Key: dto.avatarS3Key,
+        avatarUrl: await this.s3.publicUrlFor(dto.avatarS3Key),
+      };
     }
     const { avatarS3Key: _ignored, ...rest } = dto;
     const user = await this.prisma.user.update({
       where: { id },
-      data: { ...rest, ...(avatarS3Key ? { avatarS3Key } : {}) },
+      data: { ...rest, ...avatarUpdate },
       select: { ...ME_USER_SELECT, lastLoginAt: true, themeId: true, themeMode: true },
     });
-    const { avatarS3Key: stored, ...stripped } = user;
-    return {
-      ...stripped,
-      avatarUrl: stored ? await this.s3.publicUrlFor(stored) : user.avatarUrl,
-    };
+    const { avatarS3Key: _key, ...profile } = user;
+    return profile;
   }
 
   /** Presigned upload URL for the user's avatar. */
@@ -120,17 +122,19 @@ export class UsersService {
     return { uploadUrl, expiresIn, objectKey: key };
   }
 
-  /** Clears the user-uploaded avatar, falling back to Gravatar/SSO/initials. */
+  /** Clears the user-uploaded avatar, reverting to a fresh Gravatar picture. */
   async removeAvatar(userId: string) {
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    if (!existing) throw new NotFoundException('User not found.');
     const user = await this.prisma.user.update({
       where: { id: userId },
-      data: { avatarS3Key: null },
+      data: { avatarS3Key: null, avatarUrl: this.gravatarUrl(existing.email) },
       select: { ...ME_USER_SELECT, lastLoginAt: true, themeId: true, themeMode: true },
     });
-    // avatarS3Key is now null, so the remaining avatarUrl column (SSO
-    // picture or Gravatar, set at account creation) is already the right
-    // value to show - nothing further to resolve through StorageService.
-    const { avatarS3Key: _cleared, ...profile } = user;
+    const { avatarS3Key: _key, ...profile } = user;
     return profile;
   }
 
@@ -167,14 +171,21 @@ export class UsersService {
     const buffer = Buffer.from(await res.arrayBuffer());
     const key = `avatars/${userId}/gravatar-${hash}${this.extensionFor(contentType)}`;
     await this.s3.putObject(key, buffer, contentType);
+    const avatarUrl = await this.s3.publicUrlFor(key);
 
     const updated = await this.prisma.user.update({
       where: { id: userId },
-      data: { avatarS3Key: key },
+      data: { avatarS3Key: key, avatarUrl },
       select: { ...ME_USER_SELECT, lastLoginAt: true, themeId: true, themeMode: true },
     });
-    const { avatarS3Key: stored, ...profile } = updated;
-    return { ...profile, avatarUrl: await this.s3.publicUrlFor(stored!) };
+    const { avatarS3Key: _key, ...profile } = updated;
+    return profile;
+  }
+
+  /** Generic Gravatar avatar URL (identicon fallback if no photo is set). */
+  private gravatarUrl(email: string): string {
+    const hash = createHash('md5').update(email.toLowerCase().trim()).digest('hex');
+    return `https://www.gravatar.com/avatar/${hash}?d=identicon&r=g`;
   }
 
   async recordConsent(userId: string) {

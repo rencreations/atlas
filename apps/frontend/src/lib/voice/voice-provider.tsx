@@ -191,6 +191,13 @@ export interface VoiceActions {
   switchOutputDevice: (deviceId: string) => Promise<void>;
   refreshDevices: () => Promise<void>;
   setSpotlight: (identity: string | null) => void;
+  /**
+   * Push a fresh avatarUrl into the connected Room's local participant
+   * metadata, so anyone already on the call sees your new picture
+   * immediately instead of whatever was baked in at join time. No-op if
+   * not currently connected.
+   */
+  refreshLocalAvatar: (avatarUrl: string | null) => Promise<void>;
   /** Load (or reload) the user's preferences from the backend. */
   loadPreferences: () => Promise<void>;
   /** Persist a partial preferences update. Optimistic; rolls back on failure. */
@@ -556,6 +563,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         .on(RoomEvent.TrackSubscribed, () => refreshParticipants(room))
         .on(RoomEvent.TrackUnsubscribed, () => refreshParticipants(room))
         .on(RoomEvent.LocalTrackPublished, () => refreshParticipants(room))
+        // Someone (including us) changed their metadata - e.g. their
+        // avatar - mid-call. Re-derive every tile from the fresh metadata
+        // instead of leaving it pinned to whatever was baked in at join.
+        .on(RoomEvent.ParticipantMetadataChanged, () => refreshParticipants(room))
         .on(RoomEvent.LocalTrackUnpublished, () => {
           // If we just unpublished our screen share, sync the flag.
           const sharing = room.localParticipant.isScreenShareEnabled;
@@ -812,6 +823,26 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const setSpotlight = useCallback<VoiceActions['setSpotlight']>((identity) => {
     setState((prev) => ({ ...prev, spotlightIdentity: identity, spotlightAuto: false }));
   }, []);
+
+  const refreshLocalAvatar = useCallback<VoiceActions['refreshLocalAvatar']>(
+    async (avatarUrl) => {
+      const room = roomRef.current;
+      if (!room) return;
+      let meta: Record<string, unknown> = {};
+      try {
+        meta = room.localParticipant.metadata ? JSON.parse(room.localParticipant.metadata) : {};
+      } catch {
+        meta = {};
+      }
+      try {
+        await room.localParticipant.setMetadata(JSON.stringify({ ...meta, avatarUrl }));
+        refreshParticipants(room);
+      } catch {
+        // Best-effort - not worth surfacing an error for a cosmetic update.
+      }
+    },
+    [refreshParticipants],
+  );
 
   // ─── Phase 5: per-participant local controls ────────────────────────
 
@@ -1307,6 +1338,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           .on(RoomEvent.TrackSubscribed, () => refreshParticipants(room))
           .on(RoomEvent.TrackUnsubscribed, () => refreshParticipants(room))
           .on(RoomEvent.LocalTrackPublished, () => refreshParticipants(room))
+          .on(RoomEvent.ParticipantMetadataChanged, () => refreshParticipants(room))
           .on(RoomEvent.Reconnecting, () => patch({ connectionState: 'reconnecting' }))
           .on(RoomEvent.Reconnected, () => patch({ connectionState: 'connected' }))
           .on(RoomEvent.Disconnected, () => {
@@ -1614,6 +1646,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       switchOutputDevice,
       refreshDevices,
       setSpotlight,
+      refreshLocalAvatar,
       loadPreferences,
       updatePreferences,
       setLocalVolume,
@@ -1643,6 +1676,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       switchOutputDevice,
       refreshDevices,
       setSpotlight,
+      refreshLocalAvatar,
       loadPreferences,
       updatePreferences,
       setLocalVolume,

@@ -7,6 +7,7 @@ import { api, apiBeacon, uploadToPresigned } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { useSaveSurface } from '@/lib/save-coordinator';
+import { useVoice } from '@/lib/voice/voice-provider';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardTitle } from '@/components/ui/card';
@@ -42,7 +43,24 @@ export default function ProfileSettingsPage() {
   usePageTitle('Profile');
   const { show } = useToast();
   const queryClient = useQueryClient();
+  const { actions: voiceActions } = useVoice();
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // Avatar changes must show up everywhere immediately: chat, project
+  // member lists, notifications, admin panels, and (if you're on a call
+  // right now) the voice room all read the same avatarUrl, so a broad
+  // cache invalidation refreshes every one of them at once instead of
+  // hunting down each query key individually. If connected to voice,
+  // also push the new picture into the live LiveKit participant metadata
+  // - that's baked in at join time and won't otherwise update mid-call.
+  const syncAvatarEverywhere = useCallback(
+    (updated: MeProfile) => {
+      queryClient.setQueryData(queryKeys.me, updated);
+      void queryClient.invalidateQueries();
+      void voiceActions.refreshLocalAvatar(updated.avatarUrl);
+    },
+    [queryClient, voiceActions],
+  );
 
   const { data: me, isLoading } = useQuery({
     queryKey: queryKeys.me,
@@ -117,7 +135,7 @@ export default function ProfileSettingsPage() {
           method: 'PATCH',
           body: { avatarS3Key: presign.objectKey },
         });
-        queryClient.setQueryData(queryKeys.me, updated);
+        syncAvatarEverywhere(updated);
         show({ title: 'Avatar updated', tone: 'success' });
       } catch (err) {
         show({
@@ -131,13 +149,13 @@ export default function ProfileSettingsPage() {
         setCropFile(null);
       }
     },
-    [queryClient, show],
+    [syncAvatarEverywhere, show],
   );
 
   const removeAvatar = useMutation({
     mutationFn: () => api<MeProfile>(apiPaths.meAvatarRemove(), { method: 'DELETE' }),
     onSuccess: (updated) => {
-      queryClient.setQueryData(queryKeys.me, updated);
+      syncAvatarEverywhere(updated);
       show({ title: 'Picture removed', tone: 'success' });
     },
     onError: (err) =>
@@ -160,7 +178,7 @@ export default function ProfileSettingsPage() {
     mutationFn: (email?: string) =>
       api<MeProfile>(apiPaths.meAvatarGravatar(), { method: 'POST', body: { email } }),
     onSuccess: (updated) => {
-      queryClient.setQueryData(queryKeys.me, updated);
+      syncAvatarEverywhere(updated);
       setGravatarPromptOpen(false);
       setGravatarEmailInput('');
       setGravatarError(null);
