@@ -41,12 +41,16 @@ export function VoiceRoom({
   // more" tile in the equal grid. Purely a display concern, not shared
   // voice state.
   const [overflowPage, setOverflowPage] = useState(0);
-  // Tracks whether the mount-time auto-join has fired at least once, so
-  // an explicit Leave afterward renders a manual "Join voice" prompt
-  // instead of silently retrying the connection (and so the very first
-  // render, before that effect runs, doesn't briefly flash the same
-  // prompt while the auto-join is still on its way).
+  // Tracks whether we've been connected to THIS channel at least once
+  // (via auto-join, the "Switch to X" button, or "Try again"), so an
+  // explicit Leave afterward renders a manual "Join voice" prompt
+  // instead of a permanent connecting spinner, and the very first
+  // render (before auto-join has had a chance to run) doesn't flash
+  // that prompt instead of "Connecting...".
   const autoJoinedRef = useRef(false);
+  useEffect(() => {
+    if (state.channelId === channelId) autoJoinedRef.current = true;
+  }, [state.channelId, channelId]);
 
   // Auto-join on mount unless we're already in a different channel.
   // Only fires once per channel (deps intentionally exclude state) -
@@ -55,7 +59,6 @@ export function VoiceRoom({
   useEffect(() => {
     if (state.channelId === channelId && state.connectionState !== 'idle') return;
     if (state.channelId !== null && state.channelId !== channelId) return;
-    autoJoinedRef.current = true;
     void actions.joinChannel(channelId, { projectId, projectSlug: projectSlugOrId ?? null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId, projectId]);

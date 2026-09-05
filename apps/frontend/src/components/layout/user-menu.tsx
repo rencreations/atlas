@@ -39,6 +39,13 @@ export function UserMenu({ isAdmin }: Props) {
     queryFn: () => api<SessionUser>(apiPaths.me()),
     enabled: Boolean(stored),
     initialData: stored,
+    // Without this the seeded snapshot counts as fresh for the app's
+    // 30s staleTime, so it renders instead of fetching, and (since the
+    // header mounts on every page) it'd seed the shared queryKeys.me
+    // cache for other consumers too. Backdating it to 0 means the
+    // stored session still paints instantly but is immediately treated
+    // as stale, so the real fetch still happens right away.
+    initialDataUpdatedAt: 0,
   });
   const user = me ?? stored;
 
