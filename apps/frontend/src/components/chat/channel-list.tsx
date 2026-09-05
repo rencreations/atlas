@@ -118,8 +118,8 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
   const lobbyChannels = (lobbyQuery.data ?? []).filter((c) => !c.archivedAt);
 
   return (
-    <div className="border-b border-line pb-3">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-3">
+    <>
+      <div className="flex items-center gap-2 border-b border-line px-4 pb-4 pt-3">
         <ServerAvatarTile
           emoji={workspaceAvatar.emoji}
           color={workspaceAvatar.color}
@@ -131,61 +131,67 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
         </span>
         {isAdmin ? <CreateChannelButton scope={{ kind: 'global' }} /> : null}
       </div>
-      <ul className="space-y-0.5 px-2">
-        {globalChannelsQuery.isLoading ? (
-          <li className="space-y-0.5">
-            <div className="h-8 animate-pulse rounded bg-surface-muted" />
-            <div className="h-8 animate-pulse rounded bg-surface-muted" />
-          </li>
-        ) : globalChannelsQuery.isError ? (
-          <li className="px-2 py-1.5 text-[12px] text-brand-red">
-            Couldn&apos;t load workspace channels.{' '}
-            <button
-              type="button"
-              className="underline underline-offset-2"
-              onClick={() => void globalChannelsQuery.refetch()}
-            >
-              Try again
-            </button>
-          </li>
-        ) : (
-          globalChannels.map((c) => (
-            <ChannelRow
-              key={c.id}
-              channel={c}
-              href={channelHref({ kind: 'global' }, c.id)}
-              active={c.id === activeChannelId}
-            />
-          ))
-        )}
-      </ul>
-      {voiceEnabled ? (
-        lobbyQuery.isLoading ? (
-          <ul className="mt-0.5 space-y-0.5 px-2">
-            <li className="h-8 animate-pulse rounded bg-surface-muted" />
-          </ul>
-        ) : lobbyQuery.isError ? (
-          <div className="mt-0.5 px-3 py-1.5 text-[12px] text-brand-red">
-            Couldn&apos;t load voice channels.{' '}
-            <button
-              type="button"
-              className="underline underline-offset-2"
-              onClick={() => void lobbyQuery.refetch()}
-            >
-              Try again
-            </button>
-          </div>
-        ) : lobbyChannels.length > 0 ? (
-          <ul className="mt-0.5 space-y-0.5 px-2">
-            {lobbyChannels.map((c) => (
-              <li key={c.id}>
-                <VoiceChannelRow channel={c} href={`/voice/${c.id}`} canManage={isAdmin} />
-              </li>
-            ))}
-          </ul>
-        ) : null
-      ) : null}
-    </div>
+
+      {/* Everything below the header scrolls internally so a long
+          channel/voice-lobby list never silently overflows the sidebar
+          (the header row above stays put, matching ProjectSection). */}
+      <nav className="scroll-hidden flex-1 overflow-y-auto pb-3">
+        <ul className="space-y-0.5 px-2 pt-3">
+          {globalChannelsQuery.isLoading ? (
+            <li className="space-y-0.5">
+              <div className="h-8 animate-pulse rounded bg-surface-muted" />
+              <div className="h-8 animate-pulse rounded bg-surface-muted" />
+            </li>
+          ) : globalChannelsQuery.isError ? (
+            <li className="px-2 py-1.5 text-[12px] text-brand-red">
+              Couldn&apos;t load workspace channels.{' '}
+              <button
+                type="button"
+                className="underline underline-offset-2"
+                onClick={() => void globalChannelsQuery.refetch()}
+              >
+                Try again
+              </button>
+            </li>
+          ) : (
+            globalChannels.map((c) => (
+              <ChannelRow
+                key={c.id}
+                channel={c}
+                href={channelHref({ kind: 'global' }, c.id)}
+                active={c.id === activeChannelId}
+              />
+            ))
+          )}
+        </ul>
+        {voiceEnabled ? (
+          lobbyQuery.isLoading ? (
+            <ul className="mt-0.5 space-y-0.5 px-2">
+              <li className="h-8 animate-pulse rounded bg-surface-muted" />
+            </ul>
+          ) : lobbyQuery.isError ? (
+            <div className="mt-0.5 px-3 py-1.5 text-[12px] text-brand-red">
+              Couldn&apos;t load voice channels.{' '}
+              <button
+                type="button"
+                className="underline underline-offset-2"
+                onClick={() => void lobbyQuery.refetch()}
+              >
+                Try again
+              </button>
+            </div>
+          ) : lobbyChannels.length > 0 ? (
+            <ul className="mt-0.5 space-y-0.5 px-2">
+              {lobbyChannels.map((c) => (
+                <li key={c.id}>
+                  <VoiceChannelRow channel={c} href={`/voice/${c.id}`} canManage={isAdmin} />
+                </li>
+              ))}
+            </ul>
+          ) : null
+        ) : null}
+      </nav>
+    </>
   );
 }
 
@@ -523,9 +529,11 @@ function ServerAvatarTile({
 function ProjectAvatarTile({ projectSlug }: { projectSlug: string }) {
   const { projects } = useChatOverview();
   const project = projects.find((p) => p.slug === projectSlug);
-  // Seed on the project id once known (matches the rail's tile exactly);
-  // fall back to the slug while the overview is still loading.
-  const avatar = chatAvatarFor(project?.id ?? projectSlug, project?.avatar);
+  // Seed on the slug (known immediately from the route, unlike the
+  // project id which only exists once the overview query resolves) so
+  // this always renders the same derived default as the rail's tile,
+  // instead of flipping emoji/color the moment the overview loads.
+  const avatar = chatAvatarFor(projectSlug, project?.avatar);
   return (
     <ServerAvatarTile emoji={avatar.emoji} color={avatar.color} imageUrl={avatar.imageUrl} />
   );

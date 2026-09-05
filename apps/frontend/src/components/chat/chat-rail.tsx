@@ -79,10 +79,10 @@ export function ChatRail() {
                   active={activeProjectSlug === p.slug}
                   label={p.title}
                   unread={p.unread}
-                  avatar={chatAvatarFor(p.id, p.avatar)}
+                  avatar={chatAvatarFor(p.slug, p.avatar)}
                   editable={
                     isAdmin
-                      ? { avatarKey: chatAvatarKey('project', p.id), seed: p.id, avatar: p.avatar }
+                      ? { avatarKey: chatAvatarKey('project', p.id), seed: p.slug, avatar: p.avatar }
                       : undefined
                   }
                 />

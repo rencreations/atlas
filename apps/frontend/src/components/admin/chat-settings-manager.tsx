@@ -63,7 +63,7 @@ export function ChatSettingsManager() {
               key={p.id}
               title={p.title}
               subtitle={`Project server · ${p.slug}`}
-              seed={p.id}
+              seed={p.slug}
               avatarKey={chatAvatarKey('project', p.id)}
               avatar={p.avatar}
               onSaved={invalidate}

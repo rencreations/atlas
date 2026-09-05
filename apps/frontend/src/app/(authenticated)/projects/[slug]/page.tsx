@@ -19,8 +19,6 @@ import { api } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
 import { usePageTitle } from '@/lib/page-title';
-import { getStoredSession } from '@/lib/auth-client';
-import { getLastListId } from '@/lib/pmo/last-list';
 import { isInsider, type ProjectDetail, type ProjectDetailInsider, type SessionUser } from '@/lib/types';
 import { Container } from '@/components/layout/container';
 import { Avatar } from '@/components/ui/avatar';
@@ -58,17 +56,28 @@ export default function ProjectDetailPage() {
   // Team members land straight in their last opened task list instead
   // of the marketing-style description page. `?view=details` (the small
   // "Project details" button inside the task list window) skips this so
-  // the description page stays reachable.
+  // the description page stays reachable. Redirect through the task
+  // lists index (not straight to a remembered list id) so the
+  // remembered id is re-validated against the project's current lists
+  // every time, rather than potentially bouncing to one that's since
+  // been deleted, which would 404 and loop back here.
+  const redirectProject = data?.project;
+  const willRedirectToLastList =
+    !!redirectProject && isInsider(redirectProject) && !redirectProject.archivedAt &&
+    isPmoEnabled() && searchParams.get('view') !== 'details';
+
   React.useEffect(() => {
-    if (!data || isLoading) return;
-    const project = data.project;
-    if (!isInsider(project) || project.archivedAt || !isPmoEnabled()) return;
-    if (searchParams.get('view') === 'details') return;
-    const lastId = getLastListId(project.slug, getStoredSession()?.user.id);
-    router.replace(
-      (lastId ? `/projects/${project.slug}/lists/${lastId}` : `/projects/${project.slug}/lists`) as never,
+    if (!willRedirectToLastList || !redirectProject) return;
+    router.replace(`/projects/${redirectProject.slug}/lists` as never);
+  }, [willRedirectToLastList, redirectProject, router]);
+
+  if (willRedirectToLastList) {
+    return (
+      <Container size="2xl" className="space-y-10 py-10">
+        <div className="h-40 animate-pulse rounded bg-line" />
+      </Container>
     );
-  }, [data, isLoading, router, searchParams]);
+  }
 
   if (isError) {
     return (

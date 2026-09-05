@@ -216,39 +216,85 @@ export class TasksService {
 
     const projectKey = list.projectKey && list.projectKey.length > 0 ? list.projectKey : 'TASK';
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      // Bump counter + read the new value atomically.
-      const bumped = await tx.taskList.update({
-        where: { id: list.id },
-        data: { taskCounter: { increment: 1 } },
-        select: { taskCounter: true },
-      });
-      const key = `${projectKey}-${bumped.taskCounter}`;
+    // Task keys are unique per (projectId, key), not per list, but the
+    // counter that mints them lives on the list. Two lists in the same
+    // project can share a projectKey (nothing prevents it, and it's the
+    // norm for a Jira-style "one shared key across every board"
+    // project), so a list's own counter can fall behind the highest
+    // number actually in use under that prefix elsewhere in the
+    // project. Reconcile against the real max before minting so
+    // creation can't 409 against a number some sibling list already
+    // claimed, and self-heal the stored counter so future creates don't
+    // pay this scan again. A bounded retry on the rare true-concurrent
+    // case (two creates racing under the same prefix) is the backstop.
+    const mintKey = async (tx: Prisma.TransactionClient) => {
+      const prefix = `${projectKey}-`;
+      const [bumped, siblings] = await Promise.all([
+        tx.taskList.update({
+          where: { id: list.id },
+          data: { taskCounter: { increment: 1 } },
+          select: { taskCounter: true },
+        }),
+        tx.task.findMany({
+          where: { projectId, key: { startsWith: prefix } },
+          select: { key: true },
+        }),
+      ]);
+      const siblingMax = siblings.reduce((max, t) => {
+        const n = Number(t.key.slice(prefix.length));
+        return Number.isFinite(n) && n > max ? n : max;
+      }, 0);
+      const next = Math.max(bumped.taskCounter, siblingMax + 1);
+      if (next > bumped.taskCounter) {
+        await tx.taskList.update({ where: { id: list.id }, data: { taskCounter: next } });
+      }
+      return `${projectKey}-${next}`;
+    };
 
-      const task = await tx.task.create({
-        data: {
-          taskListId: list.id,
-          projectId,
-          key,
-          title: dto.title,
-          // When omitted, Prisma uses the @default("{}") from schema.
-          ...(dto.description !== undefined && {
-            description: dto.description as Prisma.InputJsonValue,
-          }),
-          statusId: status.id,
-          priority: dto.priority ?? TaskPriority.NONE,
-          storyPoints: dto.storyPoints,
-          startDate: dto.startDate ? new Date(dto.startDate) : null,
-          dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
-          positionInStatus: new Prisma.Decimal(nextPosition),
-          createdById: user.id,
-        },
-      });
+    const MAX_KEY_ATTEMPTS = 3;
+    let task: Task | undefined;
+    const result = await this.prisma.$transaction(async (tx) => {
+      for (let attempt = 1; attempt <= MAX_KEY_ATTEMPTS; attempt++) {
+        const key = await mintKey(tx);
+        try {
+          task = await tx.task.create({
+            data: {
+              taskListId: list.id,
+              projectId,
+              key,
+              title: dto.title,
+              // When omitted, Prisma uses the @default("{}") from schema.
+              ...(dto.description !== undefined && {
+                description: dto.description as Prisma.InputJsonValue,
+              }),
+              statusId: status.id,
+              priority: dto.priority ?? TaskPriority.NONE,
+              storyPoints: dto.storyPoints,
+              startDate: dto.startDate ? new Date(dto.startDate) : null,
+              dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
+              positionInStatus: new Prisma.Decimal(nextPosition),
+              createdById: user.id,
+            },
+          });
+          break;
+        } catch (err) {
+          const isKeyConflict =
+            err instanceof Prisma.PrismaClientKnownRequestError &&
+            err.code === 'P2002' &&
+            (err.meta?.target as string[] | undefined)?.includes('key');
+          if (!isKeyConflict || attempt === MAX_KEY_ATTEMPTS) throw err;
+        }
+      }
+      if (!task) throw new ConflictException('Could not allocate a unique task key.');
+      // Capture into a const: `task` is a `let` from the outer scope,
+      // so TS can't narrow away the `undefined` from the guard above
+      // once it's read inside the closures below.
+      const created = task;
 
       if (dto.assigneeUserIds && dto.assigneeUserIds.length > 0) {
         await tx.taskAssignee.createMany({
           data: dto.assigneeUserIds.map((uid) => ({
-            taskId: task.id,
+            taskId: created.id,
             userId: uid,
           })),
           skipDuplicates: true,
@@ -256,7 +302,7 @@ export class TasksService {
       }
 
       await this.activity.record({
-        taskId: task.id,
+        taskId: created.id,
         actorId: user.id,
         kind: TaskActivityKind.CREATED,
         payload: { title: dto.title, statusId: status.id },
@@ -264,14 +310,14 @@ export class TasksService {
       });
       for (const uid of dto.assigneeUserIds ?? []) {
         await this.activity.record({
-          taskId: task.id,
+          taskId: created.id,
           actorId: user.id,
           kind: TaskActivityKind.ASSIGNED,
           payload: { userId: uid },
           tx,
         });
       }
-      return task;
+      return created;
     });
 
     // After the tx commits, fire-and-forget so a notify failure can't

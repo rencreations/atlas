@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, CalendarRange, Flag, Users } from 'lucide-react';
 import { api } from '@/lib/api/client';
@@ -31,7 +31,6 @@ export default function NewTaskPage() {
   const params = useParams();
   const slug = params.slug as string;
   const listId = params.listId as string;
-  const router = useRouter();
   const queryClient = useQueryClient();
   const toast = useToast();
   usePageTitle('New task');
@@ -77,7 +76,12 @@ export default function NewTaskPage() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.pmo.tasks(slug, listId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.pmo.list(slug, listId) });
       toast.show({ tone: 'success', title: `Task ${task.key} created` });
-      router.replace(`/projects/${slug}/lists/${listId}/tasks/${task.key}` as never);
+      // A client-side navigation here would be intercepted by the
+      // sibling @modal/(.)tasks/[taskKey] route (this page and the
+      // task page are both direct children of [listId]), landing the
+      // new task in a dialog stacked over this now-stale form instead
+      // of its own full page. A full navigation bypasses interception.
+      window.location.assign(`/projects/${slug}/lists/${listId}/tasks/${task.key}`);
     },
     onError: (err) =>
       toast.show({

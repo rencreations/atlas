@@ -39,7 +39,15 @@ export default function RegisterPage() {
   const loadConfig = useCallback(() => {
     setConfigFailed(false);
     fetch(`${API_BASE}${apiPaths.publicConfig()}`)
-      .then((r) => r.json() as Promise<PublicConfig>)
+      .then((r) => {
+        // A non-2xx can still carry a valid (but differently-shaped)
+        // JSON body, e.g. NestJS's default {statusCode, message} error
+        // envelope. Parsing that as PublicConfig wouldn't throw here,
+        // it would throw later during render against the wrong shape.
+        // Reject on a bad status before ever parsing the body.
+        if (!r.ok) throw new Error(`Request failed (${r.status}).`);
+        return r.json() as Promise<PublicConfig>;
+      })
       .then(setConfig)
       .catch(() => setConfigFailed(true));
   }, []);
