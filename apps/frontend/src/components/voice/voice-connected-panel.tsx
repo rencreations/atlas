@@ -4,6 +4,7 @@ import * as React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useMotionValue, type PanInfo } from 'framer-motion';
 import {
+  ArrowUpRight,
   ChevronDown,
   ChevronUp,
   CircleDot,
@@ -130,14 +131,9 @@ export function VoiceConnectedPanel() {
       dragElastic={0.08}
       onDragEnd={handleDragEnd}
       style={{ x, y }}
-      className={cn('fixed z-50 w-72 rounded-xl border border-line-2 bg-surface-1 shadow-2 backdrop-blur-sm', CORNER_CLASSES[corner])}
+      className={cn('fixed z-50 w-72 rounded-xl border border-line bg-surface shadow-2', CORNER_CLASSES[corner])}
     >
-      <div
-        className="flex cursor-grab items-center gap-2 border-b border-line-2 px-3 py-2 active:cursor-grabbing"
-        onClick={() => {
-          if (voiceHref) router.push(voiceHref as never);
-        }}
-      >
+      <div className="flex cursor-grab items-center gap-2 border-b border-line px-3 py-2 active:cursor-grabbing">
         {isError ? (
           <WifiOff className="h-4 w-4 shrink-0 text-brand-red" strokeWidth={2.25} />
         ) : isConnecting ? (
@@ -145,7 +141,7 @@ export function VoiceConnectedPanel() {
         ) : (
           <ConnectionBars quality={state.connectionQuality} />
         )}
-        <div className="min-w-0 flex-1 cursor-pointer">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-xs font-medium text-ink-1">
               {state.channelName ?? 'Connecting…'}
@@ -172,6 +168,23 @@ export function VoiceConnectedPanel() {
                   : 'Connecting…'}
           </div>
         </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (voiceHref) router.push(voiceHref as never);
+              }}
+              disabled={!voiceHref}
+              aria-label="Open call"
+            >
+              <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Open call</TooltipContent>
+        </Tooltip>
         <Button
           variant="ghost"
           size="icon-sm"
