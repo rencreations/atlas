@@ -1915,11 +1915,18 @@ async function seedVoice(): Promise<void> {
       });
     });
 
+    // Every seeded participant is HISTORY only (leftAt always set, no
+    // livekitSid): a live row (leftAt: null) claims someone is actually
+    // connected right now, but no real LiveKit session backs seed data,
+    // so anyone who "joined" would find the room empty - exactly the
+    // fake-viewers-in-the-preview bug this once caused across every
+    // demo project. Roster previews must only ever reflect real,
+    // currently-connected participants.
     const participantCount = projectIndex === null ? 20 : 8;
     for (let participantIndex = 0; participantIndex < participantCount; participantIndex++) {
       participantSequence++;
-      const active = participantIndex < 2 + (channelSequence % 3);
-      const joinedAt = active
+      const recent = participantIndex < 2 + (channelSequence % 3);
+      const joinedAt = recent
         ? new Date(now.getTime() - (participantIndex + 1) * 1_200_000)
         : daysAgo((participantIndex + channelSequence) % 45, participantIndex % 12);
       const stageAudience = kind === VoiceChannelKind.STAGE && participantIndex > 1;
@@ -1928,12 +1935,12 @@ async function seedVoice(): Promise<void> {
         channelId,
         userId: memberIds[participantIndex % memberIds.length]!,
         joinedAt,
-        leftAt: active ? null : new Date(joinedAt.getTime() + (18 + participantIndex * 4) * 60_000),
-        livekitSid: active ? `PA_demo_${pad(participantSequence, 6)}` : null,
-        mutedByMod: active && participantIndex === 3 && channelSequence % 9 === 0,
+        leftAt: new Date(joinedAt.getTime() + (18 + participantIndex * 4) * 60_000),
+        livekitSid: null,
+        mutedByMod: recent && participantIndex === 3 && channelSequence % 9 === 0,
         role: stageAudience ? VoiceParticipantRole.AUDIENCE : VoiceParticipantRole.SPEAKER,
         handRaisedAt:
-          active && stageAudience && participantIndex % 3 === 0
+          recent && stageAudience && participantIndex % 3 === 0
             ? new Date(now.getTime() - participantIndex * 180_000)
             : null,
       });

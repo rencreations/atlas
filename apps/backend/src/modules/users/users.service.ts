@@ -138,16 +138,24 @@ export class UsersService {
    * Fetches the user's actual Gravatar image (not the generic identicon
    * fallback) and stores it through the normal storage pipeline, so it's
    * self-hosted rather than hotlinked. Overwrites any existing avatar.
-   * Throws if the email has no custom Gravatar image set.
+   * Throws if the email has no custom Gravatar image set. Checks the
+   * account's own email by default; the frontend passes a different
+   * `overrideEmail` when the user wants to look up a Gravatar registered
+   * under an email other than their Atlas account's - this never changes
+   * the account email itself, only which address is hashed for the lookup.
    */
-  async useGravatarAvatar(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { email: true },
-    });
-    if (!user) throw new NotFoundException('User not found.');
+  async useGravatarAvatar(userId: string, overrideEmail?: string) {
+    let email = overrideEmail;
+    if (!email) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+      if (!user) throw new NotFoundException('User not found.');
+      email = user.email;
+    }
 
-    const hash = createHash('md5').update(user.email.toLowerCase().trim()).digest('hex');
+    const hash = createHash('md5').update(email.toLowerCase().trim()).digest('hex');
     // d=404 makes Gravatar return 404 instead of a generic identicon when
     // the email has no custom image set, this is how we tell "real photo"
     // from "default placeholder" apart.

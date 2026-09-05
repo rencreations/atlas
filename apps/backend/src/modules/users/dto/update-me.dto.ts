@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
 import { THEME_IDS } from '@/modules/settings/theme-ids';
 
 export class UpdateMeDto {
@@ -40,6 +40,18 @@ export class AvatarPresignDto {
 
   @IsOptional()
   contentLength?: number;
+}
+
+export class UseGravatarDto {
+  /**
+   * Check/fetch Gravatar for a different email than the account's own
+   * (e.g. the user's Gravatar is registered under a personal address).
+   * Only used to look up the image, never changes the account email.
+   */
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(254)
+  email?: string;
 }
 
 export class ConsentDto {

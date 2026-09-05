@@ -10,6 +10,7 @@ import { useSaveSurface } from '@/lib/save-coordinator';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -147,19 +148,31 @@ export default function ProfileSettingsPage() {
       }),
   });
 
+  // "Use Gravatar" checks the account's own email first; if that has no
+  // custom image, this opens a field to try a different email instead of
+  // just dead-ending in an error toast (a Gravatar is often registered
+  // under a personal address, not the Atlas account's).
+  const [gravatarPromptOpen, setGravatarPromptOpen] = useState(false);
+  const [gravatarEmailInput, setGravatarEmailInput] = useState('');
+  const [gravatarError, setGravatarError] = useState<string | null>(null);
+
   const useGravatar = useMutation({
-    mutationFn: () => api<MeProfile>(apiPaths.meAvatarGravatar(), { method: 'POST' }),
+    mutationFn: (email?: string) =>
+      api<MeProfile>(apiPaths.meAvatarGravatar(), { method: 'POST', body: { email } }),
     onSuccess: (updated) => {
       queryClient.setQueryData(queryKeys.me, updated);
+      setGravatarPromptOpen(false);
+      setGravatarEmailInput('');
+      setGravatarError(null);
       show({ title: 'Using your Gravatar picture', tone: 'success' });
     },
-    onError: (err) =>
-      show({
-        title: 'No Gravatar found',
-        description:
-          err instanceof Error ? err.message : 'This email has no custom Gravatar image set.',
-        tone: 'danger',
-      }),
+    onError: (err) => {
+      setGravatarError(
+        (err as { body?: { message?: string } })?.body?.message ??
+          (err instanceof Error ? err.message : 'No Gravatar image found for that email.'),
+      );
+      setGravatarPromptOpen(true);
+    },
   });
 
   if (isLoading || !me) {
@@ -207,7 +220,7 @@ export default function ProfileSettingsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => useGravatar.mutate()}
+                  onClick={() => useGravatar.mutate(undefined)}
                   disabled={useGravatar.isPending}
                   loading={useGravatar.isPending}
                 >
@@ -238,6 +251,60 @@ export default function ProfileSettingsPage() {
         }}
         onCropped={(blob) => void uploadAvatar(blob)}
       />
+
+      <Dialog
+        open={gravatarPromptOpen}
+        onOpenChange={(open) => {
+          setGravatarPromptOpen(open);
+          if (!open) {
+            setGravatarEmailInput('');
+            setGravatarError(null);
+          }
+        }}
+      >
+        <DialogContent size="sm">
+          <DialogTitle>No Gravatar found</DialogTitle>
+          <DialogDescription>
+            {gravatarError} Try a different email that has a Gravatar picture set up.
+          </DialogDescription>
+          <form
+            className="mt-4 space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (gravatarEmailInput.trim()) useGravatar.mutate(gravatarEmailInput.trim());
+            }}
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="gravatar-email">Email</Label>
+              <Input
+                id="gravatar-email"
+                type="email"
+                value={gravatarEmailInput}
+                onChange={(e) => setGravatarEmailInput(e.target.value)}
+                placeholder="you@example.com"
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setGravatarPromptOpen(false)}
+                disabled={useGravatar.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                loading={useGravatar.isPending}
+                disabled={!gravatarEmailInput.trim()}
+              >
+                Check
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Card>
         <CardBody>

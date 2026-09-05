@@ -23,8 +23,8 @@ function toneFor(seed: string) {
 export function Avatar({ src, name, size = 32, className }: Props) {
   return (
     <RadixAvatar.Root
-      className={cn('inline-grid place-items-center overflow-hidden rounded-full', className)}
-      style={{ height: size, width: size }}
+      className={cn('inline-grid shrink-0 place-items-center overflow-hidden rounded-full', className)}
+      style={{ height: size, width: size, minWidth: size, minHeight: size }}
     >
       {src ? (
         <RadixAvatar.Image src={src} alt={name} className="h-full w-full object-cover" />

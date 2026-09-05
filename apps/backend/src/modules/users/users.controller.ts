@@ -20,7 +20,7 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { GodmodeService } from '../godmode/godmode.service';
 import { SetAdminDto } from './dto/set-admin.dto';
-import { AvatarPresignDto, ConsentDto, UpdateMeDto } from './dto/update-me.dto';
+import { AvatarPresignDto, ConsentDto, UpdateMeDto, UseGravatarDto } from './dto/update-me.dto';
 import { UsersService } from './users.service';
 
 // Granting or revoking these two through the generic role endpoint would let
@@ -64,11 +64,16 @@ export class UsersController {
     return this.users.removeAvatar(user.id);
   }
 
-  /** Fetch and store the user's real Gravatar image, overwriting any existing avatar. */
+  /**
+   * Fetch and store a Gravatar image as the user's avatar, overwriting
+   * any existing one. Checks the account's own email by default; pass
+   * `email` to look up a Gravatar registered under a different address
+   * (never changes the account's email).
+   */
   @Post('me/avatar/gravatar')
-  @ApiOperation({ summary: "Use the current user's Gravatar image as their avatar" })
-  useGravatarAvatar(@CurrentUser() user: AuthenticatedUser) {
-    return this.users.useGravatarAvatar(user.id);
+  @ApiOperation({ summary: "Use a Gravatar image as the current user's avatar" })
+  useGravatarAvatar(@CurrentUser() user: AuthenticatedUser, @Body() dto: UseGravatarDto) {
+    return this.users.useGravatarAvatar(user.id, dto.email);
   }
 
   /** Record consent to the current terms/privacy. */
