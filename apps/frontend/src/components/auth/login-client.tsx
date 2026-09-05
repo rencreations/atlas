@@ -139,22 +139,25 @@ export function LoginClient({
     [router, safeCallback],
   );
 
-  const post = useCallback(async <T,>(path: string, body: unknown): Promise<T> => {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json().catch(() => null);
-    if (!res.ok) {
-      throw new Error(
-        Array.isArray(data?.message)
-          ? data.message.join(', ')
-          : (data?.message ?? `Request failed (${res.status}).`),
-      );
-    }
-    return data as T;
-  }, []);
+  const post = useCallback(
+    async <T,>(path: string, body: unknown, extraHeaders?: Record<string, string>): Promise<T> => {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...extraHeaders },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(
+          Array.isArray(data?.message)
+            ? data.message.join(', ')
+            : (data?.message ?? `Request failed (${res.status}).`),
+        );
+      }
+      return data as T;
+    },
+    [],
+  );
 
   const submitPassword = useCallback(async () => {
     setBusy(true);
@@ -183,9 +186,17 @@ export function LoginClient({
     setBusy(true);
     setError(null);
     try {
-      // mustChange sessions may change the password without re-entering
-      // the current one (they just proved possession by signing in).
-      await post(apiPaths.auth.passwordChange(), { newPassword });
+      // The session from the initial login is valid but not yet stored
+      // (finishSession() below is what persists it), so this request
+      // must carry it explicitly or the backend sees no Authorization
+      // header at all. mustChange sessions may change the password
+      // without re-entering the current one (they just proved
+      // possession of the account by signing in).
+      await post(
+        apiPaths.auth.passwordChange(),
+        { newPassword },
+        { authorization: `Bearer ${pendingSession.sessionId}` },
+      );
       finishSession(pendingSession);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Password change failed.');
