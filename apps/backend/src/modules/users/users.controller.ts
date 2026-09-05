@@ -57,6 +57,20 @@ export class UsersController {
     return this.users.avatarPresign(user.id, dto.contentType, dto.contentLength);
   }
 
+  /** Clears the user-uploaded avatar (falls back to Gravatar/SSO/initials). */
+  @Delete('me/avatar')
+  @ApiOperation({ summary: "Remove the current user's uploaded avatar" })
+  removeAvatar(@CurrentUser() user: AuthenticatedUser) {
+    return this.users.removeAvatar(user.id);
+  }
+
+  /** Fetch and store the user's real Gravatar image, overwriting any existing avatar. */
+  @Post('me/avatar/gravatar')
+  @ApiOperation({ summary: "Use the current user's Gravatar image as their avatar" })
+  useGravatarAvatar(@CurrentUser() user: AuthenticatedUser) {
+    return this.users.useGravatarAvatar(user.id);
+  }
+
   /** Record consent to the current terms/privacy. */
   @Post('me/consent')
   @ApiOperation({ summary: 'Record acceptance of the current terms/privacy policy' })

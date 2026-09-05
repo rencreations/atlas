@@ -4,6 +4,7 @@ import {
   Room,
   RoomEvent,
   Track,
+  VideoPresets,
   type LocalParticipant,
   type LocalTrackPublication,
   type RemoteParticipant,
@@ -84,6 +85,10 @@ export interface VoiceParticipantView {
   screenShareTrack: RemoteVideoTrack | LocalVideoTrack | null;
   /** Screen-share audio (browser tab capture audio), Chromium only. */
   screenShareAudioTrack: RemoteAudioTrack | LocalAudioTrack | null;
+  /** Microphone audio track. Must be attached to a playable element by
+   *  the consumer (see RemoteAudioRenderer) - LiveKit only subscribes it,
+   *  it never plays audio on its own. */
+  micTrack: RemoteAudioTrack | LocalAudioTrack | null;
 }
 
 export interface VoiceDeviceList {
@@ -109,6 +114,15 @@ export interface VoiceState {
   devices: VoiceDeviceList;
   /** Which participant's tile is enlarged. Defaults to whoever is sharing screen. */
   spotlightIdentity: string | null;
+  /** True when spotlightIdentity was auto-set because that participant is
+   *  screen-sharing (vs. manually pinned via setSpotlight) - lets the
+   *  auto case clear itself when the share stops, without undoing a
+   *  deliberate manual pin. */
+  spotlightAuto: boolean;
+  /** Accumulated "how much has this person talked" score, incremented on
+   *  every ActiveSpeakersChanged sample they appear in. Ranks who stays
+   *  visible when the grid has more participants than fit on screen. */
+  speakingScore: Map<string, number>;
   /** True while the PTT key is held (only meaningful in PUSH_TO_TALK mode). */
   pttActive: boolean;
   /** Persisted prefs from the backend. null until first GET resolves. */
@@ -222,6 +236,8 @@ const initialState: VoiceState = {
   cameraDeviceId: null,
   devices: { mics: [], cameras: [], outputs: [] },
   spotlightIdentity: null,
+  spotlightAuto: false,
+  speakingScore: new Map(),
   localVolume: new Map(),
   localMuted: new Set(),
   soundboardVolume: 1,
@@ -237,14 +253,19 @@ const initialState: VoiceState = {
   error: null,
 };
 
-// Map our ScreenShareQuality preset to LiveKit's track resolution.
+// Map our ScreenShareQuality preset to an encoding ceiling only (bitrate +
+// framerate) - no width/height. Forcing an exact capture resolution here
+// used to stretch/crop whatever the user actually shared (a single window,
+// a portrait or ultrawide monitor) to 16:9; the capture itself is left at
+// its native aspect ratio (LiveKit/the browser already cap it to a sane
+// ~1080 bound on their own), and only the published encoding is capped.
 const SCREEN_SHARE_PRESETS: Record<
   ScreenShareQuality,
-  { maxBitrate: number; maxFramerate: number; width: number; height: number }
+  { maxBitrate: number; maxFramerate: number }
 > = {
-  '720p30': { width: 1280, height: 720, maxFramerate: 30, maxBitrate: 1_500_000 },
-  '1080p30': { width: 1920, height: 1080, maxFramerate: 30, maxBitrate: 3_000_000 },
-  '1080p60': { width: 1920, height: 1080, maxFramerate: 60, maxBitrate: 6_000_000 },
+  '720p30': { maxFramerate: 30, maxBitrate: 1_500_000 },
+  '1080p30': { maxFramerate: 30, maxBitrate: 3_000_000 },
+  '1080p60': { maxFramerate: 60, maxBitrate: 6_000_000 },
 };
 
 function pickPublicationVideoTrack(
@@ -311,10 +332,12 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       const camPub = p.getTrackPublication(Track.Source.Camera);
       const screenPub = p.getTrackPublication(Track.Source.ScreenShare);
       const screenAudioPub = p.getTrackPublication(Track.Source.ScreenShareAudio);
+      const micPub = p.getTrackPublication(Track.Source.Microphone);
 
       const rawCameraTrack = pickPublicationVideoTrack(camPub);
       const rawScreenShareTrack = pickPublicationVideoTrack(screenPub);
       const screenShareAudioTrack = pickPublicationAudioTrack(screenAudioPub);
+      const micTrack = pickPublicationAudioTrack(micPub);
 
       // LiveKit's setCameraEnabled(false) only mutes the existing
       // publication (stops the MediaStreamTrack but keeps the track
@@ -338,6 +361,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         cameraTrack: isCameraEnabled ? rawCameraTrack : null,
         screenShareTrack: isScreenSharing ? rawScreenShareTrack : null,
         screenShareAudioTrack,
+        micTrack,
       };
     },
     [],
@@ -351,16 +375,37 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         map.set(p.identity, buildParticipantView(p));
       }
       // Auto-spotlight whoever is currently sharing screen, unless the
-      // user has explicitly pinned someone else.
+      // user has explicitly pinned someone else. Tracks whether the
+      // current spotlight is an auto-follow (spotlightAuto) so it can be
+      // cleared the moment that person's share stops (falling back to
+      // the equal grid) without undoing a deliberate manual pin.
       setState((prev) => {
         let spotlight = prev.spotlightIdentity;
+        let spotlightAuto = prev.spotlightAuto;
         const sharer = [...map.values()].find((v) => v.isScreenSharing);
         if (sharer && (!spotlight || !map.get(spotlight)?.isScreenSharing)) {
           spotlight = sharer.identity;
+          spotlightAuto = true;
         } else if (spotlight && !map.has(spotlight)) {
           spotlight = null;
+          spotlightAuto = false;
+        } else if (spotlightAuto && spotlight && !map.get(spotlight)?.isScreenSharing) {
+          spotlight = null;
+          spotlightAuto = false;
         }
-        return { ...prev, participants: map, spotlightIdentity: spotlight };
+
+        const speakingScore = new Map(prev.speakingScore);
+        for (const v of map.values()) {
+          if (v.isSpeaking) speakingScore.set(v.identity, (speakingScore.get(v.identity) ?? 0) + 1);
+        }
+
+        return {
+          ...prev,
+          participants: map,
+          spotlightIdentity: spotlight,
+          spotlightAuto,
+          speakingScore,
+        };
       });
     },
     [buildParticipantView],
@@ -420,6 +465,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         cameraEnabled: false,
         screenSharing: false,
         spotlightIdentity: null,
+        spotlightAuto: false,
+        speakingScore: new Map(),
       });
 
       let envelope: VoiceJoinEnvelope;
@@ -447,6 +494,13 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           // Dynamic per-joiner audio quality, tuned to this user's
           // connection instead of a channel setting chosen at creation.
           audioPreset: dynamicAudioPreset(),
+          // Publish camera at a real 1080p ceiling instead of relying on
+          // conservative SDK defaults, with simulcast fallback layers so
+          // bandwidth-constrained viewers still get a smooth (lower-res)
+          // stream instead of a choppy full-res one.
+          videoEncoding: VideoPresets.h1080.encoding,
+          videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+          simulcast: true,
         },
         // Pull the audio cleanup toggles from the user's saved prefs.
         // When prefs haven't loaded yet, fall back to all-on (matches
@@ -459,6 +513,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         },
         videoCaptureDefaults: {
           deviceId: prefs?.cameraDeviceId ?? undefined,
+          resolution: VideoPresets.h1080.resolution,
         },
       });
       roomRef.current = room;
@@ -697,16 +752,13 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       const enable = !state.screenSharing;
       const preset = SCREEN_SHARE_PRESETS[quality];
       try {
-        await room.localParticipant.setScreenShareEnabled(enable, enable
-          ? {
-              audio,
-              resolution: {
-                width: preset.width,
-                height: preset.height,
-                frameRate: preset.maxFramerate,
-              },
-            }
-          : undefined,
+        await room.localParticipant.setScreenShareEnabled(
+          enable,
+          // No forced width/height: let the browser capture the shared
+          // surface (window, single monitor, or whole desktop) at its own
+          // native aspect ratio instead of stretching/cropping it to 16:9.
+          enable ? { audio, contentHint: 'detail' } : undefined,
+          enable ? { screenShareEncoding: { maxBitrate: preset.maxBitrate, maxFramerate: preset.maxFramerate } } : undefined,
         );
         patch({ screenSharing: enable });
         refreshParticipants(room);
@@ -739,7 +791,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   // ─── Spotlight ──────────────────────────────────────────────────────
 
   const setSpotlight = useCallback<VoiceActions['setSpotlight']>((identity) => {
-    setState((prev) => ({ ...prev, spotlightIdentity: identity }));
+    setState((prev) => ({ ...prev, spotlightIdentity: identity, spotlightAuto: false }));
   }, []);
 
   // ─── Phase 5: per-participant local controls ────────────────────────
@@ -1207,15 +1259,24 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         const room = new Room({
           adaptiveStream: true,
           dynacast: true,
-          // Dynamic per-joiner audio quality (see joinRoom above).
-          publishDefaults: { audioPreset: dynamicAudioPreset() },
+          // Dynamic per-joiner audio quality (see joinRoom above); same
+          // 1080p camera ceiling + simulcast layers as the primary connect.
+          publishDefaults: {
+            audioPreset: dynamicAudioPreset(),
+            videoEncoding: VideoPresets.h1080.encoding,
+            videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+            simulcast: true,
+          },
           audioCaptureDefaults: {
             autoGainControl: prefs?.autoGainControl ?? true,
             echoCancellation: prefs?.echoCancellation ?? true,
             noiseSuppression: prefs?.noiseSuppression ?? true,
             deviceId: prefs?.micDeviceId ?? undefined,
           },
-          videoCaptureDefaults: { deviceId: prefs?.cameraDeviceId ?? undefined },
+          videoCaptureDefaults: {
+            deviceId: prefs?.cameraDeviceId ?? undefined,
+            resolution: VideoPresets.h1080.resolution,
+          },
         });
         roomRef.current = room;
         room

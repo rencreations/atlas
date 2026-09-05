@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChatNavButton } from '@/components/chat/chat-nav-button';
+import { isChatOrVoiceRoute } from '@/lib/chat/route-match';
 import { GlobalSearch } from '@/components/search/global-search';
 import { NotificationBell } from './notification-bell';
 import { UserMenu } from './user-menu';
@@ -36,6 +37,16 @@ const NAV: NavLink[] = [
   { label: 'My work', href: '/me' },
   { label: 'Discover', href: '/projects' },
 ];
+
+// "Discover" (/projects) would otherwise also match project-scoped chat
+// and voice routes (/projects/<slug>/chat|voice/...), stealing the active
+// state ChatNavButton owns for those. Chat/voice routes never belong to
+// any of these top-level nav links, so excluding them is safe generically.
+function isNavLinkActive(pathname: string | null, href: string): boolean {
+  if (!pathname) return false;
+  if (isChatOrVoiceRoute(pathname)) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function Header({ user }: { user?: SessionUser | null }) {
   const [scrolled, setScrolled] = React.useState(false);
@@ -108,7 +119,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[220px]">
               {NAV.slice(0, 2).map((link) => {
-                const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                const active = isNavLinkActive(pathname, link.href);
                 return (
                   <DropdownMenuItem key={link.href} asChild>
                     <Link
@@ -133,7 +144,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
                 </DropdownMenuItem>
               ) : null}
               {NAV.slice(2).map((link) => {
-                const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                const active = isNavLinkActive(pathname, link.href);
                 return (
                   <DropdownMenuItem key={link.href} asChild>
                     <Link
@@ -204,7 +215,7 @@ export function Header({ user }: { user?: SessionUser | null }) {
 }
 
 function NavLinkItem({ link, pathname }: { link: NavLink; pathname: string }) {
-  const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+  const active = isNavLinkActive(pathname, link.href);
   return (
     <Link
       href={link.href as never}

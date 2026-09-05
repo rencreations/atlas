@@ -79,6 +79,8 @@ export const apiPaths = {
 
   me: () => '/users/me',
   meAvatarPresign: () => '/users/me/avatar/presign',
+  meAvatarRemove: () => '/users/me/avatar',
+  meAvatarGravatar: () => '/users/me/avatar/gravatar',
   meConsent: () => '/users/me/consent',
   dashboard: () => '/users/me/dashboard',
   forMe: () => '/users/me/for-me',

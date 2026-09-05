@@ -92,6 +92,12 @@ export function ParticipantTile({
     ? Math.min(audioLevel * 24 + 4, 28)
     : 0;
 
+  // Screen share preserves whatever the shared surface's real aspect ratio
+  // is (a single window, a portrait/ultrawide monitor, the whole desktop)
+  // by letterboxing instead of cropping/stretching to fill the tile.
+  // Camera keeps cropping to fill, which is the expected look for a face.
+  const isShowingScreenShare = hasVideo && showTrack === screenShareTrack;
+
   return (
     <button
       type="button"
@@ -104,10 +110,11 @@ export function ParticipantTile({
         setMenuOpen(true);
       }}
       className={cn(
-        'group/tile relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-line-2 bg-surface-1 transition-shadow duration-200 ease-out-soft',
+        'group/tile relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-line-2 bg-surface-1 transition-shadow duration-150 ease-out-soft',
         large ? 'h-full w-full' : 'aspect-video p-3',
         onClick ? 'cursor-pointer' : '',
         isSpeaking && !isMuted && !hasVideo ? 'ring-2 ring-brand-green' : '',
+        isSpeaking && !isMuted ? 'voice-speaking-halo' : '',
       )}
       style={
         halo > 0
@@ -122,7 +129,8 @@ export function ParticipantTile({
           muted={isLocal}
           playsInline
           className={cn(
-            'absolute inset-0 h-full w-full object-cover',
+            'absolute inset-0 h-full w-full',
+            isShowingScreenShare ? 'object-contain bg-black' : 'object-cover',
             // Local camera mirrors so it feels like a mirror image.
             isLocal && cameraTrack && showTrack === cameraTrack ? 'scale-x-[-1]' : '',
           )}

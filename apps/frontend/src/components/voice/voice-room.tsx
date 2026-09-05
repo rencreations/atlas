@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2, Maximize2, Minimize2, Volume2 } from 'lucide-react';
+import { Loader2, Maximize2, Minimize2, Users, Volume2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useVoice } from '@/lib/voice/voice-provider';
@@ -37,6 +37,10 @@ export function VoiceRoom({
   const { state, actions } = useVoice();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Which page of the ranked overflow list is showing behind the "+N
+  // more" tile in the equal grid. Purely a display concern, not shared
+  // voice state.
+  const [overflowPage, setOverflowPage] = useState(0);
 
   // Auto-join on mount unless we're already in a different channel.
   useEffect(() => {
@@ -186,20 +190,46 @@ export function VoiceRoom({
     );
   }
 
-  // Equal grid (no spotlight): adapts to participant count.
+  // Equal grid (no spotlight): adapts to participant count. Once there
+  // are more people than fit comfortably, keep yourself + whoever has
+  // talked the most visible and collapse the rest behind a "+N more"
+  // tile that pages through the remaining ranked list on click. Nobody
+  // sharing their screen ever reaches this branch (that forces the
+  // spotlight layout above), so no special-casing is needed for them.
+  const OVERFLOW_VISIBLE_CAP = 9;
+  const localParticipant = participants.find((p) => p.isLocal) ?? null;
+  const nonLocalParticipants = participants.filter((p) => !p.isLocal);
+
+  let visibleParticipants = participants;
+  let overflowCount = 0;
+  if (participants.length > OVERFLOW_VISIBLE_CAP) {
+    const rankedOthers = [...nonLocalParticipants].sort(
+      (a, b) =>
+        (state.speakingScore.get(b.identity) ?? 0) - (state.speakingScore.get(a.identity) ?? 0),
+    );
+    // Reserve one slot for yourself (if present) and one for the "+N" tile.
+    const perPage = Math.max(1, OVERFLOW_VISIBLE_CAP - (localParticipant ? 1 : 0) - 1);
+    const pageCount = Math.max(1, Math.ceil(rankedOthers.length / perPage));
+    const page = overflowPage % pageCount;
+    const pageOthers = rankedOthers.slice(page * perPage, page * perPage + perPage);
+    visibleParticipants = localParticipant ? [localParticipant, ...pageOthers] : pageOthers;
+    overflowCount = rankedOthers.length - pageOthers.length;
+  }
+
+  const tileCount = visibleParticipants.length + (overflowCount > 0 ? 1 : 0);
   const colClass =
-    participants.length <= 2
+    tileCount <= 2
       ? 'grid-cols-1 sm:grid-cols-2'
-      : participants.length <= 4
+      : tileCount <= 4
         ? 'grid-cols-2'
-        : participants.length <= 9
+        : tileCount <= 9
           ? 'grid-cols-2 sm:grid-cols-3'
           : 'grid-cols-3 sm:grid-cols-4';
 
   return (
     <div className="flex h-full flex-col">
       <div className={`grid min-h-0 flex-1 gap-3 overflow-auto p-3 ${colClass}`}>
-        {participants.map((p) => (
+        {visibleParticipants.map((p) => (
           <ParticipantTile
             key={p.identity}
             participant={p}
@@ -209,6 +239,16 @@ export function VoiceRoom({
             currentChannelId={channelId}
           />
         ))}
+        {overflowCount > 0 ? (
+          <button
+            type="button"
+            onClick={() => setOverflowPage((p) => p + 1)}
+            className="flex aspect-video flex-col items-center justify-center gap-1.5 rounded-xl border border-line-2 bg-surface-1 p-3 text-ink-2 transition-colors hover:bg-surface-muted"
+          >
+            <Users className="h-5 w-5" strokeWidth={2.25} />
+            <span className="text-sm font-medium">+{overflowCount} more</span>
+          </button>
+        ) : null}
       </div>
       <VoiceControls channelId={channelId} canModerate={canModerate} />
     </div>

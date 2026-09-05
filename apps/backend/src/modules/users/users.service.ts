@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { SettingsService } from '@/modules/settings/settings.service';
@@ -112,11 +112,61 @@ export class UsersService {
       throw new BadRequestException('Avatar must be at most 5 MB.');
     }
     const key = `avatars/${userId}/${Date.now()}-${randomUUID().slice(0, 8)}${this.extensionFor(contentType)}`;
-    return this.s3.presignPut({
+    const { uploadUrl, expiresIn } = await this.s3.presignPut({
       key,
       contentType,
       contentLength: contentLength ?? AVATAR_MAX_BYTES,
     });
+    return { uploadUrl, expiresIn, objectKey: key };
+  }
+
+  /** Clears the user-uploaded avatar, falling back to Gravatar/SSO/initials. */
+  async removeAvatar(userId: string) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarS3Key: null },
+      select: { ...ME_USER_SELECT, lastLoginAt: true, themeId: true, themeMode: true },
+    });
+    // avatarS3Key is now null, so the remaining avatarUrl column (SSO
+    // picture or Gravatar, set at account creation) is already the right
+    // value to show - nothing further to resolve through StorageService.
+    const { avatarS3Key: _cleared, ...profile } = user;
+    return profile;
+  }
+
+  /**
+   * Fetches the user's actual Gravatar image (not the generic identicon
+   * fallback) and stores it through the normal storage pipeline, so it's
+   * self-hosted rather than hotlinked. Overwrites any existing avatar.
+   * Throws if the email has no custom Gravatar image set.
+   */
+  async useGravatarAvatar(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    if (!user) throw new NotFoundException('User not found.');
+
+    const hash = createHash('md5').update(user.email.toLowerCase().trim()).digest('hex');
+    // d=404 makes Gravatar return 404 instead of a generic identicon when
+    // the email has no custom image set, this is how we tell "real photo"
+    // from "default placeholder" apart.
+    const res = await fetch(`https://www.gravatar.com/avatar/${hash}?d=404&s=512`);
+    if (!res.ok) {
+      throw new BadRequestException('No Gravatar image found for this email.');
+    }
+    const contentType = res.headers.get('content-type') ?? 'image/jpeg';
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const key = `avatars/${userId}/gravatar-${hash}${this.extensionFor(contentType)}`;
+    await this.s3.putObject(key, buffer, contentType);
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarS3Key: key },
+      select: { ...ME_USER_SELECT, lastLoginAt: true, themeId: true, themeMode: true },
+    });
+    const { avatarS3Key: stored, ...profile } = updated;
+    return { ...profile, avatarUrl: await this.s3.publicUrlFor(stored!) };
   }
 
   async recordConsent(userId: string) {

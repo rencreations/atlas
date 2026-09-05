@@ -169,6 +169,23 @@
   animation: chat-pin-bounce 520ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ─── Voice: speaking halo ──────────────────────────────────────────────── */
+/* The reactive box-shadow (sized from live audioLevel, set inline in
+   participant-tile.tsx) only updates on ActiveSpeakersChanged samples, so a
+   plain box-shadow snaps between values instead of pulsing - transitioning
+   it smooths those jumps. Layered on top, this keyframe animation keeps the
+   ring gently breathing for as long as the participant is speaking, so it
+   still reads as "alive" between samples instead of looking static. */
+.voice-speaking-halo {
+  transition: box-shadow 150ms ease-out;
+  outline: 2px solid rgba(56, 161, 105, 0.55);
+  animation: voice-speaking-pulse 1.6s ease-in-out infinite;
+}
+@keyframes voice-speaking-pulse {
+  0%, 100% { outline-color: rgba(56, 161, 105, 0.55); outline-offset: 0px; }
+  50% { outline-color: rgba(56, 161, 105, 0.9); outline-offset: 3px; }
+}
+
 /* ─── BlockNote code block (PMO notes) ────────────────────────────────── */
 /* IDE-style dark surface — fixes the original "white text on white bg" bug
    without configuring BlockNote's codeBlock spec (which can wedge the

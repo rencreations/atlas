@@ -7,6 +7,7 @@ import { ChannelList } from '@/components/chat/channel-list';
 import { getStoredSession } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { useVoice } from '@/lib/voice/voice-provider';
+import { RemoteAudioRenderer } from './remote-audio-renderer';
 import { VoiceRoom } from './voice-room';
 import { VoiceChatThreadPanel } from './voice-chat-thread-panel';
 
@@ -51,7 +52,8 @@ export function VoiceLayout({
     voiceState.recording !== null && voiceState.channelId === channelId;
 
   return (
-    <div className="flex h-full min-h-0">
+    <div className="flex h-full min-h-0 min-w-0 flex-1">
+      <RemoteAudioRenderer />
       <ChannelList
         scope={{ kind: 'project', slug: projectSlug }}
         projectTitle={projectTitle}

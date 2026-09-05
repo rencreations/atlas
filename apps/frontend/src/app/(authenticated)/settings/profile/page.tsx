@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { LoaderCircle, Upload } from 'lucide-react';
+import { AtSign, LoaderCircle, Trash2, Upload } from 'lucide-react';
 import { api, apiBeacon, uploadToPresigned } from '@/lib/api/client';
 import { apiPaths } from '@/lib/api/paths';
 import { queryKeys } from '@/lib/api/queries';
@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
+import { AvatarCropDialog } from '@/components/settings/avatar-crop-dialog';
 import type { SessionUser } from '@/lib/types';
 import { usePageTitle } from '@/lib/page-title';
 
@@ -21,6 +22,19 @@ interface MeProfile extends SessionUser {
   bio: string | null;
   lastLoginAt: string | null;
   emailVerified: boolean;
+}
+
+function extensionFor(mime: string): string {
+  switch (mime) {
+    case 'image/png':
+      return '.png';
+    case 'image/webp':
+      return '.webp';
+    case 'image/gif':
+      return '.gif';
+    default:
+      return '.jpg';
+  }
 }
 
 export default function ProfileSettingsPage() {
@@ -38,6 +52,7 @@ export default function ProfileSettingsPage() {
   const [bio, setBio] = useState('');
   const [hydratedFor, setHydratedFor] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   useEffect(() => {
     if (me && hydratedFor !== me.id) {
       setName(me.name);
@@ -82,21 +97,24 @@ export default function ProfileSettingsPage() {
   });
 
   const uploadAvatar = useCallback(
-    async (file: File) => {
+    async (blob: Blob) => {
       setUploading(true);
       try {
-        const presign = await api<{ uploadUrl: string; expiresIn: number }>(
+        const contentType = blob.type || 'image/jpeg';
+        const presign = await api<{ uploadUrl: string; expiresIn: number; objectKey: string }>(
           apiPaths.meAvatarPresign(),
           {
             method: 'POST',
-            body: { contentType: file.type, contentLength: file.size },
+            body: { contentType, contentLength: blob.size },
           },
         );
-        const key = new URL(presign.uploadUrl).pathname.split('/').slice(2).join('/');
+        // uploadToPresigned expects a File; wrap the cropped Blob rather
+        // than loosening that shared upload helper's type for one caller.
+        const file = new File([blob], `avatar${extensionFor(contentType)}`, { type: contentType });
         await uploadToPresigned(presign.uploadUrl, file);
         const updated = await api<MeProfile>(apiPaths.me(), {
           method: 'PATCH',
-          body: { avatarS3Key: key },
+          body: { avatarS3Key: presign.objectKey },
         });
         queryClient.setQueryData(queryKeys.me, updated);
         show({ title: 'Avatar updated', tone: 'success' });
@@ -109,10 +127,40 @@ export default function ProfileSettingsPage() {
         });
       } finally {
         setUploading(false);
+        setCropFile(null);
       }
     },
     [queryClient, show],
   );
+
+  const removeAvatar = useMutation({
+    mutationFn: () => api<MeProfile>(apiPaths.meAvatarRemove(), { method: 'DELETE' }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.me, updated);
+      show({ title: 'Picture removed', tone: 'success' });
+    },
+    onError: (err) =>
+      show({
+        title: 'Could not remove picture',
+        description: err instanceof Error ? err.message : 'Unknown error.',
+        tone: 'danger',
+      }),
+  });
+
+  const useGravatar = useMutation({
+    mutationFn: () => api<MeProfile>(apiPaths.meAvatarGravatar(), { method: 'POST' }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.me, updated);
+      show({ title: 'Using your Gravatar picture', tone: 'success' });
+    },
+    onError: (err) =>
+      show({
+        title: 'No Gravatar found',
+        description:
+          err instanceof Error ? err.message : 'This email has no custom Gravatar image set.',
+        tone: 'danger',
+      }),
+  });
 
   if (isLoading || !me) {
     return (
@@ -134,7 +182,7 @@ export default function ProfileSettingsPage() {
                 SSO profiles sync automatically. Without SSO, Atlas falls back to Gravatar;
                 upload a picture to override both.
               </p>
-              <div>
+              <div className="flex flex-wrap gap-2">
                 <input
                   ref={fileInput}
                   type="file"
@@ -142,7 +190,7 @@ export default function ProfileSettingsPage() {
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) void uploadAvatar(file);
+                    if (file) setCropFile(file);
                     e.target.value = '';
                   }}
                 />
@@ -156,11 +204,40 @@ export default function ProfileSettingsPage() {
                   <Upload className="h-4 w-4" strokeWidth={2.25} />
                   {uploading ? 'Uploading…' : 'Upload picture'}
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => useGravatar.mutate()}
+                  disabled={useGravatar.isPending}
+                  loading={useGravatar.isPending}
+                >
+                  <AtSign className="h-4 w-4" strokeWidth={2.25} />
+                  Use Gravatar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeAvatar.mutate()}
+                  disabled={removeAvatar.isPending}
+                  loading={removeAvatar.isPending}
+                  className="text-brand-red hover:bg-brand-red-50"
+                >
+                  <Trash2 className="h-4 w-4" strokeWidth={2.25} />
+                  Remove
+                </Button>
               </div>
             </div>
           </div>
         </CardBody>
       </Card>
+
+      <AvatarCropDialog
+        file={cropFile}
+        onOpenChange={(open) => {
+          if (!open) setCropFile(null);
+        }}
+        onCropped={(blob) => void uploadAvatar(blob)}
+      />
 
       <Card>
         <CardBody>

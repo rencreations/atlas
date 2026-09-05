@@ -7,6 +7,7 @@ import { getStoredSession } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { ChannelList } from '@/components/chat/channel-list';
 import { cn } from '@/lib/utils';
+import { RemoteAudioRenderer } from './remote-audio-renderer';
 import { VoiceChatThreadPanel } from './voice-chat-thread-panel';
 import { VoiceRoom } from './voice-room';
 
@@ -33,7 +34,8 @@ export function VoiceLobbyLayout({ channelId, channelName, channelTopic }: Props
   }, []);
 
   return (
-    <div className="flex h-full min-h-0">
+    <div className="flex h-full min-h-0 min-w-0 flex-1">
+      <RemoteAudioRenderer />
       <ChannelList
         scope={{ kind: 'global' }}
         activeChannelId={channelId}
