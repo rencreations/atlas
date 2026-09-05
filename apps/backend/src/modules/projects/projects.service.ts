@@ -225,6 +225,31 @@ export class ProjectsService {
     return { deleted: true };
   }
 
+  /**
+   * Remove the caller's own membership. Blocked when they're the last
+   * PROJECT_MANAGER, someone has to keep the project manageable.
+   */
+  async leave(projectId: string, userId: string) {
+    const membership = await this.prisma.projectMember.findUnique({
+      where: { projectId_userId: { projectId, userId } },
+    });
+    if (!membership) return { left: true };
+
+    if (membership.role === 'PROJECT_MANAGER') {
+      const otherManagers = await this.prisma.projectMember.count({
+        where: { projectId, role: 'PROJECT_MANAGER', userId: { not: userId } },
+      });
+      if (otherManagers === 0) {
+        throw new BadRequestException(
+          'Assign another Project Manager before leaving, someone has to manage this project.',
+        );
+      }
+    }
+
+    await this.prisma.projectMember.delete({ where: { id: membership.id } });
+    return { left: true };
+  }
+
   // ─── Helpers ───────────────────────────────────────────────────────────
 
   private visibilityClause(user: AuthenticatedUser): Prisma.ProjectWhereInput {

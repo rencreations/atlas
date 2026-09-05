@@ -67,6 +67,14 @@ export class ProjectsController {
     return this.projects.findOne(projectId, access, user.id);
   }
 
+  @Post(':slug/leave')
+  @ApiOperation({ summary: 'Leave a project (removes your own membership)' })
+  async leave(@CurrentUser() user: AuthenticatedUser, @Param('slug') slug: string) {
+    const { projectId, access } = await this.access.resolve(slug, user);
+    this.access.assertInsider(access);
+    return this.projects.leave(projectId, user.id);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: "Update a project's details (managers/admins only)" })
   async update(

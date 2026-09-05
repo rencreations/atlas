@@ -312,9 +312,18 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       const screenPub = p.getTrackPublication(Track.Source.ScreenShare);
       const screenAudioPub = p.getTrackPublication(Track.Source.ScreenShareAudio);
 
-      const cameraTrack = pickPublicationVideoTrack(camPub);
-      const screenShareTrack = pickPublicationVideoTrack(screenPub);
+      const rawCameraTrack = pickPublicationVideoTrack(camPub);
+      const rawScreenShareTrack = pickPublicationVideoTrack(screenPub);
       const screenShareAudioTrack = pickPublicationAudioTrack(screenAudioPub);
+
+      // LiveKit's setCameraEnabled(false) only mutes the existing
+      // publication (stops the MediaStreamTrack but keeps the track
+      // object attached) rather than unpublishing it, so a raw
+      // presence check stays true forever after the camera has been
+      // turned on once. Null the track out here, at the single source
+      // every consumer reads from, whenever it's actually disabled.
+      const isCameraEnabled = !!rawCameraTrack && !(camPub?.isMuted ?? true);
+      const isScreenSharing = !!rawScreenShareTrack && !(screenPub?.isMuted ?? true);
 
       return {
         identity: p.identity,
@@ -324,10 +333,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         isSpeaking: p.isSpeaking,
         audioLevel: p.audioLevel,
         isMuted: p.isMicrophoneEnabled === false,
-        isCameraEnabled: !!cameraTrack && !(camPub?.isMuted ?? true),
-        isScreenSharing: !!screenShareTrack && !(screenPub?.isMuted ?? true),
-        cameraTrack,
-        screenShareTrack,
+        isCameraEnabled,
+        isScreenSharing,
+        cameraTrack: isCameraEnabled ? rawCameraTrack : null,
+        screenShareTrack: isScreenSharing ? rawScreenShareTrack : null,
         screenShareAudioTrack,
       };
     },

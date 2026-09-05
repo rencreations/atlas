@@ -82,6 +82,16 @@ export class ChatGlobalController {
     return channel;
   }
 
+  @Patch('mute')
+  @ApiOperation({ summary: "Mute or unmute the workspace chat's notifications for yourself" })
+  async setMuted(@CurrentUser() user: AuthenticatedUser, @Body() body: { muted: boolean }) {
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { workspaceChatMuted: !!body.muted },
+    });
+    return { muted: !!body.muted };
+  }
+
   /**
    * @mention autocomplete for global channels. Everyone can read/write
    * them, so the candidate pool is the whole user base (vs the

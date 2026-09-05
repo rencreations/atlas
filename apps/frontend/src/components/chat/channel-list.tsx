@@ -11,6 +11,7 @@ import { getStoredSession } from '@/lib/auth-client';
 import { channelHref, type ChatScope } from '@/lib/chat/scope';
 import { useChatOverview } from '@/lib/chat/use-chat-overview';
 import { chatAvatarFor } from '@/lib/chat/avatar';
+import { ServerSettingsMenuButton } from './server-settings-menu';
 import { useVoiceEnabled } from '@/lib/hooks/use-voice-enabled';
 import { getVoiceSocket } from '@/lib/realtime/socket';
 import { Button } from '@/components/ui/button';
@@ -123,7 +124,7 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
 
   return (
     <>
-      <div className="flex items-center gap-2 border-b border-line px-4 pb-4 pt-3">
+      <div className="flex items-center gap-2 border-b border-line px-4 py-3">
         <ServerAvatarTile
           emoji={workspaceAvatar.emoji}
           color={workspaceAvatar.color}
@@ -133,14 +134,21 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
           <Globe className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
           <span className="truncate">Workspace</span>
         </span>
+        <ServerSettingsMenuButton scope={{ kind: 'global' }} isAdmin={isAdmin} isManager={false} />
+      </div>
+
+      <div className="flex items-center justify-between px-4 pb-1 pt-3">
+        <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
+          Channels
+        </span>
         {isAdmin ? <CreateChannelButton scope={{ kind: 'global' }} /> : null}
       </div>
 
-      {/* Everything below the header scrolls internally so a long
+      {/* Everything below the headers scrolls internally so a long
           channel/voice-lobby list never silently overflows the sidebar
-          (the header row above stays put, matching ProjectSection). */}
+          (the header rows above stay put, matching ProjectSection). */}
       <nav className="scroll-hidden flex-1 overflow-y-auto pb-3">
-        <ul className="space-y-0.5 px-2 pt-3">
+        <ul className="space-y-0.5 px-2">
           {globalChannelsQuery.isLoading ? (
             <li className="space-y-0.5">
               <div className="h-8 animate-pulse rounded bg-surface-muted" />
@@ -170,30 +178,40 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
           )}
         </ul>
         {voiceEnabled ? (
-          lobbyQuery.isLoading ? (
-            <ul className="mt-0.5 space-y-0.5 px-2">
-              <li className="h-8 animate-pulse rounded bg-surface-muted" />
-            </ul>
-          ) : lobbyQuery.isError ? (
-            <div className="mt-0.5 px-3 py-1.5 text-[12px] text-brand-red">
-              Couldn&apos;t load voice channels.{' '}
-              <button
-                type="button"
-                className="underline underline-offset-2"
-                onClick={() => void lobbyQuery.refetch()}
-              >
-                Try again
-              </button>
+          <>
+            <div className="mt-4 flex items-center justify-between gap-2 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
+              <span>Voice</span>
+              {isAdmin ? <CreateVoiceChannelButton label="New lobby voice channel" /> : null}
             </div>
-          ) : lobbyChannels.length > 0 ? (
-            <ul className="mt-0.5 space-y-0.5 px-2">
-              {lobbyChannels.map((c) => (
-                <li key={c.id}>
-                  <VoiceChannelRow channel={c} href={`/voice/${c.id}`} canManage={isAdmin} />
-                </li>
-              ))}
-            </ul>
-          ) : null
+            {lobbyQuery.isLoading ? (
+              <ul className="mt-1 space-y-0.5 px-2">
+                <li className="h-8 animate-pulse rounded bg-surface-muted" />
+              </ul>
+            ) : lobbyQuery.isError ? (
+              <div className="mt-1 px-2 py-1.5 text-[12px] text-brand-red">
+                Couldn&apos;t load voice channels.{' '}
+                <button
+                  type="button"
+                  className="underline underline-offset-2"
+                  onClick={() => void lobbyQuery.refetch()}
+                >
+                  Try again
+                </button>
+              </div>
+            ) : lobbyChannels.length > 0 ? (
+              <ul className="mt-1 space-y-0.5 px-2">
+                {lobbyChannels.map((c) => (
+                  <li key={c.id}>
+                    <VoiceChannelRow channel={c} href={`/voice/${c.id}`} canManage={isAdmin} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="mt-1 px-2 py-1.5 text-[11px] text-ink-3">
+                {isAdmin ? 'No voice channels yet. Click + to add one.' : 'No voice channels yet.'}
+              </div>
+            )}
+          </>
         ) : null}
       </nav>
     </>
@@ -279,7 +297,14 @@ function ProjectSection({
         </div>
         <div className="mt-1.5 flex items-center gap-2.5">
           <ProjectAvatarTile projectSlug={projectSlug} />
-          <div className="min-w-0 truncate text-[14px] font-semibold text-ink">{projectTitle}</div>
+          <div className="min-w-0 flex-1 truncate text-[14px] font-semibold text-ink">
+            {projectTitle}
+          </div>
+          <ServerSettingsMenuButton
+            scope={{ kind: 'project', slug: projectSlug }}
+            isAdmin={false}
+            isManager={canManage}
+          />
         </div>
       </div>
 

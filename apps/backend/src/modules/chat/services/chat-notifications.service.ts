@@ -96,17 +96,38 @@ export class ChatNotificationsService {
     mentionIds: string[],
     authorId: string,
   ) {
-    if (mentionIds.length === 0) return [];
-    // Only notify mentioned users who actually have access to the channel.
-    // Project channels: admins always have access; non-admins must be a
-    // member. Global channels: every authenticated user has access.
-    return this.prisma.user.findMany({
-      where: {
-        id: { in: mentionIds.filter((id) => id !== authorId) },
-        ...(projectId ? { OR: [{ isAdmin: true }, { memberships: { some: { projectId } } }] } : {}),
-      },
-      select: { id: true, name: true, email: true },
+    const ids = mentionIds.filter((id) => id !== authorId);
+    if (ids.length === 0) return [];
+
+    // Only notify mentioned users who actually have access to the channel
+    // AND haven't muted this scope's chat notifications. Project channels:
+    // admins always have access; non-admins must be a member. Global
+    // channels: every authenticated user has access.
+    if (projectId) {
+      const candidates = await this.prisma.user.findMany({
+        where: {
+          id: { in: ids },
+          OR: [{ isAdmin: true }, { memberships: { some: { projectId } } }],
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          memberships: { where: { projectId }, select: { chatMuted: true } },
+        },
+      });
+      return candidates
+        .filter((u) => !u.memberships[0]?.chatMuted)
+        .map(({ id, name, email }) => ({ id, name, email }));
+    }
+
+    const candidates = await this.prisma.user.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, email: true, workspaceChatMuted: true },
     });
+    return candidates
+      .filter((u) => !u.workspaceChatMuted)
+      .map(({ id, name, email }) => ({ id, name, email }));
   }
 
   private preview(markdown: string): string {

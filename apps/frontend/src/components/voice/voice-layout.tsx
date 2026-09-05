@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
-import { ArrowLeft, CircleDot, MessageSquare, Volume2 } from 'lucide-react';
+import { CircleDot, MessageSquare, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChannelList } from '@/components/chat/channel-list';
 import { getStoredSession } from '@/lib/auth-client';
@@ -62,15 +61,6 @@ export function VoiceLayout({
 
       <section className="flex min-w-0 flex-1 flex-col bg-surface">
         <header className="flex items-center gap-3 border-b border-line px-6 py-3">
-          <Link
-            href={`/projects/${projectSlug}` as never}
-            className="inline-flex items-center gap-1 text-[12px] text-ink-3 hover:text-ink"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
-            Project
-          </Link>
-
-          <div className="h-4 w-px bg-line" />
           <Volume2 className="h-4 w-4 text-ink-3" strokeWidth={2.25} />
           <h1 className="text-[15px] font-semibold text-ink">{channelName}</h1>
           {isRecordingHere ? (

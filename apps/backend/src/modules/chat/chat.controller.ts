@@ -11,6 +11,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
+import { PrismaService } from '@/prisma/prisma.service';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -35,6 +36,7 @@ import { ChatRealtimePublisher } from './services/chat-realtime.publisher';
 export class ChatController {
   constructor(
     private readonly access: ProjectAccessService,
+    private readonly prisma: PrismaService,
     private readonly channels: ChatChannelsService,
     private readonly messages: ChatMessagesService,
     private readonly pins: ChatPinsService,
@@ -111,6 +113,26 @@ export class ChatController {
     const channel = await this.channels.unarchive(channelId);
     this.realtime.channelUpdated(projectId, channel);
     return channel;
+  }
+
+  @Patch('mute')
+  @ApiOperation({ summary: "Mute or unmute this project's chat notifications for yourself" })
+  async setMuted(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('slugOrId') slugOrId: string,
+    @Body() body: { muted: boolean },
+  ) {
+    const { projectId, access } = await this.access.resolve(slugOrId, user);
+    this.access.assertInsider(access);
+    // Admins viewing a project they aren't actually a member of have no
+    // ProjectMember row to persist the flag against; nothing to mute.
+    if (access.membership) {
+      await this.prisma.projectMember.update({
+        where: { projectId_userId: { projectId, userId: user.id } },
+        data: { chatMuted: !!body.muted },
+      });
+    }
+    return { muted: !!body.muted };
   }
 
   // ─── Messages ────────────────────────────────────────────────────────

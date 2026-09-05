@@ -441,12 +441,18 @@ export interface ChatProjectOverview {
   updatedAt: string;
   channels: ChatProjectOverviewChannel[];
   unread: number;
+  /** Project Manager (or instance admin). Optional: older backends omit it. */
+  isManager?: boolean;
+  /** Personal mute of this project's chat notifications. */
+  chatMuted?: boolean;
 }
 
 export interface ChatWorkspaceOverview {
   channels: ChatProjectOverviewChannel[];
   unread: number;
   avatar?: ChatAvatarInfo | null;
+  /** Personal mute of the workspace chat's notifications. */
+  chatMuted?: boolean;
 }
 
 export interface ChatOverviewPayload {

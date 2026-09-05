@@ -177,6 +177,8 @@ model User {
   /// Godmode session id of the operator who suspended the account.
   suspendedById     String?
   lastLoginAt       DateTime?
+  /// Personal mute of the workspace-global channels' notifications.
+  workspaceChatMuted Boolean  @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -360,6 +362,8 @@ model ProjectMember {
   role      ProjectRole
   /// The collaboration role (Frontend Engineer, etc.) the user holds on this project.
   title     String?
+  /// Personal mute of this project's chat notifications.
+  chatMuted Boolean     @default(false)
   joinedAt  DateTime    @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)

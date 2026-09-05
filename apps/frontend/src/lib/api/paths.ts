@@ -121,6 +121,7 @@ export const apiPaths = {
   project: (slug: string) => `/projects/${slug}`,
   archiveProject: (id: string) => `/projects/${id}/archive`,
   unarchiveProject: (id: string) => `/projects/${id}/unarchive`,
+  leaveProject: (slugOrId: string) => `/projects/${slugOrId}/leave`,
 
   presignMedia: (projectId: string) => `/projects/${projectId}/media/presign`,
   registerMedia: (projectId: string) => `/projects/${projectId}/media`,
@@ -171,6 +172,8 @@ export const apiPaths = {
     unarchiveGlobalChannel: (channelId: string) =>
       `/chat/global/channels/${channelId}/unarchive`,
     globalMembers: (q?: string) => `/chat/global/members${q ? `?q=${encodeURIComponent(q)}` : ''}`,
+    muteWorkspace: () => '/chat/global/mute',
+    muteProject: (projectSlugOrId: string) => `/projects/${projectSlugOrId}/chat/mute`,
     // Channel-id-keyed routes, work for any channel the caller can
     // access (global channels, lobby voice threads, project channels).
     channelMessages: (channelId: string, cursor?: string, limit?: number) => {

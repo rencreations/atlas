@@ -9,6 +9,7 @@ import { useChatOverview } from '@/lib/chat/use-chat-overview';
 import { chatAvatarFor, chatAvatarKey } from '@/lib/chat/avatar';
 import { getStoredSession } from '@/lib/auth-client';
 import { ChatAvatarEditPopover } from './chat-avatar-edit-popover';
+import { ServerContextMenu } from './server-settings-menu';
 import { cn } from '@/lib/utils';
 import type { ChatAvatarInfo } from '@/lib/types';
 
@@ -52,18 +53,20 @@ export function ChatRail() {
           ))
         ) : (
           <>
-            <RailTile
-              href={workspaceChannelId ? `/chat/global/${workspaceChannelId}` : '/chat'}
-              active={isWorkspaceActive}
-              label="Workspace"
-              unread={workspace?.unread ?? 0}
-              avatar={chatAvatarFor('workspace', workspace?.avatar)}
-              editable={
-                isAdmin
-                  ? { avatarKey: chatAvatarKey('workspace'), seed: 'workspace', avatar: workspace?.avatar }
-                  : undefined
-              }
-            />
+            <ServerContextMenu scope={{ kind: 'global' }} isAdmin={isAdmin} isManager={false}>
+              <RailTile
+                href={workspaceChannelId ? `/chat/global/${workspaceChannelId}` : '/chat'}
+                active={isWorkspaceActive}
+                label="Workspace"
+                unread={workspace?.unread ?? 0}
+                avatar={chatAvatarFor('workspace', workspace?.avatar)}
+                editable={
+                  isAdmin
+                    ? { avatarKey: chatAvatarKey('workspace'), seed: 'workspace', avatar: workspace?.avatar }
+                    : undefined
+                }
+              />
+            </ServerContextMenu>
 
             {projects.length > 0 ? <div className="h-px w-8 shrink-0 bg-line" /> : null}
 
@@ -73,19 +76,25 @@ export function ChatRail() {
                 ? channelHref({ kind: 'project', slug: p.slug }, channelId)
                 : `/projects/${p.slug}/chat`;
               return (
-                <RailTile
+                <ServerContextMenu
                   key={p.id}
-                  href={href}
-                  active={activeProjectSlug === p.slug}
-                  label={p.title}
-                  unread={p.unread}
-                  avatar={chatAvatarFor(p.slug, p.avatar)}
-                  editable={
-                    isAdmin
-                      ? { avatarKey: chatAvatarKey('project', p.id), seed: p.slug, avatar: p.avatar }
-                      : undefined
-                  }
-                />
+                  scope={{ kind: 'project', slug: p.slug }}
+                  isAdmin={isAdmin}
+                  isManager={p.isManager ?? false}
+                >
+                  <RailTile
+                    href={href}
+                    active={activeProjectSlug === p.slug}
+                    label={p.title}
+                    unread={p.unread}
+                    avatar={chatAvatarFor(p.slug, p.avatar)}
+                    editable={
+                      isAdmin
+                        ? { avatarKey: chatAvatarKey('project', p.id), seed: p.slug, avatar: p.avatar }
+                        : undefined
+                    }
+                  />
+                </ServerContextMenu>
               );
             })}
           </>

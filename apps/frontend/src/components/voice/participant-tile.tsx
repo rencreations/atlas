@@ -64,12 +64,16 @@ export function ParticipantTile({
   const showTrack = large && screenShareTrack ? screenShareTrack : cameraTrack;
   const hasVideo = !!showTrack;
 
-  // Attach video track.
+  // Attach video track. The element is captured up front (not re-read
+  // from the ref in the cleanup) and detach is scoped to that specific
+  // element, so this tile's cleanup can never strip the track off a
+  // different tile that's also showing the same participant.
   useEffect(() => {
-    if (!showTrack || !videoRef.current) return;
-    showTrack.attach(videoRef.current);
+    const el = videoRef.current;
+    if (!showTrack || !el) return;
+    showTrack.attach(el);
     return () => {
-      showTrack.detach();
+      showTrack.detach(el);
     };
   }, [showTrack]);
 

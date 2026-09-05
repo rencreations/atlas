@@ -34,6 +34,10 @@ export class ChatOverviewService {
         title: true,
         thumbnailUrl: true,
         updatedAt: true,
+        members: {
+          where: { userId: user.id },
+          select: { role: true, chatMuted: true },
+        },
         chatChannels: {
           // isVoiceThread channels are voice-channel-paired threads and
           // are never user-facing in chat lists (see ChatChannelsService.list).
@@ -88,6 +92,7 @@ export class ChatOverviewService {
             }),
           );
           const totalUnread = channels.reduce((sum, ch) => sum + ch.unread, 0);
+          const membership = p.members[0];
           return {
             id: p.id,
             slug: p.slug,
@@ -97,6 +102,8 @@ export class ChatOverviewService {
             updatedAt: p.updatedAt,
             channels,
             unread: totalUnread,
+            isManager: user.isAdmin || membership?.role === 'PROJECT_MANAGER',
+            chatMuted: membership?.chatMuted ?? false,
           };
         }),
     );
@@ -115,6 +122,10 @@ export class ChatOverviewService {
   private async workspaceOverview(user: AuthenticatedUser) {
     await this.channels.ensureGlobalGeneral(user.id);
     const workspaceAvatar = await this.avatars.get(this.avatars.workspaceKey);
+    const me = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      select: { workspaceChatMuted: true },
+    });
     const rows = await this.prisma.chatChannel.findMany({
       where: { projectId: null, isVoiceThread: false, isArchived: false },
       orderBy: [{ isGeneral: 'desc' }, { createdAt: 'asc' }],
@@ -157,6 +168,7 @@ export class ChatOverviewService {
       channels,
       unread: channels.reduce((sum, ch) => sum + ch.unread, 0),
       avatar: workspaceAvatar,
+      chatMuted: me?.workspaceChatMuted ?? false,
     };
   }
 }
