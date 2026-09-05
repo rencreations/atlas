@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CircleDot, MessageSquare, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChannelList } from '@/components/chat/channel-list';
@@ -37,11 +38,17 @@ export function VoiceLayout({
   channelTopic,
   isManager,
 }: Props) {
-  // Default open on wide viewports; closed on narrow ones.
-  const [chatOpen, setChatOpen] = React.useState(false);
+  // Default open on wide viewports; closed on narrow ones. A `?chat=1`
+  // link (the floating widget's "Open chat" button) forces it open
+  // regardless of viewport width.
+  const searchParams = useSearchParams();
+  const forceChatOpen = searchParams.get('chat') === '1';
+  const [chatOpen, setChatOpen] = React.useState(forceChatOpen);
   React.useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (forceChatOpen || typeof window === 'undefined') return;
     setChatOpen(window.innerWidth >= 1024);
+    // Only meant to set the initial default once per page load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const session = getStoredSession();

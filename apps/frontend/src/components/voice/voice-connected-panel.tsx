@@ -8,9 +8,14 @@ import {
   ChevronDown,
   ChevronUp,
   CircleDot,
+  HeadphoneOff,
+  Headphones,
   Loader2,
+  MessageSquare,
   Mic,
   MicOff,
+  MonitorOff,
+  MonitorUp,
   PhoneOff,
   Users,
   Video,
@@ -185,6 +190,23 @@ export function VoiceConnectedPanel() {
           </TooltipTrigger>
           <TooltipContent>Open call</TooltipContent>
         </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (voiceHref) router.push(`${voiceHref}?chat=1` as never);
+              }}
+              disabled={!voiceHref}
+              aria-label="Open voice chat"
+            >
+              <MessageSquare className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Open chat</TooltipContent>
+        </Tooltip>
         <Button
           variant="ghost"
           size="icon-sm"
@@ -220,12 +242,12 @@ export function VoiceConnectedPanel() {
         </div>
       ) : null}
 
-      <div className="flex items-center justify-between gap-2 px-3 py-2">
+      <div className="flex items-center justify-center gap-1 px-2 py-2">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               onClick={() => void actions.toggleMute()}
               disabled={state.connectionState !== 'connected'}
               aria-label={state.micMuted ? 'Unmute microphone' : 'Mute microphone'}
@@ -243,7 +265,7 @@ export function VoiceConnectedPanel() {
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               onClick={() => void actions.toggleCamera()}
               disabled={state.connectionState !== 'connected'}
               aria-label={state.cameraEnabled ? 'Turn camera off' : 'Turn camera on'}
@@ -261,7 +283,43 @@ export function VoiceConnectedPanel() {
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
+              onClick={() => void actions.toggleScreenShare()}
+              disabled={state.connectionState !== 'connected'}
+              aria-label={state.screenSharing ? 'Stop sharing' : 'Share screen'}
+            >
+              {state.screenSharing ? (
+                <MonitorOff className="h-4 w-4 text-brand-blue" strokeWidth={2.25} />
+              ) : (
+                <MonitorUp className="h-4 w-4" strokeWidth={2.25} />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{state.screenSharing ? 'Stop sharing' : 'Share screen'}</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => void actions.toggleDeafen()}
+              disabled={state.connectionState !== 'connected'}
+              aria-label={state.deafened ? 'Undeafen' : 'Deafen'}
+            >
+              {state.deafened ? (
+                <HeadphoneOff className="h-4 w-4 text-brand-red" strokeWidth={2.25} />
+              ) : (
+                <Headphones className="h-4 w-4" strokeWidth={2.25} />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{state.deafened ? 'Undeafen' : 'Deafen'}</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
               onClick={() => void actions.leaveChannel()}
               aria-label="Disconnect from voice"
             >
