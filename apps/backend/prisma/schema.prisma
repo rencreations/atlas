@@ -1349,6 +1349,10 @@ model VoiceUserPreferences {
   cameraDeviceId String?
   outputDeviceId String?
 
+  /// Mirror your own camera preview (feels like a mirror). Never affects
+  /// what other participants see, only your own self-view. On by default.
+  mirrorSelfView Boolean @default(true)
+
   /// 0-200 (100 = unity). Applied client-side: mic via gain node, output via track setVolume.
   micVolume    Int @default(100)
   outputVolume Int @default(100)

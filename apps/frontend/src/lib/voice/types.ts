@@ -100,6 +100,8 @@ export interface VoiceUserPreferences {
   micDeviceId: string | null;
   cameraDeviceId: string | null;
   outputDeviceId: string | null;
+  /** Mirror your own camera preview. Never affects what others see. Defaults true. */
+  mirrorSelfView: boolean;
   micVolume: number;
   outputVolume: number;
   shortcutMute: string | null;

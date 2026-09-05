@@ -104,6 +104,15 @@ export interface VoiceState {
   projectId: string | null;
   /** Project slug, when this is a project-scoped call (null for the workspace lobby). */
   projectSlug: string | null;
+  /**
+   * The connected Room's own identity (room.localParticipant.identity),
+   * set once per successful connect. Belt-and-suspenders guard against
+   * ever playing your own mic back to you: consumers should treat any
+   * participant whose identity matches this as "self" even in the
+   * (should-never-happen) case a stale/duplicate entry for your own
+   * identity ends up read as a remote participant.
+   */
+  localIdentity: string | null;
   participants: Map<string, VoiceParticipantView>;
   micMuted: boolean;
   cameraEnabled: boolean;
@@ -233,6 +242,7 @@ const initialState: VoiceState = {
   channelName: null,
   projectId: null,
   projectSlug: null,
+  localIdentity: null,
   participants: new Map(),
   micMuted: false,
   cameraEnabled: false,
@@ -465,6 +475,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         channelId,
         projectId: opts?.projectId ?? null,
         projectSlug: opts?.projectSlug ?? null,
+        localIdentity: null,
         channelName: null,
         error: null,
         participants: new Map(),
@@ -612,6 +623,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         stageRole: joinRole,
         handRaised: false,
         micMuted: !startWithMicOn,
+        localIdentity: room.localParticipant.identity,
       });
       refreshParticipants(room);
       void refreshDevices();
@@ -1307,7 +1319,11 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           await room.connect(payload.url, payload.token);
           const startWithMicOn = (prefs?.inputMode ?? 'VOICE_ACTIVITY') !== 'PUSH_TO_TALK';
           await room.localParticipant.setMicrophoneEnabled(startWithMicOn);
-          patch({ connectionState: 'connected', micMuted: !startWithMicOn });
+          patch({
+            connectionState: 'connected',
+            micMuted: !startWithMicOn,
+            localIdentity: room.localParticipant.identity,
+          });
         } catch (err) {
           roomRef.current = null;
           patch({ connectionState: 'error', error: (err as Error).message ?? 'Move failed.' });

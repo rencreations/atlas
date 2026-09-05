@@ -59,6 +59,12 @@ export function ParticipantTile({
   const [menuAnchor, setMenuAnchor] = useState<{ x: number; y: number } | null>(null);
   const isLocallyMuted = state.localMuted.has(participant.identity);
 
+  // Belt-and-suspenders "is this me": the computed isLocal flag AND an
+  // identity match against the connected Room's own identity, so your own
+  // mic/screen-share audio can never end up played back to you even if a
+  // stale/duplicate entry for your identity were ever read as remote.
+  const isSelf = isLocal || participant.identity === state.localIdentity;
+
   // Which video track this tile should show. Big tile prefers screen-share;
   // small tile prefers camera (so the row stays "who" not "what they show").
   const showTrack = large && screenShareTrack ? screenShareTrack : cameraTrack;
@@ -67,26 +73,31 @@ export function ParticipantTile({
   // Attach video track. The element is captured up front (not re-read
   // from the ref in the cleanup) and detach is scoped to that specific
   // element, so this tile's cleanup can never strip the track off a
-  // different tile that's also showing the same participant.
+  // different tile that's also showing the same participant. `muted` is
+  // also set imperatively (not just via the JSX prop below) - React's
+  // handling of the `muted` attribute on media elements is unreliable
+  // when combined with `autoPlay`, and this is the one element where
+  // getting that wrong means hearing your own voice.
   useEffect(() => {
     const el = videoRef.current;
     if (!showTrack || !el) return;
+    el.muted = isSelf;
     showTrack.attach(el);
     return () => {
       showTrack.detach(el);
     };
-  }, [showTrack]);
+  }, [showTrack, isSelf]);
 
   // Attach screen-share audio (Chromium "Share tab audio") to a hidden
   // <audio> element when the BIG tile is showing this person sharing.
-  // Skip when local (don't echo our own captured audio) or deafened.
+  // Skip for ourselves (don't echo our own captured audio) or deafened.
   useEffect(() => {
-    if (!screenShareAudioTrack || !screenAudioRef.current || isLocal || state.deafened) return;
+    if (!screenShareAudioTrack || !screenAudioRef.current || isSelf || state.deafened) return;
     screenShareAudioTrack.attach(screenAudioRef.current);
     return () => {
       screenShareAudioTrack.detach();
     };
-  }, [screenShareAudioTrack, isLocal, state.deafened]);
+  }, [screenShareAudioTrack, isSelf, state.deafened]);
 
   const halo = !isMuted && isSpeaking && !hasVideo
     ? Math.min(audioLevel * 24 + 4, 28)
@@ -97,6 +108,7 @@ export function ParticipantTile({
   // by letterboxing instead of cropping/stretching to fill the tile.
   // Camera keeps cropping to fill, which is the expected look for a face.
   const isShowingScreenShare = hasVideo && showTrack === screenShareTrack;
+  const mirrorSelfView = state.preferences?.mirrorSelfView ?? true;
 
   return (
     <button
@@ -104,7 +116,7 @@ export function ParticipantTile({
       onClick={onClick}
       onContextMenu={(e) => {
         // Tile menu, even non-mods see volume + local-mute + profile.
-        if (isLocal) return; // skip menu on self
+        if (isSelf) return; // skip menu on self
         e.preventDefault();
         setMenuAnchor({ x: e.clientX, y: e.clientY });
         setMenuOpen(true);
@@ -126,13 +138,16 @@ export function ParticipantTile({
         <video
           ref={videoRef}
           autoPlay
-          muted={isLocal}
+          muted={isSelf}
           playsInline
           className={cn(
             'absolute inset-0 h-full w-full',
             isShowingScreenShare ? 'object-contain bg-black' : 'object-cover',
-            // Local camera mirrors so it feels like a mirror image.
-            isLocal && cameraTrack && showTrack === cameraTrack ? 'scale-x-[-1]' : '',
+            // Your own camera mirrors by default (feels like a mirror
+            // image), toggleable in voice settings.
+            isSelf && cameraTrack && showTrack === cameraTrack && mirrorSelfView
+              ? 'scale-x-[-1]'
+              : '',
           )}
         />
       ) : (
@@ -160,7 +175,7 @@ export function ParticipantTile({
       >
         <span className="truncate">
           {name}
-          {isLocal ? <span className="ml-1 opacity-70 text-xs">(you)</span> : null}
+          {isSelf ? <span className="ml-1 opacity-70 text-xs">(you)</span> : null}
         </span>
         <div className="flex shrink-0 items-center gap-1">
           {isScreenSharing ? (
@@ -189,7 +204,7 @@ export function ParticipantTile({
           ) : null}
         </div>
       </div>
-      {!isLocal ? (
+      {!isSelf ? (
         <ParticipantMenu
           participant={participant}
           open={menuOpen}

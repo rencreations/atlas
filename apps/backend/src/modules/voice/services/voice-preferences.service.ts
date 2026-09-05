@@ -37,6 +37,7 @@ export class VoicePreferencesService {
     if (dto.micDeviceId !== undefined) data.micDeviceId = dto.micDeviceId || null;
     if (dto.cameraDeviceId !== undefined) data.cameraDeviceId = dto.cameraDeviceId || null;
     if (dto.outputDeviceId !== undefined) data.outputDeviceId = dto.outputDeviceId || null;
+    if (dto.mirrorSelfView !== undefined) data.mirrorSelfView = dto.mirrorSelfView;
     if (dto.micVolume !== undefined) data.micVolume = dto.micVolume;
     if (dto.outputVolume !== undefined) data.outputVolume = dto.outputVolume;
     if (dto.shortcutMute !== undefined) data.shortcutMute = dto.shortcutMute || null;
@@ -60,6 +61,7 @@ export class VoicePreferencesService {
         ...(dto.micDeviceId !== undefined ? { micDeviceId: dto.micDeviceId || null } : {}),
         ...(dto.cameraDeviceId !== undefined ? { cameraDeviceId: dto.cameraDeviceId || null } : {}),
         ...(dto.outputDeviceId !== undefined ? { outputDeviceId: dto.outputDeviceId || null } : {}),
+        ...(dto.mirrorSelfView !== undefined ? { mirrorSelfView: dto.mirrorSelfView } : {}),
         ...(dto.micVolume !== undefined ? { micVolume: dto.micVolume } : {}),
         ...(dto.outputVolume !== undefined ? { outputVolume: dto.outputVolume } : {}),
         ...(dto.shortcutMute !== undefined ? { shortcutMute: dto.shortcutMute || null } : {}),

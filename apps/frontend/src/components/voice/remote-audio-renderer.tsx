@@ -11,8 +11,12 @@ import { useVoice } from '@/lib/voice/voice-provider';
  */
 export function RemoteAudioRenderer() {
   const { state } = useVoice();
+  // Belt-and-suspenders: exclude both by the computed isLocal flag AND by
+  // identity match against the connected Room's own identity, so your own
+  // mic can never end up played back to you even if a stale/duplicate
+  // entry for your identity were ever read as a remote participant.
   const participants = Array.from(state.participants.values()).filter(
-    (p) => !p.isLocal && p.micTrack,
+    (p) => !p.isLocal && p.identity !== state.localIdentity && p.micTrack,
   );
 
   return (

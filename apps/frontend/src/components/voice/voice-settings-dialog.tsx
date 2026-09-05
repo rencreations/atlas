@@ -241,6 +241,13 @@ function DevicesSection() {
         </Select>
       </div>
 
+      <ToggleRow
+        label="Mirror my video"
+        description="Show your own camera preview mirrored, like looking in a mirror. Never affects what others see."
+        value={prefs.mirrorSelfView}
+        onChange={(v) => void actions.updatePreferences({ mirrorSelfView: v })}
+      />
+
       <div className="space-y-1.5">
         <Label htmlFor="voice-output">Speakers (output)</Label>
         <Select

@@ -4,7 +4,7 @@ import { MicOff } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { Avatar } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import type { VoiceParticipantView } from '@/lib/voice/voice-provider';
+import { useVoice, type VoiceParticipantView } from '@/lib/voice/voice-provider';
 
 /**
  * Deliberately minimal participant preview for the floating voice widget:
@@ -15,17 +15,27 @@ import type { VoiceParticipantView } from '@/lib/voice/voice-provider';
  */
 export function VoiceWidgetTile({ participant }: { participant: VoiceParticipantView }) {
   const { name, avatarUrl, isMuted, isSpeaking, isLocal, cameraTrack } = participant;
+  const { state } = useVoice();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hasVideo = !!cameraTrack;
+
+  // Belt-and-suspenders "is this me" (see participant-tile.tsx for why).
+  const isSelf = isLocal || participant.identity === state.localIdentity;
+  const mirrorSelfView = state.preferences?.mirrorSelfView ?? true;
 
   useEffect(() => {
     const el = videoRef.current;
     if (!cameraTrack || !el) return;
+    // Set imperatively, not just via the JSX `muted` prop below - React's
+    // handling of `muted` on media elements combined with `autoPlay` is
+    // unreliable, and this is the one element where getting that wrong
+    // means hearing your own voice.
+    el.muted = isSelf;
     cameraTrack.attach(el);
     return () => {
       cameraTrack.detach(el);
     };
-  }, [cameraTrack]);
+  }, [cameraTrack, isSelf]);
 
   return (
     <div
@@ -39,9 +49,9 @@ export function VoiceWidgetTile({ participant }: { participant: VoiceParticipant
         <video
           ref={videoRef}
           autoPlay
-          muted={isLocal}
+          muted={isSelf}
           playsInline
-          className={cn('h-full w-full object-cover', isLocal ? 'scale-x-[-1]' : '')}
+          className={cn('h-full w-full object-cover', isSelf && mirrorSelfView ? 'scale-x-[-1]' : '')}
         />
       ) : (
         <Avatar src={avatarUrl} name={name} size={32} />

@@ -59,6 +59,11 @@ export class UpdateVoicePreferencesDto {
   @MaxLength(256)
   outputDeviceId?: string | null;
 
+  /** Mirror your own camera preview. Never affects what others see. */
+  @IsOptional()
+  @IsBoolean()
+  mirrorSelfView?: boolean;
+
   @IsOptional()
   @IsInt()
   @Min(0)
