@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequirePermissions } from '@/common/decorators/require-permissions.decorator';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
@@ -19,13 +19,10 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ListProjectsDto } from './dto/list-projects.dto';
+import { SetFeaturedDto } from './dto/set-featured.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectAccessService } from './project-access.service';
 import { ProjectsService } from './projects.service';
-
-class SetFeaturedDto {
-  projectIds!: string[];
-}
 
 @ApiBearerAuth()
 @ApiTags('projects')
@@ -37,22 +34,26 @@ export class ProjectsController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'List projects, with search/phase/tag/recruiting filters' })
   list(@CurrentUser() user: AuthenticatedUser, @Query() query: ListProjectsDto) {
     return this.projects.list(user, query);
   }
 
   @Get('featured')
+  @ApiOperation({ summary: 'List admin-pinned featured projects, in display order' })
   featured() {
     return this.projects.listFeatured();
   }
 
   @Post('featured')
+  @ApiOperation({ summary: 'Set the admin-pinned featured project list and order' })
   @UseGuards(AdminGuard)
   setFeatured(@CurrentUser() user: AuthenticatedUser, @Body() dto: SetFeaturedDto) {
     return this.projects.setFeatured(user.id, dto.projectIds ?? []);
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create a new project' })
   @UseGuards(PermissionsGuard)
   @RequirePermissions('projects.create')
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateProjectDto) {
@@ -60,12 +61,14 @@ export class ProjectsController {
   }
 
   @Get(':slug')
+  @ApiOperation({ summary: "Get a project's details by slug" })
   async findOne(@CurrentUser() user: AuthenticatedUser, @Param('slug') slug: string) {
     const { projectId, access } = await this.access.resolve(slug, user);
     return this.projects.findOne(projectId, access, user.id);
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: "Update a project's details (managers/admins only)" })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', ParseUUIDPipe) id: string,
@@ -77,6 +80,7 @@ export class ProjectsController {
   }
 
   @Post(':id/archive')
+  @ApiOperation({ summary: 'Archive a project (managers/admins only)' })
   async archive(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     const { access } = await this.access.resolve(id, user);
     this.access.assertManager(access);
@@ -84,6 +88,7 @@ export class ProjectsController {
   }
 
   @Post(':id/unarchive')
+  @ApiOperation({ summary: 'Unarchive a project (managers/admins only)' })
   async unarchive(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     const { access } = await this.access.resolve(id, user);
     this.access.assertManager(access);
@@ -91,6 +96,7 @@ export class ProjectsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Soft-delete a project (managers/admins only)' })
   async remove(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     const { access } = await this.access.resolve(id, user);
     if (access.level !== 'admin' && access.level !== 'manager') {

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ContributionRequestStatus } from '@prisma/client';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
@@ -18,6 +18,7 @@ export class ContributionsController {
   ) {}
 
   @Post('projects/:slug/contribute')
+  @ApiOperation({ summary: 'Request to join a project as a contributor' })
   submit(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -27,6 +28,7 @@ export class ContributionsController {
   }
 
   @Get('projects/:slug/contributions')
+  @ApiOperation({ summary: 'List contribution requests for a project (managers/admins only)' })
   async listForProject(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -38,16 +40,19 @@ export class ContributionsController {
   }
 
   @Get('contributions/mine')
+  @ApiOperation({ summary: "List the current user's own contribution requests" })
   listMine(@CurrentUser() user: AuthenticatedUser) {
     return this.contributions.listMine(user.id);
   }
 
   @Post('contributions/:id/withdraw')
+  @ApiOperation({ summary: 'Withdraw a pending contribution request' })
   withdraw(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.contributions.withdraw(user, id);
   }
 
   @Post('contributions/:id/approve')
+  @ApiOperation({ summary: 'Approve a contribution request, adding the user to the project' })
   approve(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', ParseUUIDPipe) id: string,
@@ -57,6 +62,7 @@ export class ContributionsController {
   }
 
   @Post('contributions/:id/reject')
+  @ApiOperation({ summary: 'Reject a contribution request' })
   reject(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', ParseUUIDPipe) id: string,

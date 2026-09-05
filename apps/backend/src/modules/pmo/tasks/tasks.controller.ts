@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccess, ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -40,6 +40,7 @@ export class TasksController {
   ) {}
 
   @Get('projects/:slug/task-lists/:listId/tasks')
+  @ApiOperation({ summary: 'List tasks in a task list' })
   async list(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -52,6 +53,7 @@ export class TasksController {
   }
 
   @Get('projects/:slug/tasks/key/:key')
+  @ApiOperation({ summary: 'Get a task by its project key' })
   async getByKey(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -63,6 +65,7 @@ export class TasksController {
   }
 
   @Get('projects/:slug/tasks/:taskId')
+  @ApiOperation({ summary: 'Get a single task' })
   async getOne(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -74,6 +77,7 @@ export class TasksController {
   }
 
   @Get('projects/:slug/tasks/:taskId/activity')
+  @ApiOperation({ summary: 'Get the activity feed of a task' })
   async activity(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -85,6 +89,7 @@ export class TasksController {
   }
 
   @Post('projects/:slug/task-lists/:listId/tasks')
+  @ApiOperation({ summary: 'Create a task in a task list' })
   async create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -97,6 +102,7 @@ export class TasksController {
   }
 
   @Patch('projects/:slug/tasks/:taskId')
+  @ApiOperation({ summary: 'Update a task' })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -109,6 +115,7 @@ export class TasksController {
   }
 
   @Patch('projects/:slug/tasks/:taskId/position')
+  @ApiOperation({ summary: 'Move a task to another status or position' })
   async move(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -121,6 +128,7 @@ export class TasksController {
   }
 
   @Post('projects/:slug/tasks/:taskId/archive')
+  @ApiOperation({ summary: 'Archive a task' })
   async archive(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -132,6 +140,7 @@ export class TasksController {
   }
 
   @Post('projects/:slug/tasks/:taskId/unarchive')
+  @ApiOperation({ summary: 'Unarchive a task' })
   async unarchive(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -143,6 +152,7 @@ export class TasksController {
   }
 
   @Delete('projects/:slug/tasks/:taskId')
+  @ApiOperation({ summary: 'Soft-delete a task' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -156,6 +166,7 @@ export class TasksController {
   // ─── Gantt + dependencies ────────────────────────────────────────
 
   @Get('projects/:slug/task-lists/:listId/gantt')
+  @ApiOperation({ summary: 'Get Gantt chart data for a task list' })
   async gantt(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -167,6 +178,7 @@ export class TasksController {
   }
 
   @Get('projects/:slug/task-lists/:listId/overview')
+  @ApiOperation({ summary: 'Get the overview for a task list' })
   async overview(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -178,6 +190,7 @@ export class TasksController {
   }
 
   @Post('projects/:slug/tasks/:taskId/dependencies')
+  @ApiOperation({ summary: 'Add a dependency to a task' })
   async addDependency(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -190,6 +203,7 @@ export class TasksController {
   }
 
   @Delete('projects/:slug/tasks/:taskId/dependencies/:depId')
+  @ApiOperation({ summary: 'Remove a dependency from a task' })
   async removeDependency(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,

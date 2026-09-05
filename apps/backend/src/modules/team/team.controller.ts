@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '../projects/project-access.service';
@@ -17,6 +17,7 @@ export class TeamController {
   ) {}
 
   @Post('projects/:projectId/invites')
+  @ApiOperation({ summary: 'Invite a user to a project (managers/admins only)' })
   async invite(
     @CurrentUser() user: AuthenticatedUser,
     @Param('projectId', ParseUUIDPipe) projectId: string,
@@ -28,6 +29,7 @@ export class TeamController {
   }
 
   @Delete('projects/:projectId/invites/:inviteId')
+  @ApiOperation({ summary: 'Revoke a pending project invite' })
   async revoke(
     @CurrentUser() user: AuthenticatedUser,
     @Param('projectId', ParseUUIDPipe) projectId: string,
@@ -39,16 +41,19 @@ export class TeamController {
   }
 
   @Post('invites/:id/accept')
+  @ApiOperation({ summary: 'Accept a project invite, joining as a member' })
   accept(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.team.acceptInvite(user, id);
   }
 
   @Post('invites/:id/decline')
+  @ApiOperation({ summary: 'Decline a project invite' })
   decline(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.team.declineInvite(user, id);
   }
 
   @Patch('projects/:projectId/members/:memberId')
+  @ApiOperation({ summary: "Update a project member's role or title" })
   async updateMember(
     @CurrentUser() user: AuthenticatedUser,
     @Param('projectId', ParseUUIDPipe) projectId: string,
@@ -61,6 +66,7 @@ export class TeamController {
   }
 
   @Delete('projects/:projectId/members/:memberId')
+  @ApiOperation({ summary: 'Remove a member from a project' })
   async removeMember(
     @CurrentUser() user: AuthenticatedUser,
     @Param('projectId', ParseUUIDPipe) projectId: string,

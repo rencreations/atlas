@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequirePermissions } from '@/common/decorators/require-permissions.decorator';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -38,6 +38,7 @@ export class AdminController {
   // without breaking that unrelated, non-admin feature.
 
   @Get('users')
+  @ApiOperation({ summary: 'List users with roles and suspension state (admin)' })
   @UseGuards(PermissionsGuard)
   @RequirePermissions('users.view')
   listUsers(
@@ -51,6 +52,7 @@ export class AdminController {
   // ─── RBAC roles (Manager, Admin, etc.), for the users tab's role picker ──
 
   @Get('roles')
+  @ApiOperation({ summary: 'List instance roles for the role picker' })
   @UseGuards(PermissionsGuard)
   @RequirePermissions('roles.manage')
   listInstanceRoles() {
@@ -60,23 +62,27 @@ export class AdminController {
   // ─── Collaboration roles (Frontend Engineer, etc.) ────────────────────
 
   @Get('collaboration-roles')
+  @ApiOperation({ summary: 'List collaboration roles for projects' })
   listRoles() {
     return this.admin.listRoles();
   }
 
   @Post('collaboration-roles')
+  @ApiOperation({ summary: 'Create a collaboration role' })
   @UseGuards(AdminGuard)
   createRole(@Body() dto: CreateCollaborationRoleDto) {
     return this.admin.createRole(dto);
   }
 
   @Patch('collaboration-roles/:id')
+  @ApiOperation({ summary: 'Update a collaboration role' })
   @UseGuards(AdminGuard)
   updateRole(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateCollaborationRoleDto) {
     return this.admin.updateRole(id, dto);
   }
 
   @Delete('collaboration-roles/:id')
+  @ApiOperation({ summary: 'Archive a collaboration role' })
   @UseGuards(AdminGuard)
   archiveRole(@Param('id', ParseUUIDPipe) id: string) {
     return this.admin.archiveRole(id);

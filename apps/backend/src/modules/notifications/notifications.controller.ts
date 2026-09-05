@@ -31,6 +31,7 @@ export class NotificationsController {
   // ─── Bell + inbox (unchanged) ─────────────────────────────────────
 
   @Get()
+  @ApiOperation({ summary: "List the current user's notifications, paginated" })
   list(
     @CurrentUser() user: AuthenticatedUser,
     @Query('page') page?: number,
@@ -40,16 +41,19 @@ export class NotificationsController {
   }
 
   @Get('unread-count')
+  @ApiOperation({ summary: "Get the current user's unread notification count" })
   unread(@CurrentUser() user: AuthenticatedUser) {
     return this.notifications.unreadCount(user.id);
   }
 
   @Patch(':id/read')
+  @ApiOperation({ summary: 'Mark one notification as read' })
   markRead(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.notifications.markRead(user.id, id);
   }
 
   @Post('read-all')
+  @ApiOperation({ summary: 'Mark all notifications as read' })
   markAllRead(@CurrentUser() user: AuthenticatedUser) {
     return this.notifications.markAllRead(user.id);
   }

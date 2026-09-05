@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { UpdateVoicePreferencesDto } from '../dto/update-voice-preferences.dto';
@@ -22,11 +22,13 @@ export class VoicePreferencesController {
   constructor(private readonly preferences: VoicePreferencesService) {}
 
   @Get()
+  @ApiOperation({ summary: "Get the current user's voice preferences" })
   async get(@CurrentUser() user: AuthenticatedUser) {
     return this.preferences.getOrCreate(user.id);
   }
 
   @Patch()
+  @ApiOperation({ summary: "Update the current user's voice preferences" })
   async patch(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateVoicePreferencesDto) {
     return this.preferences.update(user.id, dto);
   }

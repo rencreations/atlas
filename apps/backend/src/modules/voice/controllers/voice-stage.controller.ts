@@ -8,26 +8,14 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { IsOptional, IsUUID } from 'class-validator';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
+import { LowerHandDto, StageActionDto } from '../dto/stage-action.dto';
 import { VoiceFeatureFlagGuard } from '../guards/voice-feature-flag.guard';
 import { VoiceStageService } from '../services/voice-stage.service';
-
-/** Optional targetUserId (mods lowering someone else's hand). */
-class LowerHandDto {
-  @IsOptional()
-  @IsUUID()
-  targetUserId?: string;
-}
-
-class StageActionDto {
-  @IsUUID()
-  participantUserId!: string;
-}
 
 /**
  * Phase 8, stage channel operations:
@@ -49,12 +37,14 @@ export class VoiceStageController {
   ) {}
 
   @Post('hand/raise')
+  @ApiOperation({ summary: 'Raise your hand in a voice channel' })
   async raiseHand(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanRead(channelId, user);
     return this.stage.raiseHand({ channelId, userId: user.id });
   }
 
   @Post('hand/lower')
+  @ApiOperation({ summary: 'Lower a hand in a voice channel' })
   async lowerHand(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -75,6 +65,7 @@ export class VoiceStageController {
   }
 
   @Get('hand/queue')
+  @ApiOperation({ summary: 'List the raised-hand queue for a voice channel' })
   async queue(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanRead(channelId, user);
     const items = await this.stage.listHandQueue(channelId);
@@ -82,6 +73,7 @@ export class VoiceStageController {
   }
 
   @Post('stage/promote')
+  @ApiOperation({ summary: 'Promote a participant onto the stage' })
   async promote(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -96,6 +88,7 @@ export class VoiceStageController {
   }
 
   @Post('stage/demote')
+  @ApiOperation({ summary: 'Remove a participant from the stage' })
   async demote(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,

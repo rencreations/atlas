@@ -21,7 +21,6 @@ async function bootstrap() {
   const port = config.get<number>('app.port', 3000);
   const prefix = config.get<string>('app.globalPrefix', 'api/v1');
   const corsOrigins = config.get<string[]>('app.corsOrigins', []);
-  const isProd = config.get<string>('app.env') === 'production';
 
   app.setGlobalPrefix(prefix);
   // No URI versioning layer: the `api/v1` global prefix already carries
@@ -63,23 +62,51 @@ async function bootstrap() {
   const sub = app.get(REDIS_SUB, { strict: false });
   app.useWebSocketAdapter(new RedisIoAdapter(app, pub, sub));
 
-  if (!isProd) {
-    const swagger = new DocumentBuilder()
-      .setTitle('Atlas API')
-      .setDescription('Project portfolio dashboard for Shirasaka Ren')
-      .setVersion('1.0.0')
-      .addBearerAuth({
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Keycloak-issued access token',
-      })
-      .build();
-    const doc = SwaggerModule.createDocument(app, swagger);
-    SwaggerModule.setup(`${prefix}/docs`, app, doc, {
-      swaggerOptions: { persistAuthorization: true },
-    });
-  }
+  // Always on, in every environment: this is public API reference
+  // documentation, not an internal debug tool, and none of its own
+  // routes bypass the auth guards the underlying endpoints already
+  // enforce - "Try it out" in the UI still needs a real session token.
+  const swagger = new DocumentBuilder()
+    .setTitle('Atlas API')
+    .setDescription(
+      [
+        'REST API for Atlas, a self-hosted project-collaboration platform',
+        '(projects, chat, voice, and project-management tooling).',
+        '',
+        '**Authentication**: send `Authorization: Bearer <sessionId>` on every',
+        'request, where `sessionId` is the opaque session id returned by any',
+        'of the `/auth/login/*` endpoints (password, passphrase, magic link,',
+        'phone OTP, or an OAuth/OIDC/SAML callback) - it is a random session',
+        'identifier, not a JWT. Click "Authorize" below and paste it in.',
+        '',
+        'Godmode (`/godmode/*`) is a separate control plane with its own',
+        '`X-Godmode-Token` header, issued by `POST /godmode/unlock`; it is not',
+        'covered by the Bearer scheme above.',
+      ].join('\n'),
+    )
+    .setVersion('1.0.0')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      description: 'Opaque session id from /auth/login/* (not a JWT).',
+    })
+    .addApiKey(
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-Godmode-Token',
+        description:
+          'Opaque token issued by POST /godmode/unlock (instance passphrase + optional 2FA).',
+      },
+      'godmode-token',
+    )
+    .addTag('health', 'Liveness/readiness probe, unauthenticated')
+    .build();
+  const doc = SwaggerModule.createDocument(app, swagger);
+  SwaggerModule.setup(`${prefix}/docs`, app, doc, {
+    swaggerOptions: { persistAuthorization: true },
+    customSiteTitle: 'Atlas API docs',
+  });
 
   app.enableShutdownHooks();
 

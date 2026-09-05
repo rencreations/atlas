@@ -1,5 +1,5 @@
 import { Controller, Get, Inject, Optional } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheck, HealthCheckService, type HealthIndicatorResult } from '@nestjs/terminus';
 import type { Redis } from 'ioredis';
 import { Public } from '@/common/decorators/public.decorator';
@@ -29,6 +29,7 @@ export class HealthController {
    */
   @Public()
   @Get()
+  @ApiOperation({ summary: 'Check health of database, S3, and Redis' })
   @HealthCheck()
   check() {
     return this.health.check([

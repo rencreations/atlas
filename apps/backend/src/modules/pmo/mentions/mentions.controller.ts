@@ -1,5 +1,5 @@
 import { BadRequestException, Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -19,6 +19,7 @@ export class MentionsController {
   ) {}
 
   @Get('projects/:slug/pmo/mention-search')
+  @ApiOperation({ summary: 'Search project members or tasks for an @-mention popover' })
   async search(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,

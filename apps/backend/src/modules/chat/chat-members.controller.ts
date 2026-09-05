@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -25,6 +25,7 @@ export class ChatMembersController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Search project members for @mention autocomplete' })
   async search(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,

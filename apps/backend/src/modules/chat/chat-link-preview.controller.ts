@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LinkPreviewRequestDto } from './dto/link-preview.dto';
 import { ChatLinkPreviewService } from './services/chat-link-preview.service';
 
@@ -15,6 +15,7 @@ export class ChatLinkPreviewController {
   constructor(private readonly preview: ChatLinkPreviewService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Fetch link preview metadata for a URL' })
   resolve(@Body() dto: LinkPreviewRequestDto) {
     return this.preview.resolve(dto.url);
   }

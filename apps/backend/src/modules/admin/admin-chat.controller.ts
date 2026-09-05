@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Put, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { AdminGuard } from '../auth/guards/admin.guard';
@@ -19,11 +19,13 @@ export class AdminChatController {
   constructor(private readonly chatAvatars: ChatAvatarsService) {}
 
   @Get('avatars')
+  @ApiOperation({ summary: 'List chat server avatars (workspace and projects)' })
   listAvatars() {
     return this.chatAvatars.listForAdmin();
   }
 
   @Put('avatars/:key')
+  @ApiOperation({ summary: 'Create or update a chat server avatar' })
   upsertAvatar(
     @CurrentUser() user: AuthenticatedUser,
     @Param('key') key: string,
@@ -41,6 +43,7 @@ export class AdminChatController {
   }
 
   @Delete('avatars/:key')
+  @ApiOperation({ summary: 'Remove a chat server avatar' })
   removeAvatar(@Param('key') key: string) {
     return this.chatAvatars.remove(key);
   }

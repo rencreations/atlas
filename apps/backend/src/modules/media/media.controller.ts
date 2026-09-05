@@ -8,7 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProjectRole } from '@prisma/client';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
@@ -31,21 +31,25 @@ export class MediaController {
   ) {}
 
   @Post('presign')
+  @ApiOperation({ summary: 'Get a presigned URL to upload a media file' })
   presign(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() dto: PresignUploadDto) {
     return this.media.presignUpload(projectId, dto);
   }
 
   @Post()
+  @ApiOperation({ summary: 'Register an uploaded media file in the project gallery' })
   register(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() dto: RegisterMediaDto) {
     return this.media.registerMedia(projectId, dto);
   }
 
   @Patch('reorder')
+  @ApiOperation({ summary: 'Set the display order of the project media gallery' })
   reorder(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() dto: ReorderMediaDto) {
     return this.media.reorder(projectId, dto.orderedIds);
   }
 
   @Delete(':mediaId')
+  @ApiOperation({ summary: 'Delete a media item from the project gallery' })
   remove(
     @Param('projectId', ParseUUIDPipe) projectId: string,
     @Param('mediaId', ParseUUIDPipe) mediaId: string,

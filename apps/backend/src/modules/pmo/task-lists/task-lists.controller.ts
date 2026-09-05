@@ -9,7 +9,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -33,6 +33,7 @@ export class TaskListsController {
   ) {}
 
   @Get('projects/:slug/task-lists')
+  @ApiOperation({ summary: 'List task lists in a project' })
   async list(@CurrentUser() user: AuthenticatedUser, @Param('slug') slug: string) {
     const { projectId, access } = await this.access.resolve(slug, user);
     this.access.assertInsider(access);
@@ -40,6 +41,7 @@ export class TaskListsController {
   }
 
   @Get('projects/:slug/task-lists/:listId')
+  @ApiOperation({ summary: 'Get a single task list' })
   async getOne(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -51,6 +53,7 @@ export class TaskListsController {
   }
 
   @Post('projects/:slug/task-lists')
+  @ApiOperation({ summary: 'Create a task list' })
   async create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -62,6 +65,7 @@ export class TaskListsController {
   }
 
   @Patch('projects/:slug/task-lists/:listId')
+  @ApiOperation({ summary: 'Update a task list' })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -74,6 +78,7 @@ export class TaskListsController {
   }
 
   @Post('projects/:slug/task-lists/:listId/archive')
+  @ApiOperation({ summary: 'Archive a task list' })
   async archive(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -85,6 +90,7 @@ export class TaskListsController {
   }
 
   @Post('projects/:slug/task-lists/:listId/unarchive')
+  @ApiOperation({ summary: 'Unarchive a task list' })
   async unarchive(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -96,6 +102,7 @@ export class TaskListsController {
   }
 
   @Delete('projects/:slug/task-lists/:listId')
+  @ApiOperation({ summary: 'Soft-delete a task list' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -107,6 +114,7 @@ export class TaskListsController {
   }
 
   @Patch('projects/:slug/task-lists/reorder')
+  @ApiOperation({ summary: 'Reorder task lists within a project' })
   async reorderLists(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -118,6 +126,7 @@ export class TaskListsController {
   }
 
   @Patch('projects/:slug/task-lists/:listId/tabs/reorder')
+  @ApiOperation({ summary: 'Reorder the tabs of a task list' })
   async reorderTabs(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -130,6 +139,7 @@ export class TaskListsController {
   }
 
   @Post('projects/:slug/task-lists/:listId/tabs')
+  @ApiOperation({ summary: 'Add an embed tab to a task list' })
   async createEmbedTab(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -142,6 +152,7 @@ export class TaskListsController {
   }
 
   @Delete('projects/:slug/task-lists/:listId/tabs/:tabId')
+  @ApiOperation({ summary: 'Remove a tab from a task list' })
   async deleteTab(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -154,6 +165,7 @@ export class TaskListsController {
   }
 
   @Patch('projects/:slug/task-lists/:listId/statuses')
+  @ApiOperation({ summary: 'Bulk-update the statuses of a task list' })
   async updateStatuses(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,

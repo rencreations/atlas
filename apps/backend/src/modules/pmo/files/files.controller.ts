@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -34,6 +34,7 @@ export class FilesController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'List files and folders in a project (optionally within one folder)' })
   async list(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -45,6 +46,7 @@ export class FilesController {
   }
 
   @Post('presign')
+  @ApiOperation({ summary: 'Get a presigned upload URL for a new file' })
   async presign(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -56,6 +58,7 @@ export class FilesController {
   }
 
   @Post('folder')
+  @ApiOperation({ summary: 'Create a folder' })
   async createFolder(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -67,6 +70,7 @@ export class FilesController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Register an uploaded file after a presigned PUT completes' })
   async register(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -78,6 +82,7 @@ export class FilesController {
   }
 
   @Patch(':fileId')
+  @ApiOperation({ summary: 'Rename a file/folder or move it to another folder' })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -90,6 +95,7 @@ export class FilesController {
   }
 
   @Delete(':fileId')
+  @ApiOperation({ summary: 'Delete a file, or a folder (force=true deletes its contents too)' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { AdminGuard } from '@/modules/auth/guards/admin.guard';
@@ -32,6 +32,7 @@ export class VoiceLobbyController {
 
   /** List lobby channels, any authenticated user. */
   @Get()
+  @ApiOperation({ summary: 'List workspace-wide voice lobby channels' })
   async list(@CurrentUser() user: AuthenticatedUser) {
     // Lazy-ensure the default "Voice Lobby" so the workspace section is
     // never empty, no migration backfill needed (idempotent, see service).
@@ -48,6 +49,7 @@ export class VoiceLobbyController {
 
   @UseGuards(AdminGuard)
   @Post()
+  @ApiOperation({ summary: 'Create a workspace voice lobby channel (admin-only)' })
   async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateVoiceChannelDto) {
     const channel = await this.channels.createLobby(user.id, dto);
     this.realtime.channelCreated(channel);
@@ -56,6 +58,7 @@ export class VoiceLobbyController {
 
   @UseGuards(AdminGuard)
   @Patch(':channelId')
+  @ApiOperation({ summary: 'Update a workspace voice lobby channel (admin-only)' })
   async update(@Param('channelId') channelId: string, @Body() dto: UpdateVoiceChannelDto) {
     const channel = await this.channels.update(channelId, dto);
     this.realtime.channelUpdated(channel);
@@ -64,6 +67,7 @@ export class VoiceLobbyController {
 
   @UseGuards(AdminGuard)
   @Delete(':channelId')
+  @ApiOperation({ summary: 'Archive a workspace voice lobby channel (admin-only)' })
   async archive(@Param('channelId') channelId: string) {
     const archived = await this.channels.archive(channelId);
     this.realtime.channelArchived({ id: channelId, projectId: null });

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, ForbiddenException, Param, Patch, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { EditMessageDto } from './dto/edit-message.dto';
@@ -33,6 +33,7 @@ export class ChatMessagesController {
   ) {}
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Edit a message' })
   async edit(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -46,6 +47,7 @@ export class ChatMessagesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a message' })
   async delete(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     const { access } = await this.channelAccess.resolveByMessageId(id, user);
     this.channelAccess.assertInsider(access);
@@ -55,6 +57,7 @@ export class ChatMessagesController {
   }
 
   @Post(':id/reactions')
+  @ApiOperation({ summary: 'Add a reaction to a message' })
   async react(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -68,6 +71,7 @@ export class ChatMessagesController {
   }
 
   @Delete(':id/reactions/:emoji')
+  @ApiOperation({ summary: 'Remove a reaction from a message' })
   async unreact(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -81,6 +85,7 @@ export class ChatMessagesController {
   }
 
   @Post(':id/pin')
+  @ApiOperation({ summary: 'Pin a message' })
   async pin(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -94,6 +99,7 @@ export class ChatMessagesController {
   }
 
   @Post(':id/unpin')
+  @ApiOperation({ summary: 'Unpin a message' })
   async unpin(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     const { access } = await this.channelAccess.resolveByMessageId(id, user);
     this.channelAccess.assertManager(access);
@@ -103,6 +109,7 @@ export class ChatMessagesController {
   }
 
   @Post(':id/forward')
+  @ApiOperation({ summary: 'Forward a message to another channel' })
   async forward(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,

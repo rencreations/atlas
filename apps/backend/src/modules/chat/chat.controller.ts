@@ -8,7 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -46,6 +46,7 @@ export class ChatController {
   // ─── Channels ────────────────────────────────────────────────────────
 
   @Get('channels')
+  @ApiOperation({ summary: 'List project chat channels' })
   async listChannels(@CurrentUser() user: AuthenticatedUser, @Param('slugOrId') slugOrId: string) {
     const { projectId, access } = await this.access.resolve(slugOrId, user);
     this.access.assertInsider(access);
@@ -53,6 +54,7 @@ export class ChatController {
   }
 
   @Post('channels')
+  @ApiOperation({ summary: 'Create a project chat channel' })
   async createChannel(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -66,6 +68,7 @@ export class ChatController {
   }
 
   @Patch('channels/:channelId')
+  @ApiOperation({ summary: 'Update a project chat channel' })
   async updateChannel(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -81,6 +84,7 @@ export class ChatController {
   }
 
   @Post('channels/:channelId/archive')
+  @ApiOperation({ summary: 'Archive a project chat channel' })
   async archiveChannel(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -95,6 +99,7 @@ export class ChatController {
   }
 
   @Post('channels/:channelId/unarchive')
+  @ApiOperation({ summary: 'Unarchive a project chat channel' })
   async unarchiveChannel(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -111,6 +116,7 @@ export class ChatController {
   // ─── Messages ────────────────────────────────────────────────────────
 
   @Get('channels/:channelId/messages')
+  @ApiOperation({ summary: 'List messages in a project chat channel' })
   async listMessages(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -124,6 +130,7 @@ export class ChatController {
   }
 
   @Post('channels/:channelId/messages')
+  @ApiOperation({ summary: 'Post a new message to a project chat channel' })
   async createMessage(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -147,6 +154,7 @@ export class ChatController {
   }
 
   @Post('channels/:channelId/read')
+  @ApiOperation({ summary: 'Mark a project chat channel as read up to a given message' })
   async markChannelRead(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -161,6 +169,7 @@ export class ChatController {
   }
 
   @Get('channels/:channelId/pins')
+  @ApiOperation({ summary: 'List pinned messages in a project chat channel' })
   async listPins(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -178,6 +187,7 @@ export class ChatController {
    * fires, which is what drives the in-thread New-messages divider.
    */
   @Get('channels/:channelId/state')
+  @ApiOperation({ summary: "Get the current user's read state for a project chat channel" })
   async channelState(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -197,6 +207,7 @@ export class ChatController {
    * `kind` in the message body's `attachments` array.
    */
   @Post('channels/:channelId/attachments/presign')
+  @ApiOperation({ summary: 'Get a presigned upload URL for a chat attachment' })
   async presignAttachment(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,

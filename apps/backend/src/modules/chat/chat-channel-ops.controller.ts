@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -36,6 +36,7 @@ export class ChatChannelOpsController {
   ) {}
 
   @Get('messages')
+  @ApiOperation({ summary: 'List messages in a channel (workspace or project scope)' })
   async listMessages(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -47,6 +48,7 @@ export class ChatChannelOpsController {
   }
 
   @Post('messages')
+  @ApiOperation({ summary: 'Post a new message to a channel' })
   async createMessage(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -73,6 +75,7 @@ export class ChatChannelOpsController {
   }
 
   @Post('read')
+  @ApiOperation({ summary: 'Mark a channel as read up to a given message' })
   async markChannelRead(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -86,6 +89,7 @@ export class ChatChannelOpsController {
 
   /** Same contract as ChatController's channel `state` endpoint. */
   @Get('state')
+  @ApiOperation({ summary: "Get the current user's read state for a channel" })
   async channelState(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -96,6 +100,7 @@ export class ChatChannelOpsController {
   }
 
   @Get('pins')
+  @ApiOperation({ summary: 'List pinned messages in a channel' })
   async listPins(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     const { access } = await this.channelAccess.resolveByChannelId(channelId, user);
     this.channelAccess.assertInsider(access);
@@ -103,6 +108,7 @@ export class ChatChannelOpsController {
   }
 
   @Post('attachments/presign')
+  @ApiOperation({ summary: 'Get a presigned upload URL for a message attachment' })
   async presignAttachment(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,

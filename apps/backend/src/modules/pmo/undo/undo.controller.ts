@@ -1,5 +1,5 @@
 import { Controller, HttpCode, Logger, NotFoundException, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -33,6 +33,7 @@ export class UndoController {
   ) {}
 
   @Post('undo')
+  @ApiOperation({ summary: 'Undo your most recent task change' })
   @HttpCode(200)
   async undoLast(@CurrentUser() user: AuthenticatedUser) {
     const entry = await this.undo.popUndo(user);
@@ -53,6 +54,7 @@ export class UndoController {
   }
 
   @Post('redo')
+  @ApiOperation({ summary: 'Redo your most recently undone task change' })
   @HttpCode(200)
   async redoLast(@CurrentUser() user: AuthenticatedUser) {
     const entry = await this.undo.popRedo(user);

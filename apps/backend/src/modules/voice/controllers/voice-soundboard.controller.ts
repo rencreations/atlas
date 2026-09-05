@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { AdminGuard } from '@/modules/auth/guards/admin.guard';
@@ -27,24 +27,28 @@ export class VoiceSoundboardController {
   constructor(private readonly soundboard: VoiceSoundboardService) {}
 
   @Get()
+  @ApiOperation({ summary: 'List workspace soundboard clips' })
   async list() {
     return { items: await this.soundboard.list() };
   }
 
   @UseGuards(AdminGuard)
   @Post('presign')
+  @ApiOperation({ summary: 'Get a presigned upload URL for a soundboard clip' })
   async presign(@Body() dto: PresignSoundboardClipDto) {
     return this.soundboard.presign(dto);
   }
 
   @UseGuards(AdminGuard)
   @Post()
+  @ApiOperation({ summary: 'Register a soundboard clip in the workspace library' })
   async register(@CurrentUser() user: AuthenticatedUser, @Body() dto: RegisterSoundboardClipDto) {
     return this.soundboard.register(user.id, dto);
   }
 
   @UseGuards(AdminGuard)
   @Delete(':id')
+  @ApiOperation({ summary: 'Remove a soundboard clip' })
   async remove(@Param('id') id: string) {
     return this.soundboard.remove(id);
   }

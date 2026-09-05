@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { AdminGuard } from '@/modules/auth/guards/admin.guard';
@@ -37,6 +37,7 @@ export class ChatGlobalController {
   ) {}
 
   @Get('channels')
+  @ApiOperation({ summary: 'List workspace-global chat channels' })
   async listChannels(@CurrentUser() user: AuthenticatedUser) {
     await this.channels.ensureGlobalGeneral(user.id);
     return this.channels.listGlobal();
@@ -44,6 +45,7 @@ export class ChatGlobalController {
 
   @UseGuards(AdminGuard)
   @Post('channels')
+  @ApiOperation({ summary: 'Create a workspace-global channel (admin only)' })
   async createChannel(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateChannelDto) {
     const channel = await this.channels.createGlobal(user, dto);
     this.realtime.channelCreated(null, channel);
@@ -52,6 +54,7 @@ export class ChatGlobalController {
 
   @UseGuards(AdminGuard)
   @Patch('channels/:channelId')
+  @ApiOperation({ summary: 'Update a workspace-global channel (admin only)' })
   async updateChannel(@Param('channelId') channelId: string, @Body() dto: UpdateChannelDto) {
     await this.assertGlobalChannel(channelId);
     const channel = await this.channels.update(channelId, dto);
@@ -61,6 +64,7 @@ export class ChatGlobalController {
 
   @UseGuards(AdminGuard)
   @Post('channels/:channelId/archive')
+  @ApiOperation({ summary: 'Archive a workspace-global channel (admin only)' })
   async archiveChannel(@Param('channelId') channelId: string) {
     await this.assertGlobalChannel(channelId);
     const channel = await this.channels.archive(channelId);
@@ -70,6 +74,7 @@ export class ChatGlobalController {
 
   @UseGuards(AdminGuard)
   @Post('channels/:channelId/unarchive')
+  @ApiOperation({ summary: 'Unarchive a workspace-global channel (admin only)' })
   async unarchiveChannel(@Param('channelId') channelId: string) {
     await this.assertGlobalChannel(channelId);
     const channel = await this.channels.unarchive(channelId);
@@ -83,6 +88,7 @@ export class ChatGlobalController {
    * project-member pool in ChatMembersController). Same wire shape.
    */
   @Get('members')
+  @ApiOperation({ summary: 'Search workspace users for @mention autocomplete' })
   async searchMembers(@Query('q') q?: string) {
     const term = (q ?? '').trim().toLowerCase();
     const users = await this.prisma.user.findMany({

@@ -8,7 +8,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { Request, Response } from 'express';
@@ -44,6 +44,7 @@ export class StorageController {
 
   @Public()
   @Put('local/:key(*)')
+  @ApiOperation({ summary: 'Upload a file to local storage with a presigned token' })
   async putLocal(@Param('key') key: string, @Req() req: Request) {
     const contentType = String(req.headers['content-type'] ?? 'application/octet-stream').split(
       ';',
@@ -65,6 +66,7 @@ export class StorageController {
 
   @Public()
   @Get('local/:key(*)')
+  @ApiOperation({ summary: 'Download a file from local disk storage' })
   async getLocal(@Param('key') key: string, @Res() res: Response) {
     if ((await this.storage.provider()) !== 'local') {
       throw new NotFoundException('Object not found.');

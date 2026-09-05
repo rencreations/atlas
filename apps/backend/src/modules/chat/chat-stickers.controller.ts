@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ChatStickersService } from './services/chat-stickers.service';
 
 /**
@@ -14,6 +14,7 @@ export class ChatStickersController {
   constructor(private readonly stickers: ChatStickersService) {}
 
   @Get('packs')
+  @ApiOperation({ summary: 'List active sticker packs' })
   packs() {
     return this.stickers.listActivePacks();
   }

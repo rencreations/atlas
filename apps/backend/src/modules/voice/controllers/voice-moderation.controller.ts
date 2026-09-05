@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -39,6 +39,7 @@ export class VoiceModerationController {
   ) {}
 
   @Post('mute')
+  @ApiOperation({ summary: 'Mute a participant in a voice channel' })
   async mute(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -57,6 +58,7 @@ export class VoiceModerationController {
   }
 
   @Post('kick')
+  @ApiOperation({ summary: 'Kick a participant from a voice channel' })
   async kick(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -75,6 +77,7 @@ export class VoiceModerationController {
   }
 
   @Post('move')
+  @ApiOperation({ summary: 'Move a participant to another voice channel' })
   async move(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,

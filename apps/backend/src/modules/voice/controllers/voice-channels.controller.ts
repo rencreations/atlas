@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -29,6 +29,7 @@ export class VoiceChannelsController {
 
   /** List voice channels for a project (insider-only). */
   @Get()
+  @ApiOperation({ summary: "List a project's voice channels with live roster" })
   async list(@CurrentUser() user: AuthenticatedUser, @Param('slugOrId') slugOrId: string) {
     const { projectId, access } = await this.access.resolve(slugOrId, user);
     this.access.assertInsider(access);
@@ -47,6 +48,7 @@ export class VoiceChannelsController {
 
   /** Create a new voice channel (manager-only). */
   @Post()
+  @ApiOperation({ summary: 'Create a voice channel for a project' })
   async create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -61,6 +63,7 @@ export class VoiceChannelsController {
 
   /** Edit channel settings (manager-only). */
   @Patch(':channelId')
+  @ApiOperation({ summary: "Update a voice channel's settings" })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,
@@ -76,6 +79,7 @@ export class VoiceChannelsController {
 
   /** Archive (soft-delete) a channel (manager-only). */
   @Delete(':channelId')
+  @ApiOperation({ summary: 'Archive a voice channel' })
   async archive(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slugOrId') slugOrId: string,

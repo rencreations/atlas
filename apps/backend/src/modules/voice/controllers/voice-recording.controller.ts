@@ -8,20 +8,14 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { IsOptional, IsBoolean } from 'class-validator';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ProjectAccessService } from '@/modules/projects/project-access.service';
+import { StartRecordingDto } from '../dto/start-recording.dto';
 import { VoiceFeatureFlagGuard } from '../guards/voice-feature-flag.guard';
 import { VoiceRecordingService } from '../services/voice-recording.service';
-
-class StartRecordingDto {
-  @IsOptional()
-  @IsBoolean()
-  audioOnly?: boolean;
-}
 
 /**
  * Recording lifecycle endpoints (Phase 7). All mod-only.
@@ -48,6 +42,7 @@ export class VoiceRecordingController {
   ) {}
 
   @Post('voice/channels/:channelId/recording/start')
+  @ApiOperation({ summary: 'Start recording a voice channel' })
   async start(
     @CurrentUser() user: AuthenticatedUser,
     @Param('channelId') channelId: string,
@@ -62,12 +57,14 @@ export class VoiceRecordingController {
   }
 
   @Post('voice/channels/:channelId/recording/stop')
+  @ApiOperation({ summary: 'Stop recording a voice channel' })
   async stop(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanModerate(channelId, user);
     return this.recording.stop({ channelId });
   }
 
   @Get('voice/channels/:channelId/recordings')
+  @ApiOperation({ summary: 'List recordings for a voice channel' })
   async list(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     await this.assertCanRead(channelId, user);
     const items = await this.recording.listForChannel(channelId);
@@ -75,6 +72,7 @@ export class VoiceRecordingController {
   }
 
   @Get('voice/recordings/:id/download')
+  @ApiOperation({ summary: 'Get a download URL for a voice recording' })
   async download(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     // Reader-level gate, same channel access as list.
     const rec = await this.prisma.voiceRecording.findUnique({

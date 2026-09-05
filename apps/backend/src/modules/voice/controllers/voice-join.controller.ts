@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -42,6 +42,7 @@ export class VoiceJoinController {
 
   /** Join: mint a LiveKit JWT scoped to this channel's room. */
   @Post('join')
+  @ApiOperation({ summary: 'Join a voice channel and get a LiveKit access token' })
   async join(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     const channel = await this.prisma.voiceChannel.findUnique({
       where: { id: channelId },
@@ -84,6 +85,7 @@ export class VoiceJoinController {
 
   /** Leave: close the participant row. Idempotent. */
   @Post('leave')
+  @ApiOperation({ summary: 'Leave a voice channel' })
   async leave(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     const channel = await this.prisma.voiceChannel.findUnique({
       where: { id: channelId },
@@ -108,6 +110,7 @@ export class VoiceJoinController {
    * lobby channels are open to any authenticated user.
    */
   @Get('thread')
+  @ApiOperation({ summary: 'Get the text-thread chat channel paired with this voice channel' })
   async getThread(@CurrentUser() user: AuthenticatedUser, @Param('channelId') channelId: string) {
     const channel = await this.prisma.voiceChannel.findUnique({
       where: { id: channelId },

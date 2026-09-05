@@ -1,6 +1,6 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
 import { SettingsService } from '@/modules/settings/settings.service';
 import { SsoConnectionsService } from '@/modules/auth/sso-connections.service';
@@ -36,6 +36,7 @@ export class PublicConfigController {
 
   @Public()
   @Get('legal/:page')
+  @ApiOperation({ summary: 'Fetch a published legal page (terms or privacy)' })
   async legal(@Param('page') page: string) {
     const key =
       page === 'terms' ? 'legal.termsText' : page === 'privacy' ? 'legal.privacyText' : null;
@@ -48,6 +49,7 @@ export class PublicConfigController {
 
   @Public()
   @Get()
+  @ApiOperation({ summary: 'Get public instance configuration for the login page' })
   async get() {
     const [
       configured,

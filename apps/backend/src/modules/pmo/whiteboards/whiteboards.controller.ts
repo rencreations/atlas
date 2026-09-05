@@ -10,7 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
@@ -36,6 +36,7 @@ export class WhiteboardsController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'List whiteboards in a project' })
   async list(@CurrentUser() user: AuthenticatedUser, @Param('slug') slug: string) {
     const { projectId, access } = await this.access.resolve(slug, user);
     this.access.assertInsider(access);
@@ -43,6 +44,7 @@ export class WhiteboardsController {
   }
 
   @Get(':wbId')
+  @ApiOperation({ summary: 'Get a single whiteboard' })
   async get(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -54,6 +56,7 @@ export class WhiteboardsController {
   }
 
   @Get(':wbId/export')
+  @ApiOperation({ summary: 'Export a whiteboard' })
   async exportMgm(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -65,6 +68,7 @@ export class WhiteboardsController {
   }
 
   @Get(':wbId/yjs-token')
+  @ApiOperation({ summary: 'Get the Yjs collaboration token and websocket URL for a whiteboard' })
   async yjsToken(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -84,6 +88,7 @@ export class WhiteboardsController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create a whiteboard' })
   async create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -95,6 +100,7 @@ export class WhiteboardsController {
   }
 
   @Post(':wbId/thumbnail/presign')
+  @ApiOperation({ summary: 'Get a presigned upload URL for a whiteboard thumbnail' })
   async presignThumbnail(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -107,6 +113,7 @@ export class WhiteboardsController {
   }
 
   @Patch(':wbId')
+  @ApiOperation({ summary: 'Update a whiteboard' })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -119,6 +126,7 @@ export class WhiteboardsController {
   }
 
   @Get(':wbId/revisions')
+  @ApiOperation({ summary: 'List revisions of a whiteboard' })
   async listRevisions(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -130,6 +138,7 @@ export class WhiteboardsController {
   }
 
   @Get(':wbId/revisions/:revisionId')
+  @ApiOperation({ summary: 'Get a single revision of a whiteboard' })
   async getRevision(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -142,6 +151,7 @@ export class WhiteboardsController {
   }
 
   @Post(':wbId/revisions/:revisionId/restore')
+  @ApiOperation({ summary: 'Restore a whiteboard to an earlier revision' })
   async restoreRevision(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -154,6 +164,7 @@ export class WhiteboardsController {
   }
 
   @Delete(':wbId')
+  @ApiOperation({ summary: 'Delete a whiteboard' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,

@@ -10,7 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
@@ -35,6 +35,7 @@ export class NotesController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: "List a project's notes" })
   async list(@CurrentUser() user: AuthenticatedUser, @Param('slug') slug: string) {
     const { projectId, access } = await this.access.resolve(slug, user);
     this.access.assertInsider(access);
@@ -42,6 +43,7 @@ export class NotesController {
   }
 
   @Get(':noteId')
+  @ApiOperation({ summary: 'Get a single note' })
   async get(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -53,6 +55,7 @@ export class NotesController {
   }
 
   @Get(':noteId/yjs-token')
+  @ApiOperation({ summary: 'Get the Yjs collaboration token and websocket URL for a note' })
   async yjsToken(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -74,6 +77,7 @@ export class NotesController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create a note (optionally nested under a parent)' })
   async create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -85,6 +89,7 @@ export class NotesController {
   }
 
   @Patch(':noteId')
+  @ApiOperation({ summary: 'Update a note or move it within the note tree' })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -97,6 +102,7 @@ export class NotesController {
   }
 
   @Get(':noteId/revisions')
+  @ApiOperation({ summary: 'List revisions of a note' })
   async listRevisions(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -108,6 +114,7 @@ export class NotesController {
   }
 
   @Get(':noteId/revisions/:revisionId')
+  @ApiOperation({ summary: 'Get a single revision of a note' })
   async getRevision(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -120,6 +127,7 @@ export class NotesController {
   }
 
   @Post(':noteId/revisions/:revisionId/restore')
+  @ApiOperation({ summary: 'Restore a note to an earlier revision' })
   async restoreRevision(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -132,6 +140,7 @@ export class NotesController {
   }
 
   @Delete(':noteId')
+  @ApiOperation({ summary: 'Delete a note' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,

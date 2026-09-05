@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '@/common/types/authenticated-user.type';
 import { ProjectAccess, ProjectAccessService } from '@/modules/projects/project-access.service';
@@ -36,6 +36,7 @@ export class TaskCommentsController {
   ) {}
 
   @Get('projects/:slug/tasks/:taskId/comments')
+  @ApiOperation({ summary: 'List comments on a task' })
   async list(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -48,6 +49,7 @@ export class TaskCommentsController {
   }
 
   @Post('projects/:slug/tasks/:taskId/comments')
+  @ApiOperation({ summary: 'Add a comment to a task' })
   async create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -60,6 +62,7 @@ export class TaskCommentsController {
   }
 
   @Patch('projects/:slug/task-comments/:commentId')
+  @ApiOperation({ summary: 'Edit a comment on a task' })
   async update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
@@ -72,6 +75,7 @@ export class TaskCommentsController {
   }
 
   @Delete('projects/:slug/task-comments/:commentId')
+  @ApiOperation({ summary: 'Soft-delete a comment on a task' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('slug') slug: string,
