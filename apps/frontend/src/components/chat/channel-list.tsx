@@ -116,6 +116,10 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
 
   const globalChannels = (globalChannelsQuery.data ?? []).filter((c) => !c.isArchived);
   const lobbyChannels = (lobbyQuery.data ?? []).filter((c) => !c.archivedAt);
+  // Per-channel unread counts, already computed by the same overview
+  // query the rail's aggregate badge and the workspace avatar use above
+  // - no extra fetch needed.
+  const unreadByChannel = new Map((workspace?.channels ?? []).map((c) => [c.id, c.unread]));
 
   return (
     <>
@@ -160,6 +164,7 @@ function WorkspaceSection({ activeChannelId }: { activeChannelId: string }) {
                 channel={c}
                 href={channelHref({ kind: 'global' }, c.id)}
                 active={c.id === activeChannelId}
+                unread={unreadByChannel.get(c.id) ?? 0}
               />
             ))
           )}
@@ -208,6 +213,9 @@ function ProjectSection({
 }) {
   const voiceEnabled = useVoiceEnabled();
   const queryClient = useQueryClient();
+  // Reuses the rail's overview query (deduped by React Query) for
+  // per-channel unread counts below, same as the workspace section.
+  const { projects: overviewProjects } = useChatOverview();
   const channelsQuery = useQuery({
     queryKey: queryKeys.chat.channels(projectSlug),
     queryFn: () => api<ChatChannel[]>(apiPaths.chat.channels(projectSlug)),
@@ -258,6 +266,10 @@ function ProjectSection({
   const active = channels.filter((c) => !c.isArchived);
   const archived = channels.filter((c) => c.isArchived);
   const voiceChannels = (voiceChannelsQuery.data ?? []).filter((c) => !c.archivedAt);
+  const overviewProject = overviewProjects.find((p) => p.slug === projectSlug);
+  const unreadByChannel = new Map(
+    (overviewProject?.channels ?? []).map((c) => [c.id, c.unread]),
+  );
 
   return (
     <>
@@ -305,6 +317,7 @@ function ProjectSection({
                   channel={c}
                   href={channelHref({ kind: 'project', slug: projectSlug }, c.id)}
                   active={c.id === activeChannelId}
+                  unread={unreadByChannel.get(c.id) ?? 0}
                 />
               ))}
             </ul>
@@ -321,6 +334,7 @@ function ProjectSection({
                       channel={c}
                       href={channelHref({ kind: 'project', slug: projectSlug }, c.id)}
                       active={c.id === activeChannelId}
+                      unread={unreadByChannel.get(c.id) ?? 0}
                     />
                   ))}
                 </ul>
@@ -379,10 +393,13 @@ function ChannelRow({
   channel,
   href,
   active,
+  unread,
 }: {
   channel: ChatChannel;
   href: string;
   active: boolean;
+  /** Unread message count for this specific channel (0 hides the badge). */
+  unread: number;
 }) {
   return (
     <li>
@@ -399,7 +416,14 @@ function ChannelRow({
         ) : (
           <Hash className="h-3.5 w-3.5 text-ink-3" strokeWidth={2.25} />
         )}
-        <span className="truncate">{channel.name}</span>
+        <span className={cn('min-w-0 flex-1 truncate', unread > 0 && !active && 'font-semibold text-ink')}>
+          {channel.name}
+        </span>
+        {unread > 0 ? (
+          <span className="inline-grid h-4 min-w-4 shrink-0 place-items-center rounded-full bg-brand-blue-strong px-1 text-[10px] font-medium leading-none text-white">
+            {unread > 99 ? '99+' : unread}
+          </span>
+        ) : null}
       </Link>
     </li>
   );
