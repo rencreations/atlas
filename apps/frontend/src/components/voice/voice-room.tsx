@@ -46,7 +46,7 @@ export function VoiceRoom({
   useEffect(() => {
     if (state.channelId === channelId && state.connectionState !== 'idle') return;
     if (state.channelId !== null && state.channelId !== channelId) return;
-    void actions.joinChannel(channelId, { projectId });
+    void actions.joinChannel(channelId, { projectId, projectSlug: projectSlugOrId ?? null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId, projectId]);
 
@@ -83,7 +83,7 @@ export function VoiceRoom({
         <div className="text-sm text-brand-red">
           Couldn&apos;t connect{state.error ? `: ${state.error}` : '.'}
         </div>
-        <Button onClick={() => void actions.joinChannel(channelId, { projectId })}>
+        <Button onClick={() => void actions.joinChannel(channelId, { projectId, projectSlug: projectSlugOrId ?? null })}>
           Try again
         </Button>
       </div>
@@ -98,7 +98,7 @@ export function VoiceRoom({
         <div className="text-sm">
           You&apos;re already in <strong>{state.channelName ?? 'another channel'}</strong>.
         </div>
-        <Button onClick={() => void actions.joinChannel(channelId, { projectId })}>
+        <Button onClick={() => void actions.joinChannel(channelId, { projectId, projectSlug: projectSlugOrId ?? null })}>
           Switch to {channelName}
         </Button>
       </div>

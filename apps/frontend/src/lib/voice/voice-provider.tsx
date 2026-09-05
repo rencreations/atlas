@@ -102,6 +102,8 @@ export interface VoiceState {
   channelId: string | null;
   channelName: string | null;
   projectId: string | null;
+  /** Project slug, when this is a project-scoped call (null for the workspace lobby). */
+  projectSlug: string | null;
   participants: Map<string, VoiceParticipantView>;
   micMuted: boolean;
   cameraEnabled: boolean;
@@ -166,7 +168,10 @@ export interface VoiceState {
 }
 
 export interface VoiceActions {
-  joinChannel: (channelId: string, opts?: { projectId?: string | null }) => Promise<void>;
+  joinChannel: (
+    channelId: string,
+    opts?: { projectId?: string | null; projectSlug?: string | null },
+  ) => Promise<void>;
   leaveChannel: () => Promise<void>;
   toggleMute: () => Promise<void>;
   toggleCamera: (deviceId?: string) => Promise<void>;
@@ -227,6 +232,7 @@ const initialState: VoiceState = {
   channelId: null,
   channelName: null,
   projectId: null,
+  projectSlug: null,
   participants: new Map(),
   micMuted: false,
   cameraEnabled: false,
@@ -458,6 +464,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         connectionState: 'connecting',
         channelId,
         projectId: opts?.projectId ?? null,
+        projectSlug: opts?.projectSlug ?? null,
         channelName: null,
         error: null,
         participants: new Map(),
