@@ -43,6 +43,16 @@ const nextConfig = {
       { protocol: 'https', hostname: 'iam.labmgm.org' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      // Railway production's local storage provider serves uploaded media
+      // (avatars, project covers/gallery) straight off the API host - this
+      // was missing entirely, so every real project thumbnail 400'd here
+      // the same way the seeded ones do.
+      { protocol: 'https', hostname: 'api.atlas.creations.ren' },
+      // Demo-data stock imagery: Picsum project covers (redirects to its
+      // fastly subdomain) and randomuser.me portraits.
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: '*.picsum.photos' },
+      { protocol: 'https', hostname: 'randomuser.me' },
     ],
   },
 };
